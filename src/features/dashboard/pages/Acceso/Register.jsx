@@ -10,7 +10,7 @@ function Register() {
   const [formData, setFormData] = useState({
     nombre: "",
     apellido: "",
-    tipoDocumento: "cedula",
+    tipo_documento: "Cédula de ciudadanía",
     documento: "",
     telefono: "",
     direccion: "",
@@ -174,12 +174,11 @@ function Register() {
                           <select 
                             className="register-input" 
                             name="tipoDocumento" 
-                            value={formData.tipoDocumento} 
+                            value={formData.tipo_Documento} 
                             onChange={handleChange}
                           >
-                            <option value="cedula">Cédula</option>
-                            <option value="pasaporte">Pasaporte</option>
-                            <option value="extranjeria">Extranjería</option>
+                            <option value="Cédula de ciudadanía">Cédula de ciudadanía</option>
+                            <option value="Targeta identidad">Targeta identidad</option>
                           </select>
                           <input 
                             type="text" 
