@@ -1,0 +1,241 @@
+/* login.css */
+.bodyLogin{
+  top: 0 auto;
+  background: #2d3748;
+  height: 90vh;
+}
+
+.login-contendor{
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  display: flex;
+  top: 0 auto;
+}
+
+.ca-login {
+  width: 100%;
+  max-width: 1200px;
+  padding: 20px;
+}
+
+.contenedor-login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* Estilos del formulario de login */
+.Login-form-box {
+  width: 100%;
+  max-width: 400px;
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  padding: 20px;
+}
+
+.Login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  top: 0 auto;
+  padding: 20px;
+}
+
+.Login-logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.Login-logo {
+  max-width: 120px;
+  height: auto;
+}
+
+.Login-title {
+  font-family: Montserrat;
+  font-size: 24px;
+  font-weight: 700;
+  color: #2d3748;
+  text-align: center;
+}
+
+.Login-subtitle {
+  font-family: Montserrat;
+  font-size: 14px;
+  color: #718096;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.Login-form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.Login-input {
+  font-family: Montserrat;
+  width: 90%;
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.Login-input:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.Login-input-error {
+  border-color: #e53e3e;
+}
+
+.Login-password-container {
+  position: relative;
+  width: 100%;
+}
+
+.Login-password-toggle {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #a0aec0;
+}
+
+.Login-options {
+  display: flex;
+  justify-content: center;
+  align-items: center;    
+  margin-top: 8px;
+}
+
+
+.Login-remember-me {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #718096;
+}
+
+.Login-forgot-password {
+  font-family: Montserrat;
+  font-size: 14px;
+  font-weight: 500;
+  color: #0066ff;
+  cursor: pointer;
+  border-bottom: 2px solid white;
+  margin-bottom: 5px;
+  transition: 0.5s;
+
+}
+
+.Login-forgot-password:hover {
+  color: black;
+  transition: 0.6s;
+  padding-bottom: 5px;
+  border-bottom: 2px solid black;
+  margin: 0px;
+}
+
+.Login-error {
+  color: #e53e3e;
+  font-size: 14px;
+  padding: 8px 0;
+  text-align: center;
+}
+
+.Login-success {
+  color: #38a169;
+  font-size: 14px;
+  padding: 8px 0;
+  text-align: center;
+}
+
+.Login-password-mismatch {
+  color: #e53e3e;
+  font-size: 12px;
+  margin-top: -8px;
+}
+
+.Login-button {
+  font-family: Montserrat;
+  width: 100%;
+  padding: 12px;
+  background-color: #0066ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.Login-button:hover {
+  background-color: #3182ce;
+}
+
+.Login-button:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+}
+
+.Login-form-section {
+  font-family: Montserrat;
+  text-align: center;
+  padding: 16px;
+  border-top: 1px solid #e2e8f0;
+  font-size: 14px;
+  color: #718096;
+}
+
+.Login-form-section a {
+  color: #0066ff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: 0.6s;
+  border-bottom: 2px solid white;
+  text-align: center;
+}
+
+.Login-form-section a:hover {
+  color: black;
+  transition: 0.6s;
+  padding-bottom: 3px;
+  border-bottom: 2px solid black;
+  margin: 0px;
+}
+
+.Login-back-option {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #718096;
+}
+
+.Login-back-option span {
+  cursor: pointer;
+  color: #4299e1;
+}
+
+.Login-back-option span:hover {
+  text-decoration: underline;
+}
+
+/* Estilos para el efecto de transición */
+[transition-style="in:circle:hesitate"] {
+  animation: circle-in-hesitate 3s cubic-bezier(.25, 1, .30, 1) both;
+}

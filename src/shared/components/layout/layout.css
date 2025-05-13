@@ -1,0 +1,37 @@
+/* layout.css */
+:root {
+  --mo-background: #f8fafc;
+  --mo-white: #ffffff;
+  --mo-shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.mo-layout {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--mo-background);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mo-layout__container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  background-color: var(--mo-white);
+  box-shadow: var(--mo-shadow-md);
+  overflow: hidden;
+}
+
+.mo-layout__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.mo-layout__content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
