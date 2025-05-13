@@ -52,42 +52,43 @@ const Sidebar = () => {
       </div>
 
       <div className="mo-sidebar__menu">
+         <Dropdown
+          id="usuarios"
+          title="Usuarios"
+          icon={<FaUserCog />}
+          options={[
+            { label: 'Usuarios', link: '/Usuarios' },
+            { label: 'Clientes', link: '/Clientes' },
+            { label: 'Roles', link: '/Roles' },
+            { label: 'Mecanicos', link: '/Mecanicos' },
+          ]}
+          isOpen={activeDropdown === 'usuarios'}
+          toggleDropdown={toggleDropdown}
+        />
         <Dropdown
           id="servicios"
           title="Servicios"
           icon={<FaTools />}
           options={[
-            { label: 'Cambio de aceite', link: '/servicios/aceite' },
-            { label: 'Alineación', link: '/servicios/alineacion' },
-            { label: 'Revisión general', link: '/servicios/revision' },
+            { label: 'Servicios', link: '/Servicios' },
+            { label: 'Productos', link: '/Productos' },
+            { label: 'Categorias', link: '/Categorias' },
+
           ]}
           isOpen={activeDropdown === 'servicios'}
           toggleDropdown={toggleDropdown}
         />
         <Dropdown
-          id="repuestos"
-          title="Repuestos"
+          id="vehiculos"
+          title="Vehículos"
           icon={<FaWrench />}
           options={[
-            { label: 'Catálogo', link: '/repuestos/catalogo' },
-            { label: 'Agregar', link: '/repuestos/nuevo' },
-            { label: 'Pedidos', link: '/repuestos/pedidos' },
+            { label: 'Vehículos', link: '/Vehículos' },
           ]}
-          isOpen={activeDropdown === 'repuestos'}
+          isOpen={activeDropdown === 'vehiculos'}
           toggleDropdown={toggleDropdown}
         />
-        <Dropdown
-          id="clientes"
-          title="Clientes"
-          icon={<FaUserCog />}
-          options={[
-            { label: 'Listado', link: '/clientes' },
-            { label: 'Agregar nuevo', link: '/clientes/nuevo' },
-            { label: 'Historial', link: '/clientes/historial' },
-          ]}
-          isOpen={activeDropdown === 'clientes'}
-          toggleDropdown={toggleDropdown}
-        />
+       
         <Dropdown
           id="vehiculos"
           title="Vehículos"

@@ -1,14 +1,16 @@
+// src/pages/auth/Login.jsx
 import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import '../../../../shared/styles/login.css'; // Asumiendo que tienes un archivo CSS similar para login
+import '../../../../shared/styles/login.css';
 
 function Login() {
-  useEffect(()=> {
+  useEffect(() => {
     document.body.style.backgroundColor = "Black";
-    return()=>{
-      document.body.style.background = ""
-    }
-  })
+    return () => {
+      document.body.style.background = "";
+    };
+  }, []);
+
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     correo: "",
@@ -20,7 +22,6 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  // Manejar cambios en los campos del formulario
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData(prevData => ({
@@ -29,17 +30,14 @@ function Login() {
     }));
   }, []);
 
-  // Alternar visibilidad de la contraseña
   const togglePasswordVisibility = useCallback(() => {
     setShowPassword(prev => !prev);
   }, []);
 
-  // Manejar el cambio en "Recordarme"
   const handleRememberMeChange = useCallback(() => {
     setRememberMe(prev => !prev);
   }, []);
 
-  // Manejar envío del formulario
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -60,16 +58,20 @@ function Login() {
         throw new Error(data.message || "Correo o contraseña incorrectos");
       }
 
-      // Si las credenciales son correctas, guardar el token en localStorage o sessionStorage
+      const usuario = data.usuario || {};
+      const usuarioFinal = {
+        nombre: `${usuario.nombre} ${usuario.apellido}`,
+        rol: usuario.rol
+      };
+
       if (rememberMe) {
         localStorage.setItem("token", data.token);
-        localStorage.setItem("usuario", JSON.stringify(data.usuario || {}));
+        localStorage.setItem("usuario", JSON.stringify(usuarioFinal));
       } else {
         sessionStorage.setItem("token", data.token);
-        sessionStorage.setItem("usuario", JSON.stringify(data.usuario || {}));
+        sessionStorage.setItem("usuario", JSON.stringify(usuarioFinal));
       }
 
-      // Redireccionar al dashboard
       navigate("/dashboard");
     } catch (err) {
       setError(err.message || "Error en la conexión");
@@ -78,7 +80,6 @@ function Login() {
     }
   }, [formData, navigate, rememberMe]);
 
-  // Manejar solicitud de recuperación de contraseña
   const handleForgotPassword = () => {
     navigate("/recuperarContraseña");
   };
@@ -86,75 +87,83 @@ function Login() {
   return (
     <div className='bodyLogin' transition-style="in:circle:hesitate">
       <div className="login-contendor">
-      <div  className='ca-login'>
-        <div className="contenedor-login">
-          <div className="Login-form-box">
-            <form className="Login-form" onSubmit={handleSubmit}>
-              <div className="Login-logo-container">
-                <img src="/Logo.png" alt="Logo" className="Login-logo" />
-              </div>
-              <span className="Login-title">Iniciar Sesión</span>
-              <span className="Login-subtitle">Ingresa tus credenciales para acceder</span>
-              
-              <div className="Login-form-container">
-                <input 
-                  type="email" 
-                  className="Login-input" 
-                  placeholder="Correo electrónico*" 
-                  name="correo"
-                  value={formData.correo}
-                  onChange={handleChange}
-                  required
-                  autoComplete="email"
-                />
-                <div className="Login-password-container">
+        <div className='ca-login'>
+          <div className="contenedor-login">
+            <div className="Login-form-box">
+              <form className="Login-form" onSubmit={handleSubmit}>
+                <div className="Login-logo-container">
+                  <img src="/Logo.png" alt="Logo" className="Login-logo" />
+                </div>
+                <span className="Login-title">Iniciar Sesión</span>
+                <span className="Login-subtitle">Ingresa tus credenciales para acceder</span>
+
+                <div className="Login-form-container">
                   <input 
-                    type={showPassword ? "text" : "password"}
+                    type="email" 
                     className="Login-input" 
-                    placeholder="Contraseña*" 
-                    name="password"
-                    value={formData.password}
+                    placeholder="Correo electrónico*" 
+                    name="correo"
+                    value={formData.correo}
                     onChange={handleChange}
                     required
-                    autoComplete="current-password"
+                    autoComplete="email"
                   />
-                  <span 
-                    className="Login-password-toggle" 
-                    onClick={togglePasswordVisibility}
-                  >
-                    {showPassword ? (
-                      <i className="fas fa-eye-slash"></i>
-                    ) : (
-                      <i className="fas fa-eye"></i>
-                    )}
-                  </span>
+                  <div className="Login-password-container">
+                    <input 
+                      type={showPassword ? "text" : "password"}
+                      className="Login-input" 
+                      placeholder="Contraseña*" 
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      required
+                      autoComplete="current-password"
+                    />
+                    <span 
+                      className="Login-password-toggle" 
+                      onClick={togglePasswordVisibility}
+                    >
+                      {showPassword ? (
+                        <i className="fas fa-eye-slash"></i>
+                      ) : (
+                        <i className="fas fa-eye"></i>
+                      )}
+                    </span>
+                  </div>
                 </div>
-              </div>
-             
-              
-              {error && <div className="Login-error">{error}</div>}
-              
-              <button 
-                type="submit" 
-                disabled={loading} 
-                className="Login-button"
-              >
-                {loading ? "Ingresando..." : "Iniciar Sesión"}
-              </button>
-              <div className="Login-options">
-                <div className="Login-forgot-password">
-                  <span onClick={handleForgotPassword}>¿Olvidaste tu contraseña?</span>
+
+                {error && <div className="Login-error">{error}</div>}
+
+                <button 
+                  type="submit" 
+                  disabled={loading} 
+                  className="Login-button"
+                >
+                  {loading ? "Ingresando..." : "Iniciar Sesión"}
+                </button>
+
+                <div className="Login-options">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={handleRememberMeChange}
+                    />
+                    Recordarme
+                  </label>
+                  <div className="Login-forgot-password">
+                    <span onClick={handleForgotPassword}>¿Olvidaste tu contraseña?</span>
+                  </div>
                 </div>
+              </form>
+
+              <div className="Login-form-section">
+                <p>¿No tienes una cuenta? <a href="/register">Regístrate</a></p>
               </div>
-            </form>
-            
-            <div className="Login-form-section">
-              <p>¿No tienes una cuenta? <a href="/register">Registrate</a></p>
             </div>
           </div>
         </div>
       </div>
-    </div>
     </div>
   );
 }

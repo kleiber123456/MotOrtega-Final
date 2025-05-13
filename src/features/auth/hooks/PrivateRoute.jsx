@@ -1,3 +1,4 @@
+// src/components/PrivateRoute.jsx
 import { Navigate } from 'react-router-dom';
 
 const PrivateRoute = ({ children }) => {
@@ -6,3 +7,4 @@ const PrivateRoute = ({ children }) => {
 };
 
 export default PrivateRoute;
+  
