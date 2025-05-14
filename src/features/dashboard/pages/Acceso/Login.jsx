@@ -143,14 +143,6 @@ function Login() {
                 </button>
 
                 <div className="Login-options">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={rememberMe}
-                      onChange={handleRememberMeChange}
-                    />
-                    Recordarme
-                  </label>
                   <div className="Login-forgot-password">
                     <span onClick={handleForgotPassword}>¿Olvidaste tu contraseña?</span>
                   </div>

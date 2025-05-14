@@ -1,6 +1,6 @@
 // components/Sidebar.jsx
 import { useState } from 'react';
-import { FaTools, FaCar, FaWrench, FaUserCog, FaSignOutAlt, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaTools, FaCar, FaWrench, FaUserCog, FaUser, FaSignOutAlt, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import '../../../../shared/components/layout/sidebar.css';
 
@@ -99,6 +99,16 @@ const Sidebar = () => {
             { label: 'Buscar', link: '/vehiculos/buscar' },
           ]}
           isOpen={activeDropdown === 'vehiculos'}
+          toggleDropdown={toggleDropdown}
+        />
+        <Dropdown
+          id="cuenta"
+          title="Tu Cuenta"
+          icon={<FaUser />}
+          options={[
+            { label: 'Cuenta', link: '/Cuenta' },
+          ]}
+          isOpen={activeDropdown === 'cuenta'}
           toggleDropdown={toggleDropdown}
         />
       </div>
