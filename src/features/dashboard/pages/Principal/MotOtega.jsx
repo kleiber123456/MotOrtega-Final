@@ -18,7 +18,7 @@ function MotOrtega(){
 
                         {usuario ? (
                             <>
-                                <Link className="opcR" to="/agendar-cita">Agendar C</Link>
+                                <Link className="opcR" to="/agendar-cita">Agendar Citas</Link>
                                 <Link className="opcR" to="/dashboard">Ir al Panel</Link>
                             </>
                         ) : (
