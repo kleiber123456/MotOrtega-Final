@@ -56,7 +56,7 @@ const Sidebar = () => {
           title="Configuracion"
           icon={<FaUserCog />}
           options={[
-            { label: 'Usuarios', link: '/Usuarios' },
+            { label: 'Usuarios', link: '/listarUsuarios' },
             { label: 'Clientes', link: '/Clientes' },
             { label: 'Roles', link: '/Roles' },
             { label: 'Mecanicos', link: '/Mecanicos' }

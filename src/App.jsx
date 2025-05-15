@@ -8,6 +8,7 @@ import Layout from './features/dashboard/components/layout/layout';
 import PrivateRoute from './features/auth/hooks/PrivateRoute';
 import Perfil from './features/dashboard/pages/Perfil/Perfil';
 import CambiarContraseña from './features/dashboard/pages/Acceso/CambiarContraseña';
+import ListarUsuarios from './features/dashboard/pages/Usuario/LsitarUsuarios';
 
 function App() {
     return (
@@ -31,14 +32,23 @@ function App() {
             }
           />
           <Route
-          path="/perfil"
-          element={
-            <PrivateRoute>
-              <Layout><Perfil /></Layout>
-            </PrivateRoute>
-          }/>
+            path="/perfil"
+            element={
+              <PrivateRoute>
+                <Layout><Perfil /></Layout>
+              </PrivateRoute>
+            }/>
+          <Route
+            path="/listarUsuarios"
+            element={
+              <PrivateRoute>
+                <Layout><ListarUsuarios /></Layout>
+              </PrivateRoute>
+            }/>
 
-        </Routes>
+
+          </Routes>
+
       </BrowserRouter>
     );
   }

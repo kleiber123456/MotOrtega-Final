@@ -1,0 +1,106 @@
+.LiUs-contenedor {
+  padding: 40px;
+  background-color: white;
+  min-height: 100vh;
+}
+
+.LiUs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.LiUs-titulo {
+  font-size: 28px;
+  color: #2d3748;
+  font-family: Montserrat;
+}
+
+.LiUs-boton-crear {
+  background-color: #0066ff;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-family: Montserrat;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.LiUs-boton-crear:hover {
+  background-color: #3182ce;
+}
+
+.LiUs-input-busqueda {
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-family: Montserrat;
+}
+
+.LiUs-tabla-container {
+  overflow-x: auto;
+}
+
+.LiUs-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Montserrat;
+}
+
+.LiUs-tabla th,
+.LiUs-tabla td {
+  border: 1px solid #e2e8f0;
+  padding: 10px;
+  text-align: center;
+}
+
+.LiUs-tabla th {
+  background-color: #f7fafc;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.LiUs-tabla tr:nth-child(even) {
+  background-color: #edf2f7;
+}
+
+.LiUs-boton-accion {
+  margin: 0 4px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: Montserrat;
+}
+
+.LiUs-editar {
+  background-color: #4299e1;
+  color: white;
+}
+
+.LiUs-eliminar {
+  background-color: #e53e3e;
+  color: white;
+}
+
+.LiUs-detalle {
+  background-color: #48bb78;
+  color: white;
+}
+
+.LiUs-boton-accion:hover {
+  opacity: 0.9;
+}
+
+.LiUs-sin-resultados {
+  text-align: center;
+  color: #718096;
+  margin-top: 20px;
+}
