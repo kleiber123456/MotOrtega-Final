@@ -34,7 +34,7 @@ function App() {
           path="/perfil"
           element={
             <PrivateRoute>
-              <Perfil />
+              <Layout><Perfil /></Layout>
             </PrivateRoute>
           }/>
 
