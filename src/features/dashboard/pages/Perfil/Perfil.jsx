@@ -21,24 +21,26 @@ const Perfil = () => {
   const token = localStorage.getItem('token') || sessionStorage.getItem('token');
 
   useEffect(() => {
-    const obtenerPerfil = async () => {
-      if (!token) {
-        navigate('/login');
-        return;
-      }
+    if (!token) {
+      console.log('No se encontró el token');
+      setLoading(false);
+      return;
+    } else {
+      console.log('Token cargado:', token);
+    }
 
+    const obtenerPerfil = async () => {
       try {
         const res = await axios.get('https://api-final-8rw7.onrender.com/api/usuarios/mi-perfil', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setPerfil(res.data);
       } catch (err) {
-        console.error('Error al obtener perfil:', err.response?.data || err.message);
         if (err.response?.status === 401) {
-          localStorage.clear();
-          sessionStorage.clear();
-          navigate('/login');
+          console.warn('Token inválido:', token);
+          setMensaje('Token inválido. No se pudo cargar el perfil.');
         } else {
+          console.error('Error al obtener perfil:', err.response?.data || err.message);
           setMensaje('Error al cargar el perfil');
         }
       } finally {
@@ -47,7 +49,7 @@ const Perfil = () => {
     };
 
     obtenerPerfil();
-  }, [token, navigate]);
+  }, [token]);
 
   const handleChange = (e) => {
     setPerfil({
@@ -65,12 +67,11 @@ const Perfil = () => {
       setMensaje('Perfil actualizado correctamente');
       setPerfil(res.data);
     } catch (err) {
-      console.error('Error al actualizar perfil:', err.response?.data || err.message);
       if (err.response?.status === 401) {
-        localStorage.clear();
-        sessionStorage.clear();
-        navigate('/login');
+        console.warn('Token inválido al actualizar:', token);
+        setMensaje('Token inválido. No se pudo actualizar el perfil.');
       } else {
+        console.error('Error al actualizar perfil:', err.response?.data || err.message);
         setMensaje('No se pudo actualizar el perfil');
       }
     }
@@ -83,6 +84,9 @@ const Perfil = () => {
       <form className="perfil__form" onSubmit={actualizarPerfil}>
         <div className="perfil__title-container">
           <h2 className="perfil__title">Mi Perfil</h2>
+        </div>
+        <div className="perfil__token">
+          <strong>Token:</strong> {token || 'No disponible'}
         </div>
 
         {[
@@ -114,4 +118,3 @@ const Perfil = () => {
 };
 
 export default Perfil;
-

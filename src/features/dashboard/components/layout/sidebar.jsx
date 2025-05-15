@@ -121,7 +121,7 @@ const Sidebar = () => {
           id="cuenta"
           title="Tu Cuenta"
           icon={<FaUser />}
-          options={[{ label: 'Cuenta', link: '/Cuenta' }]}
+          options={[{ label: 'Cuenta', link: '/Perfil' }]}
           isOpen={activeDropdown === 'cuenta'}
           toggleDropdown={toggleDropdown}
         />
