@@ -1,33 +1,32 @@
-// components/Sidebar.jsx
 import { useState } from 'react';
-import { FaTools, FaCar, FaWrench, FaUserCog, FaUser, FaSignOutAlt, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import {
+  FaTools, FaCar, FaWrench, FaUserCog, FaUser, FaSignOutAlt, FaChevronDown, FaChevronUp,
+  FaShoppingCart, FaChartBar
+} from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import '../../../../shared/components/layout/sidebar.css';
 
-
-const Dropdown = ({ title, icon, options, isOpen, toggleDropdown, id }) => {
-  return (
-    <div className="mo-dropdown">
-      <button 
-        className={`mo-dropdown__btn ${isOpen ? 'mo-dropdown__btn--active' : ''}`} 
-        onClick={() => toggleDropdown(id)}
-      >
-        <span className="mo-dropdown__icon">{icon}</span>
-        <span className="mo-dropdown__title">{title}</span>
-        <span className="mo-dropdown__arrow">
-          {isOpen ? <FaChevronUp /> : <FaChevronDown />}
-        </span>
-      </button>
-      <div className={`mo-dropdown__content ${isOpen ? 'mo-dropdown__content--show' : ''}`}>
-        {options.map((opt, idx) => (
-          <Link key={idx} to={opt.link} className="mo-dropdown__option">
-            {opt.label}
-          </Link>
-        ))}
-      </div>
+const Dropdown = ({ title, icon, options, isOpen, toggleDropdown, id }) => (
+  <div className="mo-dropdown">
+    <button
+      className={`mo-dropdown__btn ${isOpen ? 'mo-dropdown__btn--active' : ''}`}
+      onClick={() => toggleDropdown(id)}
+    >
+      <span className="mo-dropdown__icon">{icon}</span>
+      <span className="mo-dropdown__title">{title}</span>
+      <span className="mo-dropdown__arrow">
+        {isOpen ? <FaChevronUp /> : <FaChevronDown />}
+      </span>
+    </button>
+    <div className={`mo-dropdown__content ${isOpen ? 'mo-dropdown__content--show' : ''}`}>
+      {options.map((opt, idx) => (
+        <Link key={idx} to={opt.link} className="mo-dropdown__option">
+          {opt.label}
+        </Link>
+      ))}
     </div>
-  );
-};
+  </div>
+);
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -52,7 +51,7 @@ const Sidebar = () => {
       </div>
 
       <div className="mo-sidebar__menu">
-         <Dropdown
+        <Dropdown
           id="usuarios"
           title="Usuarios"
           icon={<FaUserCog />}
@@ -60,11 +59,12 @@ const Sidebar = () => {
             { label: 'Usuarios', link: '/Usuarios' },
             { label: 'Clientes', link: '/Clientes' },
             { label: 'Roles', link: '/Roles' },
-            { label: 'Mecanicos', link: '/Mecanicos' },
+            { label: 'Mecanicos', link: '/Mecanicos' }
           ]}
           isOpen={activeDropdown === 'usuarios'}
           toggleDropdown={toggleDropdown}
         />
+
         <Dropdown
           id="servicios"
           title="Servicios"
@@ -72,31 +72,56 @@ const Sidebar = () => {
           options={[
             { label: 'Servicios', link: '/Servicios' },
             { label: 'Productos', link: '/Productos' },
-            { label: 'Categorias', link: '/Categorias' },
-
+            { label: 'Categorias', link: '/Categorias' }
           ]}
           isOpen={activeDropdown === 'servicios'}
           toggleDropdown={toggleDropdown}
         />
+
         <Dropdown
           id="vehiculos"
           title="Vehículos"
           icon={<FaCar />}
           options={[
-            { label: 'Registro', link: '/vehiculos' },
-            { label: 'Marcas', link: '/vehiculos/marcas' },
-            { label: 'Buscar', link: '/vehiculos/buscar' },
+            { label: 'Vehículos', link: '/vehiculos' },
+            { label: 'Referencias', link: '/referencias' },
+            { label: 'Marcas', link: '/marcas' }
           ]}
           isOpen={activeDropdown === 'vehiculos'}
           toggleDropdown={toggleDropdown}
         />
+
+        <Dropdown
+          id="compras"
+          title="Compras"
+          icon={<FaShoppingCart />}
+          options={[
+            { label: 'Compras', link: '/compras' },
+            { label: 'Proveedores', link: '/proveedores' }
+          ]}
+          isOpen={activeDropdown === 'compras'}
+          toggleDropdown={toggleDropdown}
+        />
+
+        <Dropdown
+          id="ventas"
+          title="Ventas"
+          icon={<FaChartBar />}
+          options={[
+            { label: 'Clientes', link: '/clientes' },
+            { label: 'Citas', link: '/citas' },
+            { label: 'Ventas', link: '/ventas' },
+            { label: 'Pedidos', link: '/pedidos' }
+          ]}
+          isOpen={activeDropdown === 'ventas'}
+          toggleDropdown={toggleDropdown}
+        />
+
         <Dropdown
           id="cuenta"
           title="Tu Cuenta"
           icon={<FaUser />}
-          options={[
-            { label: 'Cuenta', link: '/Cuenta' },
-          ]}
+          options={[{ label: 'Cuenta', link: '/Cuenta' }]}
           isOpen={activeDropdown === 'cuenta'}
           toggleDropdown={toggleDropdown}
         />
