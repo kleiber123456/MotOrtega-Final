@@ -48,7 +48,7 @@ function ListarUsuarios() {
     <div className="LiUs-contenedor">
       <div className="LiUs-header">
         <h2 className="LiUs-titulo">Listado de Usuarios</h2>
-        <button className="LiUs-boton-crear" onClick={() => navigate("/usuarios/crear")}>
+        <button className="LiUs-boton-crear" onClick={() => navigate("/crearUsuarios")}>
           Crear Usuario
         </button>
       </div>

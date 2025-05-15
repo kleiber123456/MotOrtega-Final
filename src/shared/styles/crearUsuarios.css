@@ -1,0 +1,57 @@
+.ReUs-contenedor {
+  background-color: #fff;
+  padding: 2rem;
+  max-width: 1100px;
+  margin: auto;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.15);
+}
+
+.ReUs-formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ReUs-titulo {
+  text-align: center;
+  color: #000;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.ReUs-grid {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.ReUs-columna {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 280px;
+}
+
+.ReUs-input {
+  padding: 0.7rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.ReUs-boton {
+  padding: 0.8rem;
+  background-color: #0066ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.ReUs-boton:hover {
+  background-color: #004dc9;
+}

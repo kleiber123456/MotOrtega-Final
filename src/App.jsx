@@ -9,6 +9,7 @@ import PrivateRoute from './features/auth/hooks/PrivateRoute';
 import Perfil from './features/dashboard/pages/Perfil/Perfil';
 import CambiarContraseña from './features/dashboard/pages/Acceso/CambiarContraseña';
 import ListarUsuarios from './features/dashboard/pages/Usuario/LsitarUsuarios';
+import CrearUsuario from './features/dashboard/pages/Usuario/CrearUsuario';
 
 function App() {
     return (
@@ -45,7 +46,13 @@ function App() {
                 <Layout><ListarUsuarios /></Layout>
               </PrivateRoute>
             }/>
-
+          <Route
+            path="/crearUsuarios"
+            element={
+              <PrivateRoute>
+                <Layout><CrearUsuario /></Layout>
+              </PrivateRoute>
+            }/>
 
           </Routes>
 
