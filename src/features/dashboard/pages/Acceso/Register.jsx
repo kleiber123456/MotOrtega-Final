@@ -194,7 +194,6 @@ function Register() {
                             <option value="Targeta identidad">Targeta identidad</option>
                             <option value="Cédula de Extranjería">Cédula de Extranjería</option>
                             <option value="Pasaporte">Pasaporte</option>
-                            <option value="Otro">Otro</option>
                           </select>
                           <input type="text" className="register-input" placeholder="Número de Documento*" name="documento" value={formData.documento} onChange={handleChange} required />
                         </>

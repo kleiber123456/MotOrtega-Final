@@ -7,6 +7,7 @@ import Dashboard from './features/dashboard/pages/Dashboard/Dashboard';
 import Layout from './features/dashboard/components/layout/layout';
 import PrivateRoute from './features/auth/hooks/PrivateRoute';
 import Perfil from './features/dashboard/pages/Perfil/Perfil';
+import CambiarContraseña from './features/dashboard/pages/Acceso/CambiarContraseña';
 
 function App() {
     return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/recuperarContraseña" element={<RecuperarPassword />} />
+          <Route path="/cambiarContraseña" element={<CambiarContraseña />} />
 
           {/* Rutas privadas */}
           <Route

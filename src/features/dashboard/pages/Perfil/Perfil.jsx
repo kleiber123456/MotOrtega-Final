@@ -92,7 +92,7 @@ const Perfil = () => {
   };
 
   const handleCambiarPassword = () => {
-    navigate('/recuperarContraseña');
+    navigate('/CambiarContraseña');
   };
 
   if (loading) return <div className="perfil__loading">Cargando...</div>;

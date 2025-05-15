@@ -52,8 +52,8 @@ const Sidebar = () => {
 
       <div className="mo-sidebar__menu">
         <Dropdown
-          id="usuarios"
-          title="Usuarios"
+          id="configuracion"
+          title="Configuracion"
           icon={<FaUserCog />}
           options={[
             { label: 'Usuarios', link: '/Usuarios' },
@@ -61,7 +61,7 @@ const Sidebar = () => {
             { label: 'Roles', link: '/Roles' },
             { label: 'Mecanicos', link: '/Mecanicos' }
           ]}
-          isOpen={activeDropdown === 'usuarios'}
+          isOpen={activeDropdown === 'configuracion'}
           toggleDropdown={toggleDropdown}
         />
 
@@ -108,10 +108,9 @@ const Sidebar = () => {
           title="Ventas"
           icon={<FaChartBar />}
           options={[
-            { label: 'Clientes', link: '/clientes' },
-            { label: 'Citas', link: '/citas' },
             { label: 'Ventas', link: '/ventas' },
-            { label: 'Pedidos', link: '/pedidos' }
+            { label: 'Pedidos', link: '/pedidos' },
+            { label: 'Citas', link: '/citas' }
           ]}
           isOpen={activeDropdown === 'ventas'}
           toggleDropdown={toggleDropdown}
