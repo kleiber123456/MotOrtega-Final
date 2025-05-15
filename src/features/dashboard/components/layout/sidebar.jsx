@@ -81,17 +81,6 @@ const Sidebar = () => {
         <Dropdown
           id="vehiculos"
           title="Vehículos"
-          icon={<FaWrench />}
-          options={[
-            { label: 'Vehículos', link: '/Vehículos' },
-          ]}
-          isOpen={activeDropdown === 'vehiculos'}
-          toggleDropdown={toggleDropdown}
-        />
-       
-        <Dropdown
-          id="vehiculos"
-          title="Vehículos"
           icon={<FaCar />}
           options={[
             { label: 'Registro', link: '/vehiculos' },
