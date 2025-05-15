@@ -6,6 +6,7 @@ import RecuperarPassword from './features/dashboard/pages/Acceso/RecuperarPasswo
 import Dashboard from './features/dashboard/pages/Dashboard/Dashboard';
 import Layout from './features/dashboard/components/layout/layout';
 import PrivateRoute from './features/auth/hooks/PrivateRoute';
+import Perfil from './features/dashboard/pages/Perfil/Perfil';
 
 function App() {
     return (
@@ -27,13 +28,16 @@ function App() {
             </PrivateRoute>
             }
           />
-
-          {/* Rutas  */}
-
+          <Route
+          path="/perfil"
+          element={
+            <PrivateRoute>
+              <Perfil />
+            </PrivateRoute>
+          }/>
 
         </Routes>
       </BrowserRouter>
     );
   }
-  
   export default App;
