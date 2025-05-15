@@ -20,7 +20,6 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -32,10 +31,6 @@ function Login() {
 
   const togglePasswordVisibility = useCallback(() => {
     setShowPassword(prev => !prev);
-  }, []);
-
-  const handleRememberMeChange = useCallback(() => {
-    setRememberMe(prev => !prev);
   }, []);
 
   const handleSubmit = useCallback(async (e) => {
@@ -64,13 +59,9 @@ function Login() {
         rol: usuario.rol
       };
 
-      if (rememberMe) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("usuario", JSON.stringify(usuarioFinal));
-      } else {
-        sessionStorage.setItem("token", data.token);
-        sessionStorage.setItem("usuario", JSON.stringify(usuarioFinal));
-      }
+      // ✅ Guardar SIEMPRE en localStorage
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("usuario", JSON.stringify(usuarioFinal));
 
       navigate("/dashboard");
     } catch (err) {
@@ -78,7 +69,7 @@ function Login() {
     } finally {
       setLoading(false);
     }
-  }, [formData, navigate, rememberMe]);
+  }, [formData, navigate]);
 
   const handleForgotPassword = () => {
     navigate("/recuperarContraseña");

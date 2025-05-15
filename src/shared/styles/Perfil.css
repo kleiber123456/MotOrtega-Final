@@ -1,12 +1,35 @@
 .perfil__container {
-  min-height: 100vh;
+  height: 100vh; /* Altura fija al 100% de la ventana */
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 2rem;
   background-color: #f9fafb;
+  overflow: hidden; /* Evita el scroll en la página */
+  position: fixed; /* Fija el contenedor en su posición */
+  width: 100%; /* Ocupa todo el ancho */
+  top: 0;
+  left: 0;
 }
 
+.perfil__form {
+  width: 100%;
+  max-width: 700px; /* Aumenta el ancho máximo para las dos columnas */
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  display: grid; /* Usamos grid para la disposición en columnas */
+  grid-template-columns: 1fr 1fr; /* Crea dos columnas de igual ancho */
+  gap: 1rem 2rem; /* Espacio entre filas y columnas */
+  max-height: 90vh; /* Limita la altura máxima */
+  overflow-y: auto; /* Permite scroll solo dentro del formulario si es necesario */
+}
+
+.perfil__title-container {
+  grid-column: 1 / -1; /* El título ocupa ambas columnas */
+  margin-bottom: 1.5rem;
+}
 
 .perfil__title {
   font-family: Montserrat;
@@ -16,20 +39,6 @@
   text-align: center;
   margin: 0;
 }
-
-
-.perfil__form {
-  width: 100%;
-  max-width: 500px;
-  background-color: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
 
 .perfil__field {
   display: flex;
@@ -58,9 +67,43 @@
   box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
 }
 
+/* Estilos específicos para el campo de contraseña */
+.perfil__field.password-container {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.perfil__field.password-container input {
+  cursor: not-allowed; /* Indica que no se puede editar */
+  background-color: #edf2f7; /* Un fondo gris claro para indicar que está deshabilitado */
+  color: #718096; /* Texto más claro */
+  margin-bottom: 10px; /* Espacio entre el input y el botón */
+}
+
+.perfil__field.password-container button {
+  font-family: Montserrat;
+  padding: 8px 12px;
+  background-color: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  align-self: flex-end; /* Alinea el botón a la derecha */
+  width: fit-content; /* El botón solo ocupa el ancho necesario */
+}
+
+.perfil__field.password-container button:hover {
+  background-color: #4299e1;
+}
+
 /* Botón de guardar */
 .perfil__btn {
   font-family: Montserrat;
+  grid-column: 1 / -1; /* El botón ocupa ambas columnas */
   width: 100%;
   padding: 12px;
   background-color: #0066ff;
@@ -84,6 +127,7 @@
 
 /* Mensajes */
 .perfil__mensaje {
+  grid-column: 1 / -1; /* El mensaje ocupa ambas columnas */
   text-align: center;
   margin-top: 1rem;
   font-size: 14px;

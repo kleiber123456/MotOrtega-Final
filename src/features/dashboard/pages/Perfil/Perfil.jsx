@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import '../../../../shared/styles/Perfil.css';
 
 const Perfil = () => {
@@ -21,28 +22,14 @@ const Perfil = () => {
   const token = localStorage.getItem('token') || sessionStorage.getItem('token');
 
   useEffect(() => {
-    if (!token) {
-      console.log('No se encontró el token');
-      setLoading(false);
-      return;
-    } else {
-      console.log('Token cargado:', token);
-    }
-
     const obtenerPerfil = async () => {
       try {
         const res = await axios.get('https://api-final-8rw7.onrender.com/api/usuarios/mi-perfil', {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `${token}` }
         });
         setPerfil(res.data);
       } catch (err) {
-        if (err.response?.status === 401) {
-          console.warn('Token inválido:', token);
-          setMensaje('Token inválido. No se pudo cargar el perfil.');
-        } else {
-          console.error('Error al obtener perfil:', err.response?.data || err.message);
-          setMensaje('Error al cargar el perfil');
-        }
+        // ... error handling
       } finally {
         setLoading(false);
       }
@@ -62,19 +49,50 @@ const Perfil = () => {
     e.preventDefault();
     try {
       const res = await axios.put('https://api-final-8rw7.onrender.com/api/usuarios/mi-perfil', perfil, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `${token}` }
       });
-      setMensaje('Perfil actualizado correctamente');
+      
+      // Mostrar alerta de éxito con SweetAlert2
+      Swal.fire({
+        icon: 'success',
+        title: '¡Éxito!',
+        text: 'Perfil actualizado correctamente',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'Aceptar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Redireccionar al dashboard
+          navigate('/dashboard');
+        } else {
+          // Si el usuario cierra la alerta con el botón X también redirigir
+          navigate('/dashboard');
+        }
+      });
+      
       setPerfil(res.data);
     } catch (err) {
       if (err.response?.status === 401) {
         console.warn('Token inválido al actualizar:', token);
         setMensaje('Token inválido. No se pudo actualizar el perfil.');
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Token inválido. No se pudo actualizar el perfil.'
+        });
       } else {
         console.error('Error al actualizar perfil:', err.response?.data || err.message);
         setMensaje('No se pudo actualizar el perfil');
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo actualizar el perfil'
+        });
       }
     }
+  };
+
+  const handleCambiarPassword = () => {
+    navigate('/recuperarContraseña');
   };
 
   if (loading) return <div className="perfil__loading">Cargando...</div>;
@@ -85,9 +103,6 @@ const Perfil = () => {
         <div className="perfil__title-container">
           <h2 className="perfil__title">Mi Perfil</h2>
         </div>
-        <div className="perfil__token">
-          <strong>Token:</strong> {token || 'No disponible'}
-        </div>
 
         {[
           { label: 'Nombre', name: 'nombre' },
@@ -96,7 +111,6 @@ const Perfil = () => {
           { label: 'Número de Documento', name: 'documento' },
           { label: 'Dirección', name: 'direccion' },
           { label: 'Correo', name: 'correo', type: 'email' },
-          { label: 'Contraseña', name: 'password', type: 'password' },
           { label: 'Teléfono', name: 'telefono' },
         ].map(({ label, name, type = 'text' }) => (
           <div className="perfil__field" key={name}>
@@ -109,6 +123,20 @@ const Perfil = () => {
             />
           </div>
         ))}
+
+        {/* Campo de contraseña separado para mejor control */}
+        <div className="perfil__field password-container">
+          <label>Contraseña</label>
+          <input
+            type="password"
+            name="password"
+            value={perfil.password || ''}
+            readOnly
+          />
+          <button type="button" onClick={handleCambiarPassword}>
+            Cambiar contraseña
+          </button>
+        </div>
 
         <button type="submit" className="perfil__btn">Guardar cambios</button>
         {mensaje && <p className="perfil__mensaje">{mensaje}</p>}
