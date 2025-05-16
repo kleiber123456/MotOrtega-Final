@@ -8,7 +8,7 @@ import Layout from './features/dashboard/components/layout/layout';
 import PrivateRoute from './features/auth/hooks/PrivateRoute';
 import Perfil from './features/dashboard/pages/Perfil/Perfil';
 import CambiarContraseña from './features/dashboard/pages/Acceso/CambiarContraseña';
-import ListarUsuarios from './features/dashboard/pages/Usuario/LsitarUsuarios';
+import ListarUsuarios from './features/dashboard/pages/Usuario/ListarUsuarios';
 import CrearUsuario from './features/dashboard/pages/Usuario/CrearUsuario';
 
 function App() {
