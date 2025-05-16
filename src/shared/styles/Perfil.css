@@ -55,8 +55,8 @@
 .perfil__field select {
   font-family: Montserrat, sans-serif;
   padding: 14px 18px; /* Mayor padding */
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border: none;
+  border-left:3px solid white;
   font-size: 16px; /* Mayor tamaño de fuente para los inputs y selects */
   transition: border-color 0.3s ease;
   box-sizing: border-box; /* Incluye el padding y el border en el ancho */
@@ -65,8 +65,7 @@
 .perfil__field input:focus,
 .perfil__field select:focus {
   outline: none;
-  border-color: #4299e1;
-  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+  border-left: #0066ff solid 3px;
 }
 
 .password-input-wrapper {
@@ -161,3 +160,22 @@
 
 
 }
+
+/* Estilo cuando hay error en el input */
+.input-error {
+  border-left: 3px solid #e53e3e !important;
+}
+
+/* Span de validación */
+.perfil-validacion {
+  font-family: Montserrat;
+  font-size: 12px;
+  padding-left: 15px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  background-color: white;
+  color: #e53e3e;
+  border-left: 3px solid #e53e3e;
+  margin-top: 4px;
+}
+
