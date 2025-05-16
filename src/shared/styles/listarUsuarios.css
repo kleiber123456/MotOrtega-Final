@@ -1,7 +1,8 @@
 .LiUs-contenedor {
-  padding: 40px;
+  padding: 25px; 
   background-color: white;
   min-height: 100vh;
+  font-family: Montserrat;
 }
 
 .LiUs-header {
@@ -12,35 +13,28 @@
 }
 
 .LiUs-titulo {
-  font-size: 28px;
+  font-size: 24px;
   color: #2d3748;
-  font-family: Montserrat;
 }
 
 .LiUs-boton-crear {
   background-color: #0066ff;
   color: white;
   border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
+  padding: 8px 16px;
+  border-radius: 6px;
   font-weight: bold;
-  font-family: Montserrat;
+  font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.LiUs-boton-crear:hover {
-  background-color: #3182ce;
 }
 
 .LiUs-input-busqueda {
   width: 100%;
-  padding: 10px 14px;
-  margin-bottom: 20px;
-  font-size: 14px;
+  padding: 8px 12px;
+  margin-bottom: 16px;
+  font-size: 13px;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-family: Montserrat;
+  border-radius: 6px;
 }
 
 .LiUs-tabla-container {
@@ -50,13 +44,13 @@
 .LiUs-tabla {
   width: 100%;
   border-collapse: collapse;
-  font-family: Montserrat;
+  font-size: 12px;
 }
 
 .LiUs-tabla th,
 .LiUs-tabla td {
   border: 1px solid #e2e8f0;
-  padding: 10px;
+  padding: 8px 10px;
   text-align: center;
 }
 
@@ -64,43 +58,164 @@
   background-color: #f7fafc;
   font-weight: 600;
   color: #2d3748;
+  font-size: 14px;
 }
 
 .LiUs-tabla tr:nth-child(even) {
-  background-color: #edf2f7;
+  background-color: #f8fafc;
 }
 
+
+.LiUs-acciones-contenedor {
+  display: flex;
+  flex-direction: column;  
+  gap: 6px;               
+  align-items: center;
+  padding: 8px 4px;       
+}
+
+
 .LiUs-boton-accion {
-  margin: 0 4px;
-  padding: 6px 10px;
-  border: none;
-  border-radius: 6px;
-  font-size: 13px;
-  cursor: pointer;
-  font-family: Montserrat;
+  width: 80px;           
+  padding: 6px 0;         
+  margin: 0;              
+  font-size: 11px;
+  border-radius: 4px;
+  transition: all 0.2s;
 }
 
 .LiUs-editar {
-  background-color: #4299e1;
+  background-color: #0066FF;
   color: white;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 102, 255, 0.2);
 }
 
 .LiUs-eliminar {
-  background-color: #e53e3e;
+  background-color: #FF3B30;
   color: white;
-}
-
-.LiUs-detalle {
-  background-color: #48bb78;
-  color: white;
+  border: none;
+  box-shadow: 0 1px 3px rgba(255, 59, 48, 0.2);
 }
 
 .LiUs-boton-accion:hover {
+  transform: translateY(-1px);
   opacity: 0.9;
 }
 
-.LiUs-sin-resultados {
-  text-align: center;
-  color: #718096;
+.LiUs-tabla td:last-child {
+  padding: 8px 4px !important;
+  text-align: center !important;
+}
+
+/* Contenedor de botones */
+.LiUs-acciones-contenedor {
+  display: flex;
+  justify-content: center;  
+  gap: 8px;                 
+  flex-wrap: wrap;          
+}
+
+.LiUs-boton-accion {
+  margin: 2px 0 !important; 
+  flex-shrink: 0;           
+}
+.LiUs-detalle {
+  background-color: #38A169;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  box-shadow: 0 2px 4px rgba(56, 161, 105, 0.2);
+  transition: all 0.3s ease;
+}
+
+.LiUs-detalle:hover {
+  background-color: #2F855A;
+  transform: translateY(-1px);
+}
+/* Estilos de paginación */
+.LiUs-paginacion {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
   margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.LiUs-boton-paginacion {
+  padding: 6px 12px;
+  border: 1px solid #e2e8f0;
+  background-color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 13px;
+}
+
+.LiUs-boton-paginacion:hover:not(:disabled) {
+  background-color: #f7fafc;
+  border-color: #cbd5e0;
+}
+
+.LiUs-boton-paginacion:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.LiUs-boton-paginacion.active {
+  background-color: #0066ff;
+  color: white;
+  border-color: #0066ff;
+}
+/* Estilos para el toggle switch */
+.LiUs-toggle {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.LiUs-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.LiUs-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #e53e3e; /* Rojo cuando está inactivo */
+  transition: .4s;
+  border-radius: 24px;
+}
+
+.LiUs-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+.LiUs-toggle input:checked + .LiUs-slider {
+  background-color: #38a169; /* Verde cuando está activo */
+}
+
+.LiUs-toggle input:checked + .LiUs-slider:before {
+  transform: translateX(26px);
+}
+
+.LiUs-toggle-label {
+  margin-left: 10px;
+  font-size: 12px;
+  color: #2d3748;
 }
