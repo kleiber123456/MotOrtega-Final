@@ -92,7 +92,7 @@ function Login() {
         <div className='ca-login'>
           <div className="contenedor-login">
             <div className="Login-form-box">
-              <form className="Login-form" onSubmit={handleSubmit}>
+              <form className="Login-form" onSubmit={handleSubmit} autoComplete="off">
                 <div className="Login-logo-container">
                   <img src="/Logo.png" alt="Logo" className="Login-logo" />
                 </div>
@@ -107,8 +107,8 @@ function Login() {
                     name="correo"
                     value={formData.correo}
                     onChange={handleChange}
-                    required
-                    autoComplete="email"
+                    required  
+                    
                   />
                   <div className="Login-password-container">
                     <input 

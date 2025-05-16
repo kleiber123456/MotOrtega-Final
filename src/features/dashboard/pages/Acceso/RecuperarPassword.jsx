@@ -437,7 +437,7 @@ function RecuperarPassword() {
       case 1: // Solicitar código
         return (
           <div className="rp-contenedor">
-            <form className="fp-Login-form" onSubmit={handleSolicitarCodigo}>
+            <form className="fp-Login-form" onSubmit={handleSolicitarCodigo} autoComplete="off">
               <div className="fp-Login-logo-container">
                 <img src="/Logo.png" alt="Logo" className="fp-Login-logo" />
               </div>
@@ -467,7 +467,7 @@ function RecuperarPassword() {
       
       case 2: // Verificar código
         return (
-          <form className="fp-Login-form" onSubmit={handleVerificarCodigo}>
+          <form className="fp-Login-form" onSubmit={handleVerificarCodigo} autoComplete="off">
             <div className="fp-Login-logo-container">
               <img src="/Logo.png" alt="Logo" className="fp-Login-logo" />
             </div>
@@ -529,7 +529,7 @@ function RecuperarPassword() {
       
       case 3: // Nueva contraseña
         return (
-          <form className="fp-Login-form" onSubmit={handleNuevaPassword}>
+          <form className="fp-Login-form" onSubmit={handleNuevaPassword} autoComplete="off">
             <div className="fp-Login-logo-container">
               <img src="/Logo.png" alt="Logo" className="fp-Login-logo" />
             </div>

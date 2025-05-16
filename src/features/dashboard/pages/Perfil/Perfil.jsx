@@ -113,11 +113,11 @@ return (
 
 <div className="perfil__grid-container">
         <div className="perfil__field">
-          <label>Nombre</label>
+          <label>Nombres</label>
           <input maxLength={30} onInput={soloLetras} type="text" name="nombre" value={perfil.nombre || ''} onChange={handleChange} />
         </div>
         <div className="perfil__field">
-          <label>Apellido</label>
+          <label>Apellidos</label>
           <input maxLength={35} onInput={soloLetras} type="text" name="apellido" value={perfil.apellido || ''} onChange={handleChange} />
         </div>
 

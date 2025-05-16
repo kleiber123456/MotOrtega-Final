@@ -59,32 +59,32 @@ function Register() {
       case "nombre":
       case "apellido":
         if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]{2,}$/.test(value)) {
-          return `El ${name} debe contener solo letras y mínimo 2 caracteres.`;
+          return `Ingrese correctamente los campos para continuar.`;
         }
         break;
       case "documento":
         if (!/^\d{6,}$/.test(value)) {
-          return "Documento inválido. Debe tener al menos 6 números.";
+          return "Ingrese correctamente los campos para continuar.";
         }
         break;
       case "telefono":
         if (!/^\d{7,}$/.test(value)) {
-          return "Teléfono inválido. Debe tener al menos 7 dígitos.";
+          return "Ingrese correctamente los campos para continuar.";
         }
         break;
       case "direccion":
         if (!value.trim()) {
-          return "Dirección requerida.";
+          return "Ingrese correctamente los campos para continuar.";
         }
         break;
       case "correo":
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          return "Correo electrónico inválido.";
+          return "Ingrese correctamente los campos para continuar.";
         }
         break;
       case "password":
         if (!/(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}/.test(value)) {
-          return "Contraseña débil. Mínimo 8 caracteres, una mayúscula y un número.";
+          return "Ingrese correctamente los campos para continuar.";
         }
         break;
       default:
