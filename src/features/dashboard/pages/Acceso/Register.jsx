@@ -147,7 +147,7 @@ function Register() {
     }
   };
 
-  const renderInput = (type, name, placeholder) => (
+  const renderInput = (type, name, placeholder, max, oniput) => (
     <div>
       <input
         type={type}
@@ -155,6 +155,8 @@ function Register() {
         placeholder={placeholder}
         name={name}
         value={formData[name]}
+        maxLength={max}
+        onInput={oniput}
         onChange={handleChange}
         onFocus={handleFocus}
         required
@@ -164,6 +166,16 @@ function Register() {
       )}
     </div>
   );
+
+  const soloNumeros = (e) => {
+  e.target.value = e.target.value.replace(/[^0-9]/g, '');
+  };
+
+  const soloLetras = (e) => {
+  e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, '');
+  };
+
+
 
   const renderProgress = () => (
     <div className="register-progress-container" data-step={step}>
@@ -195,30 +207,31 @@ function Register() {
                       {step === 1 && (
                         <>
                           <div className="register-section-title"><i className="fas fa-user-circle"></i> Datos Personales</div>
-                          {renderInput("text", "nombre", "Nombres*")}
-                          {renderInput("text", "apellido", "Apellidos*")}
+                          {renderInput("text", "nombre", "Nombres*", 30, soloLetras)}
+                          {renderInput("text", "apellido", "Apellidos*", 35, soloLetras)}
                           <select className="register-input" name="tipo_documento" value={formData.tipo_documento} onChange={handleChange}>
                             <option value="Cédula de ciudadanía">Cédula de ciudadanía</option>
-                            <option value="Targeta identidad">Targeta identidad</option>
+                            <option value="Tarjeta de identidad">Tarjeta de identidad</option>
                             <option value="Cédula de Extranjería">Cédula de Extranjería</option>
                             <option value="Pasaporte">Pasaporte</option>
+                            <option value="Otro">Otro</option>
                           </select>
-                          {renderInput("text", "documento", "Número de Documento*")}
+                          {renderInput("text", "documento", "Número de Documento*", 15, soloNumeros)}
                         </>
                       )}
                       {step === 2 && (
                         <>
                           <div className="register-section-title"><i className="fas fa-address-book"></i> Información de Contacto</div>
-                          {renderInput("tel", "telefono", "Teléfono*")}
-                          {renderInput("text", "direccion", "Dirección*")}
-                          {renderInput("email", "correo", "Correo electrónico*")}
+                          {renderInput("tel", "telefono", "Teléfono*", 15, soloNumeros)}
+                          {renderInput("text", "direccion", "Dirección*", 100)}
+                          {renderInput("email", "correo", "Correo electrónico*", 254)}
                         </>
                       )}
                       {step === 3 && (
                         <>
                           <div className="register-section-title"><i className="fas fa-lock"></i> Seguridad</div>
                           <div className="register-password-container">
-                            {renderInput(showPassword ? "text" : "password", "password", "Contraseña*")}
+                            {renderInput(showPassword ? "text" : "password", "password", "Contraseña*", 128)}
                             <span className="register-password-toggle" onClick={() => setShowPassword(p => !p)}>
                               <i className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
                             </span>
@@ -229,6 +242,7 @@ function Register() {
                               className={`register-input ${!passwordMatch && formData.confirmPassword ? 'register-input-error' : ''}`}
                               placeholder="Confirmar Contraseña*"
                               name="confirmPassword"
+                              maxLength={128}
                               value={formData.confirmPassword}
                               onChange={handleChange}
                               onFocus={handleFocus}
