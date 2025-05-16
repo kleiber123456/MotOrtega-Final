@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   FaTools, FaCar, FaWrench, FaUserCog, FaUser, FaSignOutAlt, FaChevronDown, FaChevronUp,
@@ -9,37 +9,64 @@ import '../../../../shared/components/layout/header.css';
 import '../../../../shared/components/layout/layout.css';
 
 // Componente Dropdown para el Sidebar
-const Dropdown = ({ title, icon, options, isOpen, toggleDropdown, id, collapsed }) => (
-  <div className="mo-dropdown">
-    <button
-      className={`mo-dropdown__btn ${isOpen ? 'mo-dropdown__btn--active' : ''}`}
-      onClick={() => toggleDropdown(id)}
-    >
-      <span className="mo-dropdown__icon">{icon}</span>
-      {!collapsed && (
-        <>
-          <span className="mo-dropdown__title">{title}</span>
-          <span className="mo-dropdown__arrow">
-            {isOpen ? <FaChevronUp /> : <FaChevronDown />}
-          </span>
-        </>
-      )}
-    </button>
-    <div className={`mo-dropdown__content ${isOpen ? 'mo-dropdown__content--show' : ''} ${collapsed ? 'mo-dropdown__content--collapsed' : ''}`}>
-      {options.map((opt, idx) => (
-        <Link key={idx} to={opt.link} className="mo-dropdown__option">
-          {opt.label}
-        </Link>
-      ))}
+const Dropdown = ({ title, icon, options, isOpen, toggleDropdown, id, collapsed }) => {
+  const dropdownRef = useRef(null);
+
+  // Efecto para cerrar el menú cuando se haga clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target) && isOpen) {
+        toggleDropdown(id);
+      }
+    };
+
+    // Agregar el event listener al documento
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    // Limpiar el listener cuando el componente se desmonte
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [id, isOpen, toggleDropdown]);
+
+  return (
+    <div className="mo-dropdown" ref={dropdownRef}>
+      <button
+        className={`mo-dropdown__btn ${isOpen ? 'mo-dropdown__btn--active' : ''}`}
+        onClick={() => toggleDropdown(id)}
+      >
+        <span className="mo-dropdown__icon">{icon}</span>
+        {!collapsed && (
+          <>
+            <span className="mo-dropdown__title">{title}</span>
+            <span className="mo-dropdown__arrow">
+              {isOpen ? <FaChevronUp /> : <FaChevronDown />}
+            </span>
+          </>
+        )}
+      </button>
+      <div className={`mo-dropdown__content ${isOpen ? 'mo-dropdown__content--show' : ''} ${collapsed ? 'mo-dropdown__content--collapsed' : ''}`}>
+        {options.map((opt, idx) => (
+          <Link 
+            key={idx} 
+            to={opt.link} 
+            className="mo-dropdown__option"
+            onClick={() => toggleDropdown(id)} // Cerrar el dropdown al hacer clic en un enlace
+          >
+            {opt.label}
+          </Link>
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // Componente Sidebar
 const Sidebar = ({ collapsed, toggleSidebar }) => {
   const navigate = useNavigate();
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const sidebarRef = useRef(null);
   
   const toggleDropdown = (id) => {
     setActiveDropdown(activeDropdown === id ? null : id);
@@ -49,12 +76,38 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
     setMobileOpen(!mobileOpen);
   };
 
+  // Efecto para cerrar el sidebar móvil cuando se hace clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sidebarRef.current && 
+          !sidebarRef.current.contains(event.target) && 
+          mobileOpen &&
+          !event.target.classList.contains('mo-sidebar-mobile-toggle')) {
+        setMobileOpen(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [mobileOpen]);
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('usuario');
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('usuario');
     navigate('/');
+  };
+
+  // Cerrar también los dropdowns al hacer clic en un enlace
+  const handleLinkClick = () => {
+    setActiveDropdown(null);
+    if (window.innerWidth < 768) {
+      setMobileOpen(false);
+    }
   };
 
   return (
@@ -68,7 +121,7 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
         <FaBars />
       </button>
       
-      <aside className={`mo-sidebar ${collapsed ? 'mo-sidebar--collapsed' : ''} ${mobileOpen ? 'mo-sidebar--mobile-open' : ''}`}>
+      <aside className={`mo-sidebar ${collapsed ? 'mo-sidebar--collapsed' : ''} ${mobileOpen ? 'mo-sidebar--mobile-open' : ''}`} ref={sidebarRef}>
         <div className="mo-sidebar__header">
           <div className="mo-sidebar__logo">
             {!collapsed && <img className="mo-sidebar-logo" src="/Logo.png" alt="Logo" />}
@@ -250,15 +303,7 @@ const Header = ({ sidebarCollapsed, onToggleSidebar }) => {
   return (
     <header className={`mo-header ${sidebarCollapsed ? 'mo-header--sidebar-collapsed' : ''}`}>
       <div className="mo-header__title">
-        {!isMobile && (
-          <button 
-            className="mo-header__sidebar-toggle" 
-            onClick={onToggleSidebar} 
-            aria-label="Toggle sidebar"
-          >
-            <FaBars />
-          </button>
-        )}
+        {/* Se eliminó el botón que desplegaba el menú */}
       </div>
       
       <div className="mo-header__actions">
