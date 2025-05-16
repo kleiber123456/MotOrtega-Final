@@ -50,7 +50,18 @@ function Login() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Correo o contraseña incorrectos");
+        // Manejo específico de errores según el código de estado o mensaje
+        if (response.status === 404) {
+          throw new Error("Correo electrónico no registrado en el sistema");
+        } else if (response.status === 401) {
+          throw new Error("Correo o contraseña incorrectos.");
+        } else if (data.message && data.message.includes("correo")) {
+          throw new Error("Correo electrónico no encontrado");
+        } else if (data.message && data.message.includes("contraseña")) {
+          throw new Error("Contraseña incorrecta");
+        } else {
+          throw new Error(data.message || "Error al iniciar sesión");
+        }
       }
 
       const usuario = data.usuario || {};
@@ -123,14 +134,25 @@ function Login() {
                   </div>
                 </div>
 
-                {error && <div className="Login-error">{error}</div>}
+                {error && (
+                  <div className="Login-error">
+                    <i className="fas fa-exclamation-circle"></i> {error}
+                  </div>
+                )}
 
                 <button 
                   type="submit" 
                   disabled={loading} 
                   className="Login-button"
                 >
-                  {loading ? "Ingresando..." : "Iniciar Sesión"}
+                  {loading ? (
+                    <>
+                      <span className="Login-spinner"></span>
+                      Verificando...
+                    </>
+                  ) : (
+                    "Iniciar Sesión"
+                  )}
                 </button>
 
                 <div className="Login-options">
