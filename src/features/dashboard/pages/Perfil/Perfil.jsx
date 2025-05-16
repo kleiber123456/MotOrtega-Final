@@ -114,16 +114,16 @@ return (
 <div className="perfil__grid-container">
         <div className="perfil__field">
           <label>Nombres</label>
-          <input maxLength={30} onInput={soloLetras} type="text" name="nombre" value={perfil.nombre || ''} onChange={handleChange} />
+          <input autoComplete="off" maxLength={30} onInput={soloLetras} type="text" name="nombre" value={perfil.nombre || ''} onChange={handleChange} />
         </div>
-        <div className="perfil__field">
+        <div className="perfil__field" >
           <label>Apellidos</label>
-          <input maxLength={35} onInput={soloLetras} type="text" name="apellido" value={perfil.apellido || ''} onChange={handleChange} />
+          <input autoComplete="off" maxLength={35} onInput={soloLetras} type="text" name="apellido" value={perfil.apellido || ''} onChange={handleChange} />
         </div>
 
         <div className="perfil__field">
           <label>Teléfono</label>
-          <input maxLength={15} onInput={soloNumeros} type="text" name="telefono" value={perfil.telefono || ''} onChange={handleChange} />
+          <input autoComplete="off" maxLength={15} onInput={soloNumeros} type="text" name="telefono" value={perfil.telefono || ''} onChange={handleChange} />
         </div>
         <div className="perfil__field">
           <label>Tipo de Documento</label>
@@ -140,7 +140,7 @@ return (
         </div>
           <div className="perfil__field">
           <label>Dirección</label>
-          <input maxLength={100}  type="text" name="direccion" value={perfil.direccion || ''} onChange={handleChange} />
+          <input autoComplete="off" maxLength={100}  type="text" name="direccion" value={perfil.direccion || ''} onChange={handleChange} />
         </div>
         <div className="perfil__field">
           <label>Correo</label>
