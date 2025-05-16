@@ -71,32 +71,22 @@
 
 .password-input-wrapper {
   display: flex;
-  align-items: center; /* Alinea verticalmente el input y el botón */
+  align-items: stretch; /* Estira los elementos hijos a la misma altura */
 }
-
+.perfil-input{
+  width: 100%;
+}
 .perfil-password-container input {
   cursor: not-allowed; /* Indica que no se puede editar */
   background-color: #edf2f7; /* Un fondo gris claro para indicar que está deshabilitado */
   color: #718096; /* Texto más claro */
-  border-radius: 8px; /* Bordes redondeados solo a la izquierda */
-  
+  border-radius: 8px 0 0 8px; /* Bordes redondeados solo a la izquierda */
+  flex-grow: 1; /* Permite que el input crezca para ocupar espacio */
 }
 
-.perfil__field.perfil-password-container button {
-  font-family: Montserrat, sans-serif;
-  padding: 10px 15px; /* Ajusta el padding del botón */
-  background-color: #3182ce;
-  color: white;
-  border: none;
-  border-radius: 10px; /* Bordes redondeados solo a la derecha */
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-left: 20px;
-  transition: background-color 0.3s ease;
-  width: fit-content; /* El botón solo ocupa el ancho necesario */
+.Perfil__CambiarC{
+  width: 200px;
 }
-
 .perfil__field.perfil-password-container button:hover {
   background-color: #4299e1;
 }
@@ -161,6 +151,7 @@
 
   .password-input-wrapper {
     flex-direction: column; /* Apila el input y el botón */
+    align-items: stretch; /* Estira los elementos */
   }
 
   .perfil__field.perfil-password-container input {
@@ -168,8 +159,5 @@
     margin-bottom: 10px; /* Espacio entre input y botón */
   }
 
-  .perfil__field.perfil-password-container button {
-    border-radius: 0 0 8px 8px; /* Bordes redondeados abajo */
-    align-self: stretch; /* El botón ocupa todo el ancho */
-  }
+
 }
