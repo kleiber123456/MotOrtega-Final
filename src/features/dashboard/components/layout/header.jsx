@@ -55,7 +55,6 @@ const Header = () => {
   return (
     <header className="mo-header">
       <div className="mo-header__title">
-        <h1>Taller MotOrtega</h1>
       </div>
       <div className="mo-header__actions">
         <div className="mo-header__notifications">

@@ -1,43 +1,41 @@
 .perfil__container {
-  height: 100vh; /* Altura fija al 100% de la ventana */
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 2rem;
-  background-color: #f9fafb;
-  overflow: hidden; /* Evita el scroll en la página */
-  position: fixed; /* Fija el contenedor en su posición */
-  width: 100%; /* Ocupa todo el ancho */
-  top: 0;
-  left: 0;
+  padding: 20px;
+  box-sizing: border-box; /* Incluye el padding y el border en el ancho y alto */
+  overflow: hidden; /* Evita el scroll en la pantalla principal */
 }
 
 .perfil__form {
-  width: 100%;
-  max-width: 700px; /* Aumenta el ancho máximo para las dos columnas */
-  background-color: white;
   border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-  display: grid; /* Usamos grid para la disposición en columnas */
-  grid-template-columns: 1fr 1fr; /* Crea dos columnas de igual ancho */
-  gap: 1rem 2rem; /* Espacio entre filas y columnas */
-  max-height: 90vh; /* Limita la altura máxima */
-  overflow-y: auto; /* Permite scroll solo dentro del formulario si es necesario */
+  padding: 30px;
+  display: flex;
+  flex-direction: column; /* Cambiado a flex column para el contenedor principal */
+  width: 100%;
+  max-width: 90%; /* Mayor ancho máximo */
+  box-sizing: border-box; /* Incluye el padding y el border en el ancho y alto */
+  max-height: 95vh; /* Limita la altura máxima del formulario */
+  overflow-y: auto; /* Permite el scroll dentro del formulario si es necesario */
 }
 
 .perfil__title-container {
-  grid-column: 1 / -1; /* El título ocupa ambas columnas */
-  margin-bottom: 1.5rem;
+  margin-bottom: 25px;
+  text-align: center; /* Centra el título */
 }
 
 .perfil__title {
-  font-family: Montserrat;
-  font-size: 24px;
+  font-family: Montserrat, sans-serif;
+  font-size: 28px; /* Mayor tamaño de fuente */
   font-weight: 700;
   color: #2d3748;
-  text-align: center;
   margin: 0;
+}
+
+.perfil__grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
 }
 
 .perfil__field {
@@ -48,72 +46,76 @@
 .perfil__field label {
   font-weight: 600;
   color: #2d3748;
-  margin-bottom: 0.5rem;
-  font-family: Montserrat;
+  margin-bottom: 8px;
+  font-family: Montserrat, sans-serif;
+  font-size: 16px; /* Mayor tamaño de fuente para las etiquetas */
 }
 
-.perfil__field input {
-  font-family: Montserrat;
-  padding: 12px 16px;
+.perfil__field input,
+.perfil__field select {
+  font-family: Montserrat, sans-serif;
+  padding: 14px 18px; /* Mayor padding */
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 16px; /* Mayor tamaño de fuente para los inputs y selects */
   transition: border-color 0.3s ease;
+  box-sizing: border-box; /* Incluye el padding y el border en el ancho */
 }
 
-.perfil__field input:focus {
+.perfil__field input:focus,
+.perfil__field select:focus {
   outline: none;
   border-color: #4299e1;
   box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
 }
 
-/* Estilos específicos para el campo de contraseña */
-.perfil__field.password-container {
+.password-input-wrapper {
   display: flex;
-  flex-direction: column;
-  position: relative;
+  align-items: center; /* Alinea verticalmente el input y el botón */
 }
 
-.perfil__field.password-container input {
+.perfil-password-container input {
   cursor: not-allowed; /* Indica que no se puede editar */
   background-color: #edf2f7; /* Un fondo gris claro para indicar que está deshabilitado */
   color: #718096; /* Texto más claro */
-  margin-bottom: 10px; /* Espacio entre el input y el botón */
+  border-radius: 8px; /* Bordes redondeados solo a la izquierda */
+  
 }
 
-.perfil__field.password-container button {
-  font-family: Montserrat;
-  padding: 8px 12px;
+.perfil__field.perfil-password-container button {
+  font-family: Montserrat, sans-serif;
+  padding: 10px 15px; /* Ajusta el padding del botón */
   background-color: #3182ce;
   color: white;
   border: none;
-  border-radius: 6px;
-  font-size: 12px;
+  border-radius: 10px; /* Bordes redondeados solo a la derecha */
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  margin-left: 20px;
   transition: background-color 0.3s ease;
-  align-self: flex-end; /* Alinea el botón a la derecha */
   width: fit-content; /* El botón solo ocupa el ancho necesario */
 }
 
-.perfil__field.password-container button:hover {
+.perfil__field.perfil-password-container button:hover {
   background-color: #4299e1;
 }
 
 /* Botón de guardar */
 .perfil__btn {
-  font-family: Montserrat;
-  grid-column: 1 / -1; /* El botón ocupa ambas columnas */
+  font-family: Montserrat, sans-serif;
   width: 100%;
-  padding: 12px;
+  padding: 14px; /* Mayor padding */
   background-color: #0066ff;
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 16px;
+  font-size: 18px; /* Mayor tamaño de fuente */
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  box-sizing: border-box; /* Incluye el padding y el border en el ancho */
+  margin-top: 20px; /* Añade un poco de espacio superior */
 }
 
 .perfil__btn:hover {
@@ -127,11 +129,10 @@
 
 /* Mensajes */
 .perfil__mensaje {
-  grid-column: 1 / -1; /* El mensaje ocupa ambas columnas */
   text-align: center;
-  margin-top: 1rem;
-  font-size: 14px;
-  font-family: Montserrat;
+  margin-top: 1.5rem;
+  font-size: 16px; /* Mayor tamaño de fuente */
+  font-family: Montserrat, sans-serif;
   color: #38a169;
 }
 
@@ -142,13 +143,33 @@
 /* Cargando */
 .perfil__loading {
   text-align: center;
-  padding: 2rem;
-  font-size: 1.2rem;
-  font-family: Montserrat;
+  padding: 30px;
+  font-size: 1.4rem; /* Mayor tamaño de fuente */
+  font-family: Montserrat, sans-serif;
   color: #2d3748;
 }
 
-/* Efecto de transición (igual que en login) */
-[transition-style="in:circle:hesitate"] {
-  animation: circle-in-hesitate 3s cubic-bezier(.25, 1, .30, 1) both;
+/* Estilos para pantallas más pequeñas (responsive) */
+@media (max-width: 600px) {
+  .perfil__grid-container {
+    grid-template-columns: 1fr; /* Una sola columna en pantallas pequeñas */
+  }
+
+  .perfil__field.perfil-password-container{
+    flex-direction: column; /* Apila la etiqueta, el input y el botón */
+  }
+
+  .password-input-wrapper {
+    flex-direction: column; /* Apila el input y el botón */
+  }
+
+  .perfil__field.perfil-password-container input {
+    border-radius: 8px 8px 0 0; /* Bordes redondeados arriba */
+    margin-bottom: 10px; /* Espacio entre input y botón */
+  }
+
+  .perfil__field.perfil-password-container button {
+    border-radius: 0 0 8px 8px; /* Bordes redondeados abajo */
+    align-self: stretch; /* El botón ocupa todo el ancho */
+  }
 }

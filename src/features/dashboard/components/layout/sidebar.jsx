@@ -47,7 +47,7 @@ const Sidebar = () => {
   return (
     <aside className="mo-sidebar">
       <div className="mo-sidebar__logo">
-        <h2>MotOrtega</h2>
+        <img className="mo-sidebar-logo" src="/Logo.png" alt="" />
       </div>
 
       <div className="mo-sidebar__menu">

@@ -14,7 +14,9 @@
     --mo-radius: 8px;
     --mo-sidebar-width: 280px;
   }
-  
+  .mo-sidebar-logo{
+    width: 120px;
+  }
   .mo-sidebar {
     width: var(--mo-sidebar-width);
     height: 100%;
@@ -27,7 +29,6 @@
   .mo-sidebar__logo {
     padding: 24px;
     text-align: center;
-    border-bottom: 1px solid var(--mo-border);
   }
   
   .mo-sidebar__logo h2 {

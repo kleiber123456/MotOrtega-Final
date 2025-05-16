@@ -4,6 +4,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import '../../../../shared/styles/Perfil.css';
 
+
 const Perfil = () => {
   const navigate = useNavigate();
   const [perfil, setPerfil] = useState({
@@ -20,6 +21,7 @@ const Perfil = () => {
   const [mensaje, setMensaje] = useState('');
   const [loading, setLoading] = useState(true);
   const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+  const tiposDocumento = ['CC', 'CE', 'NIT', 'Pasaporte']; // Ejemplo de tipos de documento
 
   useEffect(() => {
     const obtenerPerfil = async () => {
@@ -51,7 +53,7 @@ const Perfil = () => {
       const res = await axios.put('https://api-final-8rw7.onrender.com/api/usuarios/mi-perfil', perfil, {
         headers: { Authorization: `${token}` }
       });
-      
+
       // Mostrar alerta de éxito con SweetAlert2
       Swal.fire({
         icon: 'success',
@@ -68,7 +70,7 @@ const Perfil = () => {
           navigate('/dashboard');
         }
       });
-      
+
       setPerfil(res.data);
     } catch (err) {
       if (err.response?.status === 401) {
@@ -104,38 +106,62 @@ const Perfil = () => {
           <h2 className="perfil__title">Mi Perfil</h2>
         </div>
 
-        {[
-          { label: 'Nombre', name: 'nombre' },
-          { label: 'Apellido', name: 'apellido' },
-          { label: 'Tipo de Documento', name: 'tipo_documento' },
-          { label: 'Número de Documento', name: 'documento' },
-          { label: 'Dirección', name: 'direccion' },
-          { label: 'Correo', name: 'correo', type: 'email' },
-          { label: 'Teléfono', name: 'telefono' },
-        ].map(({ label, name, type = 'text' }) => (
-          <div className="perfil__field" key={name}>
-            <label>{label}</label>
-            <input
-              type={type}
-              name={name}
-              value={perfil[name] || ''}
-              onChange={handleChange}
-            />
+        <div className="perfil__grid-container">
+          <div className="perfil__field">
+            <label>Nombre</label>
+            <input type="text" name="nombre" value={perfil.nombre || ''} onChange={handleChange} />
           </div>
-        ))}
-
-        {/* Campo de contraseña separado para mejor control */}
-        <div className="perfil__field password-container">
-          <label>Contraseña</label>
-          <input
-            type="password"
-            name="password"
-            value={perfil.password || ''}
-            readOnly
-          />
-          <button type="button" onClick={handleCambiarPassword}>
-            Cambiar contraseña
-          </button>
+          <div className="perfil__field">
+            <label>Apellido</label>
+            <input type="text" name="apellido" value={perfil.apellido || ''} onChange={handleChange} />
+          </div>
+          
+          <div className="perfil__field">
+            <label>Teléfono</label>
+            <input type="text" name="telefono" value={perfil.telefono || ''} onChange={handleChange} />
+          </div>
+          <div className="perfil__field">
+            <label>Tipo de Documento</label>
+            <select name="tipo_documento" value={perfil.tipo_documento || ''} onChange={handleChange}>
+              <option value="">Seleccionar</option>
+              {tiposDocumento.map((option) => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+          </div>
+          <div className="perfil__field">
+            <label>Documento</label>
+            <input type="text" name="documento" value={perfil.documento || ''} onChange={handleChange} />
+          </div>
+           <div className="perfil__field">
+            <label>Dirección</label>
+            <input type="text" name="direccion" value={perfil.direccion || ''} onChange={handleChange} />
+          </div>
+          <div className="perfil__field">
+            <label>Correo</label>
+            <input type="email" name="correo" value={perfil.correo || ''} onChange={handleChange} />
+          </div>
+          
+          
+          <div className="perfil__field ">
+            <label>Contraseña</label>
+            <div className="password-input-wrapper">
+              <input
+                type="password"
+                name="password"
+                value={".................."}
+                readOnly
+              />
+                <button className='perfil__boton-cambiar' type="button" onClick={handleCambiarPassword}>
+                  Cambiar contraseña
+                </button>
+            </div>
+          </div>
+          
+         
+          <div>
+            {/* Espacio vacío para alinear */}
+          </div>
         </div>
 
         <button type="submit" className="perfil__btn">Guardar cambios</button>
