@@ -165,7 +165,7 @@ const Perfil = () => {
               value={perfil.nombre || ''}
               onChange={handleChange}
               className={errores.nombre ? 'input-error' : ''}
-            />
+              required/>
             {errores.nombre && <span className="perfil-validacion">{errores.nombre}</span>}
           </div>
 
