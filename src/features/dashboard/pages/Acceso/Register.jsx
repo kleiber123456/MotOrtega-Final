@@ -1,4 +1,3 @@
-// ... (importaciones)
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -52,39 +51,82 @@ function Register() {
     setTouched((prev) => ({ ...prev, [e.target.name]: true }));
   };
 
+  const handleBlur = (e) => {
+    setTouched((prev) => ({ ...prev, [e.target.name]: true }));
+  };
+
   const getValidationMessage = (name) => {
     const value = formData[name];
 
     switch (name) {
       case "nombre":
-      case "apellido":
+        if (!value.trim()) {
+          return "El nombre es obligatorio";
+        }
         if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]{2,}$/.test(value)) {
-          return `Ingrese correctamente los campos para continuar.`;
+          return "El nombre debe contener solo letras y tener al menos 2 caracteres";
+        }
+        break;
+      case "apellido":
+        if (!value.trim()) {
+          return "El apellido es obligatorio";
+        }
+        if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]{2,}$/.test(value)) {
+          return "El apellido debe contener solo letras y tener al menos 2 caracteres";
         }
         break;
       case "documento":
+        if (!value.trim()) {
+          return "El número de documento es obligatorio";
+        }
         if (!/^\d{6,}$/.test(value)) {
-          return "Ingrese correctamente los campos para continuar.";
+          return "El documento debe contener al menos 6 dígitos";
         }
         break;
       case "telefono":
+        if (!value.trim()) {
+          return "El teléfono es obligatorio";
+        }
         if (!/^\d{7,}$/.test(value)) {
-          return "Ingrese correctamente los campos para continuar.";
+          return "El teléfono debe contener al menos 7 dígitos";
         }
         break;
       case "direccion":
         if (!value.trim()) {
-          return "Ingrese correctamente los campos para continuar.";
+          return "La dirección es obligatoria";
+        }
+        if (value.length < 5) {
+          return "Por favor ingrese una dirección válida";
         }
         break;
       case "correo":
+        if (!value.trim()) {
+          return "El correo electrónico es obligatorio";
+        }
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          return "Ingrese correctamente los campos para continuar.";
+          return "Por favor ingrese un correo electrónico válido";
         }
         break;
       case "password":
-        if (!/(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}/.test(value)) {
-          return "Ingrese correctamente los campos para continuar.";
+        if (!value.trim()) {
+          return "La contraseña es obligatoria";
+        }
+        if (value.length < 8) {
+          return "La contraseña debe tener al menos 8 caracteres";
+        }
+        if (!/(?=.*[A-Z])/.test(value)) {
+          return "La contraseña debe incluir al menos una letra mayúscula";
+        }
+        if (!/(?=.*\d)/.test(value)) {
+          return "La contraseña debe incluir al menos un número";
+        }
+        break;
+      case "confirmPassword":
+        if (!value.trim()) {
+          return "Debe confirmar la contraseña";
+        }
+        if (value !== formData.password) {
+          return "Las contraseñas no coinciden";
         }
         break;
       default:
@@ -95,15 +137,34 @@ function Register() {
   };
 
   const validarCamposPaso = () => {
+    let camposInvalidos = [];
     const campos = step === 1 ? ["nombre", "apellido", "documento"] :
                    step === 2 ? ["telefono", "direccion", "correo"] :
-                                ["password"];
+                                ["password", "confirmPassword"];
+    
+    // Marcar todos los campos del paso actual como touched
+    const newTouched = { ...touched };
+    campos.forEach(campo => {
+      newTouched[campo] = true;
+    });
+    setTouched(newTouched);
+    
+    // Verificar validaciones
     for (const campo of campos) {
       const msg = getValidationMessage(campo);
       if (msg) {
-        Swal.fire({ icon: 'warning', title: 'Validación', text: msg, confirmButtonColor: '#0066ff' });
-        return false;
+        camposInvalidos.push(campo);
       }
+    }
+    
+    if (camposInvalidos.length > 0) {
+      Swal.fire({ 
+        icon: 'warning', 
+        title: 'Campos incompletos o inválidos', 
+        text: 'Por favor complete correctamente todos los campos requeridos', 
+        confirmButtonColor: '#0066ff' 
+      });
+      return false;
     }
     return true;
   };
@@ -117,10 +178,7 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validarCamposPaso()) return;
-    if (!passwordMatch) {
-      Swal.fire({ icon: 'error', title: 'Error', text: 'Las contraseñas no coinciden', confirmButtonColor: '#0066ff' });
-      return;
-    }
+    
     const dataToSend = { ...formData };
     delete dataToSend.confirmPassword;
 
@@ -147,8 +205,8 @@ function Register() {
     }
   };
 
-  const renderInput = (type, name, placeholder, max, oniput) => (
-    <div>
+  const renderInput = (type, name, placeholder, max, onInput) => (
+    <div className="register-input-container">
       <input
         type={type}
         className={`register-input ${touched[name] && getValidationMessage(name) ? 'register-input-error' : ''}`}
@@ -156,32 +214,33 @@ function Register() {
         name={name}
         value={formData[name]}
         maxLength={max}
-        onInput={oniput}
+        onInput={onInput}
         onChange={handleChange}
         onFocus={handleFocus}
+        onBlur={handleBlur}
         required
       />
       {touched[name] && getValidationMessage(name) && (
-        <div className="register-validation-message">{getValidationMessage(name)}</div>
+        <div className="register-validation-message">
+          <i className="fas fa-exclamation-circle"></i> {getValidationMessage(name)}
+        </div>
       )}
     </div>
   );
 
   const soloNumeros = (e) => {
-  e.target.value = e.target.value.replace(/[^0-9]/g, '');
+    e.target.value = e.target.value.replace(/[^0-9]/g, '');
   };
 
   const soloLetras = (e) => {
-  e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, '');
+    e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, '');
   };
-
-
 
   const renderProgress = () => (
     <div className="register-progress-container" data-step={step}>
       {["Datos Personales", "Información de Contacto", "Seguridad"].map((label, index) => (
         <div key={index} className="register-progress-step">
-          <div className={`register-progress-indicator ${step > index ? "register-progress-completed" : ""}`}>{index + 1}</div>
+          <div className={`register-progress-indicator ${step > index ? "register-progress-completed" : ""} ${step === index + 1 ? "register-progress-current" : ""}`}>{index + 1}</div>
           <div className="register-progress-label">{label}</div>
         </div>
       ))}
@@ -231,28 +290,50 @@ function Register() {
                         <>
                           <div className="register-section-title"><i className="fas fa-lock"></i> Seguridad</div>
                           <div className="register-password-container">
-                            {renderInput(showPassword ? "text" : "password", "password", "Contraseña*", 128)}
+                            <input
+                              type={showPassword ? "text" : "password"}
+                              className={`register-input ${touched.password && getValidationMessage("password") ? 'register-input-error' : ''}`}
+                              placeholder="Contraseña*"
+                              name="password"
+                              maxLength={128}
+                              value={formData.password}
+                              onChange={handleChange}
+                              onFocus={handleFocus}
+                              onBlur={handleBlur}
+                              required
+                            />
                             <span className="register-password-toggle" onClick={() => setShowPassword(p => !p)}>
                               <i className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
                             </span>
                           </div>
+                          {touched.password && getValidationMessage("password") && (
+                            <div className="register-validation-message">
+                              <i className="fas fa-exclamation-circle"></i> {getValidationMessage("password")}
+                            </div>
+                          )}
+                          
                           <div className="register-password-container">
                             <input
                               type={showConfirmPassword ? "text" : "password"}
-                              className={`register-input ${!passwordMatch && formData.confirmPassword ? 'register-input-error' : ''}`}
+                              className={`register-input ${touched.confirmPassword && getValidationMessage("confirmPassword") ? 'register-input-error' : ''}`}
                               placeholder="Confirmar Contraseña*"
                               name="confirmPassword"
                               maxLength={128}
                               value={formData.confirmPassword}
                               onChange={handleChange}
                               onFocus={handleFocus}
+                              onBlur={handleBlur}
                               required
                             />
                             <span className="register-password-toggle" onClick={() => setShowConfirmPassword(p => !p)}>
                               <i className={`fas ${showConfirmPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
                             </span>
                           </div>
-                          {!passwordMatch && <div className="register-password-mismatch">Las contraseñas no coinciden</div>}
+                          {touched.confirmPassword && getValidationMessage("confirmPassword") && (
+                            <div className="register-validation-message">
+                              <i className="fas fa-exclamation-circle"></i> {getValidationMessage("confirmPassword")}
+                            </div>
+                          )}
                         </>
                       )}
                     </div>
@@ -268,7 +349,7 @@ function Register() {
                           Siguiente <i className="fas fa-arrow-right"></i>
                         </button>
                       ) : (
-                        <button type="submit" className="register-button register-button-primary" disabled={formData.confirmPassword && !passwordMatch}>
+                        <button type="submit" className="register-button register-button-primary">
                           <i className="fas fa-user-plus"></i> Crear Cuenta
                         </button>
                       )}
