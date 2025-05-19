@@ -1,0 +1,60 @@
+.CatRep-contenedor {
+  background-color: #fff;
+  padding: 2rem;
+  max-width: 600px;
+  margin: auto;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+}
+
+.CatRep-formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.CatRep-titulo {
+  text-align: center;
+  color: #000;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.CatRep-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.CatRep-columna {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.CatRep-label {
+  font-weight: 600;
+  color: #333;
+}
+
+.CatRep-input {
+  padding: 0.7rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.CatRep-boton {
+  padding: 0.8rem;
+  background-color: #0066ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.CatRep-boton:hover {
+  background-color: #004dc9;
+}

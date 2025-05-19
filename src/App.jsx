@@ -12,6 +12,10 @@ import ListarUsuarios from './features/dashboard/pages/Usuario/ListarUsuarios';
 import CrearUsuario from './features/dashboard/pages/Usuario/CrearUsuario';
 import EditarUsuario from './features/dashboard/pages/Usuario/EditarUsuario';
 import DetalleUsuario from './features/dashboard/pages/Usuario/DetalleUsuario';
+import ListarCategoriasRepuesto from './features/dashboard/pages/CategoriaRepuesto/ListarCategoriasRepuesto';
+import CrearCategoriaRepuesto from './features/dashboard/pages/CategoriaRepuesto/CrearCategoriaRepuesto';
+import EditarCategoriaRepuesto from './features/dashboard/pages/CategoriaRepuesto/EditarCategoriaRepuesto';
+
 
 function App() {
   return (
@@ -76,7 +80,33 @@ function App() {
             </PrivateRoute>
           }
         />
+
+        <Route
+          path="/categorias-repuesto"
+          element={
+            <PrivateRoute>
+              <Layout><ListarCategoriasRepuesto /></Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/crearCategoriaRepuesto"
+          element={
+            <PrivateRoute>
+              <Layout><CrearCategoriaRepuesto /></Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/categorias-repuesto/editar/:id"
+          element={
+            <PrivateRoute>
+              <Layout><EditarCategoriaRepuesto /></Layout>
+            </PrivateRoute>
+          }
+        />
       </Routes>
+
     </BrowserRouter>
   );
 }

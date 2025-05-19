@@ -1,0 +1,94 @@
+/* Estilos para el contenedor principal del formulario de creación de categoría */
+.categoria-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* Alinea los elementos en la parte superior */
+  padding: 20px;
+  background-color: #f4f4f4;
+  min-height: 100vh;
+}
+
+/* Estilos para el formulario de creación de categoría */
+.categoria-form {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+}
+
+/* Estilos para el título del formulario */
+.categoria-form h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Estilos para los contenedores de cada campo del formulario */
+.categoria-form .campo {
+  margin-bottom: 20px;
+}
+
+/* Estilos para las etiquetas de los campos */
+.categoria-form label {
+  display: block;
+  margin-bottom: 5px;
+  color: #555;
+  font-weight: bold;
+}
+
+/* Estilos para los campos de entrada de texto y el select */
+.categoria-form input[type="text"],
+.categoria-form select {
+  width: calc(100% - 12px);
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  color: #333;
+  box-sizing: border-box;
+}
+
+.categoria-form input[type="text"]:focus,
+.categoria-form select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Estilos para el mensaje de error */
+.categoria-form .error-text {
+  color: #dc3545;
+  font-size: 14px;
+  margin-top: 5px;
+  display: block;
+}
+
+/* Estilos para el input con error */
+.categoria-form .input-error {
+  border-color: #dc3545;
+  background-color: #fdecea;
+}
+
+/* Estilos para el botón de submit */
+.categoria-form button[type="submit"] {
+  background-color: #007bff;
+  color: #fff;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
+}
+
+.categoria-form button[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
+/* Estilos específicos para el select de estado */
+.categoria-form select[name="estado"] {
+  /* Puedes agregar estilos adicionales si lo deseas */
+}

@@ -167,7 +167,7 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
             options={[
               { label: 'Servicios', link: '/Servicios' },
               { label: 'Productos', link: '/Productos' },
-              { label: 'Categorias', link: '/Categorias' }
+              { label: 'Categorias', link: '/categorias-repuesto' }
             ]}
             isOpen={activeDropdown === 'servicios'}
             toggleDropdown={toggleDropdown}
