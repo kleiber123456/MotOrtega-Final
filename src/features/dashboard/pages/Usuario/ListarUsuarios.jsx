@@ -8,7 +8,7 @@ function ListarUsuarios() {
   const [usuarios, setUsuarios] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [paginaActual, setPaginaActual] = useState(1);
-  const [usuariosPorPagina] = useState(10);
+  const [usuariosPorPagina] = useState(5);
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token") || sessionStorage.getItem("token");

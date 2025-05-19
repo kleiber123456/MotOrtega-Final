@@ -8,7 +8,7 @@ function ListarCategoriasRepuesto() {
   const [categorias, setCategorias] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [paginaActual, setPaginaActual] = useState(1);
-  const [categoriasPorPagina] = useState(10);
+  const [categoriasPorPagina] = useState(5);
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token") || sessionStorage.getItem("token");
