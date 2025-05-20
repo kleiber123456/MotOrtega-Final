@@ -123,16 +123,21 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
       
       <aside className={`mo-sidebar ${collapsed ? 'mo-sidebar--collapsed' : ''} ${mobileOpen ? 'mo-sidebar--mobile-open' : ''}`} ref={sidebarRef}>
         <div className="mo-sidebar__header">
+          {/* Botón de toggle ahora está centrado encima del logo */}
+          <div className="mo-sidebar__toggle-container">
+            <button 
+              className="mo-sidebar__toggle" 
+              onClick={toggleSidebar}
+              aria-label="Toggle sidebar"
+            >
+              {collapsed ? <FaBars /> : <FaTimes />}
+            </button>
+          </div>
+          
+          {/* Logo ahora está en un contenedor separado */}
           <div className="mo-sidebar__logo">
             {!collapsed && <img className="mo-sidebar-logo" src="/Logo.png" alt="Logo" />}
           </div>
-          <button 
-            className="mo-sidebar__toggle" 
-            onClick={toggleSidebar}
-            aria-label="Toggle sidebar"
-          >
-            {collapsed ? <FaBars /> : <FaTimes />}
-          </button>
           
           {/* Botón para cerrar en móvil */}
           <button 
@@ -166,7 +171,7 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
             icon={<FaTools />}
             options={[
               { label: 'Servicios', link: '/Servicios' },
-              { label: 'Productos', link: '/Productos' },
+              { label: 'Repuestos', link: '/Repuestos' },
               { label: 'Categorias', link: '/categorias-repuesto' }
             ]}
             isOpen={activeDropdown === 'servicios'}

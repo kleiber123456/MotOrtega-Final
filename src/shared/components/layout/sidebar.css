@@ -46,15 +46,23 @@
 .mo-sidebar__header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   padding: 16px;
-  border-bottom: 1px solid var(--mo-border);
+  /* Se eliminó el border-bottom */
+}
+
+/* Contenedor para el botón de toggle centrado */
+.mo-sidebar__toggle-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 16px;
 }
 
 .mo-sidebar__logo {
-  flex: 1;
   display: flex;
   justify-content: center;
+  width: 100%;
 }
 
 .mo-sidebar__toggle {
@@ -235,8 +243,14 @@
   }
   
   /* Ocultar botón de toggle en móvil */
-  .mo-sidebar__toggle {
+  .mo-sidebar__toggle-container {
     display: none;
+  }
+  
+  /* Ajustar el header para móviles */
+  .mo-sidebar__header {
+    flex-direction: row;
+    justify-content: space-between;
   }
   
   /* Mostrar botón para cerrar en móvil */
