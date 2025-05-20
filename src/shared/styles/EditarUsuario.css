@@ -42,16 +42,26 @@
 }
 
 .ReUs-boton {
-  padding: 0.8rem;
+  padding: 0.6rem;
   background-color: #0066ff;
   color: white;
   border: none;
   border-radius: 8px;
+  font-size: 0.9rem;
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  width: 700px; /* <- ancho más corto */
+  text-align: center;
 }
+
 
 .ReUs-boton:hover {
   background-color: #004dc9;
+}
+.ReUs-boton-contenedor {
+  display: flex;
+  justify-content: center;  /* centra horizontalmente */
+  gap: 10px;                /* espacio entre botones */
+  margin-top: 1rem;
 }

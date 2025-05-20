@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 import '../../../../shared/styles/editarusuario.css';
-
 
 function EditarUsuario() {
   const { id } = useParams(); 
@@ -73,10 +73,22 @@ function EditarUsuario() {
 
       if (!res.ok) throw new Error('Error al actualizar usuario');
 
-      alert('Usuario actualizado correctamente');
-      navigate('/listarUsuarios');
+      Swal.fire({
+        icon: 'success',
+        title: 'Actualización exitosa',
+        text: 'El usuario ha sido actualizado correctamente',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'OK'
+      }).then(() => {
+        navigate('/listarUsuarios');
+      });
+
     } catch (err) {
-      alert(err.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.message
+      });
     }
   };
 
@@ -168,28 +180,21 @@ function EditarUsuario() {
               className="ReUs-input"
               required
             />
-
-            <label>Rol ID:</label>
-            <input
-              type="text"
-              name="rol_id"
-              value={usuario.rol_id}
-              onChange={handleChange}
-              className="ReUs-input"
-              required
-            />
           </div>
         </div>
 
+
+      <div className="ReUs-boton-contenedor">
         <button type="submit" className="ReUs-boton">Guardar Cambios</button>
         <button
-          type="button"
-          onClick={() => navigate('/listarUsuarios')}
-          className="ReUs-boton"
-          style={{ backgroundColor: '#888', marginLeft: '10px' }}
+        type="button"
+        onClick={() => navigate('/listarUsuarios')}
+        className="ReUs-boton"
+        style={{ backgroundColor: '#888' }}
         >
-          Cancelar
+    Cancelar
         </button>
+        </div>
       </form>
     </div>
   );

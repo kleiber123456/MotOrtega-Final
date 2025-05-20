@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Pencil, Trash2, Search } from 'lucide-react';
+import { Pencil, Trash2, Eye } from 'lucide-react';
 import Swal from 'sweetalert2';
 import '../../../../shared/styles/listarUsuarios.css';
 
@@ -81,6 +81,33 @@ function ListarUsuarios() {
     }
   };
 
+  const cambiarEstado = async (id) => {
+  try {
+    const res = await fetch(`https://api-final-8rw7.onrender.com/api/usuarios/${id}/cambiar-estado`, {
+      method: "PUT",
+      headers: {
+        "Authorization": `${token}`,
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!res.ok) throw new Error("Error al cambiar el estado");
+
+    // Actualizar estado localmente
+    setUsuarios(prev =>
+      prev.map(u =>
+        u.id === id
+          ? { ...u, estado: u.estado === "activo" ? "inactivo" : "activo" }
+          : u
+      )
+    );
+  } catch (err) {
+    console.error("Error al cambiar el estado:", err);
+    Swal.fire("Error", "No se pudo cambiar el estado del usuario", "error");
+  }
+};
+
+
   const handleSearch = (e) => {
     setBusqueda(e.target.value.toLowerCase());
     setPaginaActual(1);
@@ -139,7 +166,18 @@ function ListarUsuarios() {
                 <td>{usuario.correo}</td>
                 <td>{usuario.telefono}</td>
                 <td>{usuario.rol_nombre}</td>
-                <td>{usuario.estado}</td>
+                <td>
+                  <td>
+                    <div
+                      className={`estado-switch ${usuario.estado === "activo" ? "activo" : "inactivo"}`}
+                      onClick={() => cambiarEstado(usuario.id)}
+                      title={`Estado: ${usuario.estado}`}
+                    >
+                      <div className="switch-bola"></div>
+                    </div>
+                  </td>
+
+                </td>
                 <td className="LiUs-acciones">
                   <button
                     className="icon-button edit"
@@ -160,7 +198,7 @@ function ListarUsuarios() {
                     onClick={() => navigate(`/usuarios/detalle/${usuario.id}`)}
                     title="Detalle"
                   >
-                    <Search size={18} />
+                    <Eye size={18} />
                   </button>
                 </td>
               </tr>

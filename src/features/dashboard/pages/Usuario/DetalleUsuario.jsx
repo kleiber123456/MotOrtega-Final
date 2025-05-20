@@ -52,7 +52,6 @@ function DetalleUsuario() {
             <p><strong>Teléfono:</strong> {usuario.telefono}</p>
             <p><strong>Dirección:</strong> {usuario.direccion}</p>
             <p><strong>Estado:</strong> {usuario.estado}</p>
-            <p><strong>Rol ID:</strong> {usuario.rol_id}</p>
           </div>
         </div>
 

@@ -153,3 +153,34 @@
   color: white;
   border-color: #0066ff;
 }
+
+.estado-switch {
+  width: 50px;
+  height: 24px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  padding: 2px;
+}
+
+.estado-switch .switch-bola {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: white;
+  transition: transform 0.3s;
+}
+
+/* Estado ACTIVO */
+.estado-switch.activo {
+  background-color: green;
+  justify-content: flex-end;
+}
+
+/* Estado INACTIVO */
+.estado-switch.inactivo {
+  background-color: red;
+  justify-content: flex-start;
+}
