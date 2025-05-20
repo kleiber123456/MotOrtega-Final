@@ -80,7 +80,7 @@ function CrearCategoriaRepuesto() {
       if (!res.ok) throw new Error("Error al crear la categoría");
 
       Swal.fire("Éxito", "Categoría creada correctamente", "success");
-      navigate("/listarCategoriasRepuesto"); // Ajusta esta ruta a la que tengas para listar categorías
+      navigate("/categorias-repuesto"); // Ajusta esta ruta a la que tengas para listar categorías
     } catch (error) {
       console.error("Error al crear la categoría:", error);
       Swal.fire("Error", "No se pudo crear la categoría", "error");

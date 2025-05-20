@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Pencil, Trash2, Search } from 'lucide-react';
-import Swal from 'sweetalert2';
-import '../../../../shared/styles/listarCategoriaRepuesto.css';
+import { Pencil, Trash2 } from "lucide-react";
+import Swal from "sweetalert2";
+import "../../../../shared/styles/listarCategoriaRepuesto.css";
 
 function ListarCategoriasRepuesto() {
   const [categorias, setCategorias] = useState([]);
@@ -16,16 +16,18 @@ function ListarCategoriasRepuesto() {
   useEffect(() => {
     document.body.style.backgroundColor = "#2d3748";
     fetchCategorias();
-    return () => { document.body.style.background = ""; };
+    return () => {
+      document.body.style.background = "";
+    };
   }, []);
 
   const fetchCategorias = async () => {
     try {
       const res = await fetch("https://api-final-8rw7.onrender.com/api/categorias-repuestos", {
         headers: {
-          "Authorization": `${token}`,
-          "Content-Type": "application/json"
-        }
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
       if (!res.ok) throw new Error("Error al obtener categorías");
@@ -43,19 +45,16 @@ function ListarCategoriasRepuesto() {
       const res = await fetch(`https://api-final-8rw7.onrender.com/api/categorias-repuestos/${id}/cambiar-estado`, {
         method: "PUT",
         headers: {
-          "Authorization": `${token}`,
-          "Content-Type": "application/json"
-        }
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
       if (!res.ok) throw new Error("Error al cambiar el estado");
 
-      // Actualizar estado localmente
-      setCategorias(prev =>
-        prev.map(cat =>
-          cat.id === id
-            ? { ...cat, estado: cat.estado === "Activo" ? "Inactivo" : "Activo" }
-            : cat
+      setCategorias((prev) =>
+        prev.map((cat) =>
+          cat.id === id ? { ...cat, estado: cat.estado === "Activo" ? "Inactivo" : "Activo" } : cat
         )
       );
     } catch (err) {
@@ -73,7 +72,7 @@ function ListarCategoriasRepuesto() {
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar"
+      cancelButtonText: "Cancelar",
     });
 
     if (!confirmacion.isConfirmed) return;
@@ -82,16 +81,15 @@ function ListarCategoriasRepuesto() {
       const res = await fetch(`https://api-final-8rw7.onrender.com/api/categorias-repuestos/${id}`, {
         method: "DELETE",
         headers: {
-          "Authorization": `${token}`,
-          "Content-Type": "application/json"
-        }
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
       if (!res.ok) throw new Error("Error al eliminar la categoría");
 
-      setCategorias(prev => prev.filter(c => c.id !== id));
+      setCategorias((prev) => prev.filter((c) => c.id !== id));
       Swal.fire("Eliminado", "Categoría eliminada correctamente", "success");
-
     } catch (err) {
       console.error("Error al eliminar la categoría:", err);
       Swal.fire("Error", "No se pudo eliminar la categoría", "error");
@@ -103,9 +101,10 @@ function ListarCategoriasRepuesto() {
     setPaginaActual(1);
   };
 
-  const categoriasFiltradas = categorias.filter(c =>
-    c.nombre.toLowerCase().includes(busqueda) || 
-    c.estado.toLowerCase().includes(busqueda)
+  const categoriasFiltradas = categorias.filter(
+    (c) =>
+      c.nombre.toLowerCase().includes(busqueda) ||
+      c.estado.toLowerCase().includes(busqueda)
   );
 
   const indiceUltimaCategoria = paginaActual * categoriasPorPagina;
@@ -140,17 +139,19 @@ function ListarCategoriasRepuesto() {
             </tr>
           </thead>
           <tbody>
-            {categoriasActuales.map(categoria => (
+            {categoriasActuales.map((categoria) => (
               <tr key={categoria.id}>
                 <td>{categoria.nombre}</td>
                 <td>
-                  <button
+                  <div
+                    className={`estado-switch ${categoria.estado === "Activo" ? "activo" : "inactivo"}`}
                     onClick={() => cambiarEstadoCategoria(categoria.id)}
-                    className={`estado-toggle ${categoria.estado === "Activo" ? "activo" : "inactivo"}`}
-                    title="Cambiar estado"
+                    title={`Estado: ${categoria.estado}`}
+                    style={{ cursor: "pointer" }}
+                    aria-label={`Cambiar estado a ${categoria.estado === "Activo" ? "Inactivo" : "Activo"}`}
                   >
-                    {categoria.estado === "Activo" ? "🟢 Activo" : "🔴 Inactivo"}
-                  </button>
+                    <div className="switch-bola"></div>
+                  </div>
                 </td>
                 <td className="LiUs-acciones">
                   <button
@@ -179,8 +180,8 @@ function ListarCategoriasRepuesto() {
 
         {categoriasFiltradas.length > categoriasPorPagina && (
           <div className="LiUs-paginacion">
-            <button 
-              onClick={() => setPaginaActual(paginaActual - 1)} 
+            <button
+              onClick={() => setPaginaActual((prev) => prev - 1)}
               disabled={paginaActual === 1}
               className="LiUs-boton-paginacion"
             >
@@ -191,14 +192,14 @@ function ListarCategoriasRepuesto() {
               <button
                 key={i + 1}
                 onClick={() => setPaginaActual(i + 1)}
-                className={`LiUs-boton-paginacion ${paginaActual === i + 1 ? 'active' : ''}`}
+                className={`LiUs-boton-paginacion ${paginaActual === i + 1 ? "active" : ""}`}
               >
                 {i + 1}
               </button>
             ))}
 
-            <button 
-              onClick={() => setPaginaActual(paginaActual + 1)} 
+            <button
+              onClick={() => setPaginaActual((prev) => prev + 1)}
               disabled={paginaActual === totalPaginas}
               className="LiUs-boton-paginacion"
             >

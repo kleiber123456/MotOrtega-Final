@@ -1,11 +1,10 @@
-// EditarCategoriaRepuesto.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import '../../../../shared/styles/EditarCategoriaRepuesto.css';
 
 function EditarCategoriaRepuesto() {
-  const { id } = useParams(); // id de la categoría a editar
+  const { id } = useParams();
   const navigate = useNavigate();
   const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
@@ -101,8 +100,8 @@ function EditarCategoriaRepuesto() {
 
       if (!res.ok) throw new Error("Error al actualizar la categoría");
 
-      Swal.fire("Éxito", "Categoría actualizada correctamente", "success");
-      navigate("/listarCategoriasRepuesto");
+      await Swal.fire("Éxito", "Categoría actualizada correctamente", "success");
+      navigate("/categorias-repuesto");
     } catch (error) {
       console.error("Error al actualizar la categoría:", error);
       Swal.fire("Error", "No se pudo actualizar la categoría", "error");
@@ -113,45 +112,51 @@ function EditarCategoriaRepuesto() {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="categoria-container">
-      <form className="categoria-form" onSubmit={handleSubmit}>
-        <h2>Editar Categoría de Repuesto</h2>
+    <div className="CatRep-contenedor">
+      <form className="CatRep-formulario" onSubmit={handleSubmit}>
+        <h2 className="CatRep-titulo">Editar Categoría de Repuesto</h2>
 
-        <div className="campo">
-          <label>Nombre</label>
-          <input
-            type="text"
-            name="nombre"
-            value={categoria.nombre}
-            onChange={handleChange}
-            maxLength={50}
-            className={errores.nombre ? "input-error" : ""}
-            required
-          />
-          {errores.nombre && <span className="error-text">{errores.nombre}</span>}
+        <div className="CatRep-grid">
+          <div className="CatRep-columna">
+            <label className="CatRep-label">Nombre</label>
+            <input
+              type="text"
+              name="nombre"
+              value={categoria.nombre}
+              onChange={handleChange}
+              maxLength={50}
+              className={`CatRep-input ${errores.nombre ? "input-error" : ""}`}
+              required
+            />
+            {errores.nombre && <span className="error-text">{errores.nombre}</span>}
+          </div>
+
+          <div className="CatRep-columna">
+            <label className="CatRep-label">Estado</label>
+            <select
+              name="estado"
+              value={categoria.estado}
+              onChange={handleChange}
+              className="CatRep-input"
+            >
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+          </div>
         </div>
 
-        <div className="campo">
-          <label>Estado</label>
-          <select
-            name="estado"
-            value={categoria.estado}
-            onChange={handleChange}
-          >
-            <option value="Activo">Activo</option>
-            <option value="Inactivo">Inactivo</option>
-          </select>
-        </div>
-
-        <div className="botones-container">
-          <button type="submit">Guardar Cambios</button>
-          <button
-            type="button"
-            onClick={() => navigate("/listarCategoriasRepuesto")}
-          >
-            Cancelar
+        <div className="botones-container" style={{ display: "flex", gap: "10px", marginTop: "1rem" }}>
+          <button className="CatRep-boton" type="submit">
+          Guardar Cambios
           </button>
-        </div>
+        <button
+    className="CatRep-boton-cancelar"
+    type="button"
+    onClick={() => navigate("/categorias-repuesto")}
+  >
+    Cancelar
+  </button>
+</div>
       </form>
     </div>
   );
