@@ -9,7 +9,7 @@
 .mo-layout {
   display: flex;
   min-height: 100vh;
-  background-color: #f8fafc;
+  background-color: white;
 }
 
 .mo-layout__main {

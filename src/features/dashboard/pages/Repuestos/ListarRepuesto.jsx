@@ -162,7 +162,6 @@ function ListarRepuestos() {
         <table className="LiUs-tabla">
           <thead>
             <tr>
-              <th>ID</th>
               <th>Nombre</th>
               <th>Cantidad</th>
               <th>Categoría</th>
@@ -172,14 +171,13 @@ function ListarRepuestos() {
           <tbody>
             {repuestosActuales.map((repuesto) => (
               <tr key={repuesto.id}>
-                <td>{repuesto.id}</td>
                 <td>{repuesto.nombre}</td>
                 <td>{repuesto.cantidad}</td>
                 <td>{categorias[repuesto.categoria_repuesto_id] || "Sin categoría"}</td>
                 <td className="LiUs-acciones">
                   <button
                     className="icon-button edit"
-                    onClick={() => navigate(`/editar-repuesto/${repuesto.id}`)}
+                    onClick={() => navigate(`/repuestos/editar/${repuesto.id}`)}
                     title="Editar"
                   >
                     <Pencil size={18} />

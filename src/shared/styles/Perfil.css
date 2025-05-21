@@ -3,8 +3,10 @@
   justify-content: center;
   align-items: center;
   padding: 20px;
+  background-color: #ffffff;
   box-sizing: border-box; /* Incluye el padding y el border en el ancho y alto */
   overflow: hidden; /* Evita el scroll en la pantalla principal */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .perfil__form {
