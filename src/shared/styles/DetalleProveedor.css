@@ -1,0 +1,130 @@
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fuente más moderna */
+    background-color: #f0f2f5; /* Fondo suave para el cuerpo */
+    color: #333; /* Color de texto base */
+}
+
+.detalle-proveedor-contenedor {
+    background-color: #ffffff;
+    padding: 2.5rem 2rem; /* Aumentar padding para más espacio */
+    max-width: 900px; /* Ancho un poco menor para un diseño más compacto */
+    margin: 3rem auto; /* Centrar y dar más espacio vertical */
+    border-radius: 12px; /* Bordes ligeramente más suaves */
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1); /* Sombra más pronunciada pero suave */
+    border: 1px solid #e0e0e0; /* Borde sutil */
+}
+
+.detalle-proveedor-titulo {
+    text-align: center;
+    color: #4a4a4a; /* Color de título más suave */
+    font-size: 2.5rem; /* Tamaño de fuente ligeramente más grande */
+    margin-bottom: 2rem;
+    font-weight: 700; /* Negrita para el título */
+    position: relative; /* Para la línea decorativa */
+    padding-bottom: 0.5rem;
+}
+
+.detalle-proveedor-titulo::after {
+    content: '';
+    display: block;
+    width: 60px; /* Ancho de la línea */
+    height: 4px; /* Grosor de la línea */
+    background-color: #007bff; /* Color azul primario */
+    margin: 10px auto 0; /* Centrar la línea y dar espacio */
+    border-radius: 2px;
+}
+
+.detalle-proveedor-info-grid {
+    display: grid;
+    /* Dos columnas iguales, se ajusta a una si no hay espacio */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem 2.5rem; /* Más espacio entre los elementos del grid */
+    margin-bottom: 2.5rem;
+}
+
+.detalle-proveedor-campo {
+    font-size: 1.05rem; /* Tamaño de fuente ligeramente ajustado */
+    line-height: 1.6;
+    padding: 0.7rem 0; /* Padding para cada campo */
+    border-bottom: 1px dashed #e0e0e0; /* Línea de separación sutil */
+    display: flex; /* Para alinear el icono y el texto */
+    align-items: center; /* Centrar verticalmente icono y texto */
+}
+
+.detalle-proveedor-campo:last-child {
+    border-bottom: none; /* Quitar línea del último elemento */
+}
+
+.detalle-proveedor-campo strong {
+    color: #555; /* Color más oscuro para la etiqueta */
+    font-weight: 600; /* Negrita para la etiqueta */
+    margin-right: 0.5rem; /* Espacio entre etiqueta y valor */
+    min-width: 90px; /* Ancho mínimo para alinear etiquetas */
+}
+
+.detalle-proveedor-campo i {
+    color: #007bff; /* Color del icono */
+    margin-right: 0.8rem; /* Espacio entre icono y texto */
+    font-size: 1.2rem; /* Tamaño del icono */
+    width: 25px; /* Ancho fijo para alinear iconos */
+    text-align: center;
+}
+
+.detalle-proveedor-boton-contenedor {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Más espacio entre los botones */
+    margin-top: 2.5rem;
+}
+
+.detalle-proveedor-boton {
+    padding: 0.9rem 2rem; /* Más padding para botones más grandes */
+    background-color: #007bff; /* Color azul primario */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.05rem; /* Fuente un poco más grande */
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Transición para efecto hover */
+    text-decoration: none;
+    display: inline-flex; /* Usar flex para centrar contenido del botón si es necesario */
+    align-items: center;
+    justify-content: center;
+    min-width: 160px;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2); /* Sombra para botones */
+}
+
+.detalle-proveedor-boton:hover {
+    background-color: #0056b3; /* Azul más oscuro al hover */
+    transform: translateY(-2px); /* Efecto de "levantamiento" */
+    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
+}
+
+/* Estilo para el botón de "Volver" */
+.detalle-proveedor-boton.secondary {
+    background-color: #6c757d; /* Gris para el botón secundario */
+    box-shadow: 0 4px 10px rgba(108, 117, 125, 0.2);
+}
+
+.detalle-proveedor-boton.secondary:hover {
+    background-color: #545b62;
+    box-shadow: 0 6px 15px rgba(108, 117, 125, 0.3);
+}
+
+/* Estilos para mensajes de carga/error */
+.detalle-proveedor-mensaje {
+    text-align: center;
+    font-size: 1.2rem;
+    padding: 1.5rem;
+    background-color: #e9ecef;
+    border-radius: 8px;
+    color: #495057;
+}
+
+.detalle-proveedor-mensaje.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}

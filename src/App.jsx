@@ -18,6 +18,10 @@ import EditarCategoriaRepuesto from './features/dashboard/pages/CategoriaRepuest
 import ListarRepuestos from './features/dashboard/pages/Repuestos/ListarRepuesto';
 import CrearRepuesto from './features/dashboard/pages/Repuestos/CrearRepuesto';
 import EditarRepuesto from './features/dashboard/pages/Repuestos/EditarRepuesto';
+import ListarProveedores from './features/dashboard/pages/Proveedor/ListarProveedor';
+import EditarProveedor from './features/dashboard/pages/Proveedor/EditarProveedor';
+import DetalleProveedor from './features/dashboard/pages/Proveedor/DetalleProveedor';
+import CrearProveedor from './features/dashboard/pages/Proveedor/CrearProveedor';
 
 function App() {
   return (
@@ -128,6 +132,38 @@ function App() {
           element={
             <PrivateRoute>
               <Layout><EditarRepuesto /></Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/ListarProveedores"
+          element={
+            <PrivateRoute>
+              <Layout><ListarProveedores /></Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/EditarProveedor/editar/:id"
+          element={
+            <PrivateRoute>
+              <Layout><EditarProveedor /></Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/CrearProveedor"
+          element={
+            <PrivateRoute>
+              <Layout><CrearProveedor  /></Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/DetalleProveedor/:id"
+          element={
+            <PrivateRoute>
+              <Layout><DetalleProveedor /></Layout>
             </PrivateRoute>
           }
         />

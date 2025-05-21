@@ -1,0 +1,193 @@
+/* ESTILOS ORIGINALES (se mantienen igual) */
+.LiUs-contenedor {
+  padding: 25px;
+  background-color: white;
+  min-height: 100vh;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.LiUs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.LiUs-titulo {
+  font-size: 24px;
+  color: #2d3748;
+}
+
+/* Botón Crear - Estilo ORIGINAL */
+.LiUs-boton-crear {
+  background-color: #0066ff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.LiUs-boton-crear:hover {
+  background-color: #0052cc;
+}
+
+/* Input Búsqueda - Estilo ORIGINAL */
+.LiUs-input-busqueda {
+  width: 100%;
+  padding: 8px 12px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* NUEVOS ESTILOS SOLO PARA BOTONES DE ACCIÓN (Editar/Eliminar/Detalle) */
+.LiUs-acciones {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding: 8px;
+}
+
+.icon-button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-size: 16px;
+}
+
+.icon-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.icon-button.edit {
+  background-color: #3b82f6; /* Azul */
+  color: white;
+}
+
+.icon-button.delete {
+  background-color: #ef4444; /* Rojo */
+  color: white;
+}
+
+.icon-button.detail {
+  background-color: #10b981; /* Verde */
+  color: white;
+}
+
+/* Tooltips para botones */
+.icon-button[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+/* ESTILOS EXISTENTES PARA TABLA Y PAGINACIÓN (se mantienen igual) */
+.LiUs-tabla-container {
+  overflow-x: auto;
+}
+
+.LiUs-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.LiUs-tabla th,
+.LiUs-tabla td {
+  border: 1px solid #e2e8f0;
+  padding: 10px;
+  text-align: center;
+}
+
+.LiUs-tabla th {
+  background-color: #f3f4f6;
+  font-weight: 700;
+  color: #374151;
+}
+
+/* Paginación */
+.LiUs-paginacion {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.LiUs-boton-paginacion {
+  background-color: #e2e8f0;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: background-color 0.2s;
+}
+
+.LiUs-boton-paginacion:hover {
+  background-color: #cbd5e1;
+}
+
+.LiUs-boton-paginacion.active {
+  background-color: #3b82f6;
+  color: white;
+  font-weight: 700;
+}
+
+/* ESTADOS - SWITCH SIMULADO */
+.estado-switch {
+  width: 48px;
+  height: 26px;
+  border-radius: 9999px;
+  padding: 3px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.estado-switch.activo {
+  background-color: #22c55e; /* Verde */
+}
+
+.estado-switch.inactivo {
+  background-color: #ef4444; /* Rojo */
+}
+
+.switch-bola {
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  transition: left 0.3s ease;
+}
+
+.estado-switch.activo .switch-bola {
+  left: 25px;
+}
+
+.estado-switch.inactivo .switch-bola {
+  left: 3px;
+}
