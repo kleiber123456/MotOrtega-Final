@@ -37,7 +37,7 @@
 
 /* Input Búsqueda - Estilo MODIFICADO: tamaño más pequeño y borde cuadrado */
 .LiUs-input-busqueda {
-  width: 300px;        /* ancho fijo más pequeño */
+  width: 150px;        /* ancho fijo más pequeño */
   padding: 8px 12px;
   margin-bottom: 16px;
   font-size: 13px;

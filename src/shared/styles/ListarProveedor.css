@@ -37,7 +37,7 @@
 
 /* Input Búsqueda - Estilo ORIGINAL */
 .LiUs-input-busqueda {
-  width: 100%;
+  width: 40%;
   padding: 8px 12px;
   margin-bottom: 16px;
   font-size: 13px;
@@ -175,8 +175,8 @@
 }
 
 .switch-bola {
-  width: 20px;
-  height: 20px;
+  width: 60px;
+  height: 30px;
   background-color: white;
   border-radius: 50%;
   position: absolute;
