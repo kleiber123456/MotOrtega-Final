@@ -167,17 +167,3 @@
 .input-error {
   border-left: 3px solid #e53e3e !important;
 }
-
-/* Span de validación */
-.perfil-validacion {
-  font-family: Montserrat;
-  font-size: 12px;
-  padding-left: 15px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  background-color: white;
-  color: #e53e3e;
-  border-left: 3px solid #e53e3e;
-  margin-top: 4px;
-}
-

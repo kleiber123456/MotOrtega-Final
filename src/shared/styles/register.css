@@ -280,7 +280,7 @@
   outline: 0;
   height: 42px;
   width: 100%;
-  border-bottom: 1px solid #edf2f7;
+  border-bottom: 1px solid gray;  
   font-size: 0.9rem;
   padding: 8px 15px;
   box-sizing: border-box;
@@ -291,6 +291,7 @@
 .register-input:focus {
   background-color: #f8fafc;
   border-left: 3px solid #0066ff;
+  border-bottom: 1px solid transparent;
 }
 
 .register-input:last-child {
@@ -449,11 +450,7 @@ select.register-input:focus {
   padding-right: 40px; /* Espacio para el icono */
 }
 
-/* Indicador de error en el campo de contraseña */
-.register-input-error {
-  border-color: #e53e3e !important;
-  background-color: rgba(229, 62, 62, 0.05);
-}
+
 
 .register-password-mismatch {
   color: #e53e3e;

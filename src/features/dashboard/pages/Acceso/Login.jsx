@@ -20,6 +20,7 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [errores, setErrores] = useState({});
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -27,7 +28,47 @@ function Login() {
       ...prevData,
       [name]: value
     }));
+    validarCampo(name, value);
   }, []);
+
+  const validarCampo = (name, value) => {
+    let nuevoError = '';
+
+    if (name === 'correo') {
+      if (!value.trim()) {
+        nuevoError = 'El correo electrónico es obligatorio.';
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        nuevoError = 'Por favor ingrese un correo electrónico válido.';
+      }
+    } else if (name === 'password') {
+      if (!value.trim()) {
+        nuevoError = 'La contraseña es obligatoria.';
+      } else if (value.length < 6) {
+        nuevoError = 'La contraseña debe tener al menos 6 caracteres.';
+      }
+    }
+
+    setErrores(prev => ({ ...prev, [name]: nuevoError }));
+  };
+
+  const validarFormulario = () => {
+    const nuevosErrores = {};
+
+    if (!formData.correo.trim()) {
+      nuevosErrores.correo = 'El correo electrónico es obligatorio.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.correo)) {
+      nuevosErrores.correo = 'Por favor ingrese un correo electrónico válido.';
+    }
+
+    if (!formData.password.trim()) {
+      nuevosErrores.password = 'La contraseña es obligatoria.';
+    } else if (formData.password.length < 6) {
+      nuevosErrores.password = 'La contraseña debe tener al menos 6 caracteres.';
+    }
+
+    setErrores(nuevosErrores);
+    return Object.keys(nuevosErrores).length === 0;
+  };
 
   const togglePasswordVisibility = useCallback(() => {
     setShowPassword(prev => !prev);
@@ -35,6 +76,11 @@ function Login() {
 
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
+    
+    if (!validarFormulario()) {
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -86,6 +132,21 @@ function Login() {
     navigate("/recuperarContraseña");
   };
 
+  const renderInput = (type, name, placeholder) => (
+    <div className="Login-input-container">
+      <input 
+        type={type}
+        className={`register-input ${errores[name] ? 'input-error' : ''}`}
+        placeholder={placeholder}
+        name={name}
+        value={formData[name]}
+        onChange={handleChange}
+        required
+      />
+      {errores[name] && <span className="perfil-validacion">{errores[name]}</span>}
+    </div>
+  );
+
   return (
     <div className='bodyLogin' transition-style="in:circle:hesitate">
       <div className="login-contendor">
@@ -100,44 +161,39 @@ function Login() {
                 <span className="Login-subtitle">Ingresa tus credenciales para acceder</span>
 
                 <div className="Login-form-container">
-                  <input 
-                    type="email" 
-                    className="Login-input" 
-                    placeholder="Correo electrónico*" 
-                    name="correo"
-                    value={formData.correo}
-                    onChange={handleChange}
-                    required  
-                    
-                  />
-                  <div className="Login-password-container">
-                    <input 
-                      type={showPassword ? "text" : "password"}
-                      className="Login-input" 
-                      placeholder="Contraseña*" 
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      required
-                      autoComplete="current-password"
-                    />
-                    <span 
-                      className="Login-password-toggle" 
-                      onClick={togglePasswordVisibility}
-                    >
-                      {showPassword ? (
-                        <i className="fas fa-eye-slash"></i>
-                      ) : (
-                        <i className="fas fa-eye"></i>
-                      )}
-                    </span>
+                  {renderInput("email", "correo", "Correo electrónico*")}
+                  
+                  <div className="Login-input-container password-field">
+                    <div className="password-container">
+                      <input 
+                        type={showPassword ? "text" : "password"}
+                        className={`register-input ${errores.password ? 'input-error' : ''}`}
+                        placeholder="Contraseña*" 
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        required
+                        autoComplete="current-password"
+                      />
+                      <span 
+                        className="password-toggle" 
+                        onClick={togglePasswordVisibility}
+                      >
+                        {showPassword ? (
+                          <i className="fas fa-eye-slash"></i>
+                        ) : (
+                          <i className="fas fa-eye"></i>
+                        )}
+                      </span>
+                    </div>
+                    {errores.password && <span className="perfil-validacion">{errores.password}</span>}
                   </div>
                 </div>
 
                 {error && (
-                  <div className="Login-error">
+                  <span className="Perfil-validacion">
                     <i className="fas fa-exclamation-circle"></i> {error}
-                  </div>
+                  </span>
                 )}
 
                 <button 

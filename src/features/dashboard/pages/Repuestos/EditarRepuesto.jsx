@@ -4,7 +4,7 @@ import { Search } from "lucide-react";
 import Swal from "sweetalert2";
 import '../../../../shared/styles/crearCategoriaRepuesto.css';
 
-// Componente del modal para categorías - separado del formulario principal
+// Componente del modal para categorías
 const CategoriaModal = ({ 
   show, 
   onClose, 
@@ -54,9 +54,6 @@ const CategoriaModal = ({
   const categoriasActuales = categoriasFiltradas.slice(indicePrimeraCategoria, indiceUltimaCategoria);
   const totalPaginasCategorias = Math.ceil(categoriasFiltradas.length / categoriasPorPagina);
 
-  // Si no se debe mostrar, no renderizar nada
-  if (!show) return null;
-
   // Calcular posición basada en el elemento de referencia
   const calcularEstilosPosicion = () => {
     if (!posicionRef.current) return {};
@@ -73,13 +70,13 @@ const CategoriaModal = ({
   };
 
   return (
-    <div className="categoria-modal-overlay">
+    <div className={`modal-categoria-overlay ${show ? 'modal-categoria-show' : 'modal-categoria-hide'}`}>
       <div 
-        className="categoria-listado-dropdown" 
+        className="modal-categoria-dropdown" 
         ref={modalRef}
         style={calcularEstilosPosicion()}
       >
-        <div className="categoria-busqueda">
+        <div className="modal-categoria-busqueda">
           <input
             type="text"
             placeholder="Buscar categoría..."
@@ -91,16 +88,16 @@ const CategoriaModal = ({
             onClick={(e) => e.stopPropagation()}
             autoFocus
           />
-          <Search size={18} className="search-icon" />
+          <Search size={18} className="modal-categoria-search-icon" />
         </div>
         
-        <div className="categoria-listado">
+        <div className="modal-categoria-listado">
           {categoriasActuales.length > 0 ? (
             categoriasActuales.map((categoria) => (
               <div
                 key={categoria.id}
-                className={`categoria-item ${
-                  categoriaActual === categoria.id.toString() ? "selected" : ""
+                className={`modal-categoria-item ${
+                  categoriaActual === categoria.id.toString() ? "modal-categoria-selected" : ""
                 }`}
                 onClick={() => onSelect(categoria)}
               >
@@ -108,24 +105,24 @@ const CategoriaModal = ({
               </div>
             ))
           ) : (
-            <div className="no-resultados">No se encontraron categorías</div>
+            <div className="modal-categoria-no-resultados">No se encontraron categorías</div>
           )}
         </div>
         
         {categoriasFiltradas.length > categoriasPorPagina && (
-          <div className="categoria-paginacion">
+          <div className="modal-categoria-paginacion">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 setPaginaActualCategorias((prev) => Math.max(prev - 1, 1));
               }}
               disabled={paginaActualCategorias === 1}
-              className="boton-paginacion"
+              className="modal-categoria-boton-paginacion"
             >
               Anterior
             </button>
             
-            <div className="pagina-info">
+            <div className="modal-categoria-pagina-info">
               {paginaActualCategorias} de {totalPaginasCategorias}
             </div>
             
@@ -135,7 +132,7 @@ const CategoriaModal = ({
                 setPaginaActualCategorias((prev) => Math.min(prev + 1, totalPaginasCategorias));
               }}
               disabled={paginaActualCategorias === totalPaginasCategorias}
-              className="boton-paginacion"
+              className="modal-categoria-boton-paginacion"
             >
               Siguiente
             </button>
@@ -153,8 +150,12 @@ function EditarRepuesto() {
 
   const [repuesto, setRepuesto] = useState({
     nombre: "",
+    descripcion: "",
     cantidad: 0,
+    preciounitario: 0,
+    estado: "Activo",
     categoria_repuesto_id: "",
+    total: 0
   });
 
   const [categorias, setCategorias] = useState([]);
@@ -168,6 +169,15 @@ function EditarRepuesto() {
   
   // Ref para el input de categoría (para posicionar el modal)
   const categoriaInputRef = useRef(null);
+
+  // Calcular el total cuando cambia cantidad o precio unitario
+  useEffect(() => {
+    const nuevoTotal = repuesto.cantidad * repuesto.preciounitario;
+    setRepuesto(prev => ({
+      ...prev,
+      total: parseFloat(nuevoTotal.toFixed(2))
+    }));
+  }, [repuesto.cantidad, repuesto.preciounitario]);
 
   // Cargar datos del repuesto y categorías al montar el componente
   useEffect(() => {
@@ -210,8 +220,12 @@ function EditarRepuesto() {
         const dataRepuesto = await resRepuesto.json();
         setRepuesto({
           nombre: dataRepuesto.nombre,
-          cantidad: dataRepuesto.cantidad,
+          descripcion: dataRepuesto.descripcion || "",
+          cantidad: dataRepuesto.cantidad || 0,
+          preciounitario: dataRepuesto.preciounitario || 0,
+          estado: dataRepuesto.estado || "Activo",
           categoria_repuesto_id: dataRepuesto.categoria_repuesto_id.toString(),
+          total: (dataRepuesto.cantidad || 0) * (dataRepuesto.preciounitario || 0)
         });
         
         // Establecer la categoría seleccionada para mostrarla en el input
@@ -235,8 +249,14 @@ function EditarRepuesto() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setRepuesto((prev) => ({ ...prev, [name]: value }));
-    validarCampo(name, value);
+    
+    // Para campos numéricos, convertir a número
+    const processedValue = ["cantidad", "preciounitario", "total"].includes(name) 
+      ? parseFloat(value) || 0
+      : value;
+    
+    setRepuesto((prev) => ({ ...prev, [name]: processedValue }));
+    validarCampo(name, processedValue);
   };
   
   // Manejar la selección de una categoría
@@ -261,11 +281,25 @@ function EditarRepuesto() {
       }
     }
 
+    if (name === "descripcion") {
+      if (value.length > 200) {
+        error = "La descripción no puede exceder los 200 caracteres.";
+      }
+    }
+
     if (name === "cantidad") {
-      if (value === "") {
+      if (value === "" || isNaN(value)) {
         error = "La cantidad es obligatoria.";
-      } else if (isNaN(value) || parseInt(value) < 0) {
+      } else if (parseInt(value) < 0) {
         error = "La cantidad debe ser un número positivo.";
+      }
+    }
+
+    if (name === "preciounitario") {
+      if (value === "" || isNaN(value)) {
+        error = "El precio unitario es obligatorio.";
+      } else if (parseFloat(value) < 0) {
+        error = "El precio unitario debe ser un número positivo.";
       }
     }
 
@@ -287,10 +321,20 @@ function EditarRepuesto() {
       nuevosErrores.nombre = "El nombre debe tener al menos 3 caracteres.";
     }
 
+    if (repuesto.descripcion.length > 200) {
+      nuevosErrores.descripcion = "La descripción no puede exceder los 200 caracteres.";
+    }
+
     if (repuesto.cantidad === "" || isNaN(repuesto.cantidad)) {
       nuevosErrores.cantidad = "La cantidad es obligatoria y debe ser un número.";
     } else if (parseInt(repuesto.cantidad) < 0) {
       nuevosErrores.cantidad = "La cantidad debe ser un número positivo.";
+    }
+
+    if (repuesto.preciounitario === "" || isNaN(repuesto.preciounitario)) {
+      nuevosErrores.preciounitario = "El precio unitario es obligatorio y debe ser un número.";
+    } else if (parseFloat(repuesto.preciounitario) < 0) {
+      nuevosErrores.preciounitario = "El precio unitario debe ser un número positivo.";
     }
 
     if (!repuesto.categoria_repuesto_id) {
@@ -314,13 +358,21 @@ function EditarRepuesto() {
 
     try {
       setCargando(true);
+      
+      // Preparar los datos para enviar (el total se calcula en el backend normalmente)
+      const datosAEnviar = {
+        ...repuesto,
+        categoria_repuesto_id: parseInt(repuesto.categoria_repuesto_id),
+        // No es necesario enviar el total si se calcula en el backend
+      };
+      
       const res = await fetch(`https://api-final-8rw7.onrender.com/api/repuestos/${id}`, {
         method: "PUT",
         headers: {
           "Authorization": token,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(repuesto),
+        body: JSON.stringify(datosAEnviar),
       });
 
       if (!res.ok) throw new Error("Error al actualizar el repuesto");
@@ -333,6 +385,16 @@ function EditarRepuesto() {
     } finally {
       setCargando(false);
     }
+  };
+
+  // Función para formatear el precio
+  const formatearPrecio = (precio) => {
+    if (!precio) return "$0.00";
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 2
+    }).format(precio);
   };
 
   if (cargandoInicial) {
@@ -352,7 +414,7 @@ function EditarRepuesto() {
           <h2>Editar Repuesto</h2>
 
           <div className="campo">
-            <label>Nombre</label>
+            <label>Nombre *</label>
             <input
               type="text"
               name="nombre"
@@ -366,21 +428,25 @@ function EditarRepuesto() {
           </div>
 
           <div className="campo">
-            <label>Cantidad</label>
-            <input
-              type="number"
-              name="cantidad"
-              value={repuesto.cantidad}
+            <label>Descripción</label>
+            <textarea
+              name="descripcion"
+              value={repuesto.descripcion}
               onChange={handleChange}
-              min="0"
-              className={errores.cantidad ? "input-error" : ""}
-              required
+              maxLength={200}
+              rows={3}
+              className={errores.descripcion ? "input-error" : ""}
+              placeholder="Descripción del repuesto (opcional)"
+              style={{ resize: 'vertical', minHeight: '60px' }}
             />
-            {errores.cantidad && <span className="error-text">{errores.cantidad}</span>}
+            <small style={{ color: '#666', fontSize: '12px' }}>
+              {repuesto.descripcion.length}/200 caracteres
+            </small>
+            {errores.descripcion && <span className="error-text">{errores.descripcion}</span>}
           </div>
 
           <div className="campo">
-            <label>Categoría</label>
+            <label>Categoría *</label>
             <div className="categoria-selector">
               <input
                 type="text"
@@ -397,13 +463,76 @@ function EditarRepuesto() {
             </div>
           </div>
 
+          <div style={{ display: 'flex', gap: '15px' }}>
+            <div className="campo" style={{ flex: 1 }}>
+              <label>Cantidad *</label>
+              <input
+                type="number"
+                name="cantidad"
+                value={repuesto.cantidad}
+                onChange={handleChange}
+                min="0"
+                step="1"
+                className={errores.cantidad ? "input-error" : ""}
+                required
+              />
+              {errores.cantidad && <span className="error-text">{errores.cantidad}</span>}
+            </div>
+
+            <div className="campo" style={{ flex: 1 }}>
+              <label>Precio Unitario *</label>
+              <input
+                type="number"
+                name="preciounitario"
+                value={repuesto.preciounitario}
+                onChange={handleChange}
+                min="0"
+                step="0.01"
+                className={errores.preciounitario ? "input-error" : ""}
+                required
+              />
+              {errores.preciounitario && <span className="error-text">{errores.preciounitario}</span>}
+            </div>
+          </div>
+
+          <div className="campo">
+            <label>Estado *</label>
+            <select
+              name="estado"
+              value={repuesto.estado}
+              onChange={handleChange}
+              className={errores.estado ? "input-error" : ""}
+              required
+            >
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+            {errores.estado && <span className="error-text">{errores.estado}</span>}
+          </div>
+
+          {/* Mostrar el total calculado */}
+          <div className="campo">
+            <label>Total Calculado</label>
+            <div style={{ 
+              padding: '10px', 
+              backgroundColor: '#f8f9fa', 
+              border: '1px solid #dee2e6', 
+              borderRadius: '4px',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              color: '#495057'
+            }}>
+              {formatearPrecio(parseFloat(repuesto.cantidad || 0) * parseFloat(repuesto.preciounitario || 0))}
+            </div>
+          </div>
+
           <button type="submit" disabled={cargando}>
             {cargando ? "Guardando..." : "Actualizar Repuesto"}
           </button>
         </form>
       </div>
       
-      {/* Modal de categorías - Fuera del formulario */}
+      {/* Modal de categorías */}
       <CategoriaModal
         show={mostrarModalCategorias}
         onClose={() => setMostrarModalCategorias(false)}

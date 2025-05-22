@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Eye } from "lucide-react";
 import Swal from "sweetalert2";
 import "../../../../shared/styles/listarCategoriaRepuesto.css";
 
@@ -12,6 +12,7 @@ function ListarRepuestos() {
   const [cargando, setCargando] = useState(true);
   const [busqueda, setBusqueda] = useState("");
   const [categoriaFiltro, setCategoriaFiltro] = useState("");
+  const [estadoFiltro, setEstadoFiltro] = useState("");
   const [listaCategoriasCompleta, setListaCategoriasCompleta] = useState([]);
   const [paginaActual, setPaginaActual] = useState(1);
   const [repuestosPorPagina] = useState(5);
@@ -68,6 +69,39 @@ function ListarRepuestos() {
     }
   };
 
+  const handleCambiarEstado = async (id, estadoActual) => {
+    const nuevoEstado = estadoActual === 'Activo' ? 'Inactivo' : 'Activo';
+    
+    try {
+      const res = await fetch(`https://api-final-8rw7.onrender.com/api/repuestos/estado/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": token,
+        },
+        body: JSON.stringify({ estado: nuevoEstado }),
+      });
+
+      if (!res.ok) throw new Error("Error al actualizar el estado");
+
+      // Actualizar el estado local
+      setRepuestos(prev => prev.map(rep => 
+        rep.id === id ? { ...rep, estado: nuevoEstado } : rep
+      ));
+
+      Swal.fire({
+        title: "Estado actualizado",
+        text: `El repuesto ahora está ${nuevoEstado.toLowerCase()}`,
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false
+      });
+    } catch (error) {
+      console.error("Error al cambiar el estado:", error);
+      Swal.fire("Error", "No se pudo actualizar el estado", "error");
+    }
+  };
+
   const handleEliminar = async (id) => {
     const confirmacion = await Swal.fire({
       title: "¿Estás seguro?",
@@ -105,11 +139,14 @@ function ListarRepuestos() {
     setPaginaActual(1);
   };
 
-  // Filtrar repuestos por búsqueda y categoría
+  // Filtrar repuestos por búsqueda, categoría y estado
   const repuestosFiltrados = repuestos.filter(rep => {
     const matchNombre = rep.nombre.toLowerCase().includes(busqueda);
+    const matchDescripcion = rep.descripcion ? rep.descripcion.toLowerCase().includes(busqueda) : false;
+    const matchBusqueda = matchNombre || matchDescripcion;
     const matchCategoria = categoriaFiltro === "" || rep.categoria_repuesto_id.toString() === categoriaFiltro;
-    return matchNombre && matchCategoria;
+    const matchEstado = estadoFiltro === "" || rep.estado === estadoFiltro;
+    return matchBusqueda && matchCategoria && matchEstado;
   });
 
   // Paginación
@@ -117,6 +154,16 @@ function ListarRepuestos() {
   const indicePrimerRepuesto = indiceUltimoRepuesto - repuestosPorPagina;
   const repuestosActuales = repuestosFiltrados.slice(indicePrimerRepuesto, indiceUltimoRepuesto);
   const totalPaginas = Math.ceil(repuestosFiltrados.length / repuestosPorPagina);
+
+  // Función para formatear el precio
+  const formatearPrecio = (precio) => {
+    if (!precio) return "$0.00";
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 2
+    }).format(precio);
+  };
 
   if (cargando) {
     return (
@@ -135,36 +182,60 @@ function ListarRepuestos() {
         </button>
       </div>
 
-      <div className="filtros-container">
-        <input
-          type="text"
-          className="LiUs-input-busqueda"
-          placeholder="Buscar por nombre..."
-          value={busqueda}
-          onChange={handleSearch}
-        />
+      {/* Filtros organizados horizontalmente */}
+      <div className="filtros-container-horizontal">
+        <div className="filtro-item">
+          <label className="filtro-label">Buscar:</label>
+          <input
+            type="text"
+            className="LiUs-input-busqueda filtro-input"
+            placeholder="Buscar por nombre o descripción..."
+            value={busqueda}
+            onChange={handleSearch}
+          />
+        </div>
 
-        <select
-          value={categoriaFiltro}
-          onChange={(e) => setCategoriaFiltro(e.target.value)}
-          className="LiUs-input-busqueda"
-        >
-          <option value="">Todas las categorías</option>
-          {listaCategoriasCompleta.map((cat) => (
-            <option key={cat.id} value={cat.id.toString()}>
-              {cat.nombre}
-            </option>
-          ))}
-        </select>
+        <div className="filtro-item">
+          <label className="filtro-label">Categoría:</label>
+          <select
+            value={categoriaFiltro}
+            onChange={(e) => setCategoriaFiltro(e.target.value)}
+            className="LiUs-input-busqueda filtro-select"
+          >
+            <option value="">Todas las categorías</option>
+            {listaCategoriasCompleta.map((cat) => (
+              <option key={cat.id} value={cat.id.toString()}>
+                {cat.nombre}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="filtro-item">
+          <label className="filtro-label">Estado:</label>
+          <select
+            value={estadoFiltro}
+            onChange={(e) => setEstadoFiltro(e.target.value)}
+            className="LiUs-input-busqueda filtro-select"
+          >
+            <option value="">Todos los estados</option>
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+          </select>
+        </div>
       </div>
 
-      <div className="LiUs-tabla-container">
+      <div className="LiUs-tabla-container" style={{ overflowX: 'auto' }}>
         <table className="LiUs-tabla">
           <thead>
             <tr>
               <th>Nombre</th>
-              <th>Cantidad</th>
+              <th>Descripción</th>
               <th>Categoría</th>
+              <th>Cantidad</th>
+              <th>Precio Unitario</th>
+              <th>Total</th>
+              <th>Estado</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -172,8 +243,28 @@ function ListarRepuestos() {
             {repuestosActuales.map((repuesto) => (
               <tr key={repuesto.id}>
                 <td>{repuesto.nombre}</td>
-                <td>{repuesto.cantidad}</td>
+                <td title={repuesto.descripcion || "Sin descripción"}>
+                  {repuesto.descripcion ? 
+                    (repuesto.descripcion.length > 50 ? 
+                      repuesto.descripcion.substring(0, 50) + "..." : 
+                      repuesto.descripcion) : 
+                    "Sin descripción"
+                  }
+                </td>
                 <td>{categorias[repuesto.categoria_repuesto_id] || "Sin categoría"}</td>
+                <td>{repuesto.cantidad || 0}</td>
+                <td>{formatearPrecio(repuesto.preciounitario)}</td>
+                <td>{formatearPrecio(repuesto.total)}</td>
+                <td>
+                  <div 
+                    className={`estado-switch ${repuesto.estado === 'Activo' ? 'activo' : 'inactivo'}`}
+                    onClick={() => handleCambiarEstado(repuesto.id, repuesto.estado)}
+                    title={`Cambiar a ${repuesto.estado === 'Activo' ? 'Inactivo' : 'Activo'}`}
+                    data-estado={repuesto.estado || 'Sin estado'}
+                  >
+                    <div className="switch-bola"></div>
+                  </div>
+                </td>
                 <td className="LiUs-acciones">
                   <button
                     className="icon-button edit"
@@ -188,6 +279,13 @@ function ListarRepuestos() {
                     title="Eliminar"
                   >
                     <Trash2 size={18} />
+                  </button>
+                  <button
+                    className="icon-button detail"
+                    onClick={() => navigate(`/DetalleRepuesto/${repuesto.id}`)}
+                    title="Detalle"
+                  >
+                    <Eye size={18} />
                   </button>
                 </td>
               </tr>

@@ -8,20 +8,32 @@ import Layout from './features/dashboard/components/layout/layout';
 import PrivateRoute from './features/auth/hooks/PrivateRoute';
 import Perfil from './features/dashboard/pages/Perfil/Perfil';
 import CambiarContraseña from './features/dashboard/pages/Acceso/CambiarContraseña';
+// --------------------------------USUARIOS-------------------------------
 import ListarUsuarios from './features/dashboard/pages/Usuario/ListarUsuarios';
 import CrearUsuario from './features/dashboard/pages/Usuario/CrearUsuario';
 import EditarUsuario from './features/dashboard/pages/Usuario/EditarUsuario';
 import DetalleUsuario from './features/dashboard/pages/Usuario/DetalleUsuario';
+// ----------------------------------------------------------------------
+
+// --------------------------CATEGORIA REPUESTO--------------------------
 import ListarCategoriasRepuesto from './features/dashboard/pages/CategoriaRepuesto/ListarCategoriasRepuesto';
 import CrearCategoriaRepuesto from './features/dashboard/pages/CategoriaRepuesto/CrearCategoriaRepuesto';
 import EditarCategoriaRepuesto from './features/dashboard/pages/CategoriaRepuesto/EditarCategoriaRepuesto';
+// ----------------------------------------------------------------------
+
+// ------------------------------REPUESTOS-------------------------------
 import ListarRepuestos from './features/dashboard/pages/Repuestos/ListarRepuesto';
 import CrearRepuesto from './features/dashboard/pages/Repuestos/CrearRepuesto';
 import EditarRepuesto from './features/dashboard/pages/Repuestos/EditarRepuesto';
+import DetalleRepuesto from './features/dashboard/pages/Repuestos/DetalleRepuesto';
+// ----------------------------------------------------------------------
+
+// ------------------------------PROVEEDORES-----------------------------
 import ListarProveedores from './features/dashboard/pages/Proveedor/ListarProveedor';
 import EditarProveedor from './features/dashboard/pages/Proveedor/EditarProveedor';
 import DetalleProveedor from './features/dashboard/pages/Proveedor/DetalleProveedor';
 import CrearProveedor from './features/dashboard/pages/Proveedor/CrearProveedor';
+// ----------------------------------------------------------------------
 
 function App() {
   return (
@@ -53,6 +65,7 @@ function App() {
             </PrivateRoute>
           }
         />
+        {/* USUARIOS */}
         <Route
           path="/listarUsuarios"
           element={
@@ -86,7 +99,8 @@ function App() {
             </PrivateRoute>
           }
         />
-
+        {/* ------------------------------------------------------------------------ */}
+        {/* CATEGORIA REPEUSTO */}
         <Route
           path="/categorias-repuesto"
           element={
@@ -111,6 +125,8 @@ function App() {
             </PrivateRoute>
           }
         />
+        {/* ------------------------------------------------------------------------ */}
+        {/* REPEUSTO */}
         <Route
           path="/repuestos"
           element={
@@ -135,6 +151,16 @@ function App() {
             </PrivateRoute>
           }
         />
+         <Route
+          path="/DetalleRepuesto/:id"
+          element={
+            <PrivateRoute>
+              <Layout><DetalleRepuesto /></Layout>
+            </PrivateRoute>
+          }
+        />
+        {/* ------------------------------------------------------------------------ */}
+        {/* PROVEEDORES */}
         <Route
           path="/ListarProveedores"
           element={
@@ -167,8 +193,8 @@ function App() {
             </PrivateRoute>
           }
         />
+        {/* ------------------------------------------------------------------------ */}
       </Routes>
-
     </BrowserRouter>
   );
 }

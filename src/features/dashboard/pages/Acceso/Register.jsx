@@ -21,7 +21,7 @@ function Register() {
     estado: "activo"
   });
 
-  const [touched, setTouched] = useState({});
+  const [errores, setErrores] = useState({});
   const [passwordMatch, setPasswordMatch] = useState(true);
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -45,119 +45,161 @@ function Register() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    validarCampo(name, value);
   };
 
-  const handleFocus = (e) => {
-    setTouched((prev) => ({ ...prev, [e.target.name]: true }));
-  };
+  const validarCampo = (name, value) => {
+    let nuevoError = '';
 
-  const handleBlur = (e) => {
-    setTouched((prev) => ({ ...prev, [e.target.name]: true }));
-  };
-
-  const getValidationMessage = (name) => {
-    const value = formData[name];
-
-    switch (name) {
-      case "nombre":
-        if (!value.trim()) {
-          return "El nombre es obligatorio";
-        }
-        if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]{2,}$/.test(value)) {
-          return "El nombre debe contener solo letras y tener al menos 2 caracteres";
-        }
-        break;
-      case "apellido":
-        if (!value.trim()) {
-          return "El apellido es obligatorio";
-        }
-        if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]{2,}$/.test(value)) {
-          return "El apellido debe contener solo letras y tener al menos 2 caracteres";
-        }
-        break;
-      case "documento":
-        if (!value.trim()) {
-          return "El número de documento es obligatorio";
-        }
-        if (!/^\d{6,}$/.test(value)) {
-          return "El documento debe contener al menos 6 dígitos";
-        }
-        break;
-      case "telefono":
-        if (!value.trim()) {
-          return "El teléfono es obligatorio";
-        }
-        if (!/^\d{7,}$/.test(value)) {
-          return "El teléfono debe contener al menos 7 dígitos";
-        }
-        break;
-      case "direccion":
-        if (!value.trim()) {
-          return "La dirección es obligatoria";
-        }
-        if (value.length < 5) {
-          return "Por favor ingrese una dirección válida";
-        }
-        break;
-      case "correo":
-        if (!value.trim()) {
-          return "El correo electrónico es obligatorio";
-        }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          return "Por favor ingrese un correo electrónico válido";
-        }
-        break;
-      case "password":
-        if (!value.trim()) {
-          return "La contraseña es obligatoria";
-        }
+    if (name === 'nombre') {
+      if (!value.trim()) {
+        nuevoError = 'El nombre es obligatorio.';
+      } else if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]{2,}$/.test(value)) {
+        nuevoError = 'El nombre debe contener solo letras y tener al menos 2 caracteres.';
+      }
+    } else if (name === 'apellido') {
+      if (!value.trim()) {
+        nuevoError = 'El apellido es obligatorio.';
+      } else if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]{2,}$/.test(value)) {
+        nuevoError = 'El apellido debe contener solo letras y tener al menos 2 caracteres.';
+      }
+    } else if (name === 'documento') {
+      if (!value.trim()) {
+        nuevoError = 'El número de documento es obligatorio.';
+      } else if (!/^\d{6,}$/.test(value)) {
+        nuevoError = 'El documento debe contener al menos 6 dígitos.';
+      }
+    } else if (name === 'telefono') {
+      if (!value.trim()) {
+        nuevoError = 'El teléfono es obligatorio.';
+      } else if (!/^\d{7,}$/.test(value)) {
+        nuevoError = 'El teléfono debe contener al menos 7 dígitos.';
+      }
+    } else if (name === 'direccion') {
+      if (!value.trim()) {
+        nuevoError = 'La dirección es obligatoria.';
+      } else if (value.length < 5) {
+        nuevoError = 'Por favor ingrese una dirección válida.';
+      }
+    } else if (name === 'correo') {
+      if (!value.trim()) {
+        nuevoError = 'El correo electrónico es obligatorio.';
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        nuevoError = 'Por favor ingrese un correo electrónico válido.';
+      }
+    } else if (name === 'password') {
+      if (!value.trim()) {
+        nuevoError = 'La contraseña es obligatoria.';
+      } else {
+        const erroresPassword = [];
         if (value.length < 8) {
-          return "La contraseña debe tener al menos 8 caracteres";
+          erroresPassword.push('al menos 8 caracteres');
         }
         if (!/(?=.*[A-Z])/.test(value)) {
-          return "La contraseña debe incluir al menos una letra mayúscula";
+          erroresPassword.push('una letra mayúscula');
         }
         if (!/(?=.*\d)/.test(value)) {
-          return "La contraseña debe incluir al menos un número";
+          erroresPassword.push('un número');
         }
-        break;
-      case "confirmPassword":
-        if (!value.trim()) {
-          return "Debe confirmar la contraseña";
+        
+        if (erroresPassword.length > 0) {
+          nuevoError = 'La contraseña debe contener: ' + erroresPassword.join(', ') + '.';
         }
-        if (value !== formData.password) {
-          return "Las contraseñas no coinciden";
-        }
-        break;
-      default:
-        return null;
+      }
+    } else if (name === 'confirmPassword') {
+      if (!value.trim()) {
+        nuevoError = 'Debe confirmar la contraseña.';
+      } else if (value !== formData.password) {
+        nuevoError = 'Las contraseñas no coinciden.';
+      }
     }
 
-    return null;
+    setErrores(prev => ({ ...prev, [name]: nuevoError }));
   };
 
   const validarCamposPaso = () => {
-    let camposInvalidos = [];
     const campos = step === 1 ? ["nombre", "apellido", "documento"] :
                    step === 2 ? ["telefono", "direccion", "correo"] :
                                 ["password", "confirmPassword"];
     
-    // Marcar todos los campos del paso actual como touched
-    const newTouched = { ...touched };
-    campos.forEach(campo => {
-      newTouched[campo] = true;
-    });
-    setTouched(newTouched);
+    const nuevosErrores = {};
     
-    // Verificar validaciones
+    // Validar cada campo del paso actual
     for (const campo of campos) {
-      const msg = getValidationMessage(campo);
-      if (msg) {
-        camposInvalidos.push(campo);
+      const value = formData[campo];
+      let nuevoError = '';
+
+      if (campo === 'nombre') {
+        if (!value.trim()) {
+          nuevoError = 'El nombre es obligatorio.';
+        } else if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]{2,}$/.test(value)) {
+          nuevoError = 'El nombre debe contener solo letras y tener al menos 2 caracteres.';
+        }
+      } else if (campo === 'apellido') {
+        if (!value.trim()) {
+          nuevoError = 'El apellido es obligatorio.';
+        } else if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]{2,}$/.test(value)) {
+          nuevoError = 'El apellido debe contener solo letras y tener al menos 2 caracteres.';
+        }
+      } else if (campo === 'documento') {
+        if (!value.trim()) {
+          nuevoError = 'El número de documento es obligatorio.';
+        } else if (!/^\d{6,}$/.test(value)) {
+          nuevoError = 'El documento debe contener al menos 6 dígitos.';
+        }
+      } else if (campo === 'telefono') {
+        if (!value.trim()) {
+          nuevoError = 'El teléfono es obligatorio.';
+        } else if (!/^\d{7,}$/.test(value)) {
+          nuevoError = 'El teléfono debe contener al menos 7 dígitos.';
+        }
+      } else if (campo === 'direccion') {
+        if (!value.trim()) {
+          nuevoError = 'La dirección es obligatoria.';
+        } else if (value.length < 5) {
+          nuevoError = 'Por favor ingrese una dirección válida.';
+        }
+      } else if (campo === 'correo') {
+        if (!value.trim()) {
+          nuevoError = 'El correo electrónico es obligatorio.';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          nuevoError = 'Por favor ingrese un correo electrónico válido.';
+        }
+      } else if (campo === 'password') {
+        if (!value.trim()) {
+          nuevoError = 'La contraseña es obligatoria.';
+        } else {
+          const erroresPassword = [];
+          if (value.length < 8) {
+            erroresPassword.push('al menos 8 caracteres');
+          }
+          if (!/(?=.*[A-Z])/.test(value)) {
+            erroresPassword.push('una letra mayúscula');
+          }
+          if (!/(?=.*\d)/.test(value)) {
+            erroresPassword.push('un número');
+          }
+          
+          if (erroresPassword.length > 0) {
+            nuevoError = 'La contraseña debe contener: ' + erroresPassword.join(', ') + '.';
+          }
+        }
+      } else if (campo === 'confirmPassword') {
+        if (!value.trim()) {
+          nuevoError = 'Debe confirmar la contraseña.';
+        } else if (value !== formData.password) {
+          nuevoError = 'Las contraseñas no coinciden.';
+        }
+      }
+
+      if (nuevoError) {
+        nuevosErrores[campo] = nuevoError;
       }
     }
     
-    if (camposInvalidos.length > 0) {
+    setErrores(prev => ({ ...prev, ...nuevosErrores }));
+    
+    if (Object.keys(nuevosErrores).length > 0) {
       Swal.fire({ 
         icon: 'warning', 
         title: 'Campos incompletos o inválidos', 
@@ -209,22 +251,16 @@ function Register() {
     <div className="register-input-container">
       <input
         type={type}
-        className={`register-input ${touched[name] && getValidationMessage(name) ? 'register-input-error' : ''}`}
+        className={`register-input ${errores[name] ? 'register-input-error' : ''}`}
         placeholder={placeholder}
         name={name}
         value={formData[name]}
         maxLength={max}
         onInput={onInput}
         onChange={handleChange}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
         required
       />
-      {touched[name] && getValidationMessage(name) && (
-        <div className="register-validation-message">
-          <i className="fas fa-exclamation-circle"></i> {getValidationMessage(name)}
-        </div>
-      )}
+      {errores[name] && <span className="perfil-validacion">{errores[name]}</span>}
     </div>
   );
 
@@ -268,13 +304,20 @@ function Register() {
                           <div className="register-section-title"><i className="fas fa-user-circle"></i> Datos Personales</div>
                           {renderInput("text", "nombre", "Nombres*", 30, soloLetras)}
                           {renderInput("text", "apellido", "Apellidos*", 35, soloLetras)}
-                          <select className="register-input" name="tipo_documento" value={formData.tipo_documento} onChange={handleChange}>
-                            <option value="Cédula de ciudadanía">Cédula de ciudadanía</option>
-                            <option value="Tarjeta de identidad">Tarjeta de identidad</option>
-                            <option value="Cédula de Extranjería">Cédula de Extranjería</option>
-                            <option value="Pasaporte">Pasaporte</option>
-                            <option value="Otro">Otro</option>
-                          </select>
+                          <div className="register-input-container">
+                            <select 
+                              className="register-input" 
+                              name="tipo_documento" 
+                              value={formData.tipo_documento} 
+                              onChange={handleChange}
+                            >
+                              <option value="Cédula de ciudadanía">Cédula de ciudadanía</option>
+                              <option value="Tarjeta de identidad">Tarjeta de identidad</option>
+                              <option value="Cédula de Extranjería">Cédula de Extranjería</option>
+                              <option value="Pasaporte">Pasaporte</option>
+                              <option value="Otro">Otro</option>
+                            </select>
+                          </div>
                           {renderInput("text", "documento", "Número de Documento*", 15, soloNumeros)}
                         </>
                       )}
@@ -289,51 +332,43 @@ function Register() {
                       {step === 3 && (
                         <>
                           <div className="register-section-title"><i className="fas fa-lock"></i> Seguridad</div>
-                          <div className="register-password-container">
-                            <input
-                              type={showPassword ? "text" : "password"}
-                              className={`register-input ${touched.password && getValidationMessage("password") ? 'register-input-error' : ''}`}
-                              placeholder="Contraseña*"
-                              name="password"
-                              maxLength={128}
-                              value={formData.password}
-                              onChange={handleChange}
-                              onFocus={handleFocus}
-                              onBlur={handleBlur}
-                              required
-                            />
-                            <span className="register-password-toggle" onClick={() => setShowPassword(p => !p)}>
-                              <i className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
-                            </span>
-                          </div>
-                          {touched.password && getValidationMessage("password") && (
-                            <div className="register-validation-message">
-                              <i className="fas fa-exclamation-circle"></i> {getValidationMessage("password")}
+                          <div className="register-input-container password-field">
+                            <div className="password-container">
+                              <input
+                                type={showPassword ? "text" : "password"}
+                                className={`register-input ${errores.password ? 'register-input-error' : ''}`}
+                                placeholder="Contraseña*"
+                                name="password"
+                                maxLength={128}
+                                value={formData.password}
+                                onChange={handleChange}
+                                required
+                              />
+                              <span className="password-toggle" onClick={() => setShowPassword(p => !p)}>
+                                <i className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+                              </span>
                             </div>
-                          )}
+                            {errores.password && <span className="perfil-validacion">{errores.password}</span>}
+                          </div>
                           
-                          <div className="register-password-container">
-                            <input
-                              type={showConfirmPassword ? "text" : "password"}
-                              className={`register-input ${touched.confirmPassword && getValidationMessage("confirmPassword") ? 'register-input-error' : ''}`}
-                              placeholder="Confirmar Contraseña*"
-                              name="confirmPassword"
-                              maxLength={128}
-                              value={formData.confirmPassword}
-                              onChange={handleChange}
-                              onFocus={handleFocus}
-                              onBlur={handleBlur}
-                              required
-                            />
-                            <span className="register-password-toggle" onClick={() => setShowConfirmPassword(p => !p)}>
-                              <i className={`fas ${showConfirmPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
-                            </span>
-                          </div>
-                          {touched.confirmPassword && getValidationMessage("confirmPassword") && (
-                            <div className="register-validation-message">
-                              <i className="fas fa-exclamation-circle"></i> {getValidationMessage("confirmPassword")}
+                          <div className="register-input-container password-field">
+                            <div className="password-container">
+                              <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                className={`register-input ${errores.confirmPassword ? 'register-input-error' : ''}`}
+                                placeholder="Confirmar Contraseña*"
+                                name="confirmPassword"
+                                maxLength={128}
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                                required
+                              />
+                              <span className="password-toggle" onClick={() => setShowConfirmPassword(p => !p)}>
+                                <i className={`fas ${showConfirmPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+                              </span>
                             </div>
-                          )}
+                            {errores.confirmPassword && <span className="perfil-validacion">{errores.confirmPassword}</span>}
+                          </div>
                         </>
                       )}
                     </div>
