@@ -35,15 +35,17 @@
   background-color: #0052cc;
 }
 
-/* Input Búsqueda - Estilo ORIGINAL */
+/* Input Búsqueda - Estilo MODIFICADO: tamaño más pequeño y borde cuadrado */
 .LiUs-input-busqueda {
-  width: 100%;
+  width: 300px;        /* ancho fijo más pequeño */
   padding: 8px 12px;
   margin-bottom: 16px;
   font-size: 13px;
   border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  border-radius: 2px;  /* borde casi cuadrado */
   font-family: 'Montserrat', sans-serif;
+  display: inline-block;
+  box-sizing: border-box;
 }
 
 /* NUEVOS ESTILOS SOLO PARA BOTONES DE ACCIÓN (Editar/Eliminar/Detalle) */

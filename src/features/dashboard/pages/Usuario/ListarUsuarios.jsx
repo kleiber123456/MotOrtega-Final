@@ -31,6 +31,7 @@ function ListarUsuarios() {
       if (!res.ok) throw new Error("Error al obtener usuarios");
 
       const data = await res.json();
+      console.log("Usuarios obtenidos de la API:", data);
       setUsuarios(data);
     } catch (err) {
       console.error("Error al obtener usuarios:", err);
@@ -82,31 +83,42 @@ function ListarUsuarios() {
   };
 
   const cambiarEstado = async (id) => {
-  try {
-    const res = await fetch(`https://api-final-8rw7.onrender.com/api/usuarios/${id}/cambiar-estado`, {
-      method: "PUT",
-      headers: {
-        "Authorization": `${token}`,
-        "Content-Type": "application/json"
+    try {
+      console.log("Cambiando estado del usuario con ID:", id);
+      
+      const res = await fetch(`https://api-final-8rw7.onrender.com/api/usuarios/${id}/cambiar-estado`, {
+        method: "PUT",
+        headers: {
+          "Authorization": `${token}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Error del servidor:", errorText);
+        throw new Error("Error al cambiar el estado");
       }
-    });
 
-    if (!res.ok) throw new Error("Error al cambiar el estado");
+      const responseData = await res.json();
+      console.log("Respuesta del servidor:", responseData);
 
-    // Actualizar estado localmente
-    setUsuarios(prev =>
-      prev.map(u =>
-        u.id === id
-          ? { ...u, estado: u.estado === "activo" ? "inactivo" : "activo" }
-          : u
-      )
-    );
-  } catch (err) {
-    console.error("Error al cambiar el estado:", err);
-    Swal.fire("Error", "No se pudo cambiar el estado del usuario", "error");
-  }
-};
+      // Actualizar estado localmente
+      setUsuarios(prev =>
+        prev.map(u =>
+          u.id === id
+            ? { ...u, estado: u.estado?.toLowerCase() === "activo" ? "Inactivo" : "Activo" }
+            : u
+        )
+      );
 
+      Swal.fire("Éxito", "Estado cambiado correctamente", "success");
+      
+    } catch (err) {
+      console.error("Error al cambiar el estado:", err);
+      Swal.fire("Error", "No se pudo cambiar el estado del usuario", "error");
+    }
+  };
 
   const handleSearch = (e) => {
     setBusqueda(e.target.value.toLowerCase());
@@ -167,16 +179,16 @@ function ListarUsuarios() {
                 <td>{usuario.telefono}</td>
                 <td>{usuario.rol_nombre}</td>
                 <td>
-                  <td>
-                    <div
-                      className={`estado-switch ${usuario.estado === "activo" ? "activo" : "inactivo"}`}
-                      onClick={() => cambiarEstado(usuario.id)}
-                      title={`Estado: ${usuario.estado}`}
-                    >
-                      <div className="switch-bola"></div>
-                    </div>
-                  </td>
-
+                  <div
+                    className={`estado-switch ${usuario.estado?.toLowerCase() === "activo" ? "activo" : "inactivo"}`}
+                    onClick={() => cambiarEstado(usuario.id)}
+                    title={`Estado: ${usuario.estado}`}
+                  >
+                    <div className="switch-bola"></div>
+                  </div>
+                  <small style={{display: 'block', marginTop: '4px', fontSize: '10px', color: '#666'}}>
+          
+                  </small>
                 </td>
                 <td className="LiUs-acciones">
                   <button

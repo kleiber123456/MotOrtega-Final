@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import '../../../../shared/styles/EditarCategoriaRepuesto.css';
+import '../../../../shared/styles/EditarCategoriaRepuesto.css'; // Cambiar por el archivo unificado
 
 function EditarCategoriaRepuesto() {
   const { id } = useParams();
@@ -108,36 +108,54 @@ function EditarCategoriaRepuesto() {
     }
   };
 
-  if (cargando) return <p>Cargando categoría...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (cargando) {
+    return (
+      <div className="contenedor">
+        <h2 className="titulo">Cargando categoría...</h2>
+        <div className="linea-decorativa"></div>
+        <p style={{ textAlign: 'center' }}>Por favor, espera.</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="contenedor">
+        <h2 className="titulo">Error</h2>
+        <div className="linea-decorativa"></div>
+        <p style={{ textAlign: 'center', color: '#721c24' }}>Error: {error}</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="CatRep-contenedor">
-      <form className="CatRep-formulario" onSubmit={handleSubmit}>
-        <h2 className="CatRep-titulo">Editar Categoría de Repuesto</h2>
-
-        <div className="CatRep-grid">
-          <div className="CatRep-columna">
-            <label className="CatRep-label">Nombre</label>
+    <div className="contenedor">
+      <h2 className="titulo">Editar Categoría de Repuesto</h2>
+      <div className="linea-decorativa"></div>
+      
+      <form className="formulario" onSubmit={handleSubmit}>
+        <div className="grid">
+          <div className="columna">
+            <label>Nombre:</label>
             <input
               type="text"
               name="nombre"
               value={categoria.nombre}
               onChange={handleChange}
               maxLength={50}
-              className={`CatRep-input ${errores.nombre ? "input-error" : ""}`}
+              className={`input ${errores.nombre ? "input-error" : ""}`}
               required
             />
             {errores.nombre && <span className="error-text">{errores.nombre}</span>}
           </div>
 
-          <div className="CatRep-columna">
-            <label className="CatRep-label">Estado</label>
+          <div className="columna">
+            <label>Estado:</label>
             <select
               name="estado"
               value={categoria.estado}
               onChange={handleChange}
-              className="CatRep-input"
+              className="input"
             >
               <option value="Activo">Activo</option>
               <option value="Inactivo">Inactivo</option>
@@ -145,18 +163,20 @@ function EditarCategoriaRepuesto() {
           </div>
         </div>
 
-        <div className="botones-container" style={{ display: "flex", gap: "10px", marginTop: "1rem" }}>
-          <button className="CatRep-boton" type="submit">
-          Guardar Cambios
+        <div className="botones">
+          <button className="btn-primario" type="submit">
+            <i className="fas fa-save"></i>
+            Guardar Cambios
           </button>
-        <button
-    className="CatRep-boton-cancelar"
-    type="button"
-    onClick={() => navigate("/categorias-repuesto")}
-  >
-    Cancelar
-  </button>
-</div>
+          <button
+            className="btn-secundario"
+            type="button"
+            onClick={() => navigate("/categorias-repuesto")}
+          >
+            <i className="fas fa-arrow-left"></i>
+            Cancelar
+          </button>
+        </div>
       </form>
     </div>
   );

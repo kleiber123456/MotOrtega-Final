@@ -1,86 +1,194 @@
+/* Estilos base */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f2f5;
+  color: #333;
+}
+
+/* Contenedor principal */
+.contenedor,
 .CatRep-contenedor {
   background-color: #fff;
   padding: 2rem;
-  max-width: 600px;
+  max-width: 1100px;
   margin: auto;
   border-radius: 15px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 0 15px rgba(0,0,0,0.15);
 }
 
+/* Títulos */
+.titulo,
+.CatRep-titulo {
+  text-align: center;
+  color: #4a4a4a;
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Línea decorativa */
+.linea-decorativa {
+  height: 3px;
+  width: 50px;
+  background: #007bff;
+  margin: 0 auto 30px;
+  border-radius: 2px;
+}
+
+/* Formularios */
+.formulario,
 .CatRep-formulario {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.CatRep-titulo {
-  text-align: center;
-  color: #000;
-  font-size: 2rem;
-  margin-bottom: 1rem;
+/* Grid de columnas */
+.grid,
+.CatRep-grid {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
 }
 
-.CatRep-grid {
+/* Columnas */
+.columna,
+.CatRep-columna {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  min-width: 280px;
 }
 
-.CatRep-columna {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
+/* Labels */
+.columna label,
+.CatRep-columna label,
 .CatRep-label {
   font-weight: 600;
-  color: #333;
+  color: #555;
+  margin-bottom: 0.3rem;
 }
 
+/* Inputs */
+.input,
+.input select,
 .CatRep-input {
   padding: 0.7rem;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 1rem;
+  transition: border-color 0.3s ease;
+  background-color: white;
 }
 
-.CatRep-boton {
-  padding: 0.8rem 1.2rem;
-  background-color: #0066ff;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+.input:focus,
+select.input:focus,
+.CatRep-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
-.CatRep-boton:hover {
-  background-color: #004dc9;
-}
-
-/* Botón cancelar gris */
-.CatRep-boton-cancelar {
-  padding: 0.8rem 1.2rem;
-  background-color: #888888;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.CatRep-boton-cancelar:hover {
-  background-color: #555555;
-}
-
-/* Opcional para errores */
+/* Input con error */
 .input-error {
-  border-color: red;
+  border-color: #dc3545;
 }
 
+.input-error:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
+}
+
+/* Texto de error */
 .error-text {
-  color: red;
+  color: #dc3545;
   font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Contenedor de botones */
+.botones,
+.botones-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 1rem;
+}
+
+/* Botones primarios */
+.btn-primario,
+.CatRep-boton {
+  padding: 12px 24px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.btn-primario:hover,
+.CatRep-boton:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+}
+
+/* Botones secundarios */
+.btn-secundario,
+.CatRep-boton-cancelar {
+  padding: 12px 24px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.btn-secundario:hover,
+.CatRep-boton-cancelar:hover {
+  background-color: #545b62;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4);
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .grid,
+  .CatRep-grid {
+    flex-direction: column;
+  }
+  
+  .columna,
+  .CatRep-columna {
+    min-width: 100%;
+  }
+  
+  .botones,
+  .botones-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .btn-primario,
+  .btn-secundario,
+  .CatRep-boton,
+  .CatRep-boton-cancelar {
+    width: auto;
+    min-width: 180px;
+  }
 }

@@ -92,22 +92,41 @@ function EditarUsuario() {
     }
   };
 
-  if (cargando) return <p>Cargando usuario...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (cargando) {
+    return (
+      <div className="contenedor">
+        <h2 className="titulo">Cargando usuario...</h2>
+        <div className="linea-decorativa"></div>
+        <p style={{ textAlign: 'center' }}>Por favor, espera.</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="contenedor">
+        <h2 className="titulo">Error</h2>
+        <div className="linea-decorativa"></div>
+        <p style={{ textAlign: 'center', color: '#721c24' }}>Error: {error}</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="ReUs-contenedor">
-      <h2 className="ReUs-titulo">Editar Usuario</h2>
-      <form onSubmit={handleSubmit} className="ReUs-formulario">
-        <div className="ReUs-grid">
-          <div className="ReUs-columna">
+    <div className="contenedor">
+      <h2 className="titulo">Editar Usuario</h2>
+      <div className="linea-decorativa"></div>
+      
+      <form onSubmit={handleSubmit} className="formulario">
+        <div className="grid">
+          <div className="columna">
             <label>Nombre:</label>
             <input
               type="text"
               name="nombre"
               value={usuario.nombre}
               onChange={handleChange}
-              className="ReUs-input"
+              className="input"
               required
             />
 
@@ -117,19 +136,22 @@ function EditarUsuario() {
               name="apellido"
               value={usuario.apellido}
               onChange={handleChange}
-              className="ReUs-input"
+              className="input"
               required
             />
 
             <label>Tipo Documento:</label>
-            <input
-              type="text"
+            <select
               name="tipo_documento"
               value={usuario.tipo_documento}
               onChange={handleChange}
-              className="ReUs-input"
+              className="input"
               required
-            />
+            >
+              <option value="">Seleccionar tipo</option>
+              <option value="Cedula de Ciudadania">Cédula de Ciudadanía</option>
+              <option value="Tarjeta de Identidad">Tarjeta de Identidad</option>
+            </select>
 
             <label>Documento:</label>
             <input
@@ -137,19 +159,19 @@ function EditarUsuario() {
               name="documento"
               value={usuario.documento}
               onChange={handleChange}
-              className="ReUs-input"
+              className="input"
               required
             />
           </div>
 
-          <div className="ReUs-columna">
+          <div className="columna">
             <label>Correo:</label>
             <input
               type="email"
               name="correo"
               value={usuario.correo}
               onChange={handleChange}
-              className="ReUs-input"
+              className="input"
               required
             />
 
@@ -159,7 +181,7 @@ function EditarUsuario() {
               name="telefono"
               value={usuario.telefono}
               onChange={handleChange}
-              className="ReUs-input"
+              className="input"
             />
 
             <label>Dirección:</label>
@@ -168,32 +190,37 @@ function EditarUsuario() {
               name="direccion"
               value={usuario.direccion}
               onChange={handleChange}
-              className="ReUs-input"
+              className="input"
             />
 
             <label>Estado:</label>
-            <input
-              type="text"
+            <select
               name="estado"
               value={usuario.estado}
               onChange={handleChange}
-              className="ReUs-input"
+              className="input"
               required
-            />
+            >
+              <option value="">Seleccionar estado</option>
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
           </div>
         </div>
 
-
-      <div className="ReUs-boton-contenedor">
-        <button type="submit" className="ReUs-boton">Guardar Cambios</button>
-        <button
-        type="button"
-        onClick={() => navigate('/listarUsuarios')}
-        className="ReUs-boton"
-        style={{ backgroundColor: '#888' }}
-        >
-    Cancelar
-        </button>
+        <div className="botones">
+          <button type="submit" className="btn-primario">
+            <i className="fas fa-save"></i>
+            Guardar Cambios
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/listarUsuarios')}
+            className="btn-secundario"
+          >
+            <i className="fas fa-arrow-left"></i>
+            Volver a la Lista
+          </button>
         </div>
       </form>
     </div>

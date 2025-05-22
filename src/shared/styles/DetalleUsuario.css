@@ -1,0 +1,121 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f2f5;
+  color: #333;
+}
+
+.detalle-contenedor {
+  max-width: 800px;
+  margin: auto;
+  padding: 40px 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.titulo {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #4a4a4a;
+}
+
+.detalle-linea {
+  height: 3px;
+  width: 50px;
+  background: #007bff;
+  margin: 0 auto 30px;
+  border-radius: 2px;
+}
+
+.info-grid {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.columna {
+  flex: 1;
+  min-width: 300px;
+}
+
+.columna p {
+  font-size: 16px;
+  margin-bottom: 20px;
+  border-bottom: 1px dashed #ddd;
+  padding-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.icono {
+  color: #007bff;
+  margin-right: 8px;
+  font-size: 1.1rem;
+  width: 20px;
+  text-align: center;
+}
+
+.botones {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.btn-primario {
+  background-color: #007bff;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.3s;
+  text-decoration: none;
+}
+
+.btn-primario:hover {
+  background-color: #0056b3;
+}
+
+.btn-secundario {
+  background-color: #6c757d;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.3s;
+  text-decoration: none;
+}
+
+.btn-secundario:hover {
+  background-color: #545b62;
+}
+
+/* Estilos para mensajes de carga/error */
+.detalle-usuario-mensaje {
+  text-align: center;
+  font-size: 1.2rem;
+  padding: 1.5rem;
+  background-color: #e9ecef;
+  border-radius: 8px;
+  color: #495057;
+}
+
+.detalle-usuario-mensaje.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
