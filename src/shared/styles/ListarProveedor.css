@@ -43,6 +43,7 @@
   font-size: 13px;
   border: 1px solid #e2e8f0;
   border-radius: 6px;
+  background-color: #f1f5f9;
   font-family: 'Montserrat', sans-serif;
 }
 
@@ -154,40 +155,4 @@
   background-color: #3b82f6;
   color: white;
   font-weight: 700;
-}
-
-/* ESTADOS - SWITCH SIMULADO */
-.estado-switch {
-  width: 48px;
-  height: 26px;
-  border-radius: 9999px;
-  padding: 3px;
-  position: relative;
-  box-sizing: border-box;
-}
-
-.estado-switch.activo {
-  background-color: #22c55e; /* Verde */
-}
-
-.estado-switch.inactivo {
-  background-color: #ef4444; /* Rojo */
-}
-
-.switch-bola {
-  width: 60px;
-  height: 30px;
-  background-color: white;
-  border-radius: 50%;
-  position: absolute;
-  top: 3px;
-  transition: left 0.3s ease;
-}
-
-.estado-switch.activo .switch-bola {
-  left: 25px;
-}
-
-.estado-switch.inactivo .switch-bola {
-  left: 3px;
 }

@@ -59,15 +59,51 @@
   padding: 14px 18px; /* Mayor padding */
   border: none;
   border-left:3px solid white;
+  border-bottom: 1px solid black;
+  font-size: 16px; /* Mayor tamaño de fuente para los inputs y selects */
+  transition: border-color 0.3s ease;
+  box-sizing: border-box; /* Incluye el padding y el border en el ancho */
+  transition: 0.7s;
+
+}
+
+.perfil__field textarea,
+.perfil__field select {
+  font-family: Montserrat, sans-serif;
+  padding: 14px 18px; /* Mayor padding */
+  border: none;
+  border-left:3px solid white;
+  border-bottom: 2px solid gray;
+  margin-bottom: 9px;
   font-size: 16px; /* Mayor tamaño de fuente para los inputs y selects */
   transition: border-color 0.3s ease;
   box-sizing: border-box; /* Incluye el padding y el border en el ancho */
 }
 
-.perfil__field input:focus,
+.perfil__field textarea:focus,
 .perfil__field select:focus {
   outline: none;
   border-left: #0066ff solid 3px;
+
+  border-bottom: 1px solid transparent;
+}
+
+
+
+.perfil__field input:focus,
+.perfil__field select:focus,
+.perfil__field textarea:focus {
+  outline: none;
+  border-left: #0066ff solid 3px;
+  border-bottom: #0066ff solid 2px;
+}
+
+.perfil__field input:hover,
+.perfil__field select:hover,
+.perfil__field textarea:hover {
+  background-color: #0066ff22;
+  border-radius: 2px;
+  transition: 0.7s;
 }
 
 .password-input-wrapper {
@@ -166,4 +202,5 @@
 /* Estilo cuando hay error en el input */
 .input-error {
   border-left: 3px solid #e53e3e !important;
+  border-bottom:2px solid #e53e3e !important ;
 }

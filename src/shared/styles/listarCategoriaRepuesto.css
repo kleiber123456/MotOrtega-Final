@@ -67,26 +67,11 @@
   margin-bottom: 3px;
 }
 
-.filtro-input,
-.filtro-select {
-  padding: 10px 14px;
-  font-size: 14px;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  background-color: #ffffff;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  margin-bottom: 0;
-}
-
 .filtro-input:focus,
 .filtro-select:focus {
   border-color: #3b82f6;
   outline: none;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.filtro-select {
-  cursor: pointer;
 }
 
 /* Responsive para filtros */
@@ -109,7 +94,7 @@
   font-size: 14px;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
-  background-color: #f1f5f9;
+  background-color: #f1f5f9;  
   transition: border 0.2s;
 }
 
@@ -211,6 +196,7 @@
   gap: 8px;
   margin-top: 20px;
   flex-wrap: wrap;
+  margin-bottom: 20px;
 }
 
 .LiUs-boton-paginacion {
@@ -242,14 +228,14 @@
 
 /* ===== SWITCH DE ESTADO CON BOLITA DESLIZANTE ===== */
 .estado-switch {
-  width: 60px;
-  height: 30px;
+  width: 50px;
+  height: 20px;
   border-radius: 15px;
   display: flex;
   align-items: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  padding: 3px;
+  padding: 4px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   margin: 0 auto;
   position: relative;
@@ -293,25 +279,6 @@
   background-color: #b91c1c;
 }
 
-/* Texto del estado como tooltip */
-.estado-switch::before {
-  content: attr(data-estado);
-  position: absolute;
-  top: -30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #1f2937;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 500;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-  z-index: 10;
-}
 
 .estado-switch:hover::before {
   opacity: 1;

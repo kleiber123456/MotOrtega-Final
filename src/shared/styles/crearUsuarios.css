@@ -8,6 +8,7 @@
 .password-container input {
   flex: 1;
   width: 100%;
+  margin-top: 10px;
 }
 
 .password-toggle {
@@ -35,9 +36,9 @@
   color: #e53e3e;
   border-left: 3px solid #e53e3e;
   display: flex;
-
-  margin-top: 5px;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
+  align-items: center;
+  height: 20px auto;
 }
 
 /* Ajustes para el contenedor de input de registro */

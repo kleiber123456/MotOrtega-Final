@@ -413,7 +413,7 @@ function EditarRepuesto() {
         <form className="categoria-form" onSubmit={handleSubmit}>
           <h2>Editar Repuesto</h2>
 
-          <div className="campo">
+          <div className="perfil__field">
             <label>Nombre *</label>
             <input
               type="text"
@@ -427,7 +427,7 @@ function EditarRepuesto() {
             {errores.nombre && <span className="error-text">{errores.nombre}</span>}
           </div>
 
-          <div className="campo">
+          <div className="perfil__field">
             <label>Descripción</label>
             <textarea
               name="descripcion"
@@ -445,7 +445,7 @@ function EditarRepuesto() {
             {errores.descripcion && <span className="error-text">{errores.descripcion}</span>}
           </div>
 
-          <div className="campo">
+          <div className="perfil__field">
             <label>Categoría *</label>
             <div className="categoria-selector">
               <input
@@ -464,7 +464,7 @@ function EditarRepuesto() {
           </div>
 
           <div style={{ display: 'flex', gap: '15px' }}>
-            <div className="campo" style={{ flex: 1 }}>
+            <div className="perfil__field" style={{ flex: 1 }}>
               <label>Cantidad *</label>
               <input
                 type="number"
@@ -479,7 +479,7 @@ function EditarRepuesto() {
               {errores.cantidad && <span className="error-text">{errores.cantidad}</span>}
             </div>
 
-            <div className="campo" style={{ flex: 1 }}>
+            <div className="perfil__field" style={{ flex: 1 }}>
               <label>Precio Unitario *</label>
               <input
                 type="number"
@@ -495,7 +495,7 @@ function EditarRepuesto() {
             </div>
           </div>
 
-          <div className="campo">
+          <div className="perfil__field">
             <label>Estado *</label>
             <select
               name="estado"
@@ -511,7 +511,7 @@ function EditarRepuesto() {
           </div>
 
           {/* Mostrar el total calculado */}
-          <div className="campo">
+          <div className="perfil__field">
             <label>Total Calculado</label>
             <div style={{ 
               padding: '10px', 

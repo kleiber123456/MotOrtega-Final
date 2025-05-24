@@ -188,7 +188,7 @@ function ListarRepuestos() {
           <label className="filtro-label">Buscar:</label>
           <input
             type="text"
-            className="LiUs-input-busqueda filtro-input"
+            className="listar_repuesto_input  filtro-input"
             placeholder="Buscar por nombre o descripción..."
             value={busqueda}
             onChange={handleSearch}
@@ -200,7 +200,7 @@ function ListarRepuestos() {
           <select
             value={categoriaFiltro}
             onChange={(e) => setCategoriaFiltro(e.target.value)}
-            className="LiUs-input-busqueda filtro-select"
+            className="listar_repuesto_input filtro-select"
           >
             <option value="">Todas las categorías</option>
             {listaCategoriasCompleta.map((cat) => (
@@ -216,7 +216,7 @@ function ListarRepuestos() {
           <select
             value={estadoFiltro}
             onChange={(e) => setEstadoFiltro(e.target.value)}
-            className="LiUs-input-busqueda filtro-select"
+            className="listar_repuesto_input filtro-select"
           >
             <option value="">Todos los estados</option>
             <option value="Activo">Activo</option>

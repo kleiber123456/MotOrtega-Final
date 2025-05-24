@@ -51,8 +51,6 @@
 .categoria-form input[type="number"]:focus,
 .categoria-form select:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
 .campo input[type="number"],
@@ -69,8 +67,6 @@
 .categoria-form input[type="text"]:focus,
 .categoria-form select:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
 /* Estilos para el mensaje de error */

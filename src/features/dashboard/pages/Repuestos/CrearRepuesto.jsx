@@ -371,7 +371,7 @@ function CrearRepuesto() {
         <form className="categoria-form" onSubmit={handleSubmit}>
           <h2>Crear Repuesto</h2>
 
-          <div className="campo">
+          <div className="perfil__field">
             <label>Nombre *</label>
             <input
               type="text"
@@ -382,10 +382,10 @@ function CrearRepuesto() {
               className={errores.nombre ? "input-error" : ""}
               required
             />
-            {errores.nombre && <span className="error-text">{errores.nombre}</span>}
+            {errores.nombre && <span className="perfil-validacion">{errores.nombre}</span>}
           </div>
 
-          <div className="campo">
+          <div className="perfil__field">
             <label>Descripción</label>
             <textarea
               name="descripcion"
@@ -400,12 +400,12 @@ function CrearRepuesto() {
             <small style={{ color: '#666', fontSize: '12px' }}>
               {repuesto.descripcion.length}/200 caracteres
             </small>
-            {errores.descripcion && <span className="error-text">{errores.descripcion}</span>}
+            {errores.descripcion && <span className="perfil-validacion">{errores.descripcion}</span>}
           </div>
 
-          <div className="campo">
+          <div className="perfil__field">
             <label>Categoría *</label>
-            <div className="categoria-selector">
+            <div className="perfil__field">
               <input
                 type="text"
                 placeholder="Seleccione una categoría..."
@@ -422,7 +422,7 @@ function CrearRepuesto() {
           </div>
 
           <div style={{ display: 'flex', gap: '15px' }}>
-            <div className="campo" style={{ flex: 1 }}>
+            <div className="perfil__field" style={{ flex: 1 }}>
               <label>Cantidad *</label>
               <input
                 type="number"
@@ -436,7 +436,7 @@ function CrearRepuesto() {
               {errores.cantidad && <span className="error-text">{errores.cantidad}</span>}
             </div>
 
-            <div className="campo" style={{ flex: 1 }}>
+            <div className="perfil__field" style={{ flex: 1 }}>
               <label>Precio Unitario *</label>
               <input
                 type="number"
@@ -452,32 +452,29 @@ function CrearRepuesto() {
             </div>
           </div>
 
-          <div className="campo">
+          <div className="perfil__field">
             <label>Estado *</label>
-            <select
-              name="estado"
-              value={repuesto.estado}
-              onChange={handleChange}
-              className={errores.estado ? "input-error" : ""}
-              required
-            >
-              <option value="Activo">Activo</option>
-              <option value="Inactivo">Inactivo</option>
-            </select>
-            {errores.estado && <span className="error-text">{errores.estado}</span>}
+              <select
+                name="estado"
+                value={repuesto.estado}
+                onChange={handleChange}
+                className={errores.estado ? "input-error" : ""}
+                required
+                >
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+              </select>
+              {errores.estado && <span className="error-text">{errores.estado}</span>}
           </div>
 
           {/* Mostrar el total calculado */}
-          <div className="campo">
+          <div className="perfil__field">
             <label>Total Calculado</label>
-            <div style={{ 
+            <div className="perfil__field" style={{ 
               padding: '10px', 
               backgroundColor: '#f8f9fa', 
-              border: '1px solid #dee2e6', 
-              borderRadius: '4px',
               fontSize: '16px',
               fontWeight: 'bold',
-              color: '#495057'
             }}>
               {formatearPrecio(parseFloat(repuesto.cantidad || 0) * parseFloat(repuesto.preciounitario || 0))}
             </div>
