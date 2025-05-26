@@ -11,8 +11,10 @@ const CrearProveedor = () => {
     nombre: '',
     telefono: '',
     nombre_empresa: '',
+    telefono_empresa: '',
     nit: '',
     direccion: '',
+    correo: '',
     estado: 'Activo',
   });
 
@@ -46,6 +48,12 @@ const CrearProveedor = () => {
       if (!value.trim()) {
         nuevoError = 'El nombre de la empresa es obligatorio.';
       }
+    } else if (name === 'telefono_empresa') {
+      if (!value.trim()) {
+        nuevoError = 'El teléfono de la empresa es obligatorio.';
+      } else if (!/^\d+$/.test(value)) {
+        nuevoError = 'El teléfono de la empresa solo debe contener números.';
+      }
     } else if (name === 'nit') {
       if (!value.trim()) {
         nuevoError = 'El NIT es obligatorio.';
@@ -55,6 +63,10 @@ const CrearProveedor = () => {
     } else if (name === 'direccion') {
       if (!value.trim()) {
         nuevoError = 'La dirección es obligatoria.';
+      }
+    } else if (name === 'correo') {
+      if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        nuevoError = 'El correo electrónico no es válido.';
       }
     } else if (name === 'estado') {
       if (!['Activo', 'Inactivo'].includes(value)) {
@@ -85,6 +97,10 @@ const CrearProveedor = () => {
       nuevosErrores.nombre_empresa = 'El nombre de la empresa es obligatorio.';
     }
 
+    if (formData.telefono_empresa && !/^\d+$/.test(formData.telefono_empresa)) {
+      nuevosErrores.telefono_empresa = 'El teléfono de la empresa solo debe contener números.';
+    }
+
     if (!formData.nit.trim()) {
       nuevosErrores.nit = 'El NIT es obligatorio.';
     } else if (!/^\d+$/.test(formData.nit)) {
@@ -93,6 +109,10 @@ const CrearProveedor = () => {
 
     if (!formData.direccion.trim()) {
       nuevosErrores.direccion = 'La dirección es obligatoria.';
+    }
+
+    if (formData.correo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.correo)) {
+      nuevosErrores.correo = 'El correo electrónico no es válido.';
     }
 
     if (!['Activo', 'Inactivo'].includes(formData.estado)) {
@@ -144,9 +164,6 @@ const CrearProveedor = () => {
       const proveedores = await checkResponse.json();
 
       const proveedorDuplicado = proveedores.find((p) =>
-        p.nombre.toLowerCase() === formData.nombre.toLowerCase() ||
-        p.telefono === formData.telefono ||
-        p.nombre_empresa.toLowerCase() === formData.nombre_empresa.toLowerCase() ||
         p.nit === formData.nit
       );
 
@@ -154,7 +171,7 @@ const CrearProveedor = () => {
 
         Swal.fire(
           'Duplicado detectado',
-          'Ya existe un proveedor con el mismo nombre, teléfono, empresa o NIT.',
+          'Ya existe un proveedor con el mismo NIT.',
           'warning'
         );
         return;
@@ -241,6 +258,21 @@ const CrearProveedor = () => {
             {errores.nombre_empresa && <span className="perfil-validacion">{errores.nombre_empresa}</span>}
           </div>
 
+          <div className="perfil__field">
+            <label>Telefono Empresa</label>
+            <input
+              type="text"
+              name="telefono_empresa"
+              value={formData.telefono_empresa}
+              onChange={handleChange}
+              maxLength={45} 
+              autoComplete="off" 
+              className={errores.telefono_empresa ? "input-error" : ""}
+              required
+            />
+            {errores.nombre_empresa && <span className="perfil-validacion">{errores.telefono_empresa}</span>}
+          </div>
+
       
           <div className="perfil__field">
             <label>NIT</label>
@@ -271,6 +303,20 @@ const CrearProveedor = () => {
               required
             />
             {errores.direccion && <span className="perfil-validacion">{errores.direccion}</span>}
+          </div>
+          <div className="perfil__field">
+            <label>Correo</label>
+            <input
+              type="text"
+              name="correo"
+              value={formData.correo}
+              onChange={handleChange}
+              maxLength={45} 
+              autoComplete="off" 
+              className={errores.correo ? "input-error" : ""}
+              required
+            />
+            {errores.direccion && <span className="perfil-validacion">{errores.correo}</span>}
           </div>
 
 

@@ -100,11 +100,23 @@ function EditarCategoriaRepuesto() {
 
       if (!res.ok) throw new Error("Error al actualizar la categoría");
 
-      await Swal.fire("Éxito", "Categoría actualizada correctamente", "success");
-      navigate("/categorias-repuesto");
+      Swal.fire({
+        icon: 'success',
+        title: 'Actualización exitosa',
+        text: 'La categoría ha sido actualizada correctamente',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'OK'
+      }).then(() => {
+        navigate("/categorias-repuesto");
+      });
+
     } catch (error) {
       console.error("Error al actualizar la categoría:", error);
-      Swal.fire("Error", "No se pudo actualizar la categoría", "error");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.message
+      });
     }
   };
 
@@ -174,7 +186,7 @@ function EditarCategoriaRepuesto() {
             onClick={() => navigate("/categorias-repuesto")}
           >
             <i className="fas fa-arrow-left"></i>
-            Cancelar
+            Volver a la Lista
           </button>
         </div>
       </form>

@@ -100,10 +100,16 @@ const DetalleProveedor = () => {
           <i className="fas fa-building"></i> <strong>Empresa:</strong> {proveedor.nombre_empresa}
         </p>
         <p className="detalle-proveedor-campo">
+          <i className="fas fa-phone"></i> <strong>Telefono Empresa:</strong> {proveedor.telefono_empresa}
+        </p>
+        <p className="detalle-proveedor-campo">
           <i className="fas fa-id-card"></i> <strong>NIT:</strong> {proveedor.nit}
         </p>
         <p className="detalle-proveedor-campo">
           <i className="fas fa-map-marker-alt"></i> <strong>Dirección:</strong> {proveedor.direccion}
+        </p>
+        <p className="detalle-proveedor-campo">
+          <i className="fas fa-envelope"></i> <strong>Correo:</strong> {proveedor.correo}
         </p>
         <p className="detalle-proveedor-campo">
           <i className="fas fa-toggle-on"></i> <strong>Estado:</strong> {proveedor.estado}

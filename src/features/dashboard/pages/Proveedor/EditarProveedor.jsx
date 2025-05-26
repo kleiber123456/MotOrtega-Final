@@ -13,8 +13,10 @@ const EditarProveedor = () => {
         nombre: "",
         telefono: "",
         nombre_empresa: "",
+        telefono_empresa: "",
         nit: "", // El NIT se cargará de la API pero no será editable
         direccion: "",
+        correo: "",
         estado: "Activo",
     });
 
@@ -49,6 +51,12 @@ const EditarProveedor = () => {
             if (!value.trim()) {
                 nuevoError = 'El nombre de la empresa es obligatorio.';
             }
+        }else if (name === 'telefono_empresa') {
+            if (!value.trim()) {
+                nuevoError = 'El teléfono de la empresa es obligatorio.';
+            } else if (!/^\d+$/.test(value)) {
+                nuevoError = 'El teléfono de la empresa solo debe contener números.';
+            }
         }
         // ******************************************************
         // ** Campo 'nit' excluido de la validación del usuario **
@@ -65,6 +73,12 @@ const EditarProveedor = () => {
         else if (name === 'direccion') {
             if (!value.trim()) {
                 nuevoError = 'La dirección es obligatoria.';
+            }
+        } else if (name === 'correo') {
+            if (!value.trim()) {
+                nuevoError = 'El correo es obligatorio.';
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                nuevoError = 'El correo no es válido.';
             }
         } else if (name === 'estado') {
             if (!['Activo', 'Inactivo'].includes(value)) {
@@ -83,11 +97,13 @@ const EditarProveedor = () => {
         if (!validarCampo('nombre', formulario.nombre)) esValido = false;
         if (!validarCampo('telefono', formulario.telefono)) esValido = false;
         if (!validarCampo('nombre_empresa', formulario.nombre_empresa)) esValido = false;
+        if (!validarCampo('telefono_empresa', formulario.telefono_empresa)) esValido = false;
         // ******************************************************
         // ** Campo 'nit' excluido de la validación del formulario **
         // ******************************************************
         // if (!validarCampo('nit', formulario.nit)) esValido = false; // Ya no validamos el NIT
         if (!validarCampo('direccion', formulario.direccion)) esValido = false;
+        if (!validarCampo('correo', formulario.correo)) esValido = false;
         if (!validarCampo('estado', formulario.estado)) esValido = false;
 
         return esValido;
@@ -278,6 +294,21 @@ const EditarProveedor = () => {
                         />
                         {errores.nombre_empresa && <span className="perfil-validacion">{errores.nombre_empresa}</span>}
                     </div>
+                    {/* Teléfono de la Empresa */}
+                    <div className="perfil__field">
+                        <label>Telefono Empresa</label>
+                        <input
+                            type="text"
+                            name="telefono_empresa"
+                            value={formulario.telefono_empresa}
+                            onChange={handleChange}
+                            maxLength={45}
+                            autoComplete="off"
+                            className={errores.telefono_empresa ? "input-error" : ""}
+                            required
+                        />
+                        {errores.telefono_empresa && <span className="perfil-validacion">{errores.telefono_empresa}</span>}
+                    </div>
 
                     {/* NIT - Campo de solo lectura */}
                     <div className="perfil__field">
@@ -313,6 +344,21 @@ const EditarProveedor = () => {
                             required
                         />
                         {errores.direccion && <span className="perfil-validacion">{errores.direccion}</span>}
+                    </div>
+                    {/* Correo */}
+                    <div className="perfil__field">
+                        <label>Correo</label>
+                        <input
+                            type="text"
+                            name="correo"
+                            value={formulario.correo}
+                            onChange={handleChange}
+                            maxLength={45}
+                            autoComplete="off"
+                            className={errores.correo ? "input-error" : ""}
+                            required
+                        />
+                        {errores.correo && <span className="perfil-validacion">{errores.correo}</span>}
                     </div>
 
                     {/* Estado */}

@@ -42,6 +42,8 @@ function ListarCategoriasRepuesto() {
 
   const cambiarEstadoCategoria = async (id) => {
     try {
+      console.log("Cambiando estado de la categoría con ID:", id);
+      
       const res = await fetch(`https://api-final-8rw7.onrender.com/api/categorias-repuestos/${id}/cambiar-estado`, {
         method: "PUT",
         headers: {
@@ -50,16 +52,27 @@ function ListarCategoriasRepuesto() {
         },
       });
 
-      if (!res.ok) throw new Error("Error al cambiar el estado");
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Error del servidor:", errorText);
+        throw new Error("Error al cambiar el estado");
+      }
 
+      const responseData = await res.json();
+      console.log("Respuesta del servidor:", responseData);
+
+      // Actualizar estado localmente
       setCategorias((prev) =>
         prev.map((cat) =>
           cat.id === id ? { ...cat, estado: cat.estado === "Activo" ? "Inactivo" : "Activo" } : cat
         )
       );
+
+      Swal.fire("Éxito", "Estado cambiado correctamente", "success");
+      
     } catch (err) {
       console.error("Error al cambiar el estado:", err);
-      Swal.fire("Error", "No se pudo cambiar el estado", "error");
+      Swal.fire("Error", "No se pudo cambiar el estado de la categoría", "error");
     }
   };
 
@@ -152,6 +165,9 @@ function ListarCategoriasRepuesto() {
                   >
                     <div className="switch-bola"></div>
                   </div>
+                  <small style={{display: 'block', marginTop: '4px', fontSize: '10px', color: '#666'}}>
+          
+                  </small>
                 </td>
                 <td className="LiUs-acciones">
                   <button

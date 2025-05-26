@@ -217,8 +217,10 @@ const ListarProveedor = () => {
               <th>Nombre</th>
               <th>Teléfono</th>
               <th>Empresa</th>
+              <th>Telefono Empresa</th>
               <th>NIT</th>
               <th>Dirección</th>
+              <th>Correo</th>
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
@@ -230,8 +232,10 @@ const ListarProveedor = () => {
                   <td>{prov.nombre}</td>
                   <td>{prov.telefono}</td>
                   <td>{prov.nombre_empresa}</td>
+                  <td>{prov.telefono_empresa}</td>
                   <td>{prov.nit}</td>
                   <td>{prov.direccion}</td>
+                  <td>{prov.correo}</td>
                   <td>
                     <div
                       className={`estado-switch ${
