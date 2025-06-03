@@ -35,6 +35,13 @@ import DetalleProveedor from './features/dashboard/pages/Proveedor/DetalleProvee
 import CrearProveedor from './features/dashboard/pages/Proveedor/CrearProveedor';
 // ----------------------------------------------------------------------
 
+// ------------------------------COMPRAS-----------------------------
+import ListarCompras from './features/dashboard/pages/Compras/ListarCompras';
+import CrearCompras from './features/dashboard/pages/Compras/CrearCompras';
+import DetalleCompra from './features/dashboard/pages/Compras/DetalleCompras';
+// ----------------------------------------------------------------------
+
+
 function App() {
   return (
     <BrowserRouter>
@@ -194,6 +201,33 @@ function App() {
           }
         />
         {/* ------------------------------------------------------------------------ */}
+        {/* COMPRAS */}
+          <Route
+          path="/ListarCompras"
+          element={
+            <PrivateRoute>
+              <Layout><ListarCompras /></Layout>
+            </PrivateRoute>
+          }
+        />    
+        <Route
+          path="/CrearCompras"
+          element={
+            <PrivateRoute>
+              <Layout><CrearCompras  /></Layout>
+            </PrivateRoute>
+          }
+        />    
+        <Route
+          path="/DetalleCompra/:id"
+          element={
+            <PrivateRoute>
+              <Layout><DetalleCompra /></Layout>
+            </PrivateRoute>
+          }
+        />  
+        {/* ------------------------------------------------------------------------ */}
+
       </Routes>
     </BrowserRouter>
   );

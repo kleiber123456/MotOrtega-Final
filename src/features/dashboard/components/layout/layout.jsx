@@ -198,7 +198,7 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
             title="Compras"
             icon={<FaShoppingCart />}
             options={[
-              { label: 'Compras', link: '/compras' },
+              { label: 'Compras', link: '/ListarCompras' },
               { label: 'Proveedores', link: '/ListarProveedores' }
             ]}
             isOpen={activeDropdown === 'compras'}
