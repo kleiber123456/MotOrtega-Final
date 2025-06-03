@@ -41,6 +41,12 @@ import CrearCompras from './features/dashboard/pages/Compras/CrearCompras';
 import DetalleCompra from './features/dashboard/pages/Compras/DetalleCompras';
 // ----------------------------------------------------------------------
 
+// ------------------------------VEHÍCULOS-------------------------------
+import ListarVehiculos from "./features/dashboard/pages/Vehiculos/ListarVehiculos";
+import CrearVehiculo from "./features/dashboard/pages/Vehiculos/CrearVehiculo";
+import EditarVehiculo from "./features/dashboard/pages/Vehiculos/EditarVehiculo";
+import DetalleVehiculo from "./features/dashboard/pages/Vehiculos/DetalleVehiculo";
+// ----------------------------------------------------------------------
 
 function App() {
   return (
@@ -228,6 +234,48 @@ function App() {
         />  
         {/* ------------------------------------------------------------------------ */}
 
+        {/* VEHÍCULOS */}
+        <Route
+          path="/vehiculos"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <ListarVehiculos />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/vehiculos/crear"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <CrearVehiculo />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/vehiculos/editar/:id"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <EditarVehiculo />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/vehiculos/detalle/:id"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <DetalleVehiculo />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        {/* ------------------------------------------------------------------------ */}
       </Routes>
     </BrowserRouter>
   );
