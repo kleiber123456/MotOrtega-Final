@@ -170,9 +170,9 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
             title="Servicios"
             icon={<FaTools />}
             options={[
-              { label: 'Servicios', link: '/Servicios' },
-              { label: 'Repuestos', link: '/Repuestos' },
-              { label: 'Categorias', link: '/categorias-repuesto' }
+            { label: 'Servicios', link: '/ListarServicios' },
+            { label: 'Repuestos', link: '/Repuestos' },
+            { label: 'Categorias', link: '/categorias-repuesto' }
             ]}
             isOpen={activeDropdown === 'servicios'}
             toggleDropdown={toggleDropdown}

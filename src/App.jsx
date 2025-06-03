@@ -46,7 +46,11 @@ import ListarVehiculos from "./features/dashboard/pages/Vehiculos/ListarVehiculo
 import CrearVehiculo from "./features/dashboard/pages/Vehiculos/CrearVehiculo";
 import EditarVehiculo from "./features/dashboard/pages/Vehiculos/EditarVehiculo";
 import DetalleVehiculo from "./features/dashboard/pages/Vehiculos/DetalleVehiculo";
-// ----------------------------------------------------------------------
+// ------------------------------------servicios----------------------------------
+import ListarServicios from './features/dashboard/pages/Servicios/ListarServicios';
+import CrearServicio from './features/dashboard/pages/Servicios/CrearServicios';
+import EditarServicio from './features/dashboard/pages/Servicios/EditarServicios';
+import DetalleServicio from './features/dashboard/pages/Servicios/DetalleServicios';
 
 function App() {
   return (
@@ -276,6 +280,46 @@ function App() {
           }
         />
         {/* ------------------------------------------------------------------------ */}
+         {/* Servicios */}
+        <Route
+          path="/listarServicios"
+          element={
+            <PrivateRoute>
+              <Layout><ListarServicios/></Layout>
+            </PrivateRoute>
+          }
+        />
+      <Route
+          path="/CrearServicios"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <CrearServicio/>
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/servicios/editar/:id"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <EditarServicio />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/servicios/detalle/:id"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <DetalleServicio/>
+              </Layout>
+            </PrivateRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
