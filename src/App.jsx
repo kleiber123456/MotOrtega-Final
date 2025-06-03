@@ -51,6 +51,9 @@ import ListarServicios from './features/dashboard/pages/Servicios/ListarServicio
 import CrearServicio from './features/dashboard/pages/Servicios/CrearServicios';
 import EditarServicio from './features/dashboard/pages/Servicios/EditarServicios';
 import DetalleServicio from './features/dashboard/pages/Servicios/DetalleServicios';
+// ------------------------------CLIENTES-----------------------------
+import ListarClientes from './features/dashboard/pages/Clientes/ListarClientes'
+import CrearClientes from './features/dashboard/pages/Clientes/CrearClientes'
 
 function App() {
   return (
@@ -320,6 +323,22 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/ListarClientes"
+          element={
+            <PrivateRoute>
+              <Layout><ListarClientes /></Layout>
+            </PrivateRoute>
+          }
+        />    
+        <Route
+          path="/CrearClientes"
+          element={
+            <PrivateRoute>
+              <Layout><CrearClientes /></Layout>
+            </PrivateRoute>
+          }
+        />    
       </Routes>
     </BrowserRouter>
   );
