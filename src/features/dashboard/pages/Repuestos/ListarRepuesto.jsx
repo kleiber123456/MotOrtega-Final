@@ -1,334 +1,512 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Pencil, Trash2, Eye } from "lucide-react";
-import Swal from "sweetalert2";
-import "../../../../shared/styles/listarCategoriaRepuesto.css";
+"use client"
 
-function ListarRepuestos() {
-  const navigate = useNavigate();
-  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-  const [repuestos, setRepuestos] = useState([]);
-  const [categorias, setCategorias] = useState({});
-  const [cargando, setCargando] = useState(true);
-  const [busqueda, setBusqueda] = useState("");
-  const [categoriaFiltro, setCategoriaFiltro] = useState("");
-  const [estadoFiltro, setEstadoFiltro] = useState("");
-  const [listaCategoriasCompleta, setListaCategoriasCompleta] = useState([]);
-  const [paginaActual, setPaginaActual] = useState(1);
-  const [repuestosPorPagina] = useState(5);
+import { useState, useEffect, useCallback } from "react"
+import { useNavigate } from "react-router-dom"
+import {
+  FaPlus,
+  FaEdit,
+  FaTrash,
+  FaEye,
+  FaSearch,
+  FaFilter,
+  FaSpinner,
+  FaExclamationTriangle,
+  FaBox,
+  FaToggleOn,
+  FaToggleOff,
+  FaChevronLeft,
+  FaChevronRight,
+} from "react-icons/fa"
+import Swal from "sweetalert2"
+import "../../../../shared/styles/Repuesto.css"
 
-  useEffect(() => {
-    document.body.style.backgroundColor = "#2d3748";
-    cargarDatos();
-    return () => {
-      document.body.style.background = "";
-    };
-  }, [token]);
+// URL base de la API
+const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
 
-  const cargarDatos = async () => {
-    try {
-      setCargando(true);
-      
-      // Cargar categorías
-      const resCategorias = await fetch("https://api-final-8rw7.onrender.com/api/categorias-repuestos", {
-        method: "GET",
-        headers: {
-          "Authorization": token,
-        },
-      });
+// Función para obtener token
+const getValidToken = () => {
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token")
+  if (!token) {
+    console.error("No hay token disponible")
+    return null
+  }
+  return token
+}
 
-      if (!resCategorias.ok) throw new Error("Error al cargar las categorías");
-      
-      const dataCategorias = await resCategorias.json();
-      setListaCategoriasCompleta(dataCategorias);
-      
-      // Crear un objeto para buscar categorías rápidamente por ID
-      const categoriasMap = {};
-      dataCategorias.forEach(cat => {
-        categoriasMap[cat.id] = cat.nombre;
-      });
-      setCategorias(categoriasMap);
-      
-      // Cargar repuestos
-      const resRepuestos = await fetch("https://api-final-8rw7.onrender.com/api/repuestos", {
-        method: "GET",
-        headers: {
-          "Authorization": token,
-        },
-      });
+// Hook personalizado para manejo de API
+const useApi = () => {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
-      if (!resRepuestos.ok) throw new Error("Error al cargar los repuestos");
-      
-      const dataRepuestos = await resRepuestos.json();
-      setRepuestos(dataRepuestos);
-    } catch (error) {
-      console.error("Error al cargar datos:", error);
-      Swal.fire("Error", "No se pudieron cargar los datos", "error");
-    } finally {
-      setCargando(false);
+  const makeRequest = useCallback(async (url, options = {}) => {
+    setLoading(true)
+    setError(null)
+
+    const token = getValidToken()
+    if (!token) {
+      setError("Error de autenticación")
+      setLoading(false)
+      return null
     }
-  };
 
-  const handleCambiarEstado = async (id, estadoActual) => {
-    const nuevoEstado = estadoActual === 'Activo' ? 'Inactivo' : 'Activo';
-    
     try {
-      const res = await fetch(`https://api-final-8rw7.onrender.com/api/repuestos/estado/${id}`, {
-        method: "PUT",
+      const response = await fetch(`${API_BASE_URL}${url}`, {
+        ...options,
         headers: {
           "Content-Type": "application/json",
-          "Authorization": token,
+          Authorization: token,
+          ...options.headers,
         },
-        body: JSON.stringify({ estado: nuevoEstado }),
-      });
+      })
 
-      if (!res.ok) throw new Error("Error al actualizar el estado");
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Sesión expirada. Por favor inicie sesión nuevamente.")
+        }
+        throw new Error(`Error ${response.status}: ${response.statusText}`)
+      }
 
-      // Actualizar el estado local
-      setRepuestos(prev => prev.map(rep => 
-        rep.id === id ? { ...rep, estado: nuevoEstado } : rep
-      ));
-
-      Swal.fire({
-        title: "Estado actualizado",
-        text: `El repuesto ahora está ${nuevoEstado.toLowerCase()}`,
-        icon: "success",
-        timer: 2000,
-        showConfirmButton: false
-      });
-    } catch (error) {
-      console.error("Error al cambiar el estado:", error);
-      Swal.fire("Error", "No se pudo actualizar el estado", "error");
+      const data = await response.json()
+      return data
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Error desconocido"
+      setError(errorMessage)
+      throw err
+    } finally {
+      setLoading(false)
     }
-  };
+  }, [])
 
-  const handleEliminar = async (id) => {
-    const confirmacion = await Swal.fire({
-      title: "¿Estás seguro?",
-      text: "Esta acción no se puede revertir",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar"
-    });
+  return { makeRequest, loading, error }
+}
 
-    if (!confirmacion.isConfirmed) return;
+function ListarRepuestos() {
+  const navigate = useNavigate()
+  const { makeRequest, loading: apiLoading } = useApi()
 
-    try {
-      const res = await fetch(`https://api-final-8rw7.onrender.com/api/repuestos/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Authorization": token,
-        },
-      });
+  const [repuestos, setRepuestos] = useState([])
+  const [categorias, setCategorias] = useState({})
+  const [listaCategoriasCompleta, setListaCategoriasCompleta] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
 
-      if (!res.ok) throw new Error("Error al eliminar el repuesto");
+  // Estados de filtros
+  const [busqueda, setBusqueda] = useState("")
+  const [categoriaFiltro, setCategoriaFiltro] = useState("")
+  const [estadoFiltro, setEstadoFiltro] = useState("")
 
-      setRepuestos(prev => prev.filter(rep => rep.id !== id));
-      Swal.fire("Eliminado", "El repuesto ha sido eliminado", "success");
-    } catch (error) {
-      console.error("Error al eliminar el repuesto:", error);
-      Swal.fire("Error", "No se pudo eliminar el repuesto", "error");
+  // Estados de paginación
+  const [paginaActual, setPaginaActual] = useState(1)
+  const [repuestosPorPagina] = useState(10)
+
+  // Cargar datos iniciales
+  useEffect(() => {
+    const cargarDatos = async () => {
+      try {
+        setIsLoading(true)
+
+        // Cargar categorías
+        const dataCategorias = await makeRequest("/categorias-repuestos")
+        if (dataCategorias) {
+          setListaCategoriasCompleta(dataCategorias)
+
+          // Crear mapa de categorías para búsqueda rápida
+          const categoriasMap = {}
+          dataCategorias.forEach((cat) => {
+            categoriasMap[cat.id] = cat.nombre
+          })
+          setCategorias(categoriasMap)
+        }
+
+        // Cargar repuestos
+        const dataRepuestos = await makeRequest("/repuestos")
+        if (dataRepuestos) {
+          setRepuestos(dataRepuestos)
+        }
+      } catch (error) {
+        console.error("Error al cargar datos:", error)
+        await Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se pudieron cargar los datos",
+          confirmButtonColor: "#ef4444",
+        })
+      } finally {
+        setIsLoading(false)
+      }
     }
-  };
 
-  const handleSearch = (e) => {
-    setBusqueda(e.target.value.toLowerCase());
-    setPaginaActual(1);
-  };
+    cargarDatos()
+  }, [makeRequest])
 
-  // Filtrar repuestos por búsqueda, categoría y estado
-  const repuestosFiltrados = repuestos.filter(rep => {
-    const matchNombre = rep.nombre.toLowerCase().includes(busqueda);
-    const matchDescripcion = rep.descripcion ? rep.descripcion.toLowerCase().includes(busqueda) : false;
-    const matchBusqueda = matchNombre || matchDescripcion;
-    const matchCategoria = categoriaFiltro === "" || rep.categoria_repuesto_id.toString() === categoriaFiltro;
-    const matchEstado = estadoFiltro === "" || rep.estado === estadoFiltro;
-    return matchBusqueda && matchCategoria && matchEstado;
-  });
+  // Filtrar repuestos
+  const repuestosFiltrados = repuestos.filter((rep) => {
+    const matchNombre = rep.nombre.toLowerCase().includes(busqueda.toLowerCase())
+    const matchDescripcion = rep.descripcion ? rep.descripcion.toLowerCase().includes(busqueda.toLowerCase()) : false
+    const matchBusqueda = matchNombre || matchDescripcion
+    const matchCategoria = categoriaFiltro === "" || rep.categoria_repuesto_id.toString() === categoriaFiltro
+    const matchEstado = estadoFiltro === "" || rep.estado === estadoFiltro
+    return matchBusqueda && matchCategoria && matchEstado
+  })
 
   // Paginación
-  const indiceUltimoRepuesto = paginaActual * repuestosPorPagina;
-  const indicePrimerRepuesto = indiceUltimoRepuesto - repuestosPorPagina;
-  const repuestosActuales = repuestosFiltrados.slice(indicePrimerRepuesto, indiceUltimoRepuesto);
-  const totalPaginas = Math.ceil(repuestosFiltrados.length / repuestosPorPagina);
+  const indiceUltimoRepuesto = paginaActual * repuestosPorPagina
+  const indicePrimerRepuesto = indiceUltimoRepuesto - repuestosPorPagina
+  const repuestosActuales = repuestosFiltrados.slice(indicePrimerRepuesto, indiceUltimoRepuesto)
+  const totalPaginas = Math.ceil(repuestosFiltrados.length / repuestosPorPagina)
 
-  // Función para formatear el precio
-  const formatearPrecio = (precio) => {
-    if (!precio) return "$0.00";
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      minimumFractionDigits: 2
-    }).format(precio);
-  };
+  // Manejadores
+  const handleSearch = useCallback((e) => {
+    setBusqueda(e.target.value)
+    setPaginaActual(1)
+  }, [])
 
-  if (cargando) {
+  const handleCategoriaFilter = useCallback((e) => {
+    setCategoriaFiltro(e.target.value)
+    setPaginaActual(1)
+  }, [])
+
+  const handleEstadoFilter = useCallback((e) => {
+    setEstadoFiltro(e.target.value)
+    setPaginaActual(1)
+  }, [])
+
+  const handleCambiarEstado = useCallback(
+    async (id, estadoActual) => {
+      const nuevoEstado = estadoActual === "Activo" ? "Inactivo" : "Activo"
+
+      try {
+        await makeRequest(`/repuestos/estado/${id}`, {
+          method: "PUT",
+          body: JSON.stringify({ estado: nuevoEstado }),
+        })
+
+        // Actualizar estado local
+        setRepuestos((prev) => prev.map((rep) => (rep.id === id ? { ...rep, estado: nuevoEstado } : rep)))
+
+        await Swal.fire({
+          title: "Estado actualizado",
+          text: `El repuesto ahora está ${nuevoEstado.toLowerCase()}`,
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+        })
+      } catch (error) {
+        console.error("Error al cambiar el estado:", error)
+        await Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo actualizar el estado",
+          confirmButtonColor: "#ef4444",
+        })
+      }
+    },
+    [makeRequest],
+  )
+
+  const handleEliminar = useCallback(
+    async (id, nombre) => {
+      const confirmacion = await Swal.fire({
+        title: "¿Estás seguro?",
+        text: `Se eliminará el repuesto "${nombre}". Esta acción no se puede revertir.`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#ef4444",
+        cancelButtonColor: "#6b7280",
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar",
+      })
+
+      if (!confirmacion.isConfirmed) return
+
+      try {
+        await makeRequest(`/repuestos/${id}`, {
+          method: "DELETE",
+        })
+
+        setRepuestos((prev) => prev.filter((rep) => rep.id !== id))
+
+        await Swal.fire({
+          title: "Eliminado",
+          text: "El repuesto ha sido eliminado correctamente",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+        })
+      } catch (error) {
+        console.error("Error al eliminar el repuesto:", error)
+        await Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo eliminar el repuesto",
+          confirmButtonColor: "#ef4444",
+        })
+      }
+    },
+    [makeRequest],
+  )
+
+  const formatearPrecio = useCallback((precio) => {
+    if (!precio) return "$0.00"
+    return new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency: "COP",
+      minimumFractionDigits: 2,
+    }).format(precio)
+  }, [])
+
+  const limpiarFiltros = useCallback(() => {
+    setBusqueda("")
+    setCategoriaFiltro("")
+    setEstadoFiltro("")
+    setPaginaActual(1)
+  }, [])
+
+  if (isLoading) {
     return (
-      <div className="LiUs-contenedor">
-        <p>Cargando repuestos...</p>
+      <div className="repuestos-container">
+        <div className="repuestos-loading">
+          <FaSpinner className="spinning" />
+          <h2>Cargando repuestos...</h2>
+          <p>Por favor espere un momento</p>
+        </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="LiUs-contenedor">
-      <div className="LiUs-header">
-        <h2 className="LiUs-titulo">Listado de Repuestos</h2>
-        <button className="LiUs-boton-crear" onClick={() => navigate("/crearRepuestos")}>
+    <div className="repuestos-container">
+      <div className="repuestos-header">
+        <div className="repuestos-header-content">
+          <h1 className="repuestos-page-title">
+            <FaBox className="repuestos-title-icon" />
+            Gestión de Repuestos
+          </h1>
+          <p className="repuestos-subtitle">Administra el inventario de repuestos de la empresa</p>
+        </div>
+        <button className="repuestos-create-button" onClick={() => navigate("/crearRepuestos")}>
+          <FaPlus className="repuestos-button-icon" />
           Crear Repuesto
         </button>
       </div>
 
-      {/* Filtros organizados horizontalmente */}
-      <div className="filtros-container-horizontal">
-        <div className="filtro-item">
-          <label className="filtro-label">Buscar:</label>
-          <input
-            type="text"
-            className="listar_repuesto_input  filtro-input"
-            placeholder="Buscar por nombre o descripción..."
-            value={busqueda}
-            onChange={handleSearch}
-          />
+      {/* Filtros */}
+      <div className="repuestos-filters-section">
+        <div className="repuestos-filters-header">
+          <h3>
+            <FaFilter className="repuestos-section-icon" />
+            Filtros de Búsqueda
+          </h3>
+          <button className="repuestos-clear-filters-button" onClick={limpiarFiltros}>
+            Limpiar Filtros
+          </button>
         </div>
 
-        <div className="filtro-item">
-          <label className="filtro-label">Categoría:</label>
-          <select
-            value={categoriaFiltro}
-            onChange={(e) => setCategoriaFiltro(e.target.value)}
-            className="listar_repuesto_input filtro-select"
-          >
-            <option value="">Todas las categorías</option>
-            {listaCategoriasCompleta.map((cat) => (
-              <option key={cat.id} value={cat.id.toString()}>
-                {cat.nombre}
-              </option>
-            ))}
-          </select>
-        </div>
+        <div className="repuestos-filters-grid">
+          <div className="repuestos-filter-group">
+            <label className="repuestos-filter-label">
+              <FaSearch className="repuestos-filter-icon" />
+              Buscar
+            </label>
+            <input
+              type="text"
+              className="repuestos-filter-input"
+              placeholder="Buscar por nombre o descripción..."
+              value={busqueda}
+              onChange={handleSearch}
+            />
+          </div>
 
-        <div className="filtro-item">
-          <label className="filtro-label">Estado:</label>
-          <select
-            value={estadoFiltro}
-            onChange={(e) => setEstadoFiltro(e.target.value)}
-            className="listar_repuesto_input filtro-select"
-          >
-            <option value="">Todos los estados</option>
-            <option value="Activo">Activo</option>
-            <option value="Inactivo">Inactivo</option>
-          </select>
+          <div className="repuestos-filter-group">
+            <label className="repuestos-filter-label">
+              <FaBox className="repuestos-filter-icon" />
+              Categoría
+            </label>
+            <select value={categoriaFiltro} onChange={handleCategoriaFilter} className="repuestos-filter-select">
+              <option value="">Todas las categorías</option>
+              {listaCategoriasCompleta.map((cat) => (
+                <option key={cat.id} value={cat.id.toString()}>
+                  {cat.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="repuestos-filter-group">
+            <label className="repuestos-filter-label">
+              <FaToggleOn className="repuestos-filter-icon" />
+              Estado
+            </label>
+            <select value={estadoFiltro} onChange={handleEstadoFilter} className="repuestos-filter-select">
+              <option value="">Todos los estados</option>
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <div className="LiUs-tabla-container" style={{ overflowX: 'auto' }}>
-        <table className="LiUs-tabla">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Descripción</th>
-              <th>Categoría</th>
-              <th>Cantidad</th>
-              <th>Precio Unitario</th>
-              <th>Total</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {repuestosActuales.map((repuesto) => (
-              <tr key={repuesto.id}>
-                <td>{repuesto.nombre}</td>
-                <td title={repuesto.descripcion || "Sin descripción"}>
-                  {repuesto.descripcion ? 
-                    (repuesto.descripcion.length > 50 ? 
-                      repuesto.descripcion.substring(0, 50) + "..." : 
-                      repuesto.descripcion) : 
-                    "Sin descripción"
-                  }
-                </td>
-                <td>{categorias[repuesto.categoria_repuesto_id] || "Sin categoría"}</td>
-                <td>{repuesto.cantidad || 0}</td>
-                <td>{formatearPrecio(repuesto.preciounitario)}</td>
-                <td>{formatearPrecio(repuesto.total)}</td>
-                <td>
-                  <div 
-                    className={`estado-switch ${repuesto.estado === 'Activo' ? 'activo' : 'inactivo'}`}
-                    onClick={() => handleCambiarEstado(repuesto.id, repuesto.estado)}
-                    title={`Cambiar a ${repuesto.estado === 'Activo' ? 'Inactivo' : 'Activo'}`}
-                    data-estado={repuesto.estado || 'Sin estado'}
-                  >
-                    <div className="switch-bola"></div>
-                  </div>
-                </td>
-                <td className="LiUs-acciones">
-                  <button
-                    className="icon-button edit"
-                    onClick={() => navigate(`/repuestos/editar/${repuesto.id}`)}
-                    title="Editar"
-                  >
-                    <Pencil size={18} />
-                  </button>
-                  <button
-                    className="icon-button delete"
-                    onClick={() => handleEliminar(repuesto.id)}
-                    title="Eliminar"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                  <button
-                    className="icon-button detail"
-                    onClick={() => navigate(`/DetalleRepuesto/${repuesto.id}`)}
-                    title="Detalle"
-                  >
-                    <Eye size={18} />
-                  </button>
-                </td>
+      {/* Tabla de repuestos */}
+      <div className="repuestos-table-section">
+        <div className="repuestos-table-header">
+          <h3>Lista de Repuestos ({repuestosFiltrados.length})</h3>
+        </div>
+
+        <div className="repuestos-table-container">
+          <table className="repuestos-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Categoría</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {repuestosActuales.map((repuesto) => (
+                <tr key={repuesto.id} className="repuestos-table-row">
+                  <td className="repuestos-table-cell">
+                    <div className="repuestos-product-name">{repuesto.nombre}</div>
+                  </td>
+                  <td className="repuestos-table-cell">
+                    <div className="repuestos-description" title={repuesto.descripcion || "Sin descripción"}>
+                      {repuesto.descripcion
+                        ? repuesto.descripcion.length > 50
+                          ? repuesto.descripcion.substring(0, 50) + "..."
+                          : repuesto.descripcion
+                        : "Sin descripción"}
+                    </div>
+                  </td>
+                  <td className="repuestos-table-cell">
+                    <span className="repuestos-category-badge">
+                      {categorias[repuesto.categoria_repuesto_id] || "Sin categoría"}
+                    </span>
+                  </td>
+                  <td className="repuestos-table-cell">
+                    <span className="repuestos-quantity">{repuesto.cantidad || 0}</span>
+                  </td>
+                  <td className="repuestos-table-cell">
+                    <span className="repuestos-price">{formatearPrecio(repuesto.preciounitario)}</span>
+                  </td>
+                  <td className="repuestos-table-cell">
+                    <span className="repuestos-total">{formatearPrecio(repuesto.total)}</span>
+                  </td>
+                  <td className="repuestos-table-cell">
+                    <button
+                      className={`repuestos-status-toggle ${repuesto.estado === "Activo" ? "active" : "inactive"}`}
+                      onClick={() => handleCambiarEstado(repuesto.id, repuesto.estado)}
+                      title={`Cambiar a ${repuesto.estado === "Activo" ? "Inactivo" : "Activo"}`}
+                    >
+                      {repuesto.estado === "Activo" ? (
+                        <FaToggleOn className="repuestos-toggle-icon" />
+                      ) : (
+                        <FaToggleOff className="repuestos-toggle-icon" />
+                      )}
+                      <span className="repuestos-status-text">{repuesto.estado}</span>
+                    </button>
+                  </td>
+                  <td className="repuestos-table-cell">
+                    <div className="repuestos-actions">
+                      <button
+                        className="repuestos-action-button view"
+                        onClick={() => navigate(`/DetalleRepuesto/${repuesto.id}`)}
+                        title="Ver detalles"
+                      >
+                        <FaEye />
+                      </button>
+                      <button
+                        className="repuestos-action-button edit"
+                        onClick={() => navigate(`/repuestos/editar/${repuesto.id}`)}
+                        title="Editar repuesto"
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        className="repuestos-action-button delete"
+                        onClick={() => handleEliminar(repuesto.id, repuesto.nombre)}
+                        title="Eliminar repuesto"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-        {repuestosFiltrados.length === 0 && (
-          <p className="LiUs-sin-resultados">No se encontraron repuestos con los criterios de búsqueda.</p>
-        )}
-
-        {repuestosFiltrados.length > repuestosPorPagina && (
-          <div className="LiUs-paginacion">
-            <button
-              onClick={() => setPaginaActual((prev) => prev - 1)}
-              disabled={paginaActual === 1}
-              className="LiUs-boton-paginacion"
-            >
-              Anterior
-            </button>
-
-            {Array.from({ length: totalPaginas }, (_, i) => (
-              <button
-                key={i + 1}
-                onClick={() => setPaginaActual(i + 1)}
-                className={`LiUs-boton-paginacion ${paginaActual === i + 1 ? "active" : ""}`}
-              >
-                {i + 1}
+          {repuestosFiltrados.length === 0 && (
+            <div className="repuestos-no-results">
+              <FaExclamationTriangle className="repuestos-no-results-icon" />
+              <h3>No se encontraron repuestos</h3>
+              <p>No hay repuestos que coincidan con los criterios de búsqueda.</p>
+              <button className="repuestos-clear-filters-button" onClick={limpiarFiltros}>
+                Limpiar Filtros
               </button>
-            ))}
+            </div>
+          )}
+        </div>
 
-            <button
-              onClick={() => setPaginaActual((prev) => prev + 1)}
-              disabled={paginaActual === totalPaginas}
-              className="LiUs-boton-paginacion"
-            >
-              Siguiente
-            </button>
+        {/* Paginación */}
+        {totalPaginas > 1 && (
+          <div className="repuestos-pagination">
+            <div className="repuestos-pagination-info">
+              Mostrando {indicePrimerRepuesto + 1} - {Math.min(indiceUltimoRepuesto, repuestosFiltrados.length)} de{" "}
+              {repuestosFiltrados.length} repuestos
+            </div>
+
+            <div className="repuestos-pagination-controls">
+              <button
+                onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
+                disabled={paginaActual === 1}
+                className="repuestos-pagination-button"
+              >
+                <FaChevronLeft />
+                Anterior
+              </button>
+
+              <div className="repuestos-pagination-numbers">
+                {Array.from({ length: Math.min(5, totalPaginas) }, (_, i) => {
+                  let pageNumber
+                  if (totalPaginas <= 5) {
+                    pageNumber = i + 1
+                  } else if (paginaActual <= 3) {
+                    pageNumber = i + 1
+                  } else if (paginaActual >= totalPaginas - 2) {
+                    pageNumber = totalPaginas - 4 + i
+                  } else {
+                    pageNumber = paginaActual - 2 + i
+                  }
+
+                  return (
+                    <button
+                      key={pageNumber}
+                      onClick={() => setPaginaActual(pageNumber)}
+                      className={`repuestos-pagination-number ${paginaActual === pageNumber ? "active" : ""}`}
+                    >
+                      {pageNumber}
+                    </button>
+                  )
+                })}
+              </div>
+
+              <button
+                onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
+                disabled={paginaActual === totalPaginas}
+                className="repuestos-pagination-button"
+              >
+                Siguiente
+                <FaChevronRight />
+              </button>
+            </div>
           </div>
         )}
       </div>
     </div>
-  );
+  )
 }
 
-export default ListarRepuestos;
+export default ListarRepuestos
