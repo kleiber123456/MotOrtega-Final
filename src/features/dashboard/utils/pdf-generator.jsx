@@ -98,9 +98,9 @@ export const generarFacturaPDF = async (compra, proveedor, detallesConProductos,
 
     if (proveedor) {
       doc.text(`Nombre: ${proveedor.nombre || "N/A"}`, 25, yPosition)
-      doc.text(`Documento: ${proveedor.documento || "N/A"}`, 120, yPosition)
+      doc.text(`Documento: ${proveedor.nit || "N/A"}`, 120, yPosition)
       yPosition += 6
-      doc.text(`Email: ${proveedor.email || "N/A"}`, 25, yPosition)
+      doc.text(`Email: ${proveedor.correo || "N/A"}`, 25, yPosition)
       doc.text(`Teléfono: ${proveedor.telefono || "N/A"}`, 120, yPosition)
       if (proveedor.direccion) {
         yPosition += 6

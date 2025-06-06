@@ -143,8 +143,19 @@ function ListarCompras() {
 
       if (!isConfirmed) return
 
-      // Realizar la petición usando el endpoint correcto
-      const response = await fetch(`https://api-final-8rw7.onrender.com/api/compras/${compraId}/cambiar-estado`, {
+      // Mostrar loading mientras se procesa
+      Swal.fire({
+        title: "Procesando...",
+        text: "Anulando la compra",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading()
+        },
+      })
+
+      // Realizar DOS peticiones consecutivas para forzar el estado "Cancelado"
+      // Primera petición
+      const response1 = await fetch(`https://api-final-8rw7.onrender.com/api/compras/${compraId}/cambiar-estado`, {
         method: "PUT",
         headers: {
           Authorization: token,
@@ -153,16 +164,33 @@ function ListarCompras() {
         body: JSON.stringify({ estado: "Cancelado" }),
       })
 
-      if (!response.ok) {
-        throw new Error("Error al anular la compra")
+      if (!response1.ok) {
+        throw new Error("Error en la primera petición para anular la compra")
+      }
+
+      // Segunda petición (para asegurar que llegue a "Cancelado")
+      const response2 = await fetch(`https://api-final-8rw7.onrender.com/api/compras/${compraId}/cambiar-estado`, {
+        method: "PUT",
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ estado: "Cancelado" }),
+      })
+
+      if (!response2.ok) {
+        throw new Error("Error en la segunda petición para anular la compra")
       }
 
       // Actualizar la lista de compras
       setCompras(compras.map((compra) => (compra.id === compraId ? { ...compra, estado: "Cancelado" } : compra)))
 
+      // Cerrar loading y mostrar éxito
+      Swal.close()
       Swal.fire("¡Éxito!", "La compra ha sido anulada exitosamente", "success")
     } catch (error) {
       console.error("Error al anular compra:", error)
+      Swal.close()
       Swal.fire("Error", "No se pudo anular la compra", "error")
     }
   }
