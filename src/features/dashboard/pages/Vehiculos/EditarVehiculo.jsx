@@ -1,270 +1,254 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import axios from "axios"
+import {
+  FaCar,
+  FaIdCard,
+  FaPalette,
+  FaUser,
+  FaCogs,
+  FaTimes,
+  FaSpinner,
+  FaExclamationTriangle,
+  FaSave,
+  FaArrowLeft,
+  FaSearch,
+} from "react-icons/fa"
 import Swal from "sweetalert2"
-import { Search, X, User } from "lucide-react"
-import "../../../../shared/styles/editarProveedor.css"
-import "../../../../shared/styles/Modal.css"
+import axios from "axios"
+import "../../../../shared/styles/editarVehiculo.css"
+
+// URL base de la API
+const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
+
+// Función para obtener token
+const getValidToken = () => {
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token")
+  if (!token) {
+    console.error("No hay token disponible")
+    return null
+  }
+  return token
+}
+
+// Hook personalizado para manejo de API
+const useApi = () => {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  const makeRequest = useCallback(async (url, options = {}) => {
+    setLoading(true)
+    setError(null)
+
+    const token = getValidToken()
+    if (!token) {
+      setError("Error de autenticación")
+      setLoading(false)
+      return null
+    }
+
+    try {
+      const response = await axios({
+        url: `${API_BASE_URL}${url}`,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        ...options,
+      })
+
+      return response.data
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Error desconocido"
+      setError(errorMessage)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  return { makeRequest, loading, error }
+}
 
 const EditarVehiculo = () => {
   const { id } = useParams()
   const navigate = useNavigate()
-  const token = localStorage.getItem("token") || sessionStorage.getItem("token")
+  const { makeRequest, loading: apiLoading } = useApi()
 
-  const [formulario, setFormulario] = useState({
+  const [vehiculo, setVehiculo] = useState({
     placa: "",
     color: "",
-    tipo_vehiculo: "Carro",
+    tipo_vehiculo: "",
     referencia_id: "",
     cliente_id: "",
-    estado: "Activo",
+    estado: "",
   })
 
-  // Estados para modales
-  const [referenciaSeleccionada, setReferenciaSeleccionada] = useState(null)
-  const [clienteSeleccionado, setClienteSeleccionado] = useState(null)
-  const [modalReferencia, setModalReferencia] = useState(false)
-  const [modalCliente, setModalCliente] = useState(false)
+  const [referencias, setReferencias] = useState([])
+  const [clientes, setClientes] = useState([])
   const [errores, setErrores] = useState({})
   const [cargando, setCargando] = useState(true)
-
-  // Estados para el modal de referencias
-  const [referencias, setReferencias] = useState([])
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [modalReferencia, setModalReferencia] = useState(false)
+  const [modalCliente, setModalCliente] = useState(false)
+  const [referenciaSeleccionada, setReferenciaSeleccionada] = useState(null)
+  const [clienteSeleccionado, setClienteSeleccionado] = useState(null)
   const [busquedaReferencia, setBusquedaReferencia] = useState("")
-  const [paginaActualReferencia, setPaginaActualReferencia] = useState(1)
-  const [cargandoReferencias, setCargandoReferencias] = useState(false)
-  const referenciasPorPagina = 8
-
-  // Estados para el modal de clientes
-  const [clientes, setClientes] = useState([])
   const [busquedaCliente, setBusquedaCliente] = useState("")
-  const [paginaActualCliente, setPaginaActualCliente] = useState(1)
-  const [cargandoClientes, setCargandoClientes] = useState(false)
-  const clientesPorPagina = 8
 
   useEffect(() => {
-    obtenerVehiculo()
-  }, [id])
+    const cargarDatos = async () => {
+      try {
+        setCargando(true)
 
-  // Cargar referencias cuando se abre el modal
-  useEffect(() => {
-    if (modalReferencia) {
-      fetchReferencias()
-      setBusquedaReferencia("")
-      setPaginaActualReferencia(1)
+        // Cargar vehículo, referencias y clientes en paralelo
+        const [vehiculoData, referenciaData, clienteData] = await Promise.all([
+          makeRequest(`/vehiculos/${id}`),
+          makeRequest("/referencias"),
+          makeRequest("/clientes"),
+        ])
+
+        if (vehiculoData) {
+          setVehiculo({
+            placa: vehiculoData.placa || "",
+            color: vehiculoData.color || "",
+            tipo_vehiculo: vehiculoData.tipo_vehiculo || "",
+            referencia_id: vehiculoData.referencia_id || "",
+            cliente_id: vehiculoData.cliente_id || "",
+            estado: vehiculoData.estado?.charAt(0).toUpperCase() + vehiculoData.estado?.slice(1) || "",
+          })
+
+          // Establecer referencia y cliente seleccionados
+          if (vehiculoData.referencia_id) {
+            setReferenciaSeleccionada({
+              id: vehiculoData.referencia_id,
+              nombre: vehiculoData.referencia_nombre,
+              marca_nombre: vehiculoData.marca_nombre,
+            })
+          }
+
+          if (vehiculoData.cliente_id) {
+            setClienteSeleccionado({
+              id: vehiculoData.cliente_id,
+              nombre: vehiculoData.cliente_nombre?.split(" ")[0] || "",
+              apellido: vehiculoData.cliente_nombre?.split(" ").slice(1).join(" ") || "",
+            })
+          }
+        }
+
+        if (referenciaData) {
+          setReferencias(referenciaData)
+        }
+
+        if (clienteData) {
+          setClientes(clienteData)
+        }
+      } catch (error) {
+        console.error("Error al cargar datos:", error)
+        Swal.fire("Error", "No se pudieron cargar los datos del vehículo", "error")
+      } finally {
+        setCargando(false)
+      }
     }
-  }, [modalReferencia, formulario.tipo_vehiculo])
 
-  // Cargar clientes cuando se abre el modal
-  useEffect(() => {
-    if (modalCliente) {
-      fetchClientes()
-      setBusquedaCliente("")
-      setPaginaActualCliente(1)
+    if (id) {
+      cargarDatos()
     }
-  }, [modalCliente])
+  }, [id, makeRequest])
 
-  const fetchReferencias = async () => {
-    setCargandoReferencias(true)
-    try {
-      const response = await axios.get("https://api-final-8rw7.onrender.com/api/referencias", {
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-        },
-      })
+  const handleChange = useCallback((e) => {
+    const { name, value } = e.target
+    setVehiculo((prev) => ({ ...prev, [name]: value }))
+    validarCampo(name, value)
+  }, [])
 
-      // Filtrar por tipo de vehículo
-      const referenciasFiltradas = response.data.filter(
-        (ref) => ref.tipo_vehiculo === formulario.tipo_vehiculo || ref.categoria === formulario.tipo_vehiculo,
-      )
-
-      setReferencias(referenciasFiltradas)
-    } catch (error) {
-      console.error("Error al obtener referencias:", error)
-      setReferencias([])
-    } finally {
-      setCargandoReferencias(false)
-    }
-  }
-
-  const fetchClientes = async () => {
-    setCargandoClientes(true)
-    try {
-      const response = await axios.get("https://api-final-8rw7.onrender.com/api/clientes", {
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-        },
-      })
-      setClientes(response.data)
-    } catch (error) {
-      console.error("Error al obtener clientes:", error)
-      setClientes([])
-    } finally {
-      setCargandoClientes(false)
-    }
-  }
-
-  const soloLetrasYNumeros = (e) => {
-    e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase()
-  }
-
-  const soloLetras = (e) => {
-    e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, "")
-  }
-
-  const validarCampo = (name, value) => {
+  const validarCampo = useCallback((name, value) => {
     let nuevoError = ""
 
-    if (name === "placa") {
-      if (!value.trim()) {
-        nuevoError = "La placa es obligatoria."
-      } else if (!/^[A-Z0-9]{6}$/.test(value)) {
-        nuevoError = "La placa debe tener exactamente 6 caracteres alfanuméricos."
-      }
-    } else if (name === "color") {
-      if (!value.trim()) {
-        nuevoError = "El color es obligatorio."
-      } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
-        nuevoError = "El color solo debe contener letras."
-      }
-    } else if (name === "tipo_vehiculo") {
-      if (!["Carro", "Moto", "Camioneta"].includes(value)) {
-        nuevoError = "Tipo de vehículo inválido."
-      }
-    } else if (name === "referencia_id") {
-      if (!value) {
-        nuevoError = "Debe seleccionar una referencia."
-      }
-    } else if (name === "cliente_id") {
-      if (!value) {
-        nuevoError = "Debe seleccionar un cliente."
-      }
-    } else if (name === "estado") {
-      if (!["Activo", "Inactivo"].includes(value)) {
-        nuevoError = "Estado inválido."
-      }
+    switch (name) {
+      case "placa":
+        if (!value.trim()) {
+          nuevoError = "La placa es obligatoria."
+        } else if (!/^[A-Z0-9]{6}$/.test(value)) {
+          nuevoError = "La placa debe tener exactamente 6 caracteres alfanuméricos."
+        }
+        break
+      case "color":
+        if (!value.trim()) {
+          nuevoError = "El color es obligatorio."
+        } else if (value.trim().length < 3) {
+          nuevoError = "El color debe tener al menos 3 caracteres."
+        }
+        break
+      case "tipo_vehiculo":
+        if (!value) {
+          nuevoError = "Selecciona un tipo de vehículo."
+        }
+        break
+      case "referencia_id":
+        if (!value) {
+          nuevoError = "Debe seleccionar una referencia."
+        }
+        break
+      case "cliente_id":
+        if (!value) {
+          nuevoError = "Debe seleccionar un cliente."
+        }
+        break
     }
 
     setErrores((prev) => ({ ...prev, [name]: nuevoError }))
-    return nuevoError === ""
-  }
+  }, [])
 
-  const validarFormulario = () => {
-    let esValido = true
+  const validarFormulario = useCallback(() => {
+    const nuevosErrores = {}
 
-    if (!validarCampo("placa", formulario.placa)) esValido = false
-    if (!validarCampo("color", formulario.color)) esValido = false
-    if (!validarCampo("tipo_vehiculo", formulario.tipo_vehiculo)) esValido = false
-    if (!validarCampo("referencia_id", formulario.referencia_id)) esValido = false
-    if (!validarCampo("cliente_id", formulario.cliente_id)) esValido = false
-    if (!validarCampo("estado", formulario.estado)) esValido = false
-
-    return esValido
-  }
-
-  // Limpiar referencia cuando cambie el tipo de vehículo
-  useEffect(() => {
-    if (!cargando) {
-      setReferenciaSeleccionada(null)
-      setFormulario((prev) => ({ ...prev, referencia_id: "" }))
-    }
-  }, [formulario.tipo_vehiculo, cargando])
-
-  const obtenerVehiculo = async () => {
-    setCargando(true)
-    try {
-      if (!token) {
-        Swal.fire("Error", "No autorizado: Token no encontrado.", "error")
-        navigate("/login")
-        return
+    // Validar todos los campos
+    Object.keys(vehiculo).forEach((key) => {
+      if (key !== "estado") {
+        validarCampo(key, vehiculo[key])
       }
-      const response = await axios.get(`https://api-final-8rw7.onrender.com/api/vehiculos/${id}`, {
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-        },
-      })
-      const data = response.data
-      setFormulario({
-        ...data,
-        estado: data.estado.charAt(0).toUpperCase() + data.estado.slice(1),
-      })
+    })
 
-      // Establecer referencia y cliente seleccionados
-      if (data.referencia_id) {
-        setReferenciaSeleccionada({
-          id: data.referencia_id,
-          nombre: data.referencia_nombre,
-          marca_nombre: data.marca_nombre,
-        })
-      }
+    return Object.keys(errores).every((key) => !errores[key])
+  }, [vehiculo, errores, validarCampo])
 
-      if (data.cliente_id) {
-        setClienteSeleccionado({
-          id: data.cliente_id,
-          nombre: data.cliente_nombre?.split(" ")[0] || "",
-          apellido: data.cliente_nombre?.split(" ").slice(1).join(" ") || "",
-        })
-      }
-    } catch (error) {
-      console.error("Error al obtener vehículo:", error)
-      Swal.fire("Error", "Error al cargar los datos del vehículo.", "error")
-      navigate("/vehiculos")
-    } finally {
-      setCargando(false)
-    }
-  }
+  // Función para permitir solo números y letras
+  const soloLetrasYNumeros = useCallback((e) => {
+    e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase()
+  }, [])
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormulario((prev) => ({ ...prev, [name]: value }))
-    validarCampo(name, value)
-  }
+  // Función para permitir solo letras
+  const soloLetras = useCallback((e) => {
+    e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, "")
+  }, [])
 
   const handleSeleccionarReferencia = (referencia) => {
     setReferenciaSeleccionada(referencia)
-    setFormulario((prev) => ({ ...prev, referencia_id: referencia.id }))
+    setVehiculo((prev) => ({ ...prev, referencia_id: referencia.id }))
     validarCampo("referencia_id", referencia.id)
     setModalReferencia(false)
   }
 
   const handleSeleccionarCliente = (cliente) => {
     setClienteSeleccionado(cliente)
-    setFormulario((prev) => ({ ...prev, cliente_id: cliente.id }))
+    setVehiculo((prev) => ({ ...prev, cliente_id: cliente.id }))
     validarCampo("cliente_id", cliente.id)
     setModalCliente(false)
   }
 
-  const handleBuscarReferencia = (e) => {
-    setBusquedaReferencia(e.target.value)
-    setPaginaActualReferencia(1)
-  }
-
-  const handleBuscarCliente = (e) => {
-    setBusquedaCliente(e.target.value)
-    setPaginaActualCliente(1)
-  }
-
-  // Filtrar y paginar referencias
   const referenciasFiltradas = referencias.filter((ref) => {
     const textoBusqueda = busquedaReferencia.toLowerCase()
-    return (
+    const coincideTipo = ref.tipo_vehiculo === vehiculo.tipo_vehiculo || ref.categoria === vehiculo.tipo_vehiculo
+    const coincideBusqueda =
       ref.nombre?.toLowerCase().includes(textoBusqueda) ||
       ref.marca_nombre?.toLowerCase().includes(textoBusqueda) ||
       ref.descripcion?.toLowerCase().includes(textoBusqueda)
-    )
+
+    return coincideTipo && coincideBusqueda
   })
 
-  const indexUltimoReferencia = paginaActualReferencia * referenciasPorPagina
-  const indexPrimeroReferencia = indexUltimoReferencia - referenciasPorPagina
-  const referenciasPaginadas = referenciasFiltradas.slice(indexPrimeroReferencia, indexUltimoReferencia)
-  const totalPaginasReferencia = Math.ceil(referenciasFiltradas.length / referenciasPorPagina)
-
-  // Filtrar y paginar clientes
   const clientesFiltrados = clientes.filter((cliente) => {
     const textoBusqueda = busquedaCliente.toLowerCase()
     return (
@@ -276,290 +260,353 @@ const EditarVehiculo = () => {
     )
   })
 
-  const indexUltimoCliente = paginaActualCliente * clientesPorPagina
-  const indexPrimeroCliente = indexUltimoCliente - clientesPorPagina
-  const clientesPaginados = clientesFiltrados.slice(indexPrimeroCliente, indexUltimoCliente)
-  const totalPaginasCliente = Math.ceil(clientesFiltrados.length / clientesPorPagina)
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault()
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-
-    if (!validarFormulario()) {
-      Swal.fire({
-        icon: "warning",
-        title: "Campos inválidos",
-        text: "Por favor corrige los errores antes de continuar.",
-      })
-      return
-    }
-
-    try {
-      if (!token) {
-        Swal.fire("Error", "No autorizado: Token no encontrado.", "error")
-        navigate("/login")
+      if (!validarFormulario()) {
+        await Swal.fire({
+          icon: "warning",
+          title: "Campos inválidos",
+          text: "Por favor corrige los errores antes de continuar.",
+          confirmButtonColor: "#2563eb",
+        })
         return
       }
 
-      // Verificar si la placa ya existe en otro vehículo
-      const checkResponse = await axios.get("https://api-final-8rw7.onrender.com/api/vehiculos", {
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-        },
-      })
+      setIsSubmitting(true)
 
-      const vehiculos = checkResponse.data
-      const vehiculoDuplicado = vehiculos.find((v) => v.id !== Number.parseInt(id) && v.placa === formulario.placa)
+      try {
+        // Verificar si la placa ya existe en otro vehículo
+        const vehiculosExistentes = await makeRequest("/vehiculos")
+        const vehiculoDuplicado = vehiculosExistentes?.find(
+          (v) => v.id !== Number.parseInt(id) && v.placa === vehiculo.placa,
+        )
 
-      if (vehiculoDuplicado) {
-        Swal.fire("Placa duplicada", "Ya existe otro vehículo con esta placa.", "warning")
-        return
-      }
+        if (vehiculoDuplicado) {
+          await Swal.fire({
+            icon: "warning",
+            title: "Placa duplicada",
+            text: "Ya existe otro vehículo con esta placa.",
+            confirmButtonColor: "#ef4444",
+          })
+          return
+        }
 
-      const estadoParaAPI = formulario.estado.toLowerCase()
-
-      await axios.put(
-        `https://api-final-8rw7.onrender.com/api/vehiculos/${id}`,
-        { ...formulario, estado: estadoParaAPI },
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
+        await makeRequest(`/vehiculos/${id}`, {
+          method: "PUT",
+          data: {
+            ...vehiculo,
+            estado: vehiculo.estado.toLowerCase(),
           },
-        },
-      )
-      Swal.fire("Éxito", "Vehículo actualizado exitosamente.", "success")
+        })
+
+        await Swal.fire({
+          icon: "success",
+          title: "¡Éxito!",
+          text: "Vehículo actualizado correctamente",
+          confirmButtonColor: "#10b981",
+          timer: 2000,
+        })
+
+        navigate("/vehiculos")
+      } catch (error) {
+        console.error("Error al actualizar vehículo:", error)
+        await Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: error instanceof Error ? error.message : "No se pudo actualizar el vehículo",
+          confirmButtonColor: "#ef4444",
+        })
+      } finally {
+        setIsSubmitting(false)
+      }
+    },
+    [vehiculo, validarFormulario, makeRequest, id, navigate],
+  )
+
+  const handleCancel = useCallback(async () => {
+    const result = await Swal.fire({
+      title: "¿Cancelar edición?",
+      text: "Se perderán todos los cambios realizados",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Sí, cancelar",
+      cancelButtonText: "Continuar editando",
+    })
+
+    if (result.isConfirmed) {
       navigate("/vehiculos")
-    } catch (error) {
-      console.error("Error al actualizar vehículo:", error)
-      const errorMessage =
-        error.response && error.response.data && error.response.data.message
-          ? error.response.data.message
-          : "No se pudo actualizar el vehículo."
-      Swal.fire("Error", errorMessage, "error")
     }
-  }
+  }, [navigate])
 
   if (cargando) {
     return (
-      <div className="perfil__container">
-        <div className="perfil__form">
-          <div className="perfil__title-container">
-            <h2 className="perfil__title">Cargando Vehículo...</h2>
-          </div>
-          <p style={{ textAlign: "center", color: "#555" }}>Por favor, espere mientras cargamos la información.</p>
+      <div className="editarVehiculo-container">
+        <div className="editarVehiculo-loading">
+          <div className="editarVehiculo-spinner"></div>
+          <p>Cargando datos del vehículo...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="perfil__container">
-      <form onSubmit={handleSubmit} className="perfil__form">
-        <div className="perfil__title-container">
-          <h2 className="perfil__title">Editar Vehículo</h2>
-        </div>
-
-        <div className="perfil__grid-container">
-          {/* Placa */}
-          <div className="perfil__field">
-            <label>Placa</label>
-            <input
-              type="text"
-              name="placa"
-              value={formulario.placa}
-              onChange={handleChange}
-              onInput={soloLetrasYNumeros}
-              maxLength={6}
-              autoComplete="off"
-              className={errores.placa ? "input-error" : ""}
-              required
-            />
-            {errores.placa && <span className="perfil-validacion">{errores.placa}</span>}
-          </div>
-
-          {/* Color */}
-          <div className="perfil__field">
-            <label>Color</label>
-            <input
-              type="text"
-              name="color"
-              value={formulario.color}
-              onChange={handleChange}
-              onInput={soloLetras}
-              maxLength={45}
-              autoComplete="off"
-              className={errores.color ? "input-error" : ""}
-              required
-            />
-            {errores.color && <span className="perfil-validacion">{errores.color}</span>}
-          </div>
-
-          {/* Tipo de Vehículo */}
-          <div className="perfil__field">
-            <label>Tipo de Vehículo</label>
-            <select
-              name="tipo_vehiculo"
-              value={formulario.tipo_vehiculo}
-              onChange={handleChange}
-              className={errores.tipo_vehiculo ? "input-error" : ""}
-              required
-            >
-              <option value="Carro">Carro</option>
-              <option value="Moto">Moto</option>
-              <option value="Camioneta">Camioneta</option>
-            </select>
-            {errores.tipo_vehiculo && <span className="perfil-validacion">{errores.tipo_vehiculo}</span>}
-          </div>
-
-          {/* Referencia con Modal */}
-          <div className="perfil__field">
-            <label>Referencia</label>
-            <div className="input-with-button">
-              <input
-                type="text"
-                value={
-                  referenciaSeleccionada
-                    ? `${referenciaSeleccionada.marca_nombre ? referenciaSeleccionada.marca_nombre + " - " : ""}${referenciaSeleccionada.nombre}`
-                    : ""
-                }
-                placeholder={`Seleccionar referencia de ${formulario.tipo_vehiculo.toLowerCase()}`}
-                readOnly
-                className={errores.referencia_id ? "input-error" : ""}
-                required
-              />
-              <button type="button" className="search-button" onClick={() => setModalReferencia(true)}>
-                <Search size={18} />
-              </button>
-            </div>
-            {errores.referencia_id && <span className="perfil-validacion">{errores.referencia_id}</span>}
-          </div>
-
-          {/* Cliente con Modal */}
-          <div className="perfil__field">
-            <label>Cliente</label>
-            <div className="input-with-button">
-              <input
-                type="text"
-                value={clienteSeleccionado ? `${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}` : ""}
-                placeholder="Seleccionar cliente"
-                readOnly
-                className={errores.cliente_id ? "input-error" : ""}
-                required
-              />
-              <button type="button" className="search-button" onClick={() => setModalCliente(true)}>
-                <Search size={18} />
-              </button>
-            </div>
-            {errores.cliente_id && <span className="perfil-validacion">{errores.cliente_id}</span>}
-          </div>
-
-          {/* Estado */}
-          <div className="perfil__field">
-            <label>Estado</label>
-            <select
-              name="estado"
-              value={formulario.estado}
-              onChange={handleChange}
-              className={errores.estado ? "input-error" : ""}
-              required
-            >
-              <option value="Activo">Activo</option>
-              <option value="Inactivo">Inactivo</option>
-            </select>
-            {errores.estado && <span className="perfil-validacion">{errores.estado}</span>}
+    <div className="editarVehiculo-container">
+      <div className="editarVehiculo-header">
+        <div className="editarVehiculo-header-left">
+          <button className="editarVehiculo-btn-back" onClick={() => navigate("/vehiculos")}>
+            <FaArrowLeft />
+            Volver
+          </button>
+          <div className="editarVehiculo-title-section">
+            <h1 className="editarVehiculo-page-title">
+              <FaCar className="editarVehiculo-title-icon" />
+              Editar Vehículo
+            </h1>
+            <p className="editarVehiculo-subtitle">Modifica la información del vehículo</p>
           </div>
         </div>
+      </div>
 
-        <button type="submit" className="perfil__btn">
-          Actualizar Vehículo
-        </button>
+      <form className="editarVehiculo-form" onSubmit={handleSubmit}>
+        <div className="editarVehiculo-form-section">
+          <h3 className="editarVehiculo-section-title">
+            <FaCar className="editarVehiculo-section-icon" />
+            Información del Vehículo
+          </h3>
+          <div className="editarVehiculo-form-grid">
+            <div className="editarVehiculo-form-group">
+              <label htmlFor="placa" className="editarVehiculo-label">
+                <FaIdCard className="editarVehiculo-label-icon" />
+                Placa *
+              </label>
+              <input
+                type="text"
+                id="placa"
+                name="placa"
+                value={vehiculo.placa}
+                onChange={handleChange}
+                onInput={soloLetrasYNumeros}
+                maxLength={6}
+                autoComplete="off"
+                className={`editarVehiculo-form-input ${errores.placa ? "error" : ""}`}
+                required
+              />
+              {errores.placa && (
+                <span className="editarVehiculo-error-text">
+                  <FaExclamationTriangle /> {errores.placa}
+                </span>
+              )}
+            </div>
+
+            <div className="editarVehiculo-form-group">
+              <label htmlFor="color" className="editarVehiculo-label">
+                <FaPalette className="editarVehiculo-label-icon" />
+                Color *
+              </label>
+              <input
+                type="text"
+                id="color"
+                name="color"
+                value={vehiculo.color}
+                onChange={handleChange}
+                onInput={soloLetras}
+                maxLength={45}
+                autoComplete="off"
+                className={`editarVehiculo-form-input ${errores.color ? "error" : ""}`}
+                required
+              />
+              {errores.color && (
+                <span className="editarVehiculo-error-text">
+                  <FaExclamationTriangle /> {errores.color}
+                </span>
+              )}
+            </div>
+
+            <div className="editarVehiculo-form-group">
+              <label htmlFor="tipo_vehiculo" className="editarVehiculo-label">
+                <FaCar className="editarVehiculo-label-icon" />
+                Tipo de Vehículo *
+              </label>
+              <select
+                id="tipo_vehiculo"
+                name="tipo_vehiculo"
+                value={vehiculo.tipo_vehiculo}
+                onChange={handleChange}
+                className={`editarVehiculo-form-input ${errores.tipo_vehiculo ? "error" : ""}`}
+                required
+              >
+                <option value="">Seleccionar tipo</option>
+                <option value="Carro">Carro</option>
+                <option value="Moto">Moto</option>
+                <option value="Camioneta">Camioneta</option>
+              </select>
+              {errores.tipo_vehiculo && (
+                <span className="editarVehiculo-error-text">
+                  <FaExclamationTriangle /> {errores.tipo_vehiculo}
+                </span>
+              )}
+            </div>
+
+            <div className="editarVehiculo-form-group">
+              <label htmlFor="referencia" className="editarVehiculo-label">
+                <FaCogs className="editarVehiculo-label-icon" />
+                Referencia *
+              </label>
+              <div className="editarVehiculo-input-with-button">
+                <input
+                  type="text"
+                  value={
+                    referenciaSeleccionada
+                      ? `${referenciaSeleccionada.marca_nombre ? referenciaSeleccionada.marca_nombre + " - " : ""}${referenciaSeleccionada.nombre}`
+                      : ""
+                  }
+                  placeholder={`Seleccionar referencia de ${vehiculo.tipo_vehiculo.toLowerCase()}`}
+                  readOnly
+                  className={`editarVehiculo-form-input ${errores.referencia_id ? "error" : ""}`}
+                  required
+                />
+                <button type="button" className="editarVehiculo-search-button" onClick={() => setModalReferencia(true)}>
+                  <FaSearch />
+                </button>
+              </div>
+              {errores.referencia_id && (
+                <span className="editarVehiculo-error-text">
+                  <FaExclamationTriangle /> {errores.referencia_id}
+                </span>
+              )}
+            </div>
+
+            <div className="editarVehiculo-form-group">
+              <label htmlFor="cliente" className="editarVehiculo-label">
+                <FaUser className="editarVehiculo-label-icon" />
+                Cliente *
+              </label>
+              <div className="editarVehiculo-input-with-button">
+                <input
+                  type="text"
+                  value={clienteSeleccionado ? `${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}` : ""}
+                  placeholder="Seleccionar cliente"
+                  readOnly
+                  className={`editarVehiculo-form-input ${errores.cliente_id ? "error" : ""}`}
+                  required
+                />
+                <button type="button" className="editarVehiculo-search-button" onClick={() => setModalCliente(true)}>
+                  <FaSearch />
+                </button>
+              </div>
+              {errores.cliente_id && (
+                <span className="editarVehiculo-error-text">
+                  <FaExclamationTriangle /> {errores.cliente_id}
+                </span>
+              )}
+            </div>
+
+            <div className="editarVehiculo-form-group">
+              <label htmlFor="estado" className="editarVehiculo-label">
+                <FaCogs className="editarVehiculo-label-icon" />
+                Estado *
+              </label>
+              <select
+                id="estado"
+                name="estado"
+                value={vehiculo.estado}
+                onChange={handleChange}
+                className={`editarVehiculo-form-input ${errores.estado ? "error" : ""}`}
+                required
+              >
+                <option value="">Seleccionar estado</option>
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+              </select>
+              {errores.estado && (
+                <span className="editarVehiculo-error-text">
+                  <FaExclamationTriangle /> {errores.estado}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="editarVehiculo-form-actions">
+          <button type="button" className="editarVehiculo-cancel-button" onClick={handleCancel} disabled={isSubmitting}>
+            <FaTimes className="editarVehiculo-button-icon" />
+            Cancelar
+          </button>
+          <button type="submit" className="editarVehiculo-submit-button" disabled={isSubmitting || apiLoading}>
+            {isSubmitting ? (
+              <>
+                <FaSpinner className="editarVehiculo-button-icon spinning" />
+                Guardando...
+              </>
+            ) : (
+              <>
+                <FaSave className="editarVehiculo-button-icon" />
+                Guardar Cambios
+              </>
+            )}
+          </button>
+        </div>
       </form>
 
       {/* Modal de Referencias */}
       {modalReferencia && (
-        <div className="modal-overlay">
-          <div className="modal-container modal-large">
-            <div className="modal-header">
-              <h3>Seleccionar Referencia - {formulario.tipo_vehiculo}</h3>
-              <button className="modal-close-btn" onClick={() => setModalReferencia(false)}>
-                <X size={20} />
+        <div className="editarVehiculo-modal-overlay">
+          <div className="editarVehiculo-modal-container">
+            <div className="editarVehiculo-modal-header">
+              <h3>Seleccionar Referencia - {vehiculo.tipo_vehiculo}</h3>
+              <button className="editarVehiculo-modal-close" onClick={() => setModalReferencia(false)}>
+                <FaTimes />
               </button>
             </div>
 
-            <div className="modal-content">
-              {/* Búsqueda */}
-              <div className="modal-search">
-                <div className="search-input-container">
-                  <Search size={18} className="search-icon" />
+            <div className="editarVehiculo-modal-content">
+              <div className="editarVehiculo-modal-search">
+                <div className="editarVehiculo-search-container">
+                  <FaSearch className="editarVehiculo-search-icon" />
                   <input
                     type="text"
                     placeholder="Buscar por nombre, marca o descripción..."
                     value={busquedaReferencia}
-                    onChange={handleBuscarReferencia}
-                    className="search-input"
+                    onChange={(e) => setBusquedaReferencia(e.target.value)}
+                    className="editarVehiculo-search-input"
                   />
                 </div>
               </div>
 
-              {/* Lista de referencias */}
-              <div className="modal-list">
-                {cargandoReferencias ? (
-                  <div className="modal-loading">Cargando referencias...</div>
-                ) : referenciasPaginadas.length > 0 ? (
-                  <div className="referencias-grid">
-                    {referenciasPaginadas.map((ref) => (
+              <div className="editarVehiculo-modal-list">
+                {referenciasFiltradas.length > 0 ? (
+                  <div className="editarVehiculo-referencias-grid">
+                    {referenciasFiltradas.map((ref) => (
                       <div
                         key={ref.id}
-                        className={`referencia-card ${referenciaSeleccionada?.id === ref.id ? "selected" : ""}`}
+                        className={`editarVehiculo-referencia-card ${referenciaSeleccionada?.id === ref.id ? "selected" : ""}`}
                         onClick={() => handleSeleccionarReferencia(ref)}
                       >
-                        <div className="referencia-info">
+                        <div className="editarVehiculo-referencia-info">
                           <h4>{ref.nombre}</h4>
-                          {ref.marca_nombre && <p className="marca">Marca: {ref.marca_nombre}</p>}
-                          {ref.descripcion && <p className="descripcion">{ref.descripcion}</p>}
-                          <span className="tipo-badge">{ref.tipo_vehiculo || ref.categoria}</span>
+                          {ref.marca_nombre && <p className="editarVehiculo-marca">Marca: {ref.marca_nombre}</p>}
+                          {ref.descripcion && <p className="editarVehiculo-descripcion">{ref.descripcion}</p>}
+                          <span className="editarVehiculo-tipo-badge">{ref.tipo_vehiculo || ref.categoria}</span>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="modal-empty">
+                  <div className="editarVehiculo-modal-empty">
                     {busquedaReferencia
                       ? `No se encontraron referencias que coincidan con "${busquedaReferencia}"`
-                      : `No hay referencias disponibles para ${formulario.tipo_vehiculo}`}
+                      : `No hay referencias disponibles para ${vehiculo.tipo_vehiculo}`}
                   </div>
                 )}
               </div>
-
-              {/* Paginación */}
-              {totalPaginasReferencia > 1 && (
-                <div className="modal-pagination">
-                  <button
-                    onClick={() => setPaginaActualReferencia(paginaActualReferencia - 1)}
-                    disabled={paginaActualReferencia === 1}
-                    className="pagination-btn"
-                  >
-                    Anterior
-                  </button>
-
-                  <span className="pagination-info">
-                    Página {paginaActualReferencia} de {totalPaginasReferencia}
-                  </span>
-
-                  <button
-                    onClick={() => setPaginaActualReferencia(paginaActualReferencia + 1)}
-                    disabled={paginaActualReferencia === totalPaginasReferencia}
-                    className="pagination-btn"
-                  >
-                    Siguiente
-                  </button>
-                </div>
-              )}
             </div>
 
-            <div className="modal-footer">
-              <button className="btn-secondary" onClick={() => setModalReferencia(false)}>
+            <div className="editarVehiculo-modal-footer">
+              <button className="editarVehiculo-modal-cancel" onClick={() => setModalReferencia(false)}>
                 Cancelar
               </button>
             </div>
@@ -569,96 +616,69 @@ const EditarVehiculo = () => {
 
       {/* Modal de Clientes */}
       {modalCliente && (
-        <div className="modal-overlay">
-          <div className="modal-container modal-large">
-            <div className="modal-header">
+        <div className="editarVehiculo-modal-overlay">
+          <div className="editarVehiculo-modal-container">
+            <div className="editarVehiculo-modal-header">
               <h3>Seleccionar Cliente</h3>
-              <button className="modal-close-btn" onClick={() => setModalCliente(false)}>
-                <X size={20} />
+              <button className="editarVehiculo-modal-close" onClick={() => setModalCliente(false)}>
+                <FaTimes />
               </button>
             </div>
 
-            <div className="modal-content">
-              {/* Búsqueda */}
-              <div className="modal-search">
-                <div className="search-input-container">
-                  <Search size={18} className="search-icon" />
+            <div className="editarVehiculo-modal-content">
+              <div className="editarVehiculo-modal-search">
+                <div className="editarVehiculo-search-container">
+                  <FaSearch className="editarVehiculo-search-icon" />
                   <input
                     type="text"
                     placeholder="Buscar por nombre, documento, teléfono o correo..."
                     value={busquedaCliente}
-                    onChange={handleBuscarCliente}
-                    className="search-input"
+                    onChange={(e) => setBusquedaCliente(e.target.value)}
+                    className="editarVehiculo-search-input"
                   />
                 </div>
               </div>
 
-              {/* Lista de clientes */}
-              <div className="modal-list">
-                {cargandoClientes ? (
-                  <div className="modal-loading">Cargando clientes...</div>
-                ) : clientesPaginados.length > 0 ? (
-                  <div className="clientes-grid">
-                    {clientesPaginados.map((cliente) => (
+              <div className="editarVehiculo-modal-list">
+                {clientesFiltrados.length > 0 ? (
+                  <div className="editarVehiculo-clientes-grid">
+                    {clientesFiltrados.map((cliente) => (
                       <div
                         key={cliente.id}
-                        className={`cliente-card ${clienteSeleccionado?.id === cliente.id ? "selected" : ""}`}
+                        className={`editarVehiculo-cliente-card ${clienteSeleccionado?.id === cliente.id ? "selected" : ""}`}
                         onClick={() => handleSeleccionarCliente(cliente)}
                       >
-                        <div className="cliente-info">
-                          <div className="cliente-avatar">
-                            <User size={24} />
+                        <div className="editarVehiculo-cliente-info">
+                          <div className="editarVehiculo-cliente-avatar">
+                            <FaUser />
                           </div>
-                          <div className="cliente-details">
+                          <div className="editarVehiculo-cliente-details">
                             <h4>
                               {cliente.nombre} {cliente.apellido}
                             </h4>
-                            <p className="documento">Doc: {cliente.documento}</p>
-                            {cliente.telefono && <p className="telefono">Tel: {cliente.telefono}</p>}
-                            {cliente.correo && <p className="correo">{cliente.correo}</p>}
-                            <span className={`estado-badge ${cliente.estado?.toLowerCase()}`}>{cliente.estado}</span>
+                            <p className="editarVehiculo-documento">Doc: {cliente.documento}</p>
+                            {cliente.telefono && <p className="editarVehiculo-telefono">Tel: {cliente.telefono}</p>}
+                            {cliente.correo && <p className="editarVehiculo-correo">{cliente.correo}</p>}
+                            <span className={`editarVehiculo-estado-badge ${cliente.estado?.toLowerCase()}`}>
+                              {cliente.estado}
+                            </span>
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="modal-empty">
+                  <div className="editarVehiculo-modal-empty">
                     {busquedaCliente
                       ? `No se encontraron clientes que coincidan con "${busquedaCliente}"`
                       : "No hay clientes disponibles"}
                   </div>
                 )}
               </div>
-
-              {/* Paginación */}
-              {totalPaginasCliente > 1 && (
-                <div className="modal-pagination">
-                  <button
-                    onClick={() => setPaginaActualCliente(paginaActualCliente - 1)}
-                    disabled={paginaActualCliente === 1}
-                    className="pagination-btn"
-                  >
-                    Anterior
-                  </button>
-
-                  <span className="pagination-info">
-                    Página {paginaActualCliente} de {totalPaginasCliente}
-                  </span>
-
-                  <button
-                    onClick={() => setPaginaActualCliente(paginaActualCliente + 1)}
-                    disabled={paginaActualCliente === totalPaginasCliente}
-                    className="pagination-btn"
-                  >
-                    Siguiente
-                  </button>
-                </div>
-              )}
             </div>
 
-            <div className="modal-footer">
-              <button className="btn-secondary" onClick={() => setModalCliente(false)}>
+            <div className="editarVehiculo-modal-footer">
+              <button className="editarVehiculo-modal-cancel" onClick={() => setModalCliente(false)}>
                 Cancelar
               </button>
             </div>

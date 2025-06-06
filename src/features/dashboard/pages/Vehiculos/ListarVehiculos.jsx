@@ -1,191 +1,295 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import axios from "axios"
+import { useState, useEffect, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
+import {
+  FaCar,
+  FaEdit,
+  FaTrash,
+  FaEye,
+  FaSearch,
+  FaExclamationTriangle,
+  FaPlus,
+  FaToggleOn,
+  FaToggleOff,
+} from "react-icons/fa"
 import Swal from "sweetalert2"
-import { Pencil, Trash2, Eye } from "lucide-react"
-import "../../../../shared/styles/ListarProveedor.css"
+import axios from "axios"
+import "../../../../shared/styles/listarVehiculos.css"
 
-const ListarVehiculos = () => {
-  const [vehiculos, setVehiculos] = useState([])
-  const [busqueda, setBusqueda] = useState("")
-  const [paginaActual, setPaginaActual] = useState(1)
-  const vehiculosPorPagina = 10
-  const navigate = useNavigate()
+// URL base de la API
+const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
 
+// Función para obtener token
+const getValidToken = () => {
   const token = localStorage.getItem("token") || sessionStorage.getItem("token")
+  if (!token) {
+    console.error("No hay token disponible")
+    return null
+  }
+  return token
+}
 
-  useEffect(() => {
-    fetchVehiculos()
+// Hook personalizado para manejo de API
+const useApi = () => {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  const makeRequest = useCallback(async (url, options = {}) => {
+    setLoading(true)
+    setError(null)
+
+    const token = getValidToken()
+    if (!token) {
+      setError("Error de autenticación")
+      setLoading(false)
+      return null
+    }
+
+    try {
+      const response = await axios({
+        url: `${API_BASE_URL}${url}`,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        ...options,
+      })
+
+      return response.data
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Error desconocido"
+      setError(errorMessage)
+      throw err
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
-  // Función para obtener vehículos
-  const fetchVehiculos = async () => {
+  return { makeRequest, loading, error }
+}
+
+const ListarVehiculos = () => {
+  const navigate = useNavigate()
+  const { makeRequest, loading: apiLoading } = useApi()
+
+  const [vehiculos, setVehiculos] = useState([])
+  const [busqueda, setBusqueda] = useState("")
+  const [tipoFiltro, setTipoFiltro] = useState("")
+  const [estadoFiltro, setEstadoFiltro] = useState("")
+  const [paginaActual, setPaginaActual] = useState(1)
+  const [vehiculosPorPagina] = useState(4)
+  const [cargando, setCargando] = useState(true)
+
+  useEffect(() => {
+    document.body.style.backgroundColor = "#f9fafb"
+    cargarVehiculos()
+    return () => {
+      document.body.style.background = ""
+    }
+  }, [])
+
+  const cargarVehiculos = async () => {
     try {
-      if (!token) {
-        Swal.fire("Error", "No autorizado: Token no encontrado.", "error")
-        return
+      setCargando(true)
+      const data = await makeRequest("/vehiculos")
+      if (data) {
+        setVehiculos(data)
       }
-
-      const res = await axios.get("https://api-final-8rw7.onrender.com/api/vehiculos", {
-        headers: {
-          Authorization: `${token}`,
-          "Content-Type": "application/json",
-        },
-      })
-
-      setVehiculos(res.data)
-    } catch (err) {
-      console.error("Error al obtener vehículos:", err)
-      setVehiculos([])
-      Swal.fire("Error", "Error al obtener la lista de vehículos.", "error")
+    } catch (error) {
+      console.error("Error al cargar vehículos:", error)
+      Swal.fire("Error", "No se pudieron cargar los vehículos", "error")
+    } finally {
+      setCargando(false)
     }
   }
 
-  // Función para eliminar un vehículo
-  const eliminarVehiculo = async (id) => {
-    if (!id) {
-      Swal.fire("Error", "ID de vehículo inválido", "error")
-      return
-    }
+  const eliminarVehiculo = useCallback(
+    async (id) => {
+      if (!id) {
+        Swal.fire("Error", "ID de vehículo inválido", "error")
+        return
+      }
 
-    const confirmacion = await Swal.fire({
-      title: "¿Estás seguro?",
-      text: "Esta acción eliminará el vehículo permanentemente.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar",
-    })
-
-    if (!confirmacion.isConfirmed) return
-
-    try {
-      const res = await axios.delete(`https://api-final-8rw7.onrender.com/api/vehiculos/${id}`, {
-        headers: {
-          Authorization: `${token}`,
-          "Content-Type": "application/json",
-        },
+      const result = await Swal.fire({
+        title: "¿Eliminar vehículo?",
+        text: "Esta acción eliminará el vehículo permanentemente y no se puede deshacer.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#ef4444",
+        cancelButtonColor: "#6b7280",
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar",
       })
 
-      if (res.status === 200 || res.status === 204) {
+      if (!result.isConfirmed) return
+
+      try {
+        await makeRequest(`/vehiculos/${id}`, {
+          method: "DELETE",
+        })
+
         setVehiculos((prev) => prev.filter((vehiculo) => vehiculo.id !== id))
-        Swal.fire("Eliminado", "Vehículo eliminado correctamente", "success")
-      } else {
-        throw new Error(`Error al eliminar el vehículo: ${res.status}`)
+
+        Swal.fire({
+          icon: "success",
+          title: "Vehículo eliminado",
+          text: "El vehículo ha sido eliminado correctamente",
+          timer: 2000,
+          showConfirmButton: false,
+        })
+      } catch (error) {
+        console.error("Error al eliminar vehículo:", error)
+        Swal.fire("Error", "No se pudo eliminar el vehículo", "error")
       }
-    } catch (err) {
-      console.error("Error al eliminar el vehículo:", err)
-      const errorMessage =
-        err.response && err.response.data && err.response.data.message
-          ? err.response.data.message
-          : "No se pudo eliminar el vehículo"
-      Swal.fire("Error", errorMessage, "error")
-    }
-  }
+    },
+    [makeRequest],
+  )
 
-  // Función para cambiar el estado de un vehículo
-  const cambiarEstado = async (id) => {
-    try {
-      if (!token) {
-        Swal.fire("Error", "No autorizado: Token no encontrado.", "error")
-        return
+  const cambiarEstado = useCallback(
+    async (id, estadoActual) => {
+      try {
+        const nuevoEstado = estadoActual?.toLowerCase() === "activo" ? "Inactivo" : "Activo"
+
+        const result = await Swal.fire({
+          title: `¿Cambiar estado a ${nuevoEstado}?`,
+          text: `El vehículo será marcado como ${nuevoEstado.toLowerCase()}`,
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonColor: "#2563eb",
+          cancelButtonColor: "#6b7280",
+          confirmButtonText: "Sí, cambiar",
+          cancelButtonText: "Cancelar",
+        })
+
+        if (!result.isConfirmed) return
+
+        await makeRequest(`/vehiculos/${id}/cambiar-estado`, {
+          method: "PUT",
+        })
+
+        setVehiculos((prev) => prev.map((v) => (v.id === id ? { ...v, estado: nuevoEstado } : v)))
+
+        Swal.fire({
+          icon: "success",
+          title: "Estado actualizado",
+          text: `El vehículo ahora está ${nuevoEstado.toLowerCase()}`,
+          timer: 2000,
+          showConfirmButton: false,
+        })
+      } catch (error) {
+        console.error("Error al cambiar estado:", error)
+        Swal.fire("Error", "No se pudo cambiar el estado del vehículo", "error")
       }
-      const res = await axios.put(
-        `https://api-final-8rw7.onrender.com/api/vehiculos/${id}/cambiar-estado`,
-        {},
-        {
-          headers: {
-            Authorization: `${token}`,
-            "Content-Type": "application/json",
-          },
-        },
-      )
+    },
+    [makeRequest],
+  )
 
-      setVehiculos((prev) =>
-        prev.map((v) =>
-          v.id === id
-            ? {
-                ...v,
-                estado: v.estado.toLowerCase() === "activo" ? "Inactivo" : "Activo",
-              }
-            : v,
-        ),
-      )
-      Swal.fire("Éxito", "Estado del vehículo cambiado correctamente", "success")
-    } catch (err) {
-      console.error("Error al cambiar el estado:", err)
-      const errorMessage =
-        err.response && err.response.data && err.response.data.message
-          ? err.response.data.message
-          : "No se pudo cambiar el estado del vehículo"
-      Swal.fire("Error", errorMessage, "error")
-    }
-  }
-
-  const handleBuscar = (e) => {
-    setBusqueda(e.target.value)
+  const handleSearch = useCallback((e) => {
+    setBusqueda(e.target.value.toLowerCase())
     setPaginaActual(1)
-  }
+  }, [])
 
-  const vehiculosFiltrados = Array.isArray(vehiculos)
-    ? vehiculos.filter((vehiculo) => {
-        const textoBusqueda = busqueda.toLowerCase()
-        return (
-          vehiculo.placa?.toLowerCase().includes(textoBusqueda) ||
-          vehiculo.color?.toLowerCase().includes(textoBusqueda) ||
-          vehiculo.tipo_vehiculo?.toLowerCase().includes(textoBusqueda) ||
-          vehiculo.marca_nombre?.toLowerCase().includes(textoBusqueda) ||
-          vehiculo.cliente_nombre?.toLowerCase().includes(textoBusqueda) ||
-          vehiculo.referencia_nombre?.toLowerCase().includes(textoBusqueda) ||
-          vehiculo.estado?.toLowerCase().includes(textoBusqueda)
-        )
-      })
-    : []
+  // Filtrar vehículos
+  const vehiculosFiltrados = vehiculos.filter((vehiculo) => {
+    const matchBusqueda = Object.values(vehiculo).some((val) => String(val).toLowerCase().includes(busqueda))
+    const matchTipo = tipoFiltro === "" || vehiculo.tipo_vehiculo === tipoFiltro
+    const matchEstado = estadoFiltro === "" || vehiculo.estado === estadoFiltro
 
-  const indexUltimo = paginaActual * vehiculosPorPagina
-  const indexPrimero = indexUltimo - vehiculosPorPagina
-  const vehiculosPaginados = vehiculosFiltrados.slice(indexPrimero, indexUltimo)
+    return matchBusqueda && matchTipo && matchEstado
+  })
+
+  // Paginación
+  const indiceUltimoVehiculo = paginaActual * vehiculosPorPagina
+  const indicePrimerVehiculo = indiceUltimoVehiculo - vehiculosPorPagina
+  const vehiculosActuales = vehiculosFiltrados.slice(indicePrimerVehiculo, indiceUltimoVehiculo)
   const totalPaginas = Math.ceil(vehiculosFiltrados.length / vehiculosPorPagina)
 
-  const cambiarPagina = (numero) => {
-    setPaginaActual(numero)
-  }
+  // Obtener tipos únicos para el filtro
+  const tiposUnicos = [...new Set(vehiculos.map((v) => v.tipo_vehiculo).filter(Boolean))]
 
-  const handleEditar = (id) => {
-    navigate(`/vehiculos/editar/${id}`)
-  }
-
-  const handleEliminar = (id) => {
-    eliminarVehiculo(id)
-  }
-
-  const handleDetalle = (id) => {
-    navigate(`/vehiculos/detalle/${id}`)
+  if (cargando) {
+    return (
+      <div className="listarVehiculos-container">
+        <div className="listarVehiculos-loading">
+          <div className="listarVehiculos-spinner"></div>
+          <p>Cargando vehículos...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="LiUs-contenedor">
-      <div className="LiUs-header">
-        <h2 className="LiUs-titulo">Lista de Vehículos</h2>
-        <button className="LiUs-boton-crear" onClick={() => navigate("/vehiculos/crear")}>
+    <div className="listarVehiculos-container">
+      <div className="listarVehiculos-header">
+        <div className="listarVehiculos-title-section">
+          <h1 className="listarVehiculos-page-title">
+            <FaCar className="listarVehiculos-title-icon" />
+            Gestión de Vehículos
+          </h1>
+          <p className="listarVehiculos-subtitle">Administra los vehículos del sistema</p>
+        </div>
+        <button className="listarVehiculos-create-button" onClick={() => navigate("/vehiculos/crear")}>
+          <FaPlus className="listarVehiculos-button-icon" />
           Crear Vehículo
         </button>
       </div>
 
-      <input
-        className="LiUs-input-busqueda"
-        type="text"
-        placeholder="Buscar por placa, color, tipo, marca, cliente, etc."
-        value={busqueda}
-        onChange={handleBuscar}
-      />
+      {/* Filtros */}
+      <div className="listarVehiculos-filters-container">
+        <div className="listarVehiculos-filter-item">
+          <label className="listarVehiculos-filter-label">Buscar:</label>
+          <div className="listarVehiculos-search-container">
+            <FaSearch className="listarVehiculos-search-icon" />
+            <input
+              type="text"
+              className="listarVehiculos-search-input"
+              placeholder="Buscar por cualquier campo..."
+              value={busqueda}
+              onChange={handleSearch}
+            />
+          </div>
+        </div>
 
-      <div className="LiUs-tabla-container">
-        <table className="LiUs-tabla">
+        <div className="listarVehiculos-filter-item">
+          <label className="listarVehiculos-filter-label">Tipo:</label>
+          <select
+            value={tipoFiltro}
+            onChange={(e) => {
+              setTipoFiltro(e.target.value)
+              setPaginaActual(1)
+            }}
+            className="listarVehiculos-filter-select"
+          >
+            <option value="">Todos los tipos</option>
+            {tiposUnicos.map((tipo) => (
+              <option key={tipo} value={tipo}>
+                {tipo}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="listarVehiculos-filter-item">
+          <label className="listarVehiculos-filter-label">Estado:</label>
+          <select
+            value={estadoFiltro}
+            onChange={(e) => {
+              setEstadoFiltro(e.target.value)
+              setPaginaActual(1)
+            }}
+            className="listarVehiculos-filter-select"
+          >
+            <option value="">Todos los estados</option>
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Tabla */}
+      <div className="listarVehiculos-table-container">
+        <table className="listarVehiculos-table">
           <thead>
             <tr>
               <th>Placa</th>
@@ -199,83 +303,100 @@ const ListarVehiculos = () => {
             </tr>
           </thead>
           <tbody>
-            {vehiculosPaginados.length > 0 ? (
-              vehiculosPaginados.map((vehiculo) => (
-                <tr key={vehiculo.id}>
-                  <td>{vehiculo.placa}</td>
-                  <td>{vehiculo.color}</td>
-                  <td>{vehiculo.tipo_vehiculo}</td>
-                  <td>{vehiculo.marca_nombre || "N/A"}</td>
-                  <td>{vehiculo.cliente_nombre || "N/A"}</td>
-                  <td>{vehiculo.referencia_nombre || "N/A"}</td>
-                  <td>
-                    <div
-                      className={`estado-switch ${vehiculo.estado === "Activo" ? "activo" : "inactivo"}`}
-                      title={vehiculo.estado}
-                      onClick={() => cambiarEstado(vehiculo.id)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <div className="switch-bola"></div>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="LiUs-acciones">
-                      <button className="icon-button edit" title="Editar" onClick={() => handleEditar(vehiculo.id)}>
-                        <Pencil size={18} />
-                      </button>
-                      <button
-                        className="icon-button delete"
-                        title="Eliminar"
-                        onClick={() => handleEliminar(vehiculo.id)}
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                      <button className="icon-button detail" title="Detalle" onClick={() => handleDetalle(vehiculo.id)}>
-                        <Eye size={18} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="8">No se encontraron vehículos.</td>
+            {vehiculosActuales.map((vehiculo) => (
+              <tr key={vehiculo.id}>
+                <td>
+                  <div className="listarVehiculos-vehiculo-info">
+                    <span className="listarVehiculos-vehiculo-placa">{vehiculo.placa}</span>
+                  </div>
+                </td>
+                <td>{vehiculo.color}</td>
+                <td>{vehiculo.tipo_vehiculo}</td>
+                <td>{vehiculo.marca_nombre || "N/A"}</td>
+                <td>{vehiculo.cliente_nombre || "N/A"}</td>
+                <td>{vehiculo.referencia_nombre || "N/A"}</td>
+                <td>
+                  <button
+                    className={`listarVehiculos-estado-toggle ${
+                      vehiculo.estado?.toLowerCase() === "activo" ? "activo" : "inactivo"
+                    }`}
+                    onClick={() => cambiarEstado(vehiculo.id, vehiculo.estado)}
+                    title={`Estado: ${vehiculo.estado} - Click para cambiar`}
+                  >
+                    {vehiculo.estado?.toLowerCase() === "activo" ? (
+                      <FaToggleOn className="listarVehiculos-toggle-icon" />
+                    ) : (
+                      <FaToggleOff className="listarVehiculos-toggle-icon" />
+                    )}
+                    <span className="listarVehiculos-estado-text">{vehiculo.estado}</span>
+                  </button>
+                </td>
+                <td className="listarVehiculos-actions">
+                  <button
+                    className="listarVehiculos-action-button edit"
+                    onClick={() => navigate(`/vehiculos/editar/${vehiculo.id}`)}
+                    title="Editar vehículo"
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    className="listarVehiculos-action-button delete"
+                    onClick={() => eliminarVehiculo(vehiculo.id)}
+                    title="Eliminar vehículo"
+                  >
+                    <FaTrash />
+                  </button>
+                  <button
+                    className="listarVehiculos-action-button detail"
+                    onClick={() => navigate(`/vehiculos/detalle/${vehiculo.id}`)}
+                    title="Ver detalle"
+                  >
+                    <FaEye />
+                  </button>
+                </td>
               </tr>
-            )}
+            ))}
           </tbody>
         </table>
-      </div>
 
-      {/* Paginación */}
-      {vehiculosFiltrados.length > vehiculosPorPagina && (
-        <div className="LiUs-paginacion">
-          <button
-            onClick={() => cambiarPagina(paginaActual - 1)}
-            disabled={paginaActual === 1}
-            className="LiUs-boton-paginacion"
-          >
-            Anterior
-          </button>
+        {vehiculosFiltrados.length === 0 && (
+          <div className="listarVehiculos-no-results">
+            <FaExclamationTriangle className="listarVehiculos-no-results-icon" />
+            <p>No se encontraron vehículos con los criterios de búsqueda.</p>
+          </div>
+        )}
 
-          {Array.from({ length: totalPaginas }, (_, i) => (
+        {/* Paginación */}
+        {vehiculosFiltrados.length > vehiculosPorPagina && (
+          <div className="listarVehiculos-pagination">
             <button
-              key={i + 1}
-              onClick={() => cambiarPagina(i + 1)}
-              className={`LiUs-boton-paginacion ${paginaActual === i + 1 ? "active" : ""}`}
+              onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
+              disabled={paginaActual === 1}
+              className="listarVehiculos-pagination-button"
             >
-              {i + 1}
+              Anterior
             </button>
-          ))}
 
-          <button
-            onClick={() => cambiarPagina(paginaActual + 1)}
-            disabled={paginaActual === totalPaginas}
-            className="LiUs-boton-paginacion"
-          >
-            Siguiente
-          </button>
-        </div>
-      )}
+            {Array.from({ length: totalPaginas }, (_, i) => (
+              <button
+                key={i + 1}
+                onClick={() => setPaginaActual(i + 1)}
+                className={`listarVehiculos-pagination-button ${paginaActual === i + 1 ? "active" : ""}`}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button
+              onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
+              disabled={paginaActual === totalPaginas}
+              className="listarVehiculos-pagination-button"
+            >
+              Siguiente
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

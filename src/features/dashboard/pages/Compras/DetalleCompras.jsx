@@ -2,11 +2,19 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { ArrowLeft, FileText, User, Calendar, Package, DollarSign, Eye, Download } from "lucide-react"
+import {
+  FaArrowLeft,
+  FaShoppingCart,
+  FaUser,
+  FaCalendarAlt,
+  FaBoxes,
+  FaDollarSign,
+  FaDownload,
+  FaExclamationTriangle,
+} from "react-icons/fa"
 import Swal from "sweetalert2"
 import { generarFacturaPDF } from "../../utils/pdf-generator"
 import "../../../../shared/styles/detalleCompras.css"
-
 
 const DetalleCompra = () => {
   const navigate = useNavigate()
@@ -225,9 +233,9 @@ const DetalleCompra = () => {
 
   if (cargando) {
     return (
-      <div className="detalle-compra-container">
-        <div className="detalle-compra-loading">
-          <div className="detalle-compra-spinner"></div>
+      <div className="detalleCompra-container">
+        <div className="detalleCompra-loading">
+          <div className="detalleCompra-spinner"></div>
           <p>Cargando detalle de la compra...</p>
         </div>
       </div>
@@ -236,12 +244,15 @@ const DetalleCompra = () => {
 
   if (error || !compra) {
     return (
-      <div className="detalle-compra-container">
-        <div className="detalle-compra-error">
+      <div className="detalleCompra-container">
+        <div className="detalleCompra-error">
+          <div className="detalleCompra-error-icon">
+            <FaExclamationTriangle />
+          </div>
           <h2>Error</h2>
           <p>{error || "No se encontró la compra"}</p>
-          <button className="detalle-compra-btn-back" onClick={() => navigate("/compras")}>
-            <ArrowLeft size={16} />
+          <button className="detalleCompra-btn-back" onClick={() => navigate("/compras")}>
+            <FaArrowLeft />
             Volver al listado
           </button>
         </div>
@@ -250,46 +261,46 @@ const DetalleCompra = () => {
   }
 
   return (
-    <div className="detalle-compra-container">
+    <div className="detalleCompra-container">
       {/* Header */}
-      <div className="detalle-compra-header">
-        <div className="detalle-compra-header-left">
-          <button className="detalle-compra-btn-back" onClick={() => navigate("/compras")}>
-            <ArrowLeft size={16} />
+      <div className="detalleCompra-header">
+        <div className="detalleCompra-header-left">
+          <button className="detalleCompra-btn-back" onClick={() => navigate("/compras")}>
+            <FaArrowLeft />
             Volver
           </button>
-          <div className="detalle-compra-title-section">
-            <h1 className="detalle-compra-title">
-              <Eye className="detalle-compra-title-icon" />
+          <div className="detalleCompra-title-section">
+            <h1 className="detalleCompra-page-title">
+              <FaShoppingCart className="detalleCompra-title-icon" />
               Detalle de Compra #{compra.id}
             </h1>
-            <p className="detalle-compra-subtitle">Información completa de la compra</p>
+            <p className="detalleCompra-subtitle">Información completa de la compra</p>
           </div>
         </div>
-        <div className="detalle-compra-header-actions">
-          <button className="detalle-compra-btn-pdf" onClick={handleGenerarPDF}>
-            <Download size={16} />
+        <div className="detalleCompra-header-actions">
+          <button className="detalleCompra-btn-pdf" onClick={handleGenerarPDF}>
+            <FaDownload />
             Descargar PDF
           </button>
         </div>
       </div>
 
       {/* Información General */}
-      <div className="detalle-compra-section">
-        <div className="detalle-compra-section-header">
-          <h2 className="detalle-compra-section-title">
-            <Package className="detalle-compra-section-icon" />
+      <div className="detalleCompra-section">
+        <div className="detalleCompra-section-header">
+          <h2 className="detalleCompra-section-title">
+            <FaBoxes className="detalleCompra-section-icon" />
             Información General
           </h2>
         </div>
-        <div className="detalle-compra-info-grid">
-          <div className="detalle-compra-info-card">
-            <div className="detalle-compra-info-icon">
-              <Calendar size={20} />
+        <div className="detalleCompra-info-grid">
+          <div className="detalleCompra-info-card">
+            <div className="detalleCompra-info-icon">
+              <FaCalendarAlt />
             </div>
-            <div className="detalle-compra-info-content">
-              <span className="detalle-compra-info-label">Fecha</span>
-              <span className="detalle-compra-info-value">
+            <div className="detalleCompra-info-content">
+              <span className="detalleCompra-info-label">Fecha</span>
+              <span className="detalleCompra-info-value">
                 {new Date(compra.fecha).toLocaleDateString("es-CO", {
                   weekday: "long",
                   year: "numeric",
@@ -300,23 +311,23 @@ const DetalleCompra = () => {
             </div>
           </div>
 
-          <div className="detalle-compra-info-card">
-            <div className="detalle-compra-info-icon">
-              <DollarSign size={20} />
+          <div className="detalleCompra-info-card">
+            <div className="detalleCompra-info-icon">
+              <FaDollarSign />
             </div>
-            <div className="detalle-compra-info-content">
-              <span className="detalle-compra-info-label">Total</span>
-              <span className="detalle-compra-info-value detalle-compra-total">{formatearPrecio(compra.total)}</span>
+            <div className="detalleCompra-info-content">
+              <span className="detalleCompra-info-label">Total</span>
+              <span className="detalleCompra-info-value detalleCompra-total">{formatearPrecio(compra.total)}</span>
             </div>
           </div>
 
-          <div className="detalle-compra-info-card">
-            <div className="detalle-compra-info-icon">
-              <FileText size={20} />
+          <div className="detalleCompra-info-card">
+            <div className="detalleCompra-info-icon">
+              <FaShoppingCart />
             </div>
-            <div className="detalle-compra-info-content">
-              <span className="detalle-compra-info-label">Estado</span>
-              <span className={`detalle-compra-estado ${getEstadoClass(compra.estado)}`}>{compra.estado}</span>
+            <div className="detalleCompra-info-content">
+              <span className="detalleCompra-info-label">Estado</span>
+              <span className={`detalleCompra-estado ${getEstadoClass(compra.estado)}`}>{compra.estado}</span>
             </div>
           </div>
         </div>
@@ -324,33 +335,33 @@ const DetalleCompra = () => {
 
       {/* Información del Proveedor */}
       {proveedor && (
-        <div className="detalle-compra-section">
-          <div className="detalle-compra-section-header">
-            <h2 className="detalle-compra-section-title">
-              <User className="detalle-compra-section-icon" />
+        <div className="detalleCompra-section">
+          <div className="detalleCompra-section-header">
+            <h2 className="detalleCompra-section-title">
+              <FaUser className="detalleCompra-section-icon" />
               Información del Proveedor
             </h2>
           </div>
-          <div className="detalle-compra-proveedor-card">
-            <div className="detalle-compra-proveedor-info">
-              <h3 className="detalle-compra-proveedor-name">{proveedor.nombre || "Sin nombre"}</h3>
-              <div className="detalle-compra-proveedor-details">
-                <div className="detalle-compra-proveedor-detail">
-                  <span className="detalle-compra-proveedor-label">Documento:</span>
-                  <span className="detalle-compra-proveedor-value">{proveedor.nit || "N/A"}</span>
+          <div className="detalleCompra-proveedor-card">
+            <div className="detalleCompra-proveedor-info">
+              <h3 className="detalleCompra-proveedor-name">{proveedor.nombre || "Sin nombre"}</h3>
+              <div className="detalleCompra-proveedor-details">
+                <div className="detalleCompra-proveedor-detail">
+                  <span className="detalleCompra-proveedor-label">Documento:</span>
+                  <span className="detalleCompra-proveedor-value">{proveedor.nit || "N/A"}</span>
                 </div>
-                <div className="detalle-compra-proveedor-detail">
-                  <span className="detalle-compra-proveedor-label">Email:</span>
-                  <span className="detalle-compra-proveedor-value">{proveedor.correo || "N/A"}</span>
+                <div className="detalleCompra-proveedor-detail">
+                  <span className="detalleCompra-proveedor-label">Email:</span>
+                  <span className="detalleCompra-proveedor-value">{proveedor.correo || "N/A"}</span>
                 </div>
-                <div className="detalle-compra-proveedor-detail">
-                  <span className="detalle-compra-proveedor-label">Teléfono:</span>
-                  <span className="detalle-compra-proveedor-value">{proveedor.telefono || "N/A"}</span>
+                <div className="detalleCompra-proveedor-detail">
+                  <span className="detalleCompra-proveedor-label">Teléfono:</span>
+                  <span className="detalleCompra-proveedor-value">{proveedor.telefono || "N/A"}</span>
                 </div>
                 {proveedor.direccion && (
-                  <div className="detalle-compra-proveedor-detail">
-                    <span className="detalle-compra-proveedor-label">Dirección:</span>
-                    <span className="detalle-compra-proveedor-value">{proveedor.direccion}</span>
+                  <div className="detalleCompra-proveedor-detail">
+                    <span className="detalleCompra-proveedor-label">Dirección:</span>
+                    <span className="detalleCompra-proveedor-value">{proveedor.direccion}</span>
                   </div>
                 )}
               </div>
@@ -360,38 +371,38 @@ const DetalleCompra = () => {
       )}
 
       {/* Productos */}
-      <div className="detalle-compra-section">
-        <div className="detalle-compra-section-header">
-          <h2 className="detalle-compra-section-title">
-            <Package className="detalle-compra-section-icon" />
+      <div className="detalleCompra-section">
+        <div className="detalleCompra-section-header">
+          <h2 className="detalleCompra-section-title">
+            <FaBoxes className="detalleCompra-section-icon" />
             Productos ({detallesConProductos?.length || 0})
           </h2>
         </div>
 
         {detallesConProductos && detallesConProductos.length > 0 ? (
-          <div className="detalle-compra-productos">
-            <div className="detalle-compra-productos-table">
-              <div className="detalle-compra-table-header">
-                <div className="detalle-compra-table-cell">#</div>
-                <div className="detalle-compra-table-cell">Producto</div>
-                <div className="detalle-compra-table-cell">Cantidad</div>
-                <div className="detalle-compra-table-cell">Precio Unitario</div>
-                <div className="detalle-compra-table-cell">Subtotal</div>
+          <div className="detalleCompra-productos">
+            <div className="detalleCompra-productos-table">
+              <div className="detalleCompra-table-header">
+                <div className="detalleCompra-table-cell">#</div>
+                <div className="detalleCompra-table-cell">Producto</div>
+                <div className="detalleCompra-table-cell">Cantidad</div>
+                <div className="detalleCompra-table-cell">Precio Unitario</div>
+                <div className="detalleCompra-table-cell">Subtotal</div>
               </div>
               {detallesConProductos.map((detalle, index) => (
-                <div key={index} className="detalle-compra-table-row">
-                  <div className="detalle-compra-table-cell detalle-compra-table-number">{index + 1}</div>
-                  <div className="detalle-compra-table-cell detalle-compra-producto-info">
-                    <div className="detalle-compra-producto-name">
+                <div key={index} className="detalleCompra-table-row">
+                  <div className="detalleCompra-table-cell detalleCompra-table-number">{index + 1}</div>
+                  <div className="detalleCompra-table-cell detalleCompra-producto-info">
+                    <div className="detalleCompra-producto-name">
                       {detalle.nombre_repuesto || `Repuesto ID: ${detalle.repuesto_id}`}
                     </div>
-                    {detalle.descripcion && <div className="detalle-compra-producto-desc">{detalle.descripcion}</div>}
+                    {detalle.descripcion && <div className="detalleCompra-producto-desc">{detalle.descripcion}</div>}
                   </div>
-                  <div className="detalle-compra-table-cell detalle-compra-cantidad">{detalle.cantidad}</div>
-                  <div className="detalle-compra-table-cell detalle-compra-precio">
+                  <div className="detalleCompra-table-cell detalleCompra-cantidad">{detalle.cantidad}</div>
+                  <div className="detalleCompra-table-cell detalleCompra-precio">
                     {formatearPrecio(detalle.precio || 0)}
                   </div>
-                  <div className="detalle-compra-table-cell detalle-compra-subtotal">
+                  <div className="detalleCompra-table-cell detalleCompra-subtotal">
                     {formatearPrecio(detalle.subtotal || 0)}
                   </div>
                 </div>
@@ -399,16 +410,16 @@ const DetalleCompra = () => {
             </div>
 
             {/* Total */}
-            <div className="detalle-compra-total-section">
-              <div className="detalle-compra-total-card">
-                <span className="detalle-compra-total-label">Total de la Compra:</span>
-                <span className="detalle-compra-total-amount">{formatearPrecio(compra.total)}</span>
+            <div className="detalleCompra-total-section">
+              <div className="detalleCompra-total-card">
+                <span className="detalleCompra-total-label">Total de la Compra:</span>
+                <span className="detalleCompra-total-amount">{formatearPrecio(compra.total)}</span>
               </div>
             </div>
           </div>
         ) : (
-          <div className="detalle-compra-no-productos">
-            <Package size={48} />
+          <div className="detalleCompra-no-productos">
+            <FaBoxes size={48} />
             <p>No hay productos registrados en esta compra</p>
           </div>
         )}

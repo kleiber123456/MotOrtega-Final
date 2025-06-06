@@ -1,0 +1,572 @@
+.editarRepuesto-container {
+  padding: 25px;
+  background-color: #f9fafb;
+  min-height: 100vh;
+  font-family: "Montserrat", sans-serif;
+}
+
+.editarRepuesto-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+}
+
+.editarRepuesto-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.editarRepuesto-btn-back {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+}
+
+.editarRepuesto-btn-back:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
+}
+
+.editarRepuesto-title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.editarRepuesto-page-title {
+  font-size: 28px;
+  color: #1a202c;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.editarRepuesto-title-icon {
+  color: #2563eb;
+  font-size: 24px;
+}
+
+.editarRepuesto-subtitle {
+  color: #6b7280;
+  font-size: 16px;
+  margin: 0;
+}
+
+.editarRepuesto-form {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.editarRepuesto-form-section {
+  padding: 24px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.editarRepuesto-form-section:last-child {
+  border-bottom: none;
+}
+
+.editarRepuesto-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editarRepuesto-section-icon {
+  color: #2563eb;
+  font-size: 16px;
+}
+
+.editarRepuesto-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.editarRepuesto-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.editarRepuesto-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.editarRepuesto-label-icon {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.editarRepuesto-form-input,
+.editarRepuesto-form-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  background-color: #f8fafc;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.editarRepuesto-form-input:focus,
+.editarRepuesto-form-textarea:focus {
+  border-color: #3b82f6;
+  background-color: white;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.editarRepuesto-form-input.error,
+.editarRepuesto-form-textarea.error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.editarRepuesto-form-input.error:focus,
+.editarRepuesto-form-textarea.error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.editarRepuesto-form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.editarRepuesto-char-count {
+  font-size: 12px;
+  color: #6b7280;
+  text-align: right;
+  margin-top: 4px;
+}
+
+.editarRepuesto-total-display {
+  padding: 16px;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 2px solid #bfdbfe;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1d4ed8;
+  text-align: center;
+  margin-top: 8px;
+}
+
+.editarRepuesto-error-text {
+  font-size: 12px;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 8px 12px;
+  background-color: #fef2f2;
+  border-radius: 6px;
+  border-left: 3px solid #ef4444;
+}
+
+.editarRepuesto-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 24px;
+  background-color: #f8fafc;
+}
+
+.editarRepuesto-cancel-button {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editarRepuesto-cancel-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
+}
+
+.editarRepuesto-cancel-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.2);
+}
+
+.editarRepuesto-submit-button {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editarRepuesto-submit-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+}
+
+.editarRepuesto-submit-button:disabled {
+  background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.editarRepuesto-button-icon {
+  font-size: 12px;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loading */
+.editarRepuesto-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  text-align: center;
+}
+
+.editarRepuesto-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: #2563eb;
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 16px;
+}
+
+/* Modal Styles */
+.editarRepuesto-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+  backdrop-filter: blur(4px);
+}
+
+.editarRepuesto-modal-container {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  padding: 0;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.editarRepuesto-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.editarRepuesto-modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.editarRepuesto-modal-title-icon {
+  color: #2563eb;
+  font-size: 18px;
+}
+
+.editarRepuesto-modal-close-button {
+  background-color: #e2e8f0;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #6b7280;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.editarRepuesto-modal-close-button:hover {
+  background-color: #cbd5e1;
+  color: #1a202c;
+}
+
+.editarRepuesto-modal-body {
+  padding: 24px;
+  max-height: calc(90vh - 120px);
+  overflow-y: auto;
+}
+
+.editarRepuesto-modal-search-container {
+  margin-bottom: 20px;
+}
+
+.editarRepuesto-modal-search-input-wrapper {
+  position: relative;
+}
+
+.editarRepuesto-modal-search-input {
+  width: 100%;
+  padding: 12px 16px 12px 44px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: white;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.editarRepuesto-modal-search-input:focus {
+  border-color: #2563eb;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.editarRepuesto-modal-search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 16px;
+}
+
+.editarRepuesto-modal-list-container {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: white;
+}
+
+.editarRepuesto-modal-list-item {
+  padding: 16px;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.editarRepuesto-modal-list-item:last-child {
+  border-bottom: none;
+}
+
+.editarRepuesto-modal-list-item:hover {
+  background-color: #eff6ff;
+}
+
+.editarRepuesto-modal-list-item-selected {
+  background-color: #dbeafe;
+  border-left: 4px solid #2563eb;
+}
+
+.editarRepuesto-modal-list-item-text {
+  font-weight: 500;
+  color: #1a202c;
+}
+
+.editarRepuesto-modal-list-item-check {
+  color: #2563eb;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.editarRepuesto-modal-list-item-selected .editarRepuesto-modal-list-item-check {
+  opacity: 1;
+}
+
+.editarRepuesto-modal-no-results {
+  padding: 32px;
+  text-align: center;
+  color: #94a3b8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.editarRepuesto-modal-no-results-icon {
+  font-size: 24px;
+  color: #94a3b8;
+}
+
+.editarRepuesto-modal-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.editarRepuesto-modal-pagination-button {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.editarRepuesto-modal-pagination-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.editarRepuesto-modal-pagination-button:disabled {
+  background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.editarRepuesto-modal-pagination-info {
+  font-size: 14px;
+  color: #1a202c;
+  font-weight: 500;
+}
+
+.editarRepuesto-modal-pagination-icon {
+  font-size: 12px;
+}
+
+.editarRepuesto-modal-pagination-icon-right {
+  transform: rotate(180deg);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .editarRepuesto-container {
+    padding: 16px;
+  }
+
+  .editarRepuesto-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .editarRepuesto-header-left {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .editarRepuesto-form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .editarRepuesto-form-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .editarRepuesto-cancel-button,
+  .editarRepuesto-submit-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .editarRepuesto-page-title {
+    font-size: 24px;
+  }
+
+  .editarRepuesto-form-section {
+    padding: 16px;
+  }
+
+  .editarRepuesto-form-actions {
+    padding: 16px;
+  }
+}

@@ -1,131 +1,255 @@
-import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import axios from "axios";
-import '../../../../shared/styles/DetalleProveedor.css';
+"use client"
+
+import { useState, useEffect } from "react"
+import { useParams, useNavigate } from "react-router-dom"
+import {
+  FaUser,
+  FaBuilding,
+  FaPhone,
+  FaIdCard,
+  FaMapMarkerAlt,
+  FaEnvelope,
+  FaEdit,
+  FaArrowLeft,
+  FaExclamationTriangle,
+  FaToggleOn,
+  FaToggleOff,
+} from "react-icons/fa"
+import "../../../../shared/styles/detalleProveedor.css"
+
+// URL base de la API
+const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
+
+// Función para obtener token
+const getValidToken = () => {
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token")
+  if (!token) {
+    console.error("No hay token disponible")
+    return null
+  }
+  return token
+}
 
 const DetalleProveedor = () => {
-  const { id } = useParams();
-  const [proveedor, setProveedor] = useState(null);
-  const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState(null);
-  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+  const { id } = useParams()
+  const navigate = useNavigate()
+
+  const [proveedor, setProveedor] = useState(null)
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     const fetchProveedor = async () => {
-      setCargando(true);
-      setError(null);
       try {
+        setCargando(true)
+        setError(null)
+
+        const token = getValidToken()
         if (!token) {
-          setError("No autorizado: Token de autenticación no encontrado.");
-          return;
+          setError("No autorizado: Token de autenticación no encontrado.")
+          return
         }
 
-        const response = await axios.get(
-          `https://api-final-8rw7.onrender.com/api/proveedores/${id}`,
-          {
-            headers: {
-              'Authorization': token,
-              'Content-Type': 'application/json'
-            }
+        const response = await fetch(`${API_BASE_URL}/proveedores/${id}`, {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        })
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            throw new Error("No autorizado: La sesión ha expirado o no tienes permisos.")
           }
-        );
-
-        setProveedor(response.data);
-      } catch (err) {
-        console.error("Error al obtener proveedor:", err);
-        if (err.response && err.response.status === 401) {
-          setError("No autorizado: La sesión ha expirado o no tienes permisos.");
-        } else if (err.response && err.response.status === 404) {
-          setError("Proveedor no encontrado.");
-        } else {
-          setError(err.message || "Error al cargar los detalles del proveedor.");
+          if (response.status === 404) {
+            throw new Error("Proveedor no encontrado.")
+          }
+          throw new Error(`Error ${response.status}: ${response.statusText}`)
         }
-      } finally {
-        setCargando(false);
-      }
-    };
 
-    fetchProveedor();
-  }, [id, token]);
+        const data = await response.json()
+        setProveedor(data)
+      } catch (err) {
+        console.error("Error al obtener proveedor:", err)
+        setError(err.message)
+      } finally {
+        setCargando(false)
+      }
+    }
+
+    if (id) {
+      fetchProveedor()
+    }
+  }, [id])
+
+  const getEstadoClass = (estado) => {
+    return estado?.toLowerCase() === "activo" ? "activo" : "inactivo"
+  }
 
   if (cargando) {
     return (
-      <div className="detalle-proveedor-contenedor">
-        <h2 className="detalle-proveedor-titulo">Cargando detalles...</h2>
-        <p className="detalle-proveedor-mensaje">Por favor, espera.</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="detalle-proveedor-contenedor">
-        <h2 className="detalle-proveedor-titulo">Error</h2>
-        <p className="detalle-proveedor-mensaje error">{error}</p>
-        <div className="detalle-proveedor-boton-contenedor">
-          <Link to="/ListarProveedores" className="detalle-proveedor-boton secondary">
-            Volver a la Lista
-          </Link>
+      <div className="detalleProveedor-container">
+        <div className="detalleProveedor-loading">
+          <div className="detalleProveedor-spinner"></div>
+          <p>Cargando detalles del proveedor...</p>
         </div>
       </div>
-    );
+    )
   }
 
-  if (!proveedor) {
+  if (error || !proveedor) {
     return (
-      <div className="detalle-proveedor-contenedor">
-        <h2 className="detalle-proveedor-titulo">Proveedor no disponible</h2>
-        <p className="detalle-proveedor-mensaje">No se pudo cargar la información del proveedor.</p>
-        <div className="detalle-proveedor-boton-contenedor">
-          <Link to="/ListarProveedores" className="detalle-proveedor-boton secondary">
-            Volver a la Lista
-          </Link>
+      <div className="detalleProveedor-container">
+        <div className="detalleProveedor-error">
+          <div className="detalleProveedor-error-icon">
+            <FaExclamationTriangle />
+          </div>
+          <h2>Error</h2>
+          <p>{error || "No se encontró el proveedor"}</p>
+          <button className="detalleProveedor-btn-back" onClick={() => navigate("/ListarProveedores")}>
+            <FaArrowLeft />
+            Volver al listado
+          </button>
         </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="detalle-proveedor-contenedor">
-      <h1 className="detalle-proveedor-titulo">Detalle del Proveedor</h1>
-
-      <div className="detalle-proveedor-info-grid">
-        <p className="detalle-proveedor-campo">
-          <i className="fas fa-user-tie"></i> <strong>Nombre:</strong> {proveedor.nombre}
-        </p>
-        <p className="detalle-proveedor-campo">
-          <i className="fas fa-phone"></i> <strong>Teléfono:</strong> {proveedor.telefono}
-        </p>
-        <p className="detalle-proveedor-campo">
-          <i className="fas fa-building"></i> <strong>Empresa:</strong> {proveedor.nombre_empresa}
-        </p>
-        <p className="detalle-proveedor-campo">
-          <i className="fas fa-phone"></i> <strong>Telefono Empresa:</strong> {proveedor.telefono_empresa}
-        </p>
-        <p className="detalle-proveedor-campo">
-          <i className="fas fa-id-card"></i> <strong>NIT:</strong> {proveedor.nit}
-        </p>
-        <p className="detalle-proveedor-campo">
-          <i className="fas fa-map-marker-alt"></i> <strong>Dirección:</strong> {proveedor.direccion}
-        </p>
-        <p className="detalle-proveedor-campo">
-          <i className="fas fa-envelope"></i> <strong>Correo:</strong> {proveedor.correo}
-        </p>
-        <p className="detalle-proveedor-campo">
-          <i className="fas fa-toggle-on"></i> <strong>Estado:</strong> {proveedor.estado}
-        </p>
+    <div className="detalleProveedor-container">
+      {/* Header */}
+      <div className="detalleProveedor-header">
+        <div className="detalleProveedor-header-left">
+          <button className="detalleProveedor-btn-back" onClick={() => navigate("/ListarProveedores")}>
+            <FaArrowLeft />
+            Volver
+          </button>
+          <div className="detalleProveedor-title-section">
+            <h1 className="detalleProveedor-page-title">
+              <FaBuilding className="detalleProveedor-title-icon" />
+              Detalle del Proveedor
+            </h1>
+            <p className="detalleProveedor-subtitle">
+              Información completa de {proveedor.nombre} - {proveedor.nombre_empresa}
+            </p>
+          </div>
+        </div>
+        <div className="detalleProveedor-header-actions">
+          <button
+            className="detalleProveedor-btn-edit"
+            onClick={() => navigate(`/EditarProveedor/editar/${proveedor._id}`)}
+          >
+            <FaEdit />
+            Editar Proveedor
+          </button>
+        </div>
       </div>
 
-      <div className="detalle-proveedor-boton-contenedor">
-        <Link to={`/EditarProveedor/editar/${id}`} className="detalle-proveedor-boton">
-          <i className="fas fa-edit"></i> Editar Proveedor
-        </Link>
-        <Link to="/ListarProveedores" className="detalle-proveedor-boton secondary">
-          <i className="fas fa-arrow-left"></i> Volver a la Lista
-        </Link>
+      {/* Información Personal */}
+      <div className="detalleProveedor-section">
+        <div className="detalleProveedor-section-header">
+          <h2 className="detalleProveedor-section-title">
+            <FaUser className="detalleProveedor-section-icon" />
+            Información Personal
+          </h2>
+        </div>
+        <div className="detalleProveedor-info-grid">
+          <div className="detalleProveedor-info-card">
+            <div className="detalleProveedor-info-icon">
+              <FaUser />
+            </div>
+            <div className="detalleProveedor-info-content">
+              <span className="detalleProveedor-info-label">Nombre</span>
+              <span className="detalleProveedor-info-value">{proveedor.nombre}</span>
+            </div>
+          </div>
+
+          <div className="detalleProveedor-info-card">
+            <div className="detalleProveedor-info-icon">
+              <FaPhone />
+            </div>
+            <div className="detalleProveedor-info-content">
+              <span className="detalleProveedor-info-label">Teléfono</span>
+              <span className="detalleProveedor-info-value">{proveedor.telefono}</span>
+            </div>
+          </div>
+
+          <div className="detalleProveedor-info-card">
+            <div className="detalleProveedor-info-icon">
+              <FaEnvelope />
+            </div>
+            <div className="detalleProveedor-info-content">
+              <span className="detalleProveedor-info-label">Correo Electrónico</span>
+              <span className="detalleProveedor-info-value">{proveedor.correo || "No especificado"}</span>
+            </div>
+          </div>
+
+          <div className="detalleProveedor-info-card">
+            <div className="detalleProveedor-info-icon">
+              <FaMapMarkerAlt />
+            </div>
+            <div className="detalleProveedor-info-content">
+              <span className="detalleProveedor-info-label">Dirección</span>
+              <span className="detalleProveedor-info-value">{proveedor.direccion}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Información de la Empresa */}
+      <div className="detalleProveedor-section">
+        <div className="detalleProveedor-section-header">
+          <h2 className="detalleProveedor-section-title">
+            <FaBuilding className="detalleProveedor-section-icon" />
+            Información de la Empresa
+          </h2>
+        </div>
+        <div className="detalleProveedor-info-grid">
+          <div className="detalleProveedor-info-card">
+            <div className="detalleProveedor-info-icon">
+              <FaBuilding />
+            </div>
+            <div className="detalleProveedor-info-content">
+              <span className="detalleProveedor-info-label">Nombre de la Empresa</span>
+              <span className="detalleProveedor-info-value">{proveedor.nombre_empresa}</span>
+            </div>
+          </div>
+
+          <div className="detalleProveedor-info-card">
+            <div className="detalleProveedor-info-icon">
+              <FaPhone />
+            </div>
+            <div className="detalleProveedor-info-content">
+              <span className="detalleProveedor-info-label">Teléfono Empresa</span>
+              <span className="detalleProveedor-info-value">{proveedor.telefono_empresa}</span>
+            </div>
+          </div>
+
+          <div className="detalleProveedor-info-card">
+            <div className="detalleProveedor-info-icon">
+              <FaIdCard />
+            </div>
+            <div className="detalleProveedor-info-content">
+              <span className="detalleProveedor-info-label">NIT</span>
+              <span className="detalleProveedor-info-value">{proveedor.nit}</span>
+            </div>
+          </div>
+
+          <div className="detalleProveedor-info-card">
+            <div className="detalleProveedor-info-icon">
+              {proveedor.estado?.toLowerCase() === "activo" ? <FaToggleOn /> : <FaToggleOff />}
+            </div>
+            <div className="detalleProveedor-info-content">
+              <span className="detalleProveedor-info-label">Estado</span>
+              <span className={`detalleProveedor-estado ${getEstadoClass(proveedor.estado)}`}>
+                {proveedor.estado || "No especificado"}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default DetalleProveedor;
+export default DetalleProveedor

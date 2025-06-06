@@ -14,9 +14,10 @@ import {
   FaExclamationTriangle,
   FaSave,
   FaArrowLeft,
+  FaFileAlt,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/Repuesto.css"
+import "../../../../shared/styles/editarRepuesto.css"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
@@ -81,7 +82,7 @@ const useApi = () => {
   return { makeRequest, loading, error }
 }
 
-// Componente del modal para categorías (reutilizado del crear)
+// Componente del modal para categorías
 const CategoriaModal = ({ show, onClose, categorias, onSelect, categoriaActual }) => {
   const [busquedaCategoria, setBusquedaCategoria] = useState("")
   const [categoriasPorPagina] = useState(5)
@@ -123,72 +124,80 @@ const CategoriaModal = ({ show, onClose, categorias, onSelect, categoriaActual }
   if (!show) return null
 
   return (
-    <div className="repuestos-modal-overlay">
-      <div className="repuestos-modal" ref={modalRef}>
-        <div className="repuestos-modal-header">
-          <h2>
-            <FaTag className="repuestos-modal-icon" />
+    <div className="editarRepuesto-modal-overlay">
+      <div className="editarRepuesto-modal-container" ref={modalRef}>
+        <div className="editarRepuesto-modal-header">
+          <h2 className="editarRepuesto-modal-title">
+            <FaTag className="editarRepuesto-modal-title-icon" />
             Seleccionar Categoría
           </h2>
-          <button className="repuestos-close-modal-button" onClick={onClose} aria-label="Cerrar">
+          <button className="editarRepuesto-modal-close-button" onClick={onClose} aria-label="Cerrar">
             <FaTimes />
           </button>
         </div>
 
-        <div className="repuestos-modal-content">
-          <div className="repuestos-search-bar">
-            <FaSearch className="repuestos-search-icon" />
-            <input
-              type="text"
-              placeholder="Buscar categoría..."
-              value={busquedaCategoria}
-              onChange={(e) => {
-                setBusquedaCategoria(e.target.value)
-                setPaginaActualCategorias(1)
-              }}
-              autoFocus
-            />
+        <div className="editarRepuesto-modal-body">
+          <div className="editarRepuesto-modal-search-container">
+            <div className="editarRepuesto-modal-search-input-wrapper">
+              <FaSearch className="editarRepuesto-modal-search-icon" />
+              <input
+                type="text"
+                placeholder="Buscar categoría..."
+                value={busquedaCategoria}
+                onChange={(e) => {
+                  setBusquedaCategoria(e.target.value)
+                  setPaginaActualCategorias(1)
+                }}
+                className="editarRepuesto-modal-search-input"
+                autoFocus
+              />
+            </div>
           </div>
 
-          <div className="repuestos-categoria-list">
+          <div className="editarRepuesto-modal-list-container">
             {categoriasActuales.length > 0 ? (
               categoriasActuales.map((categoria) => (
                 <div
                   key={categoria.id}
-                  className={`repuestos-categoria-item ${
-                    categoriaActual === categoria.id.toString() ? "selected" : ""
+                  className={`editarRepuesto-modal-list-item ${
+                    categoriaActual === categoria.id.toString() ? "editarRepuesto-modal-list-item-selected" : ""
                   }`}
                   onClick={() => onSelect(categoria)}
                 >
-                  <span className="repuestos-categoria-name">{categoria.nombre}</span>
-                  <FaCheckCircle className="repuestos-categoria-check" />
+                  <span className="editarRepuesto-modal-list-item-text">{categoria.nombre}</span>
+                  <FaCheckCircle className="editarRepuesto-modal-list-item-check" />
                 </div>
               ))
             ) : (
-              <div className="repuestos-no-results">No se encontraron categorías</div>
+              <div className="editarRepuesto-modal-no-results">
+                <FaExclamationTriangle className="editarRepuesto-modal-no-results-icon" />
+                <span>No se encontraron categorías</span>
+              </div>
             )}
           </div>
 
           {categoriasFiltradas.length > categoriasPorPagina && (
-            <div className="repuestos-pagination">
+            <div className="editarRepuesto-modal-pagination">
               <button
                 onClick={() => setPaginaActualCategorias((prev) => Math.max(prev - 1, 1))}
                 disabled={paginaActualCategorias === 1}
-                className="repuestos-pagination-button"
+                className="editarRepuesto-modal-pagination-button"
               >
+                <FaArrowLeft className="editarRepuesto-modal-pagination-icon" />
                 Anterior
               </button>
 
-              <div className="repuestos-page-info">
-                {paginaActualCategorias} de {totalPaginasCategorias}
+              <div className="editarRepuesto-modal-pagination-info">
+                Página {paginaActualCategorias} de {totalPaginasCategorias}
               </div>
 
               <button
                 onClick={() => setPaginaActualCategorias((prev) => Math.min(prev + 1, totalPaginasCategorias))}
                 disabled={paginaActualCategorias === totalPaginasCategorias}
-                className="repuestos-pagination-button"
+                className="editarRepuesto-modal-pagination-button"
               >
                 Siguiente
+                <FaArrowLeft className="editarRepuesto-modal-pagination-icon editarRepuesto-modal-pagination-icon-right" />
               </button>
             </div>
           )}
@@ -392,8 +401,21 @@ function EditarRepuesto() {
     [validateForm, repuesto, id, makeRequest, navigate],
   )
 
-  const handleCancel = useCallback(() => {
-    navigate("/repuestos")
+  const handleCancel = useCallback(async () => {
+    const result = await Swal.fire({
+      title: "¿Cancelar edición?",
+      text: "Se perderán todos los cambios realizados",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Sí, cancelar",
+      cancelButtonText: "Continuar editando",
+    })
+
+    if (result.isConfirmed) {
+      navigate("/repuestos")
+    }
   }, [navigate])
 
   const formatearPrecio = useCallback((precio) => {
@@ -409,37 +431,44 @@ function EditarRepuesto() {
 
   if (isLoading) {
     return (
-      <div className="repuestos-container">
-        <div className="repuestos-loading">
-          <FaSpinner className="spinning" />
-          <h2>Cargando datos del repuesto...</h2>
-          <p>Por favor espere un momento</p>
+      <div className="editarRepuesto-container">
+        <div className="editarRepuesto-loading">
+          <div className="editarRepuesto-spinner"></div>
+          <p>Cargando datos del repuesto...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="repuestos-container">
-      <div className="repuestos-header">
-        <h1 className="repuestos-page-title">
-          <FaEdit className="repuestos-title-icon" />
-          Editar Repuesto
-        </h1>
-        <p className="repuestos-subtitle">Modifica la información del repuesto</p>
+    <div className="editarRepuesto-container">
+      <div className="editarRepuesto-header">
+        <div className="editarRepuesto-header-left">
+          <button className="editarRepuesto-btn-back" onClick={() => navigate("/repuestos")}>
+            <FaArrowLeft />
+            Volver
+          </button>
+          <div className="editarRepuesto-title-section">
+            <h1 className="editarRepuesto-page-title">
+              <FaEdit className="editarRepuesto-title-icon" />
+              Editar Repuesto
+            </h1>
+            <p className="editarRepuesto-subtitle">Modifica la información del repuesto</p>
+          </div>
+        </div>
       </div>
 
-      <form className="repuestos-form" onSubmit={handleSubmit}>
-        <div className="repuestos-form-section">
-          <h3 className="repuestos-section-title">
-            <FaFileText className="repuestos-section-icon" />
+      <form className="editarRepuesto-form" onSubmit={handleSubmit}>
+        <div className="editarRepuesto-form-section">
+          <h3 className="editarRepuesto-section-title">
+            <FaFileAlt className="editarRepuesto-section-icon" />
             Información General
           </h3>
 
-          <div className="repuestos-form-grid">
-            <div className="repuestos-form-group">
-              <label htmlFor="nombre" className="repuestos-label">
-                <FaBox className="repuestos-label-icon" />
+          <div className="editarRepuesto-form-grid">
+            <div className="editarRepuesto-form-group">
+              <label htmlFor="nombre" className="editarRepuesto-label">
+                <FaBox className="editarRepuesto-label-icon" />
                 Nombre del Repuesto *
               </label>
               <input
@@ -449,20 +478,20 @@ function EditarRepuesto() {
                 value={repuesto.nombre}
                 onChange={handleChange}
                 maxLength={45}
-                className={`repuestos-form-input ${errores.nombre ? "error" : ""}`}
+                className={`editarRepuesto-form-input ${errores.nombre ? "error" : ""}`}
                 placeholder="Ingrese el nombre del repuesto"
                 required
               />
               {errores.nombre && (
-                <span className="repuestos-error-text">
+                <span className="editarRepuesto-error-text">
                   <FaExclamationTriangle /> {errores.nombre}
                 </span>
               )}
             </div>
 
-            <div className="repuestos-form-group">
-              <label htmlFor="categoria" className="repuestos-label">
-                <FaTag className="repuestos-label-icon" />
+            <div className="editarRepuesto-form-group">
+              <label htmlFor="categoria" className="editarRepuesto-label">
+                <FaTag className="editarRepuesto-label-icon" />
                 Categoría *
               </label>
               <input
@@ -472,21 +501,21 @@ function EditarRepuesto() {
                 value={categoriaSeleccionada ? categoriaSeleccionada.nombre : ""}
                 onClick={() => setMostrarModalCategorias(true)}
                 readOnly
-                className={`repuestos-form-input ${errores.categoria_repuesto_id ? "error" : ""}`}
+                className={`editarRepuesto-form-input ${errores.categoria_repuesto_id ? "error" : ""}`}
                 style={{ cursor: "pointer" }}
                 required
               />
               {errores.categoria_repuesto_id && (
-                <span className="repuestos-error-text">
+                <span className="editarRepuesto-error-text">
                   <FaExclamationTriangle /> {errores.categoria_repuesto_id}
                 </span>
               )}
             </div>
           </div>
 
-          <div className="repuestos-form-group">
-            <label htmlFor="descripcion" className="repuestos-label">
-              <FaFileText className="repuestos-label-icon" />
+          <div className="editarRepuesto-form-group">
+            <label htmlFor="descripcion" className="editarRepuesto-label">
+              <FaFileAlt className="editarRepuesto-label-icon" />
               Descripción
             </label>
             <textarea
@@ -496,21 +525,21 @@ function EditarRepuesto() {
               onChange={handleChange}
               maxLength={200}
               rows={3}
-              className={`repuestos-form-textarea ${errores.descripcion ? "error" : ""}`}
+              className={`editarRepuesto-form-textarea ${errores.descripcion ? "error" : ""}`}
               placeholder="Descripción del repuesto (opcional)"
             />
-            <div className="repuestos-char-count">{repuesto.descripcion.length}/200 caracteres</div>
+            <div className="editarRepuesto-char-count">{repuesto.descripcion.length}/200 caracteres</div>
             {errores.descripcion && (
-              <span className="repuestos-error-text">
+              <span className="editarRepuesto-error-text">
                 <FaExclamationTriangle /> {errores.descripcion}
               </span>
             )}
           </div>
 
-          <div className="repuestos-form-grid">
-            <div className="repuestos-form-group">
-              <label htmlFor="cantidad" className="repuestos-label">
-                <FaBox className="repuestos-label-icon" />
+          <div className="editarRepuesto-form-grid">
+            <div className="editarRepuesto-form-group">
+              <label htmlFor="cantidad" className="editarRepuesto-label">
+                <FaBox className="editarRepuesto-label-icon" />
                 Cantidad *
               </label>
               <input
@@ -520,19 +549,19 @@ function EditarRepuesto() {
                 value={repuesto.cantidad}
                 onChange={handleChange}
                 min="0"
-                className={`repuestos-form-input ${errores.cantidad ? "error" : ""}`}
+                className={`editarRepuesto-form-input ${errores.cantidad ? "error" : ""}`}
                 required
               />
               {errores.cantidad && (
-                <span className="repuestos-error-text">
+                <span className="editarRepuesto-error-text">
                   <FaExclamationTriangle /> {errores.cantidad}
                 </span>
               )}
             </div>
 
-            <div className="repuestos-form-group">
-              <label htmlFor="preciounitario" className="repuestos-label">
-                <FaDollarSign className="repuestos-label-icon" />
+            <div className="editarRepuesto-form-group">
+              <label htmlFor="preciounitario" className="editarRepuesto-label">
+                <FaDollarSign className="editarRepuesto-label-icon" />
                 Precio Unitario *
               </label>
               <input
@@ -543,21 +572,21 @@ function EditarRepuesto() {
                 onChange={handleChange}
                 min="0"
                 step="0.01"
-                className={`repuestos-form-input ${errores.preciounitario ? "error" : ""}`}
+                className={`editarRepuesto-form-input ${errores.preciounitario ? "error" : ""}`}
                 required
               />
               {errores.preciounitario && (
-                <span className="repuestos-error-text">
+                <span className="editarRepuesto-error-text">
                   <FaExclamationTriangle /> {errores.preciounitario}
                 </span>
               )}
             </div>
           </div>
 
-          <div className="repuestos-form-grid">
-            <div className="repuestos-form-group">
-              <label htmlFor="estado" className="repuestos-label">
-                <FaCheckCircle className="repuestos-label-icon" />
+          <div className="editarRepuesto-form-grid">
+            <div className="editarRepuesto-form-group">
+              <label htmlFor="estado" className="editarRepuesto-label">
+                <FaCheckCircle className="editarRepuesto-label-icon" />
                 Estado *
               </label>
               <select
@@ -565,43 +594,43 @@ function EditarRepuesto() {
                 name="estado"
                 value={repuesto.estado}
                 onChange={handleChange}
-                className={`repuestos-form-select ${errores.estado ? "error" : ""}`}
+                className={`editarRepuesto-form-input ${errores.estado ? "error" : ""}`}
                 required
               >
                 <option value="Activo">Activo</option>
                 <option value="Inactivo">Inactivo</option>
               </select>
               {errores.estado && (
-                <span className="repuestos-error-text">
+                <span className="editarRepuesto-error-text">
                   <FaExclamationTriangle /> {errores.estado}
                 </span>
               )}
             </div>
 
-            <div className="repuestos-form-group">
-              <label className="repuestos-label">
-                <FaDollarSign className="repuestos-label-icon" />
+            <div className="editarRepuesto-form-group">
+              <label className="editarRepuesto-label">
+                <FaDollarSign className="editarRepuesto-label-icon" />
                 Total Calculado
               </label>
-              <div className="repuestos-total-display">{formatearPrecio(totalCalculado)}</div>
+              <div className="editarRepuesto-total-display">{formatearPrecio(totalCalculado)}</div>
             </div>
           </div>
         </div>
 
-        <div className="repuestos-form-actions">
-          <button type="button" className="repuestos-cancel-button" onClick={handleCancel} disabled={isSubmitting}>
-            <FaArrowLeft className="repuestos-button-icon" />
+        <div className="editarRepuesto-form-actions">
+          <button type="button" className="editarRepuesto-cancel-button" onClick={handleCancel} disabled={isSubmitting}>
+            <FaTimes className="editarRepuesto-button-icon" />
             Cancelar
           </button>
-          <button type="submit" className="repuestos-submit-button" disabled={isSubmitting || apiLoading}>
+          <button type="submit" className="editarRepuesto-submit-button" disabled={isSubmitting || apiLoading}>
             {isSubmitting ? (
               <>
-                <FaSpinner className="repuestos-button-icon spinning" />
+                <FaSpinner className="editarRepuesto-button-icon spinning" />
                 Actualizando...
               </>
             ) : (
               <>
-                <FaSave className="repuestos-button-icon" />
+                <FaSave className="editarRepuesto-button-icon" />
                 Actualizar Repuesto
               </>
             )}

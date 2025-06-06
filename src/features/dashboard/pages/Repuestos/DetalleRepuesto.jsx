@@ -11,13 +11,11 @@ import {
   FaToggleOff,
   FaEdit,
   FaArrowLeft,
-  FaSpinner,
   FaExclamationTriangle,
-  FaCheckCircle,
-  FaTimesCircle,
+  FaFileAlt,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/Repuesto.css"
+import "../../../../shared/styles/detalleRepuesto.css"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
@@ -163,218 +161,175 @@ function DetalleRepuesto() {
     navigate("/repuestos")
   }, [navigate])
 
+  const getEstadoClass = (estado) => {
+    return estado?.toLowerCase() === "activo" ? "activo" : "inactivo"
+  }
+
   if (isLoading) {
     return (
-      <div className="repuestos-container">
-        <div className="repuestos-loading">
-          <FaSpinner className="spinning" />
-          <h2>Cargando detalles del repuesto...</h2>
-          <p>Por favor espere un momento</p>
+      <div className="detalleRepuesto-container">
+        <div className="detalleRepuesto-loading">
+          <div className="detalleRepuesto-spinner"></div>
+          <p>Cargando detalles del repuesto...</p>
         </div>
       </div>
     )
   }
 
-  if (error) {
+  if (error || !repuesto) {
     return (
-      <div className="repuestos-container">
-        <div className="repuestos-error">
-          <FaExclamationTriangle className="repuestos-error-icon" />
-          <h2>Error al cargar el repuesto</h2>
-          <p>{error}</p>
-          <div className="repuestos-error-actions">
-            <button className="repuestos-secondary-button" onClick={handleVolver}>
-              <FaArrowLeft className="repuestos-button-icon" />
-              Volver al listado
-            </button>
+      <div className="detalleRepuesto-container">
+        <div className="detalleRepuesto-error">
+          <div className="detalleRepuesto-error-icon">
+            <FaExclamationTriangle />
           </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!repuesto) {
-    return (
-      <div className="repuestos-container">
-        <div className="repuestos-error">
-          <FaExclamationTriangle className="repuestos-error-icon" />
-          <h2>Repuesto no disponible</h2>
-          <p>No se pudo cargar la información del repuesto.</p>
-          <div className="repuestos-error-actions">
-            <button className="repuestos-secondary-button" onClick={handleVolver}>
-              <FaArrowLeft className="repuestos-button-icon" />
-              Volver al listado
-            </button>
-          </div>
+          <h2>Error</h2>
+          <p>{error || "No se encontró el repuesto"}</p>
+          <button className="detalleRepuesto-btn-back" onClick={handleVolver}>
+            <FaArrowLeft />
+            Volver al listado
+          </button>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="repuestos-container">
-      <div className="repuestos-header">
-        <div className="repuestos-header-content">
-          <h1 className="repuestos-page-title">
-            <FaBox className="repuestos-title-icon" />
-            Detalle del Repuesto
-          </h1>
-          <p className="repuestos-subtitle">Información completa del repuesto seleccionado</p>
-        </div>
-        <div className="repuestos-header-actions">
-          <button className="repuestos-secondary-button" onClick={handleVolver}>
-            <FaArrowLeft className="repuestos-button-icon" />
+    <div className="detalleRepuesto-container">
+      {/* Header */}
+      <div className="detalleRepuesto-header">
+        <div className="detalleRepuesto-header-left">
+          <button className="detalleRepuesto-btn-back" onClick={handleVolver}>
+            <FaArrowLeft />
             Volver
           </button>
-          <button className="repuestos-primary-button" onClick={handleEditar}>
-            <FaEdit className="repuestos-button-icon" />
-            Editar
+          <div className="detalleRepuesto-title-section">
+            <h1 className="detalleRepuesto-page-title">
+              <FaBox className="detalleRepuesto-title-icon" />
+              Detalle del Repuesto
+            </h1>
+            <p className="detalleRepuesto-subtitle">Información completa de {repuesto.nombre}</p>
+          </div>
+        </div>
+        <div className="detalleRepuesto-header-actions">
+          <button className="detalleRepuesto-btn-edit" onClick={handleEditar}>
+            <FaEdit />
+            Editar Repuesto
           </button>
         </div>
       </div>
 
-      <div className="repuestos-detail-card">
-        <div className="repuestos-detail-header">
-          <div className="repuestos-detail-title">
-            <h2>{repuesto.nombre}</h2>
-            <div className={`repuestos-status-badge ${repuesto.estado === "Activo" ? "active" : "inactive"}`}>
-              {repuesto.estado === "Activo" ? (
-                <FaCheckCircle className="repuestos-status-icon" />
-              ) : (
-                <FaTimesCircle className="repuestos-status-icon" />
-              )}
-              {repuesto.estado}
+      {/* Información General */}
+      <div className="detalleRepuesto-section">
+        <div className="detalleRepuesto-section-header">
+          <h2 className="detalleRepuesto-section-title">
+            <FaFileAlt className="detalleRepuesto-section-icon" />
+            Información General
+          </h2>
+        </div>
+        <div className="detalleRepuesto-info-grid">
+          <div className="detalleRepuesto-info-card">
+            <div className="detalleRepuesto-info-icon">
+              <FaBox />
+            </div>
+            <div className="detalleRepuesto-info-content">
+              <span className="detalleRepuesto-info-label">Nombre del Repuesto</span>
+              <span className="detalleRepuesto-info-value">{repuesto.nombre}</span>
+            </div>
+          </div>
+
+          <div className="detalleRepuesto-info-card">
+            <div className="detalleRepuesto-info-icon">
+              <FaTag />
+            </div>
+            <div className="detalleRepuesto-info-content">
+              <span className="detalleRepuesto-info-label">Categoría</span>
+              <span className="detalleRepuesto-categoria-badge">{categoria}</span>
+            </div>
+          </div>
+
+          <div className="detalleRepuesto-info-card">
+            <div className="detalleRepuesto-info-icon">
+              <FaFileAlt />
+            </div>
+            <div className="detalleRepuesto-info-content">
+              <span className="detalleRepuesto-info-label">Descripción</span>
+              <span className="detalleRepuesto-info-value">{repuesto.descripcion || "Sin descripción"}</span>
+            </div>
+          </div>
+
+          <div className="detalleRepuesto-info-card">
+            <div className="detalleRepuesto-info-icon">
+              <FaBox />
+            </div>
+            <div className="detalleRepuesto-info-content">
+              <span className="detalleRepuesto-info-label">Cantidad en Stock</span>
+              <span className="detalleRepuesto-quantity-display">{repuesto.cantidad || 0} unidades</span>
+            </div>
+          </div>
+
+          <div className="detalleRepuesto-info-card">
+            <div className="detalleRepuesto-info-icon">
+              <FaDollarSign />
+            </div>
+            <div className="detalleRepuesto-info-content">
+              <span className="detalleRepuesto-info-label">Precio Unitario</span>
+              <span className="detalleRepuesto-price-display">{formatearPrecio(repuesto.preciounitario)}</span>
+            </div>
+          </div>
+
+          <div className="detalleRepuesto-info-card">
+            <div className="detalleRepuesto-info-icon">
+              <FaDollarSign />
+            </div>
+            <div className="detalleRepuesto-info-content">
+              <span className="detalleRepuesto-info-label">Valor Total en Inventario</span>
+              <span className="detalleRepuesto-total-display">{formatearPrecio(repuesto.total)}</span>
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="repuestos-detail-content">
-          <div className="repuestos-detail-grid">
-            <div className="repuestos-detail-section">
-              <h3 className="repuestos-detail-section-title">
-                <FaFileText className="repuestos-section-icon" />
-                Información General
-              </h3>
-
-              <div className="repuestos-detail-field">
-                <label className="repuestos-detail-label">
-                  <FaBox className="repuestos-field-icon" />
-                  Nombre del Repuesto
-                </label>
-                <div className="repuestos-detail-value">{repuesto.nombre}</div>
-              </div>
-
-              <div className="repuestos-detail-field">
-                <label className="repuestos-detail-label">
-                  <FaFileText className="repuestos-field-icon" />
-                  Descripción
-                </label>
-                <div className="repuestos-detail-value">{repuesto.descripcion || "Sin descripción"}</div>
-              </div>
-
-              <div className="repuestos-detail-field">
-                <label className="repuestos-detail-label">
-                  <FaTag className="repuestos-field-icon" />
-                  Categoría
-                </label>
-                <div className="repuestos-detail-value">
-                  <span className="repuestos-category-badge">{categoria}</span>
-                </div>
-              </div>
+      {/* Información del Sistema */}
+      <div className="detalleRepuesto-section">
+        <div className="detalleRepuesto-section-header">
+          <h2 className="detalleRepuesto-section-title">
+            <FaCalendar className="detalleRepuesto-section-icon" />
+            Información del Sistema
+          </h2>
+        </div>
+        <div className="detalleRepuesto-info-grid">
+          <div className="detalleRepuesto-info-card">
+            <div className="detalleRepuesto-info-icon">
+              <FaCalendar />
             </div>
-
-            <div className="repuestos-detail-section">
-              <h3 className="repuestos-detail-section-title">
-                <FaDollarSign className="repuestos-section-icon" />
-                Información Financiera
-              </h3>
-
-              <div className="repuestos-detail-field">
-                <label className="repuestos-detail-label">
-                  <FaBox className="repuestos-field-icon" />
-                  Cantidad en Stock
-                </label>
-                <div className="repuestos-detail-value">
-                  <span className="repuestos-quantity-display">{repuesto.cantidad || 0} unidades</span>
-                </div>
-              </div>
-
-              <div className="repuestos-detail-field">
-                <label className="repuestos-detail-label">
-                  <FaDollarSign className="repuestos-field-icon" />
-                  Precio Unitario
-                </label>
-                <div className="repuestos-detail-value">
-                  <span className="repuestos-price-display">{formatearPrecio(repuesto.preciounitario)}</span>
-                </div>
-              </div>
-
-              <div className="repuestos-detail-field">
-                <label className="repuestos-detail-label">
-                  <FaDollarSign className="repuestos-field-icon" />
-                  Valor Total en Inventario
-                </label>
-                <div className="repuestos-detail-value">
-                  <span className="repuestos-total-display">{formatearPrecio(repuesto.total)}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="repuestos-detail-section">
-              <h3 className="repuestos-detail-section-title">
-                <FaCalendar className="repuestos-section-icon" />
-                Información del Sistema
-              </h3>
-
-              <div className="repuestos-detail-field">
-                <label className="repuestos-detail-label">
-                  <FaCalendar className="repuestos-field-icon" />
-                  Fecha de Creación
-                </label>
-                <div className="repuestos-detail-value">{formatearFecha(repuesto.created_at)}</div>
-              </div>
-
-              <div className="repuestos-detail-field">
-                <label className="repuestos-detail-label">
-                  <FaCalendar className="repuestos-field-icon" />
-                  Última Actualización
-                </label>
-                <div className="repuestos-detail-value">{formatearFecha(repuesto.updated_at)}</div>
-              </div>
-
-              <div className="repuestos-detail-field">
-                <label className="repuestos-detail-label">
-                  {repuesto.estado === "Activo" ? (
-                    <FaToggleOn className="repuestos-field-icon active" />
-                  ) : (
-                    <FaToggleOff className="repuestos-field-icon inactive" />
-                  )}
-                  Estado del Repuesto
-                </label>
-                <div className="repuestos-detail-value">
-                  <div className={`repuestos-status-badge ${repuesto.estado === "Activo" ? "active" : "inactive"}`}>
-                    {repuesto.estado === "Activo" ? (
-                      <FaCheckCircle className="repuestos-status-icon" />
-                    ) : (
-                      <FaTimesCircle className="repuestos-status-icon" />
-                    )}
-                    {repuesto.estado}
-                  </div>
-                </div>
-              </div>
+            <div className="detalleRepuesto-info-content">
+              <span className="detalleRepuesto-info-label">Fecha de Creación</span>
+              <span className="detalleRepuesto-info-value">{formatearFecha(repuesto.created_at)}</span>
             </div>
           </div>
-        </div>
 
-        <div className="repuestos-detail-actions">
-          <button className="repuestos-secondary-button" onClick={handleVolver}>
-            <FaArrowLeft className="repuestos-button-icon" />
-            Volver al Listado
-          </button>
-          <button className="repuestos-primary-button" onClick={handleEditar}>
-            <FaEdit className="repuestos-button-icon" />
-            Editar Repuesto
-          </button>
+          <div className="detalleRepuesto-info-card">
+            <div className="detalleRepuesto-info-icon">
+              <FaCalendar />
+            </div>
+            <div className="detalleRepuesto-info-content">
+              <span className="detalleRepuesto-info-label">Última Actualización</span>
+              <span className="detalleRepuesto-info-value">{formatearFecha(repuesto.updated_at)}</span>
+            </div>
+          </div>
+
+          <div className="detalleRepuesto-info-card">
+            <div className="detalleRepuesto-info-icon">
+              {repuesto.estado?.toLowerCase() === "activo" ? <FaToggleOn /> : <FaToggleOff />}
+            </div>
+            <div className="detalleRepuesto-info-content">
+              <span className="detalleRepuesto-info-label">Estado del Repuesto</span>
+              <span className={`detalleRepuesto-estado ${getEstadoClass(repuesto.estado)}`}>
+                {repuesto.estado || "No especificado"}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

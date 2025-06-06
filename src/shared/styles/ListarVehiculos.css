@@ -1,158 +1,421 @@
-/* ESTILOS ORIGINALES (se mantienen igual) */
-.LiUs-contenedor {
+.listarVehiculos-container {
   padding: 25px;
-  background-color: white;
+  background-color: #f9fafb;
   min-height: 100vh;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
-.LiUs-header {
+.listarVehiculos-header {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+}
+
+.listarVehiculos-title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.listarVehiculos-page-title {
+  font-size: 28px;
+  color: #1a202c;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
   align-items: center;
-  margin-bottom: 20px;
+  gap: 12px;
 }
 
-.LiUs-titulo {
+.listarVehiculos-title-icon {
+  color: #2563eb;
   font-size: 24px;
-  color: #2d3748;
 }
 
-/* Botón Crear - Estilo ORIGINAL */
-.LiUs-boton-crear {
-  background-color: #0066ff;
+.listarVehiculos-subtitle {
+  color: #6b7280;
+  font-size: 16px;
+  margin: 0;
+}
+
+.listarVehiculos-create-button {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-weight: bold;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
   font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.LiUs-boton-crear:hover {
-  background-color: #0052cc;
+.listarVehiculos-create-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
 }
 
-/* Input Búsqueda - Estilo ORIGINAL */
-.LiUs-input-busqueda {
-  width: 40%;
-  padding: 8px 12px;
-  margin-bottom: 16px;
-  font-size: 13px;
+.listarVehiculos-button-icon {
+  font-size: 12px;
+}
+
+/* Filtros */
+.listarVehiculos-filters-container {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  align-items: end;
+  background-color: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  background-color: #f1f5f9;
-  font-family: 'Montserrat', sans-serif;
 }
 
-/* NUEVOS ESTILOS SOLO PARA BOTONES DE ACCIÓN (Editar/Eliminar/Detalle) */
-.LiUs-acciones {
+.listarVehiculos-filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 200px;
+  flex: 1;
+}
+
+.listarVehiculos-filter-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 3px;
+}
+
+.listarVehiculos-search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.listarVehiculos-search-icon {
+  position: absolute;
+  left: 12px;
+  color: #6b7280;
+  font-size: 14px;
+  z-index: 1;
+}
+
+.listarVehiculos-search-input {
+  width: 100%;
+  padding: 10px 14px 10px 36px;
+  font-size: 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.listarVehiculos-search-input:focus {
+  border-color: #3b82f6;
+  background-color: white;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.listarVehiculos-filter-select {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.listarVehiculos-filter-select:focus {
+  border-color: #3b82f6;
+  background-color: white;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Tabla */
+.listarVehiculos-table-container {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.listarVehiculos-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.listarVehiculos-table th {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: none;
+  padding: 16px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.listarVehiculos-table td {
+  border: none;
+  border-bottom: 1px solid #f1f5f9;
+  padding: 16px 12px;
+  font-size: 14px;
+  color: #1a202c;
+}
+
+.listarVehiculos-table tr:hover {
+  background-color: #f8fafc;
+}
+
+.listarVehiculos-table tr:last-child td {
+  border-bottom: none;
+}
+
+.listarVehiculos-vehiculo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.listarVehiculos-vehiculo-placa {
+  font-weight: 600;
+  color: #1a202c;
+}
+
+/* Estado Toggle */
+.listarVehiculos-estado-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.listarVehiculos-estado-toggle.activo {
+  background-color: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.listarVehiculos-estado-toggle.inactivo {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.listarVehiculos-estado-toggle:hover {
+  transform: scale(1.05);
+}
+
+.listarVehiculos-toggle-icon {
+  font-size: 14px;
+}
+
+.listarVehiculos-estado-text {
+  font-size: 11px;
+}
+
+/* Acciones */
+.listarVehiculos-actions {
   display: flex;
   gap: 8px;
   justify-content: center;
   padding: 8px;
 }
 
-.icon-button {
+.listarVehiculos-action-button {
   width: 32px;
   height: 32px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  font-size: 16px;
-}
-
-.icon-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-}
-
-.icon-button.edit {
-  background-color: #3b82f6; /* Azul */
-  color: white;
-}
-
-.icon-button.delete {
-  background-color: #ef4444; /* Rojo */
-  color: white;
-}
-
-.icon-button.detail {
-  background-color: #10b981; /* Verde */
-  color: white;
-}
-
-/* Tooltips para botones */
-.icon-button[title]:hover::after {
-  content: attr(title);
-  position: absolute;
-  bottom: -30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #333;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  white-space: nowrap;
-  z-index: 10;
-}
-
-/* ESTILOS EXISTENTES PARA TABLA Y PAGINACIÓN (se mantienen igual) */
-.LiUs-tabla-container {
-  overflow-x: auto;
-}
-
-.LiUs-tabla {
-  width: 100%;
-  border-collapse: collapse;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   font-size: 14px;
 }
 
-.LiUs-tabla th,
-.LiUs-tabla td {
-  border: 1px solid #e2e8f0;
-  padding: 10px;
+.listarVehiculos-action-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.listarVehiculos-action-button.edit {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.listarVehiculos-action-button.delete {
+  background-color: #ef4444;
+  color: white;
+}
+
+.listarVehiculos-action-button.detail {
+  background-color: #10b981;
+  color: white;
+}
+
+/* Sin resultados */
+.listarVehiculos-no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #6b7280;
   text-align: center;
 }
 
-.LiUs-tabla th {
-  background-color: #f3f4f6;
-  font-weight: 700;
-  color: #374151;
+.listarVehiculos-no-results-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.listarVehiculos-no-results p {
+  margin: 0;
+  font-size: 16px;
 }
 
 /* Paginación */
-.LiUs-paginacion {
-  margin-top: 20px;
+.listarVehiculos-pagination {
   display: flex;
   justify-content: center;
   gap: 8px;
+  margin-top: 20px;
+  padding: 20px;
+  border-top: 2px solid #f1f5f9;
 }
 
-.LiUs-boton-paginacion {
-  background-color: #e2e8f0;
-  border: none;
-  padding: 6px 14px;
-  border-radius: 6px;
+.listarVehiculos-pagination-button {
+  padding: 8px 14px;
+  border: 2px solid #e2e8f0;
+  background-color: white;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: 700;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
 }
 
-.LiUs-boton-paginacion:hover {
-  background-color: #cbd5e1;
+.listarVehiculos-pagination-button:hover:not(:disabled) {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+  transform: translateY(-1px);
 }
 
-.LiUs-boton-paginacion.active {
-  background-color: #3b82f6;
+.listarVehiculos-pagination-button.active {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
-  font-weight: 700;
+  border-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.listarVehiculos-pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Loading */
+.listarVehiculos-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  text-align: center;
+}
+
+.listarVehiculos-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: #2563eb;
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .listarVehiculos-container {
+    padding: 16px;
+  }
+
+  .listarVehiculos-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .listarVehiculos-filters-container {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .listarVehiculos-filter-item {
+    min-width: auto;
+  }
+
+  .listarVehiculos-table-container {
+    overflow-x: auto;
+  }
+
+  .listarVehiculos-table {
+    min-width: 800px;
+  }
+
+  .listarVehiculos-pagination {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .listarVehiculos-page-title {
+    font-size: 24px;
+  }
+
+  .listarVehiculos-header {
+    padding: 16px;
+  }
+
+  .listarVehiculos-filters-container {
+    padding: 16px;
+  }
 }

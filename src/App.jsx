@@ -19,6 +19,7 @@ import DetalleUsuario from './features/dashboard/pages/Usuario/DetalleUsuario';
 import ListarCategoriasRepuesto from './features/dashboard/pages/CategoriaRepuesto/ListarCategoriasRepuesto';
 import CrearCategoriaRepuesto from './features/dashboard/pages/CategoriaRepuesto/CrearCategoriaRepuesto';
 import EditarCategoriaRepuesto from './features/dashboard/pages/CategoriaRepuesto/EditarCategoriaRepuesto';
+import DetalleCategoriaRepuesto from './features/dashboard/pages/CategoriaRepuesto/DetalleCategoriaRepuesto';
 // ----------------------------------------------------------------------
 
 // ------------------------------REPUESTOS-------------------------------
@@ -48,9 +49,9 @@ import EditarVehiculo from "./features/dashboard/pages/Vehiculos/EditarVehiculo"
 import DetalleVehiculo from "./features/dashboard/pages/Vehiculos/DetalleVehiculo";
 // ------------------------------------servicios----------------------------------
 import ListarServicios from './features/dashboard/pages/Servicios/ListarServicios';
-import CrearServicio from './features/dashboard/pages/Servicios/CrearServicios';
-import EditarServicio from './features/dashboard/pages/Servicios/EditarServicios';
-import DetalleServicio from './features/dashboard/pages/Servicios/DetalleServicios';
+import CrearServicios from './features/dashboard/pages/Servicios/CrearServicios';
+import EditarServicios from './features/dashboard/pages/Servicios/EditarServicios';
+import DetalleServicios from './features/dashboard/pages/Servicios/DetalleServicios';
 // ------------------------------CLIENTES-----------------------------
 import ListarClientes from './features/dashboard/pages/Clientes/ListarClientes'
 import CrearClientes from './features/dashboard/pages/Clientes/CrearClientes'
@@ -145,6 +146,14 @@ function App() {
             </PrivateRoute>
           }
         />
+         <Route
+          path="/categorias-repuesto/detalle/:id"
+          element={
+            <PrivateRoute>
+              <Layout><DetalleCategoriaRepuesto /></Layout>
+            </PrivateRoute>
+          }
+        />
         {/* ------------------------------------------------------------------------ */}
         {/* REPEUSTO */}
         <Route
@@ -190,18 +199,18 @@ function App() {
           }
         />
         <Route
-          path="/EditarProveedor/editar/:id"
-          element={
-            <PrivateRoute>
-              <Layout><EditarProveedor /></Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
           path="/CrearProveedor"
           element={
             <PrivateRoute>
               <Layout><CrearProveedor  /></Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/EditarProveedor/editar/:id"
+          element={
+            <PrivateRoute>
+              <Layout><EditarProveedor /></Layout>
             </PrivateRoute>
           }
         />
@@ -297,7 +306,7 @@ function App() {
           element={
             <PrivateRoute>
               <Layout>
-                <CrearServicio/>
+                <CrearServicios/>
               </Layout>
             </PrivateRoute>
           }
@@ -308,7 +317,7 @@ function App() {
           element={
             <PrivateRoute>
               <Layout>
-                <EditarServicio />
+                <EditarServicios />
               </Layout>
             </PrivateRoute>
           }
@@ -318,7 +327,7 @@ function App() {
           element={
             <PrivateRoute>
               <Layout>
-                <DetalleServicio/>
+                <DetalleServicios/>
               </Layout>
             </PrivateRoute>
           }

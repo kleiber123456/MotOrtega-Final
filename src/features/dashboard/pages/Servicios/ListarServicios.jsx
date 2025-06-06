@@ -1,270 +1,345 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import axios from "axios"
+import { useState, useEffect, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
+import {
+  FaCog,
+  FaEdit,
+  FaTrash,
+  FaEye,
+  FaSearch,
+  FaExclamationTriangle,
+  FaPlus,
+  FaToggleOn,
+  FaToggleOff,
+} from "react-icons/fa"
 import Swal from "sweetalert2"
-import { Pencil, Trash2, Eye } from "lucide-react"
-import "../../../../shared/styles/ListarProveedor.css"
+import "../../../../shared/styles/listarServicios.css"
 
 const ListarServicios = () => {
-  const [servicios, setServicios] = useState([])
-  const [busqueda, setBusqueda] = useState("")
-  const [paginaActual, setPaginaActual] = useState(1)
-  const serviciosPorPagina = 10
   const navigate = useNavigate()
-
   const token = localStorage.getItem("token") || sessionStorage.getItem("token")
 
+  const [servicios, setServicios] = useState([])
+  const [busqueda, setBusqueda] = useState("")
+  const [estadoFiltro, setEstadoFiltro] = useState("")
+  const [paginaActual, setPaginaActual] = useState(1)
+  const [serviciosPorPagina] = useState(5)
+  const [cargando, setCargando] = useState(true)
+
   useEffect(() => {
-    fetchServicios()
+    document.body.style.backgroundColor = "#f9fafb"
+    cargarServicios()
+    return () => {
+      document.body.style.background = ""
+    }
   }, [])
 
-  // Función para obtener servicios
-  const fetchServicios = async () => {
+  const cargarServicios = async () => {
     try {
-      if (!token) {
-        Swal.fire("Error", "No autorizado: Token no encontrado.", "error")
-        return
-      }
-
-      const res = await axios.get("https://api-final-8rw7.onrender.com/api/servicios", {
+      setCargando(true)
+      const response = await fetch("https://api-final-8rw7.onrender.com/api/servicios", {
         headers: {
-          Authorization: `${token}`,
+          Authorization: token,
           "Content-Type": "application/json",
         },
       })
 
-      setServicios(res.data)
-    } catch (err) {
-      console.error("Error al obtener servicios:", err)
-      setServicios([])
-      Swal.fire("Error", "Error al obtener la lista de servicios.", "error")
-    }
-  }
-
-  // Función para eliminar un servicio
-  const eliminarServicio = async (id) => {
-    if (!id) {
-      Swal.fire("Error", "ID de servicio inválido", "error")
-      return
-    }
-
-    const confirmacion = await Swal.fire({
-      title: "¿Estás seguro?",
-      text: "Esta acción eliminará el servicio permanentemente.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar",
-    })
-
-    if (!confirmacion.isConfirmed) return
-
-    try {
-      const res = await axios.delete(`https://api-final-8rw7.onrender.com/api/servicios/${id}`, {
-        headers: {
-          Authorization: `${token}`,
-          "Content-Type": "application/json",
-        },
-      })
-
-      if (res.status === 200 || res.status === 204) {
-        setServicios((prev) => prev.filter((servicio) => servicio.id !== id))
-        Swal.fire("Eliminado", "Servicio eliminado correctamente", "success")
-      } else {
-        throw new Error(`Error al eliminar el servicio: ${res.status}`)
+      if (!response.ok) {
+        throw new Error("Error al cargar servicios")
       }
-    } catch (err) {
-      console.error("Error al eliminar el servicio:", err)
-      const errorMessage =
-        err.response && err.response.data && err.response.data.message
-          ? err.response.data.message
-          : "No se pudo eliminar el servicio"
-      Swal.fire("Error", errorMessage, "error")
+
+      const data = await response.json()
+      setServicios(data)
+    } catch (error) {
+      console.error("Error al cargar servicios:", error)
+      Swal.fire("Error", "No se pudieron cargar los servicios", "error")
+    } finally {
+      setCargando(false)
     }
   }
 
-  // Función para cambiar el estado de un servicio
-  const cambiarEstado = async (id) => {
-    try {
-      if (!token) {
-        Swal.fire("Error", "No autorizado: Token no encontrado.", "error")
+  const eliminarServicio = useCallback(
+    async (id) => {
+      if (!id) {
+        Swal.fire("Error", "ID de servicio inválido", "error")
         return
       }
-      const res = await axios.put(
-        `https://api-final-8rw7.onrender.com/api/servicios/${id}/cambiar-estado`,
-        {},
-        {
+
+      const result = await Swal.fire({
+        title: "¿Eliminar servicio?",
+        text: "Esta acción eliminará el servicio permanentemente y no se puede deshacer.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#ef4444",
+        cancelButtonColor: "#6b7280",
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar",
+      })
+
+      if (!result.isConfirmed) return
+
+      try {
+        const response = await fetch(`https://api-final-8rw7.onrender.com/api/servicios/${id}`, {
+          method: "DELETE",
           headers: {
-            Authorization: `${token}`,
+            Authorization: token,
             "Content-Type": "application/json",
           },
-        },
-      )
+        })
 
-      setServicios((prev) =>
-        prev.map((s) =>
-          s.id === id
-            ? {
-                ...s,
-                estado: s.estado.toLowerCase() === "activo" ? "Inactivo" : "Activo",
-              }
-            : s,
-        ),
-      )
-      Swal.fire("Éxito", "Estado del servicio cambiado correctamente", "success")
-    } catch (err) {
-      console.error("Error al cambiar el estado:", err)
-      const errorMessage =
-        err.response && err.response.data && err.response.data.message
-          ? err.response.data.message
-          : "No se pudo cambiar el estado del servicio"
-      Swal.fire("Error", errorMessage, "error")
-    }
-  }
+        if (!response.ok) {
+          throw new Error("Error al eliminar servicio")
+        }
 
-  const handleBuscar = (e) => {
-    setBusqueda(e.target.value)
+        setServicios((prev) => prev.filter((servicio) => servicio.id !== id))
+
+        Swal.fire({
+          icon: "success",
+          title: "Servicio eliminado",
+          text: "El servicio ha sido eliminado correctamente",
+          timer: 2000,
+          showConfirmButton: false,
+        })
+      } catch (error) {
+        console.error("Error al eliminar servicio:", error)
+        Swal.fire("Error", "No se pudo eliminar el servicio", "error")
+      }
+    },
+    [token],
+  )
+
+  const cambiarEstado = useCallback(
+    async (id, estadoActual) => {
+      try {
+        const nuevoEstado = estadoActual?.toLowerCase() === "activo" ? "Inactivo" : "Activo"
+
+        const result = await Swal.fire({
+          title: `¿Cambiar estado a ${nuevoEstado}?`,
+          text: `El servicio será marcado como ${nuevoEstado.toLowerCase()}`,
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonColor: "#2563eb",
+          cancelButtonColor: "#6b7280",
+          confirmButtonText: "Sí, cambiar",
+          cancelButtonText: "Cancelar",
+        })
+
+        if (!result.isConfirmed) return
+
+        const response = await fetch(`https://api-final-8rw7.onrender.com/api/servicios/${id}/cambiar-estado`, {
+          method: "PUT",
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        })
+
+        if (!response.ok) {
+          throw new Error("Error al cambiar estado")
+        }
+
+        setServicios((prev) => prev.map((s) => (s.id === id ? { ...s, estado: nuevoEstado } : s)))
+
+        Swal.fire({
+          icon: "success",
+          title: "Estado actualizado",
+          text: `El servicio ahora está ${nuevoEstado.toLowerCase()}`,
+          timer: 2000,
+          showConfirmButton: false,
+        })
+      } catch (error) {
+        console.error("Error al cambiar estado:", error)
+        Swal.fire("Error", "No se pudo cambiar el estado del servicio", "error")
+      }
+    },
+    [token],
+  )
+
+  const handleSearch = useCallback((e) => {
+    setBusqueda(e.target.value.toLowerCase())
     setPaginaActual(1)
-  }
+  }, [])
 
-  const serviciosFiltrados = Array.isArray(servicios)
-    ? servicios.filter((serv) => {
-        const textoBusqueda = busqueda.toLowerCase()
-        return (
-          serv.nombre.toLowerCase().includes(textoBusqueda) ||
-          serv.descripcion.toLowerCase().includes(textoBusqueda) ||
-          String(serv.precio || "")
-            .toLowerCase()
-            .includes(textoBusqueda) ||
-          serv.estado.toLowerCase().includes(textoBusqueda)
-        )
-      })
-    : []
+  // Filtrar servicios
+  const serviciosFiltrados = servicios.filter((servicio) => {
+    const matchBusqueda = Object.values(servicio).some((val) => String(val).toLowerCase().includes(busqueda))
+    const matchEstado = estadoFiltro === "" || servicio.estado === estadoFiltro
 
-  const indexUltimo = paginaActual * serviciosPorPagina
-  const indexPrimero = indexUltimo - serviciosPorPagina
-  const serviciosPaginados = serviciosFiltrados.slice(indexPrimero, indexUltimo)
+    return matchBusqueda && matchEstado
+  })
+
+  // Paginación
+  const indiceUltimoServicio = paginaActual * serviciosPorPagina
+  const indicePrimerServicio = indiceUltimoServicio - serviciosPorPagina
+  const serviciosActuales = serviciosFiltrados.slice(indicePrimerServicio, indiceUltimoServicio)
   const totalPaginas = Math.ceil(serviciosFiltrados.length / serviciosPorPagina)
 
-  const cambiarPagina = (numero) => {
-    setPaginaActual(numero)
-  }
-
-  const handleEditar = (id) => {
-    navigate(`/servicios/editar/${id}`)
-  }
-
-  const handleEliminar = (id) => {
-    eliminarServicio(id)
-  }
-
-  const handleDetalle = (id) => {
-    navigate(`/servicios/detalle/${id}`)
+  if (cargando) {
+    return (
+      <div className="listarServicios-container">
+        <div className="listarServicios-loading">
+          <div className="listarServicios-spinner"></div>
+          <p>Cargando servicios...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="LiUs-contenedor">
-      <div className="LiUs-header">
-        <h2 className="LiUs-titulo">Lista de Servicios</h2>
-        <button className="LiUs-boton-crear" onClick={() => navigate("/crearServicios")}>
+    <div className="listarServicios-container">
+      <div className="listarServicios-header">
+        <div className="listarServicios-title-section">
+          <h1 className="listarServicios-page-title">
+            <FaCog className="listarServicios-title-icon" />
+            Gestión de Servicios
+          </h1>
+          <p className="listarServicios-subtitle">Administra los servicios del sistema</p>
+        </div>
+        <button className="listarServicios-create-button" onClick={() => navigate("/crearServicios")}>
+          <FaPlus className="listarServicios-button-icon" />
           Crear Servicio
         </button>
       </div>
 
-      <input
-        className="LiUs-input-busqueda"
-        type="text"
-        placeholder="Buscar por nombre, descripción, precio, etc."
-        value={busqueda}
-        onChange={handleBuscar}
-      />
+      {/* Filtros */}
+      <div className="listarServicios-filters-container">
+        <div className="listarServicios-filter-item">
+          <label className="listarServicios-filter-label">Buscar:</label>
+          <div className="listarServicios-search-container">
+            <FaSearch className="listarServicios-search-icon" />
+            <input
+              type="text"
+              className="listarServicios-search-input"
+              placeholder="Buscar por cualquier campo..."
+              value={busqueda}
+              onChange={handleSearch}
+            />
+          </div>
+        </div>
 
-      <div className="LiUs-tabla-container">
-        <table className="LiUs-tabla">
+        <div className="listarServicios-filter-item">
+          <label className="listarServicios-filter-label">Estado:</label>
+          <select
+            value={estadoFiltro}
+            onChange={(e) => {
+              setEstadoFiltro(e.target.value)
+              setPaginaActual(1)
+            }}
+            className="listarServicios-filter-select"
+          >
+            <option value="">Todos los estados</option>
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Tabla */}
+      <div className="listarServicios-table-container">
+        <table className="listarServicios-table">
           <thead>
             <tr>
-              <th>Nombre</th>
-              <th>Descripción</th>
+              <th>Servicio</th>
               <th>Precio</th>
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {serviciosPaginados.length > 0 ? (
-              serviciosPaginados.map((serv) => (
-                <tr key={serv.id}>
-                  <td>{serv.nombre}</td>
-                  <td>{serv.descripcion}</td>
-                  <td>${serv.precio?.toLocaleString()}</td>
-                  <td>
-                    <div
-                      className={`estado-switch ${serv.estado === "Activo" ? "activo" : "inactivo"}`}
-                      title={serv.estado}
-                      onClick={() => cambiarEstado(serv.id)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <div className="switch-bola"></div>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="LiUs-acciones">
-                      <button className="icon-button edit" title="Editar" onClick={() => handleEditar(serv.id)}>
-                        <Pencil size={18} />
-                      </button>
-                      <button className="icon-button delete" title="Eliminar" onClick={() => handleEliminar(serv.id)}>
-                        <Trash2 size={18} />
-                      </button>
-                      <button className="icon-button detail" title="Detalle" onClick={() => handleDetalle(serv.id)}>
-                        <Eye size={18} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5">No se encontraron servicios.</td>
+            {serviciosActuales.map((servicio) => (
+              <tr key={servicio.id}>
+                <td>
+                  <div className="listarServicios-servicio-info">
+                    <span className="listarServicios-servicio-name">{servicio.nombre}</span>
+                    <span className="listarServicios-servicio-description">{servicio.descripcion}</span>
+                  </div>
+                </td>
+                <td>
+                  <span className="listarServicios-precio-badge">${servicio.precio?.toLocaleString()}</span>
+                </td>
+                <td>
+                  <button
+                    className={`listarServicios-estado-toggle ${
+                      servicio.estado?.toLowerCase() === "activo" ? "activo" : "inactivo"
+                    }`}
+                    onClick={() => cambiarEstado(servicio.id, servicio.estado)}
+                    title={`Estado: ${servicio.estado} - Click para cambiar`}
+                  >
+                    {servicio.estado?.toLowerCase() === "activo" ? (
+                      <FaToggleOn className="listarServicios-toggle-icon" />
+                    ) : (
+                      <FaToggleOff className="listarServicios-toggle-icon" />
+                    )}
+                    <span className="listarServicios-estado-text">{servicio.estado}</span>
+                  </button>
+                </td>
+                <td className="listarServicios-actions">
+                  <button
+                    className="listarServicios-action-button edit"
+                    onClick={() => navigate(`/servicios/editar/${servicio.id}`)}
+                    title="Editar servicio"
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    className="listarServicios-action-button delete"
+                    onClick={() => eliminarServicio(servicio.id)}
+                    title="Eliminar servicio"
+                  >
+                    <FaTrash />
+                  </button>
+                  <button
+                    className="listarServicios-action-button detail"
+                    onClick={() => navigate(`/servicios/detalle/${servicio.id}`)}
+                    title="Ver detalle"
+                  >
+                    <FaEye />
+                  </button>
+                </td>
               </tr>
-            )}
+            ))}
           </tbody>
         </table>
-      </div>
 
-      {/* Paginación */}
-      {serviciosFiltrados.length > serviciosPorPagina && (
-        <div className="LiUs-paginacion">
-          <button
-            onClick={() => cambiarPagina(paginaActual - 1)}
-            disabled={paginaActual === 1}
-            className="LiUs-boton-paginacion"
-          >
-            Anterior
-          </button>
+        {serviciosFiltrados.length === 0 && (
+          <div className="listarServicios-no-results">
+            <FaExclamationTriangle className="listarServicios-no-results-icon" />
+            <p>No se encontraron servicios con los criterios de búsqueda.</p>
+          </div>
+        )}
 
-          {Array.from({ length: totalPaginas }, (_, i) => (
+        {/* Paginación */}
+        {serviciosFiltrados.length > serviciosPorPagina && (
+          <div className="listarServicios-pagination">
             <button
-              key={i + 1}
-              onClick={() => cambiarPagina(i + 1)}
-              className={`LiUs-boton-paginacion ${paginaActual === i + 1 ? "active" : ""}`}
+              onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
+              disabled={paginaActual === 1}
+              className="listarServicios-pagination-button"
             >
-              {i + 1}
+              Anterior
             </button>
-          ))}
 
-          <button
-            onClick={() => cambiarPagina(paginaActual + 1)}
-            disabled={paginaActual === totalPaginas}
-            className="LiUs-boton-paginacion"
-          >
-            Siguiente
-          </button>
-        </div>
-      )}
+            {Array.from({ length: totalPaginas }, (_, i) => (
+              <button
+                key={i + 1}
+                onClick={() => setPaginaActual(i + 1)}
+                className={`listarServicios-pagination-button ${paginaActual === i + 1 ? "active" : ""}`}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button
+              onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
+              disabled={paginaActual === totalPaginas}
+              className="listarServicios-pagination-button"
+            >
+              Siguiente
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

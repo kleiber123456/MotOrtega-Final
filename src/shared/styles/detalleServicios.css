@@ -1,4 +1,4 @@
-.detalleProveedor-container {
+.detalleServicio-container {
   padding: 25px;
   background-color: #f9fafb;
   min-height: 100vh;
@@ -6,7 +6,7 @@
 }
 
 /* Header */
-.detalleProveedor-header {
+.detalleServicio-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -18,13 +18,13 @@
   border: 1px solid #e2e8f0;
 }
 
-.detalleProveedor-header-left {
+.detalleServicio-header-left {
   display: flex;
   align-items: flex-start;
   gap: 20px;
 }
 
-.detalleProveedor-btn-back {
+.detalleServicio-btn-back {
   background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
   color: white;
   border: none;
@@ -40,18 +40,18 @@
   box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
 }
 
-.detalleProveedor-btn-back:hover {
+.detalleServicio-btn-back:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
 }
 
-.detalleProveedor-title-section {
+.detalleServicio-title-section {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.detalleProveedor-page-title {
+.detalleServicio-page-title {
   font-size: 28px;
   color: #1a202c;
   font-weight: 600;
@@ -61,23 +61,23 @@
   gap: 12px;
 }
 
-.detalleProveedor-title-icon {
+.detalleServicio-title-icon {
   color: #2563eb;
   font-size: 24px;
 }
 
-.detalleProveedor-subtitle {
+.detalleServicio-subtitle {
   color: #6b7280;
   font-size: 16px;
   margin: 0;
 }
 
-.detalleProveedor-header-actions {
+.detalleServicio-header-actions {
   display: flex;
   gap: 12px;
 }
 
-.detalleProveedor-btn-edit {
+.detalleServicio-btn-edit {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
   border: none;
@@ -93,13 +93,13 @@
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
-.detalleProveedor-btn-edit:hover {
+.detalleServicio-btn-edit:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
 }
 
 /* Secciones */
-.detalleProveedor-section {
+.detalleServicio-section {
   background: white;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -108,13 +108,13 @@
   overflow: hidden;
 }
 
-.detalleProveedor-section-header {
+.detalleServicio-section-header {
   padding: 20px 24px;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   border-bottom: 2px solid #e2e8f0;
 }
 
-.detalleProveedor-section-title {
+.detalleServicio-section-title {
   font-size: 18px;
   font-weight: 600;
   color: #1a202c;
@@ -124,20 +124,20 @@
   gap: 8px;
 }
 
-.detalleProveedor-section-icon {
+.detalleServicio-section-icon {
   color: #2563eb;
   font-size: 16px;
 }
 
 /* Información */
-.detalleProveedor-info-grid {
+.detalleServicio-info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px;
   padding: 24px;
 }
 
-.detalleProveedor-info-card {
+.detalleServicio-info-card {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -148,13 +148,13 @@
   transition: all 0.2s ease;
 }
 
-.detalleProveedor-info-card:hover {
+.detalleServicio-info-card:hover {
   border-color: #cbd5e1;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.detalleProveedor-info-icon {
+.detalleServicio-info-icon {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -167,14 +167,14 @@
   font-size: 18px;
 }
 
-.detalleProveedor-info-content {
+.detalleServicio-info-content {
   display: flex;
   flex-direction: column;
   gap: 4px;
   flex: 1;
 }
 
-.detalleProveedor-info-label {
+.detalleServicio-info-label {
   font-size: 12px;
   color: #6b7280;
   font-weight: 500;
@@ -182,15 +182,25 @@
   letter-spacing: 0.5px;
 }
 
-.detalleProveedor-info-value {
+.detalleServicio-info-value {
   font-size: 16px;
   color: #1a202c;
   font-weight: 600;
   word-break: break-word;
 }
 
+.detalleServicio-info-value.descripcion {
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.detalleServicio-info-value.precio {
+  color: #166534;
+  font-size: 18px;
+}
+
 /* Estados */
-.detalleProveedor-estado {
+.detalleServicio-estado {
   display: inline-block;
   padding: 6px 12px;
   border-radius: 20px;
@@ -198,21 +208,21 @@
   font-size: 14px;
 }
 
-.detalleProveedor-estado.activo {
+.detalleServicio-estado.activo {
   background-color: #dcfce7;
   color: #166534;
   border: 1px solid #86efac;
 }
 
-.detalleProveedor-estado.inactivo {
+.detalleServicio-estado.inactivo {
   background-color: #fee2e2;
   color: #991b1b;
   border: 1px solid #fca5a5;
 }
 
 /* Loading y Error */
-.detalleProveedor-loading,
-.detalleProveedor-error {
+.detalleServicio-loading,
+.detalleServicio-error {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -225,7 +235,7 @@
   border: 1px solid #e2e8f0;
 }
 
-.detalleProveedor-spinner {
+.detalleServicio-spinner {
   width: 40px;
   height: 40px;
   border: 4px solid rgba(0, 0, 0, 0.1);
@@ -241,19 +251,19 @@
   }
 }
 
-.detalleProveedor-error-icon {
+.detalleServicio-error-icon {
   font-size: 48px;
   color: #ef4444;
   margin-bottom: 16px;
 }
 
-.detalleProveedor-error h2 {
+.detalleServicio-error h2 {
   font-size: 24px;
   color: #1a202c;
   margin: 0 0 8px 0;
 }
 
-.detalleProveedor-error p {
+.detalleServicio-error p {
   color: #6b7280;
   margin: 0 0 24px 0;
   font-size: 16px;
@@ -261,32 +271,32 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .detalleProveedor-container {
+  .detalleServicio-container {
     padding: 16px;
   }
 
-  .detalleProveedor-header {
+  .detalleServicio-header {
     flex-direction: column;
     gap: 16px;
     align-items: stretch;
   }
 
-  .detalleProveedor-header-left {
+  .detalleServicio-header-left {
     flex-direction: column;
     gap: 12px;
   }
 
-  .detalleProveedor-info-grid {
+  .detalleServicio-info-grid {
     grid-template-columns: 1fr;
     gap: 16px;
     padding: 16px;
   }
 
-  .detalleProveedor-info-card {
+  .detalleServicio-info-card {
     padding: 16px;
   }
 
-  .detalleProveedor-info-icon {
+  .detalleServicio-info-icon {
     width: 40px;
     height: 40px;
     font-size: 16px;
@@ -294,15 +304,15 @@
 }
 
 @media (max-width: 480px) {
-  .detalleProveedor-page-title {
+  .detalleServicio-page-title {
     font-size: 24px;
   }
 
-  .detalleProveedor-header {
+  .detalleServicio-header {
     padding: 16px;
   }
 
-  .detalleProveedor-section-header {
+  .detalleServicio-section-header {
     padding: 16px;
   }
 }

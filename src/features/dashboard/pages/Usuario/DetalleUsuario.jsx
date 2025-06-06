@@ -1,150 +1,322 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import '../../../../shared/styles/DetalleUsuario.css';
+"use client"
 
-function DetalleUsuario() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+import { useState, useEffect, useCallback } from "react"
+import { useParams, useNavigate } from "react-router-dom"
+import {
+  FaUser,
+  FaIdCard,
+  FaEnvelope,
+  FaPhone,
+  FaMapMarkerAlt,
+  FaUserTag,
+  FaEdit,
+  FaArrowLeft,
+  FaExclamationTriangle,
+  FaCalendarAlt,
+  FaToggleOn,
+  FaToggleOff,
+} from "react-icons/fa"
+import "../../../../shared/styles/DetalleUsuario.css"
 
-  const [usuario, setUsuario] = useState(null);
-  const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState(null);
+// URL base de la API
+const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
+
+// Función para obtener token
+const getValidToken = () => {
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token")
+  if (!token) {
+    console.error("No hay token disponible")
+    return null
+  }
+  return token
+}
+
+// Hook personalizado para manejo de API
+const useApi = () => {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  const makeRequest = useCallback(async (url, options = {}) => {
+    setLoading(true)
+    setError(null)
+
+    const token = getValidToken()
+    if (!token) {
+      setError("Error de autenticación")
+      setLoading(false)
+      return null
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}${url}`, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+          ...options.headers,
+        },
+      })
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Sesión expirada. Por favor inicie sesión nuevamente.")
+        }
+        if (response.status === 404) {
+          throw new Error("Usuario no encontrado.")
+        }
+        throw new Error(`Error ${response.status}: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      return data
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Error desconocido"
+      setError(errorMessage)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  return { makeRequest, loading, error }
+}
+
+const DetalleUsuario = () => {
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const { makeRequest } = useApi()
+
+  const [usuario, setUsuario] = useState(null)
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    const fetchUsuario = async () => {
-      setCargando(true);
-      setError(null);
-
+    const cargarUsuario = async () => {
       try {
-        if (!token) {
-          setError("No autorizado: Token no encontrado.");
-          return;
+        setCargando(true)
+        setError(null)
+
+        const data = await makeRequest(`/usuarios/${id}`)
+        if (data) {
+          setUsuario(data)
         }
-
-        const res = await fetch(`https://api-final-8rw7.onrender.com/api/usuarios/${id}`, {
-          headers: {
-            Authorization: token,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!res.ok) {
-          if (res.status === 401) {
-            throw new Error("No autorizado: Sesión expirada o sin permisos.");
-          } else if (res.status === 404) {
-            throw new Error("Usuario no encontrado.");
-          } else {
-            throw new Error("Error al obtener los detalles del usuario.");
-          }
-        }
-
-        const data = await res.json();
-        setUsuario(data);
-      } catch (err) {
-        setError(err.message);
+      } catch (error) {
+        console.error("Error al cargar usuario:", error)
+        setError(error.message)
       } finally {
-        setCargando(false);
+        setCargando(false)
       }
-    };
+    }
 
-    fetchUsuario();
-  }, [id, token]);
+    if (id) {
+      cargarUsuario()
+    }
+  }, [id, makeRequest])
+
+  const getEstadoClass = (estado) => {
+    return estado?.toLowerCase() === "activo" ? "activo" : "inactivo"
+  }
+
+  const formatearFecha = (fecha) => {
+    if (!fecha) return "No disponible"
+    try {
+      return new Date(fecha).toLocaleDateString("es-CO", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    } catch {
+      return "Fecha inválida"
+    }
+  }
 
   if (cargando) {
     return (
-      <div className="detalle-contenedor">
-        <h2 className="titulo">Cargando detalles del usuario...</h2>
-        <div className="detalle-linea"></div>
-        <p className="detalle-usuario-mensaje">Por favor, espera.</p>
+      <div className="detalleUsuario-container">
+        <div className="detalleUsuario-loading">
+          <div className="detalleUsuario-spinner"></div>
+          <p>Cargando detalles del usuario...</p>
+        </div>
       </div>
-    );
+    )
   }
 
-  if (error) {
+  if (error || !usuario) {
     return (
-      <div className="detalle-contenedor">
-        <h2 className="titulo">Error</h2>
-        <div className="detalle-linea"></div>
-        <p className="detalle-usuario-mensaje error">{error}</p>
-        <div className="botones">
-          <button className="btn-secundario" onClick={() => navigate('/listarUsuarios')}>
-            <i className="fas fa-arrow-left"></i>
+      <div className="detalleUsuario-container">
+        <div className="detalleUsuario-error">
+          <div className="detalleUsuario-error-icon">
+            <FaExclamationTriangle />
+          </div>
+          <h2>Error</h2>
+          <p>{error || "No se encontró el usuario"}</p>
+          <button className="detalleUsuario-btn-back" onClick={() => navigate("/listarUsuarios")}>
+            <FaArrowLeft />
             Volver al listado
           </button>
         </div>
       </div>
-    );
-  }
-
-  if (!usuario) {
-    return (
-      <div className="detalle-contenedor">
-        <h2 className="titulo">Usuario no disponible</h2>
-        <div className="detalle-linea"></div>
-        <p className="detalle-usuario-mensaje">No se pudo cargar la información del usuario.</p>
-        <div className="botones">
-          <button className="btn-secundario" onClick={() => navigate('/listarUsuarios')}>
-            <i className="fas fa-arrow-left"></i>
-            Volver al listado
-          </button>
-        </div>
-      </div>
-    );
+    )
   }
 
   return (
-    <div className="detalle-contenedor">
-      <h2 className="titulo">Detalle del Usuario</h2>
-      <div className="detalle-linea"></div>
-
-      <div className="info-grid">
-        <div className="columna">
-          <p>
-            <i className="fas fa-user icono"></i>
-            <strong>Nombre completo:</strong> {usuario.nombre} {usuario.apellido}
-          </p>
-          <p>
-            <i className="fas fa-id-card icono"></i>
-            <strong>Tipo documento:</strong> {usuario.tipo_documento}
-          </p>
-          <p>
-            <i className="fas fa-address-card icono"></i>
-            <strong>Documento:</strong> {usuario.documento}
-          </p>
-          <p>
-            <i className="fas fa-envelope icono"></i>
-            <strong>Correo:</strong> {usuario.correo}
-          </p>
+    <div className="detalleUsuario-container">
+      {/* Header */}
+      <div className="detalleUsuario-header">
+        <div className="detalleUsuario-header-left">
+          <button className="detalleUsuario-btn-back" onClick={() => navigate("/listarUsuarios")}>
+            <FaArrowLeft />
+            Volver
+          </button>
+          <div className="detalleUsuario-title-section">
+            <h1 className="detalleUsuario-page-title">
+              <FaUser className="detalleUsuario-title-icon" />
+              Detalle del Usuario
+            </h1>
+            <p className="detalleUsuario-subtitle">
+              Información completa de {usuario.nombre} {usuario.apellido}
+            </p>
+          </div>
         </div>
-        <div className="columna">
-          <p>
-            <i className="fas fa-phone icono"></i>
-            <strong>Teléfono:</strong> {usuario.telefono}
-          </p>
-          <p>
-            <i className="fas fa-map-marker-alt icono"></i>
-            <strong>Dirección:</strong> {usuario.direccion}
-          </p>
-          <p>
-            <i className="fas fa-toggle-on icono"></i>
-            <strong>Estado:</strong> {usuario.estado}
-          </p>
+        <div className="detalleUsuario-header-actions">
+          <button className="detalleUsuario-btn-edit" onClick={() => navigate(`/usuarios/editar/${usuario.id}`)}>
+            <FaEdit />
+            Editar Usuario
+          </button>
         </div>
       </div>
 
-      <div className="botones">
-        <button className="btn-primario" onClick={() => navigate(`/usuarios/editar/${usuario.id}`)}>
-          <i className="fas fa-edit"></i>
-          Editar Usuario
-        </button>
-        <button className="btn-secundario" onClick={() => navigate('/listarUsuarios')}>
-          <i className="fas fa-arrow-left"></i>
-          Volver al listado
-        </button>
+      {/* Información Personal */}
+      <div className="detalleUsuario-section">
+        <div className="detalleUsuario-section-header">
+          <h2 className="detalleUsuario-section-title">
+            <FaUser className="detalleUsuario-section-icon" />
+            Información Personal
+          </h2>
+        </div>
+        <div className="detalleUsuario-info-grid">
+          <div className="detalleUsuario-info-card">
+            <div className="detalleUsuario-info-icon">
+              <FaUser />
+            </div>
+            <div className="detalleUsuario-info-content">
+              <span className="detalleUsuario-info-label">Nombre Completo</span>
+              <span className="detalleUsuario-info-value">
+                {usuario.nombre} {usuario.apellido}
+              </span>
+            </div>
+          </div>
+
+          <div className="detalleUsuario-info-card">
+            <div className="detalleUsuario-info-icon">
+              <FaIdCard />
+            </div>
+            <div className="detalleUsuario-info-content">
+              <span className="detalleUsuario-info-label">Tipo de Documento</span>
+              <span className="detalleUsuario-info-value">{usuario.tipo_documento || "No especificado"}</span>
+            </div>
+          </div>
+
+          <div className="detalleUsuario-info-card">
+            <div className="detalleUsuario-info-icon">
+              <FaIdCard />
+            </div>
+            <div className="detalleUsuario-info-content">
+              <span className="detalleUsuario-info-label">Número de Documento</span>
+              <span className="detalleUsuario-info-value">{usuario.documento || "No especificado"}</span>
+            </div>
+          </div>
+
+          <div className="detalleUsuario-info-card">
+            <div className="detalleUsuario-info-icon">
+              <FaEnvelope />
+            </div>
+            <div className="detalleUsuario-info-content">
+              <span className="detalleUsuario-info-label">Correo Electrónico</span>
+              <span className="detalleUsuario-info-value">{usuario.correo || "No especificado"}</span>
+            </div>
+          </div>
+
+          <div className="detalleUsuario-info-card">
+            <div className="detalleUsuario-info-icon">
+              <FaPhone />
+            </div>
+            <div className="detalleUsuario-info-content">
+              <span className="detalleUsuario-info-label">Teléfono</span>
+              <span className="detalleUsuario-info-value">{usuario.telefono || "No especificado"}</span>
+            </div>
+          </div>
+
+          <div className="detalleUsuario-info-card">
+            <div className="detalleUsuario-info-icon">
+              <FaMapMarkerAlt />
+            </div>
+            <div className="detalleUsuario-info-content">
+              <span className="detalleUsuario-info-label">Dirección</span>
+              <span className="detalleUsuario-info-value">{usuario.direccion || "No especificada"}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Información del Sistema */}
+      <div className="detalleUsuario-section">
+        <div className="detalleUsuario-section-header">
+          <h2 className="detalleUsuario-section-title">
+            <FaUserTag className="detalleUsuario-section-icon" />
+            Información del Sistema
+          </h2>
+        </div>
+        <div className="detalleUsuario-info-grid">
+          <div className="detalleUsuario-info-card">
+            <div className="detalleUsuario-info-icon">
+              <FaUserTag />
+            </div>
+            <div className="detalleUsuario-info-content">
+              <span className="detalleUsuario-info-label">Rol</span>
+              <span className="detalleUsuario-rol-badge">{usuario.rol_nombre || "Sin rol asignado"}</span>
+            </div>
+          </div>
+
+          <div className="detalleUsuario-info-card">
+            <div className="detalleUsuario-info-icon">
+              {usuario.estado?.toLowerCase() === "activo" ? <FaToggleOn /> : <FaToggleOff />}
+            </div>
+            <div className="detalleUsuario-info-content">
+              <span className="detalleUsuario-info-label">Estado</span>
+              <span className={`detalleUsuario-estado ${getEstadoClass(usuario.estado)}`}>
+                {usuario.estado || "No especificado"}
+              </span>
+            </div>
+          </div>
+
+          {usuario.fecha_creacion && (
+            <div className="detalleUsuario-info-card">
+              <div className="detalleUsuario-info-icon">
+                <FaCalendarAlt />
+              </div>
+              <div className="detalleUsuario-info-content">
+                <span className="detalleUsuario-info-label">Fecha de Registro</span>
+                <span className="detalleUsuario-info-value">{formatearFecha(usuario.fecha_creacion)}</span>
+              </div>
+            </div>
+          )}
+
+          {usuario.ultima_actualizacion && (
+            <div className="detalleUsuario-info-card">
+              <div className="detalleUsuario-info-icon">
+                <FaCalendarAlt />
+              </div>
+              <div className="detalleUsuario-info-content">
+                <span className="detalleUsuario-info-label">Última Actualización</span>
+                <span className="detalleUsuario-info-value">{formatearFecha(usuario.ultima_actualizacion)}</span>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default DetalleUsuario;
+export default DetalleUsuario

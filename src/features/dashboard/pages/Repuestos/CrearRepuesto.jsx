@@ -17,7 +17,7 @@ import {
   FaPlus,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/Repuesto.css"
+import "../../../../shared/styles/crearRepuesto.css"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
@@ -121,22 +121,22 @@ const CategoriaModal = ({ show, onClose, categorias, onSelect, categoriaActual }
   if (!show) return null
 
   return (
-    <div className="repuestos-modal-overlay">
-      <div className="repuestos-modal-container" ref={modalRef}>
-        <div className="repuestos-modal-header">
-          <h2 className="repuestos-modal-title">
-            <FaTag className="repuestos-modal-title-icon" />
+    <div className="crearRepuesto-modal-overlay">
+      <div className="crearRepuesto-modal-container" ref={modalRef}>
+        <div className="crearRepuesto-modal-header">
+          <h2 className="crearRepuesto-modal-title">
+            <FaTag className="crearRepuesto-modal-title-icon" />
             Seleccionar Categoría
           </h2>
-          <button className="repuestos-modal-close-button" onClick={onClose} aria-label="Cerrar">
+          <button className="crearRepuesto-modal-close-button" onClick={onClose} aria-label="Cerrar">
             <FaTimes />
           </button>
         </div>
 
-        <div className="repuestos-modal-body">
-          <div className="repuestos-modal-search-container">
-            <div className="repuestos-modal-search-input-wrapper">
-              <FaSearch className="repuestos-modal-search-icon" />
+        <div className="crearRepuesto-modal-body">
+          <div className="crearRepuesto-modal-search-container">
+            <div className="crearRepuesto-modal-search-input-wrapper">
+              <FaSearch className="crearRepuesto-modal-search-icon" />
               <input
                 type="text"
                 placeholder="Buscar categoría..."
@@ -145,56 +145,56 @@ const CategoriaModal = ({ show, onClose, categorias, onSelect, categoriaActual }
                   setBusquedaCategoria(e.target.value)
                   setPaginaActualCategorias(1)
                 }}
-                className="repuestos-modal-search-input"
+                className="crearRepuesto-modal-search-input"
                 autoFocus
               />
             </div>
           </div>
 
-          <div className="repuestos-modal-list-container">
+          <div className="crearRepuesto-modal-list-container">
             {categoriasActuales.length > 0 ? (
               categoriasActuales.map((categoria) => (
                 <div
                   key={categoria.id}
-                  className={`repuestos-modal-list-item ${
-                    categoriaActual === categoria.id.toString() ? "repuestos-modal-list-item-selected" : ""
+                  className={`crearRepuesto-modal-list-item ${
+                    categoriaActual === categoria.id.toString() ? "crearRepuesto-modal-list-item-selected" : ""
                   }`}
                   onClick={() => onSelect(categoria)}
                 >
-                  <span className="repuestos-modal-list-item-text">{categoria.nombre}</span>
-                  <FaCheckCircle className="repuestos-modal-list-item-check" />
+                  <span className="crearRepuesto-modal-list-item-text">{categoria.nombre}</span>
+                  <FaCheckCircle className="crearRepuesto-modal-list-item-check" />
                 </div>
               ))
             ) : (
-              <div className="repuestos-modal-no-results">
-                <FaExclamationTriangle className="repuestos-modal-no-results-icon" />
+              <div className="crearRepuesto-modal-no-results">
+                <FaExclamationTriangle className="crearRepuesto-modal-no-results-icon" />
                 <span>No se encontraron categorías</span>
               </div>
             )}
           </div>
 
           {categoriasFiltradas.length > categoriasPorPagina && (
-            <div className="repuestos-modal-pagination">
+            <div className="crearRepuesto-modal-pagination">
               <button
                 onClick={() => setPaginaActualCategorias((prev) => Math.max(prev - 1, 1))}
                 disabled={paginaActualCategorias === 1}
-                className="repuestos-modal-pagination-button"
+                className="crearRepuesto-modal-pagination-button"
               >
-                <FaArrowLeft className="repuestos-modal-pagination-icon" />
+                <FaArrowLeft className="crearRepuesto-modal-pagination-icon" />
                 Anterior
               </button>
 
-              <div className="repuestos-modal-pagination-info">
+              <div className="crearRepuesto-modal-pagination-info">
                 Página {paginaActualCategorias} de {totalPaginasCategorias}
               </div>
 
               <button
                 onClick={() => setPaginaActualCategorias((prev) => Math.min(prev + 1, totalPaginasCategorias))}
                 disabled={paginaActualCategorias === totalPaginasCategorias}
-                className="repuestos-modal-pagination-button"
+                className="crearRepuesto-modal-pagination-button"
               >
                 Siguiente
-                <FaArrowLeft className="repuestos-modal-pagination-icon repuestos-modal-pagination-icon-right" />
+                <FaArrowLeft className="crearRepuesto-modal-pagination-icon crearRepuesto-modal-pagination-icon-right" />
               </button>
             </div>
           )}
@@ -408,26 +408,26 @@ function CrearRepuesto() {
   const totalCalculado = Number.parseFloat(repuesto.cantidad || 0) * Number.parseFloat(repuesto.preciounitario || 0)
 
   return (
-    <div className="repuestos-container">
-      <div className="repuestos-header">
-        <h1 className="repuestos-page-title">
-          <FaPlus className="repuestos-title-icon" />
+    <div className="crearRepuesto-container">
+      <div className="crearRepuesto-header">
+        <h1 className="crearRepuesto-page-title">
+          <FaPlus className="crearRepuesto-title-icon" />
           Crear Repuesto
         </h1>
-        <p className="repuestos-subtitle">Registra un nuevo repuesto en el inventario</p>
+        <p className="crearRepuesto-subtitle">Registra un nuevo repuesto en el inventario</p>
       </div>
 
-      <form className="repuestos-form" onSubmit={handleSubmit}>
-        <div className="repuestos-form-section">
-          <h3 className="repuestos-section-title">
-            <FaFileAlt className="repuestos-section-icon" />
+      <form className="crearRepuesto-form" onSubmit={handleSubmit}>
+        <div className="crearRepuesto-form-section">
+          <h3 className="crearRepuesto-section-title">
+            <FaFileAlt className="crearRepuesto-section-icon" />
             Información General
           </h3>
 
-          <div className="repuestos-form-grid">
-            <div className="repuestos-form-group">
-              <label htmlFor="nombre" className="repuestos-label">
-                <FaBox className="repuestos-label-icon" />
+          <div className="crearRepuesto-form-grid">
+            <div className="crearRepuesto-form-group">
+              <label htmlFor="nombre" className="crearRepuesto-label">
+                <FaBox className="crearRepuesto-label-icon" />
                 Nombre del Repuesto *
               </label>
               <input
@@ -437,20 +437,20 @@ function CrearRepuesto() {
                 value={repuesto.nombre}
                 onChange={handleChange}
                 maxLength={45}
-                className={`repuestos-form-input ${errores.nombre ? "repuestos-form-input-error" : ""}`}
+                className={`crearRepuesto-form-input ${errores.nombre ? "error" : ""}`}
                 placeholder="Ingrese el nombre del repuesto"
                 required
               />
               {errores.nombre && (
-                <span className="repuestos-error-text">
+                <span className="crearRepuesto-error-text">
                   <FaExclamationTriangle /> {errores.nombre}
                 </span>
               )}
             </div>
 
-            <div className="repuestos-form-group">
-              <label htmlFor="categoria" className="repuestos-label">
-                <FaTag className="repuestos-label-icon" />
+            <div className="crearRepuesto-form-group">
+              <label htmlFor="categoria" className="crearRepuesto-label">
+                <FaTag className="crearRepuesto-label-icon" />
                 Categoría *
               </label>
               <input
@@ -460,21 +460,21 @@ function CrearRepuesto() {
                 value={categoriaSeleccionada ? categoriaSeleccionada.nombre : ""}
                 onClick={() => setMostrarModalCategorias(true)}
                 readOnly
-                className={`repuestos-form-input ${errores.categoria_repuesto_id ? "repuestos-form-input-error" : ""}`}
+                className={`crearRepuesto-form-input ${errores.categoria_repuesto_id ? "error" : ""}`}
                 style={{ cursor: "pointer" }}
                 required
               />
               {errores.categoria_repuesto_id && (
-                <span className="repuestos-error-text">
+                <span className="crearRepuesto-error-text">
                   <FaExclamationTriangle /> {errores.categoria_repuesto_id}
                 </span>
               )}
             </div>
           </div>
 
-          <div className="repuestos-form-group">
-            <label htmlFor="descripcion" className="repuestos-label">
-              <FaFileAlt className="repuestos-label-icon" />
+          <div className="crearRepuesto-form-group">
+            <label htmlFor="descripcion" className="crearRepuesto-label">
+              <FaFileAlt className="crearRepuesto-label-icon" />
               Descripción
             </label>
             <textarea
@@ -484,21 +484,21 @@ function CrearRepuesto() {
               onChange={handleChange}
               maxLength={200}
               rows={3}
-              className={`repuestos-form-textarea ${errores.descripcion ? "repuestos-form-input-error" : ""}`}
+              className={`crearRepuesto-form-textarea ${errores.descripcion ? "error" : ""}`}
               placeholder="Descripción del repuesto (opcional)"
             />
-            <div className="repuestos-char-count">{repuesto.descripcion.length}/200 caracteres</div>
+            <div className="crearRepuesto-char-count">{repuesto.descripcion.length}/200 caracteres</div>
             {errores.descripcion && (
-              <span className="repuestos-error-text">
+              <span className="crearRepuesto-error-text">
                 <FaExclamationTriangle /> {errores.descripcion}
               </span>
             )}
           </div>
 
-          <div className="repuestos-form-grid">
-            <div className="repuestos-form-group">
-              <label htmlFor="cantidad" className="repuestos-label">
-                <FaBox className="repuestos-label-icon" />
+          <div className="crearRepuesto-form-grid">
+            <div className="crearRepuesto-form-group">
+              <label htmlFor="cantidad" className="crearRepuesto-label">
+                <FaBox className="crearRepuesto-label-icon" />
                 Cantidad *
               </label>
               <input
@@ -508,19 +508,19 @@ function CrearRepuesto() {
                 value={repuesto.cantidad}
                 onChange={handleChange}
                 min="0"
-                className={`repuestos-form-input ${errores.cantidad ? "repuestos-form-input-error" : ""}`}
+                className={`crearRepuesto-form-input ${errores.cantidad ? "error" : ""}`}
                 required
               />
               {errores.cantidad && (
-                <span className="repuestos-error-text">
+                <span className="crearRepuesto-error-text">
                   <FaExclamationTriangle /> {errores.cantidad}
                 </span>
               )}
             </div>
 
-            <div className="repuestos-form-group">
-              <label htmlFor="preciounitario" className="repuestos-label">
-                <FaDollarSign className="repuestos-label-icon" />
+            <div className="crearRepuesto-form-group">
+              <label htmlFor="preciounitario" className="crearRepuesto-label">
+                <FaDollarSign className="crearRepuesto-label-icon" />
                 Precio Unitario *
               </label>
               <input
@@ -531,21 +531,21 @@ function CrearRepuesto() {
                 onChange={handleChange}
                 min="0"
                 step="0.01"
-                className={`repuestos-form-input ${errores.preciounitario ? "repuestos-form-input-error" : ""}`}
+                className={`crearRepuesto-form-input ${errores.preciounitario ? "error" : ""}`}
                 required
               />
               {errores.preciounitario && (
-                <span className="repuestos-error-text">
+                <span className="crearRepuesto-error-text">
                   <FaExclamationTriangle /> {errores.preciounitario}
                 </span>
               )}
             </div>
           </div>
 
-          <div className="repuestos-form-grid">
-            <div className="repuestos-form-group">
-              <label htmlFor="estado" className="repuestos-label">
-                <FaCheckCircle className="repuestos-label-icon" />
+          <div className="crearRepuesto-form-grid">
+            <div className="crearRepuesto-form-group">
+              <label htmlFor="estado" className="crearRepuesto-label">
+                <FaCheckCircle className="crearRepuesto-label-icon" />
                 Estado *
               </label>
               <select
@@ -553,43 +553,43 @@ function CrearRepuesto() {
                 name="estado"
                 value={repuesto.estado}
                 onChange={handleChange}
-                className={`repuestos-form-select ${errores.estado ? "repuestos-form-input-error" : ""}`}
+                className={`crearRepuesto-form-input ${errores.estado ? "error" : ""}`}
                 required
               >
                 <option value="Activo">Activo</option>
                 <option value="Inactivo">Inactivo</option>
               </select>
               {errores.estado && (
-                <span className="repuestos-error-text">
+                <span className="crearRepuesto-error-text">
                   <FaExclamationTriangle /> {errores.estado}
                 </span>
               )}
             </div>
 
-            <div className="repuestos-form-group">
-              <label className="repuestos-label">
-                <FaDollarSign className="repuestos-label-icon" />
+            <div className="crearRepuesto-form-group">
+              <label className="crearRepuesto-label">
+                <FaDollarSign className="crearRepuesto-label-icon" />
                 Total Calculado
               </label>
-              <div className="repuestos-total-display">{formatearPrecio(totalCalculado)}</div>
+              <div className="crearRepuesto-total-display">{formatearPrecio(totalCalculado)}</div>
             </div>
           </div>
         </div>
 
-        <div className="repuestos-form-actions">
-          <button type="button" className="repuestos-cancel-button" onClick={handleCancel} disabled={isSubmitting}>
-            <FaArrowLeft className="repuestos-button-icon" />
+        <div className="crearRepuesto-form-actions">
+          <button type="button" className="crearRepuesto-cancel-button" onClick={handleCancel} disabled={isSubmitting}>
+            <FaArrowLeft className="crearRepuesto-button-icon" />
             Cancelar
           </button>
-          <button type="submit" className="repuestos-submit-button" disabled={isSubmitting || apiLoading}>
+          <button type="submit" className="crearRepuesto-submit-button" disabled={isSubmitting || apiLoading}>
             {isSubmitting ? (
               <>
-                <FaSpinner className="repuestos-button-icon repuestos-spinning" />
+                <FaSpinner className="crearRepuesto-button-icon spinning" />
                 Guardando...
               </>
             ) : (
               <>
-                <FaSave className="repuestos-button-icon" />
+                <FaSave className="crearRepuesto-button-icon" />
                 Crear Repuesto
               </>
             )}

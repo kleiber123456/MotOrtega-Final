@@ -1,10 +1,20 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import axios from "axios"
+import {
+  FaCog,
+  FaFileAlt,
+  FaDollarSign,
+  FaToggleOn,
+  FaArrowLeft,
+  FaTimes,
+  FaSpinner,
+  FaExclamationTriangle,
+  FaSave,
+} from "react-icons/fa"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/editarProveedor.css"
+import "../../../../shared/styles/editarServicios.css"
 
 const EditarServicio = () => {
   const { id } = useParams()
@@ -20,41 +30,45 @@ const EditarServicio = () => {
 
   const [errores, setErrores] = useState({})
   const [cargando, setCargando] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const soloNumeros = (e) => {
+  const soloNumeros = useCallback((e) => {
     e.target.value = e.target.value.replace(/[^0-9.]/g, "")
-  }
+  }, [])
 
-  // Validación individual de campo
-  const validarCampo = (name, value) => {
+  const validarCampo = useCallback((name, value) => {
     let nuevoError = ""
 
-    if (name === "nombre") {
-      if (!value.trim()) {
-        nuevoError = "El nombre es obligatorio."
-      }
-    } else if (name === "descripcion") {
-      if (!value.trim()) {
-        nuevoError = "La descripción es obligatoria."
-      }
-    } else if (name === "precio") {
-      if (!value.trim()) {
-        nuevoError = "El precio es obligatorio."
-      } else if (isNaN(value) || Number.parseFloat(value) <= 0) {
-        nuevoError = "El precio debe ser un número mayor a 0."
-      }
-    } else if (name === "estado") {
-      if (!["Activo", "Inactivo"].includes(value)) {
-        nuevoError = "Estado inválido."
-      }
+    switch (name) {
+      case "nombre":
+        if (!value.trim()) {
+          nuevoError = "El nombre es obligatorio."
+        }
+        break
+      case "descripcion":
+        if (!value.trim()) {
+          nuevoError = "La descripción es obligatoria."
+        }
+        break
+      case "precio":
+        if (!value.trim()) {
+          nuevoError = "El precio es obligatorio."
+        } else if (isNaN(value) || Number.parseFloat(value) <= 0) {
+          nuevoError = "El precio debe ser un número mayor a 0."
+        }
+        break
+      case "estado":
+        if (!["Activo", "Inactivo"].includes(value)) {
+          nuevoError = "Estado inválido."
+        }
+        break
     }
 
     setErrores((prev) => ({ ...prev, [name]: nuevoError }))
     return nuevoError === ""
-  }
+  }, [])
 
-  // Validación completa del formulario
-  const validarFormulario = () => {
+  const validarFormulario = useCallback(() => {
     let esValido = true
 
     if (!validarCampo("nombre", formulario.nombre)) esValido = false
@@ -63,24 +77,36 @@ const EditarServicio = () => {
     if (!validarCampo("estado", formulario.estado)) esValido = false
 
     return esValido
-  }
+  }, [formulario, validarCampo])
 
   useEffect(() => {
-    const obtenerServicio = async () => {
-      setCargando(true)
+    const cargarDatos = async () => {
       try {
+        setCargando(true)
+
         if (!token) {
-          Swal.fire("Error", "No autorizado: Token no encontrado.", "error")
+          await Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "No autorizado: Token no encontrado.",
+            confirmButtonColor: "#2563eb",
+          })
           navigate("/login")
           return
         }
-        const response = await axios.get(`https://api-final-8rw7.onrender.com/api/servicios/${id}`, {
+
+        const response = await fetch(`https://api-final-8rw7.onrender.com/api/servicios/${id}`, {
           headers: {
             Authorization: token,
             "Content-Type": "application/json",
           },
         })
-        const data = response.data
+
+        if (!response.ok) {
+          throw new Error("Error al cargar servicio")
+        }
+
+        const data = await response.json()
         setFormulario({
           ...data,
           precio: data.precio.toString(),
@@ -88,177 +114,297 @@ const EditarServicio = () => {
         })
       } catch (error) {
         console.error("Error al obtener servicio:", error)
-        Swal.fire("Error", "Error al cargar los datos del servicio.", "error")
+        await Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Error al cargar los datos del servicio.",
+          confirmButtonColor: "#2563eb",
+        })
         navigate("/listarServicios")
       } finally {
         setCargando(false)
       }
     }
 
-    obtenerServicio()
+    if (id) {
+      cargarDatos()
+    }
   }, [id, navigate, token])
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormulario((prev) => ({ ...prev, [name]: value }))
-    validarCampo(name, value)
-  }
+  const handleChange = useCallback(
+    (e) => {
+      const { name, value } = e.target
+      setFormulario((prev) => ({ ...prev, [name]: value }))
+      validarCampo(name, value)
+    },
+    [validarCampo],
+  )
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault()
 
-    if (!validarFormulario()) {
-      Swal.fire({
-        icon: "warning",
-        title: "Campos inválidos",
-        text: "Por favor corrige los errores antes de continuar.",
-      })
-      return
-    }
-
-    try {
-      if (!token) {
-        Swal.fire("Error", "No autorizado: Token no encontrado.", "error")
-        navigate("/login")
+      if (!validarFormulario()) {
+        await Swal.fire({
+          icon: "warning",
+          title: "Campos inválidos",
+          text: "Por favor corrige los errores antes de continuar.",
+          confirmButtonColor: "#2563eb",
+        })
         return
       }
 
-      // Verificar duplicados excluyendo el servicio actual
-      const checkResponse = await axios.get("https://api-final-8rw7.onrender.com/api/servicios", {
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-        },
-      })
+      setIsSubmitting(true)
 
-      const servicios = checkResponse.data
-      const servicioDuplicado = servicios.find(
-        (s) => s.id !== Number.parseInt(id) && s.nombre.toLowerCase() === formulario.nombre.toLowerCase(),
-      )
+      try {
+        if (!token) {
+          await Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "No autorizado: Token no encontrado.",
+            confirmButtonColor: "#2563eb",
+          })
+          navigate("/login")
+          return
+        }
 
-      if (servicioDuplicado) {
-        Swal.fire("Duplicado detectado", "Ya existe otro servicio con el mismo nombre.", "warning")
-        return
-      }
-
-      const estadoParaAPI = formulario.estado.toLowerCase()
-
-      await axios.put(
-        `https://api-final-8rw7.onrender.com/api/servicios/${id}`,
-        {
-          ...formulario,
-          precio: Number.parseFloat(formulario.precio),
-          estado: estadoParaAPI,
-        },
-        {
+        // Verificar duplicados excluyendo el servicio actual
+        const checkResponse = await fetch("https://api-final-8rw7.onrender.com/api/servicios", {
           headers: {
             Authorization: token,
             "Content-Type": "application/json",
           },
-        },
-      )
-      Swal.fire("Éxito", "Servicio actualizado exitosamente.", "success")
+        })
+
+        if (!checkResponse.ok) {
+          throw new Error("Error al verificar duplicados")
+        }
+
+        const servicios = await checkResponse.json()
+        const servicioDuplicado = servicios.find(
+          (s) => s.id !== Number.parseInt(id) && s.nombre.toLowerCase() === formulario.nombre.toLowerCase(),
+        )
+
+        if (servicioDuplicado) {
+          await Swal.fire({
+            icon: "warning",
+            title: "Duplicado detectado",
+            text: "Ya existe otro servicio con el mismo nombre.",
+            confirmButtonColor: "#2563eb",
+          })
+          return
+        }
+
+        const estadoParaAPI = formulario.estado.toLowerCase()
+
+        const response = await fetch(`https://api-final-8rw7.onrender.com/api/servicios/${id}`, {
+          method: "PUT",
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...formulario,
+            precio: Number.parseFloat(formulario.precio),
+            estado: estadoParaAPI,
+          }),
+        })
+
+        if (!response.ok) {
+          throw new Error("Error al actualizar servicio")
+        }
+
+        await Swal.fire({
+          icon: "success",
+          title: "¡Éxito!",
+          text: "Servicio actualizado exitosamente.",
+          confirmButtonColor: "#10b981",
+          timer: 2000,
+        })
+
+        navigate("/listarServicios")
+      } catch (error) {
+        console.error("Error al actualizar servicio:", error)
+        await Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: error.message || "No se pudo actualizar el servicio.",
+          confirmButtonColor: "#ef4444",
+        })
+      } finally {
+        setIsSubmitting(false)
+      }
+    },
+    [formulario, validarFormulario, token, id, navigate],
+  )
+
+  const handleCancel = useCallback(async () => {
+    const result = await Swal.fire({
+      title: "¿Cancelar edición?",
+      text: "Se perderán todos los cambios realizados",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Sí, cancelar",
+      cancelButtonText: "Continuar editando",
+    })
+
+    if (result.isConfirmed) {
       navigate("/listarServicios")
-    } catch (error) {
-      console.error("Error al actualizar servicio:", error)
-      const errorMessage =
-        error.response && error.response.data && error.response.data.message
-          ? error.response.data.message
-          : "No se pudo actualizar el servicio."
-      Swal.fire("Error", errorMessage, "error")
     }
-  }
+  }, [navigate])
 
   if (cargando) {
     return (
-      <div className="perfil__container">
-        <div className="perfil__form">
-          <div className="perfil__title-container">
-            <h2 className="perfil__title">Cargando Servicio...</h2>
-          </div>
-          <p style={{ textAlign: "center", color: "#555" }}>Por favor, espere mientras cargamos la información.</p>
+      <div className="editarServicio-container">
+        <div className="editarServicio-loading">
+          <div className="editarServicio-spinner"></div>
+          <p>Cargando datos del servicio...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="perfil__container">
-      <form onSubmit={handleSubmit} className="perfil__form">
-        <div className="perfil__title-container">
-          <h2 className="perfil__title">Editar Servicio</h2>
-        </div>
-
-        <div className="perfil__grid-container">
-          {/* Nombre */}
-          <div className="perfil__field">
-            <label>Nombre</label>
-            <input
-              type="text"
-              name="nombre"
-              value={formulario.nombre}
-              onChange={handleChange}
-              maxLength={45}
-              autoComplete="off"
-              className={errores.nombre ? "input-error" : ""}
-              required
-            />
-            {errores.nombre && <span className="perfil-validacion">{errores.nombre}</span>}
-          </div>
-
-          {/* Descripción */}
-          <div className="perfil__field">
-            <label>Descripción</label>
-            <textarea
-              name="descripcion"
-              value={formulario.descripcion}
-              onChange={handleChange}
-              maxLength={200}
-              autoComplete="off"
-              className={errores.descripcion ? "input-error" : ""}
-              rows={3}
-              required
-            />
-            {errores.descripcion && <span className="perfil-validacion">{errores.descripcion}</span>}
-          </div>
-
-          {/* Precio */}
-          <div className="perfil__field">
-            <label>Precio</label>
-            <input
-              type="text"
-              name="precio"
-              value={formulario.precio}
-              onChange={handleChange}
-              onInput={soloNumeros}
-              autoComplete="off"
-              className={errores.precio ? "input-error" : ""}
-              placeholder="0.00"
-              required
-            />
-            {errores.precio && <span className="perfil-validacion">{errores.precio}</span>}
-          </div>
-
-          {/* Estado */}
-          <div className="perfil__field">
-            <label>Estado</label>
-            <select
-              name="estado"
-              value={formulario.estado}
-              onChange={handleChange}
-              className={errores.estado ? "input-error" : ""}
-              required
-            >
-              <option value="Activo">Activo</option>
-              <option value="Inactivo">Inactivo</option>
-            </select>
-            {errores.estado && <span className="perfil-validacion">{errores.estado}</span>}
+    <div className="editarServicio-container">
+      <div className="editarServicio-header">
+        <div className="editarServicio-header-left">
+          <button className="editarServicio-btn-back" onClick={() => navigate("/listarServicios")}>
+            <FaArrowLeft />
+            Volver
+          </button>
+          <div className="editarServicio-title-section">
+            <h1 className="editarServicio-page-title">
+              <FaCog className="editarServicio-title-icon" />
+              Editar Servicio
+            </h1>
+            <p className="editarServicio-subtitle">Modifica la información del servicio</p>
           </div>
         </div>
+      </div>
 
-        <button type="submit" className="perfil__btn">
-          Actualizar Servicio
-        </button>
+      <form className="editarServicio-form" onSubmit={handleSubmit}>
+        <div className="editarServicio-form-section">
+          <h3 className="editarServicio-section-title">
+            <FaCog className="editarServicio-section-icon" />
+            Información del Servicio
+          </h3>
+          <div className="editarServicio-form-grid">
+            <div className="editarServicio-form-group">
+              <label htmlFor="nombre" className="editarServicio-label">
+                <FaCog className="editarServicio-label-icon" />
+                Nombre *
+              </label>
+              <input
+                type="text"
+                id="nombre"
+                name="nombre"
+                value={formulario.nombre}
+                onChange={handleChange}
+                maxLength={45}
+                autoComplete="off"
+                className={`editarServicio-form-input ${errores.nombre ? "error" : ""}`}
+                required
+              />
+              {errores.nombre && (
+                <span className="editarServicio-error-text">
+                  <FaExclamationTriangle /> {errores.nombre}
+                </span>
+              )}
+            </div>
+
+            <div className="editarServicio-form-group">
+              <label htmlFor="descripcion" className="editarServicio-label">
+                <FaFileAlt className="editarServicio-label-icon" />
+                Descripción *
+              </label>
+              <textarea
+                id="descripcion"
+                name="descripcion"
+                value={formulario.descripcion}
+                onChange={handleChange}
+                maxLength={200}
+                autoComplete="off"
+                className={`editarServicio-form-input ${errores.descripcion ? "error" : ""}`}
+                rows={3}
+                required
+              />
+              {errores.descripcion && (
+                <span className="editarServicio-error-text">
+                  <FaExclamationTriangle /> {errores.descripcion}
+                </span>
+              )}
+            </div>
+
+            <div className="editarServicio-form-group">
+              <label htmlFor="precio" className="editarServicio-label">
+                <FaDollarSign className="editarServicio-label-icon" />
+                Precio *
+              </label>
+              <input
+                type="text"
+                id="precio"
+                name="precio"
+                value={formulario.precio}
+                onChange={handleChange}
+                onInput={soloNumeros}
+                autoComplete="off"
+                className={`editarServicio-form-input ${errores.precio ? "error" : ""}`}
+                placeholder="0.00"
+                required
+              />
+              {errores.precio && (
+                <span className="editarServicio-error-text">
+                  <FaExclamationTriangle /> {errores.precio}
+                </span>
+              )}
+            </div>
+
+            <div className="editarServicio-form-group">
+              <label htmlFor="estado" className="editarServicio-label">
+                <FaToggleOn className="editarServicio-label-icon" />
+                Estado *
+              </label>
+              <select
+                id="estado"
+                name="estado"
+                value={formulario.estado}
+                onChange={handleChange}
+                className={`editarServicio-form-input ${errores.estado ? "error" : ""}`}
+                required
+              >
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+              </select>
+              {errores.estado && (
+                <span className="editarServicio-error-text">
+                  <FaExclamationTriangle /> {errores.estado}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="editarServicio-form-actions">
+          <button type="button" className="editarServicio-cancel-button" onClick={handleCancel} disabled={isSubmitting}>
+            <FaTimes className="editarServicio-button-icon" />
+            Cancelar
+          </button>
+          <button type="submit" className="editarServicio-submit-button" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <FaSpinner className="editarServicio-button-icon spinning" />
+                Guardando...
+              </>
+            ) : (
+              <>
+                <FaSave className="editarServicio-button-icon" />
+                Guardar Cambios
+              </>
+            )}
+          </button>
+        </div>
       </form>
     </div>
   )

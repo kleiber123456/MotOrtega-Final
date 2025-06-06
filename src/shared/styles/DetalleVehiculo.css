@@ -1,130 +1,308 @@
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fuente más moderna */
-    background-color: #f0f2f5; /* Fondo suave para el cuerpo */
-    color: #333; /* Color de texto base */
+.detalleVehiculo-container {
+  padding: 25px;
+  background-color: #f9fafb;
+  min-height: 100vh;
+  font-family: "Montserrat", sans-serif;
 }
 
-.detalle-proveedor-contenedor {
-    background-color: #ffffff;
-    padding: 2.5rem 2rem; /* Aumentar padding para más espacio */
-    max-width: 900px; /* Ancho un poco menor para un diseño más compacto */
-    margin: 3rem auto; /* Centrar y dar más espacio vertical */
-    border-radius: 12px; /* Bordes ligeramente más suaves */
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1); /* Sombra más pronunciada pero suave */
-    border: 1px solid #e0e0e0; /* Borde sutil */
+/* Header */
+.detalleVehiculo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
 }
 
-.detalle-proveedor-titulo {
-    text-align: center;
-    color: #4a4a4a; /* Color de título más suave */
-    font-size: 2.5rem; /* Tamaño de fuente ligeramente más grande */
-    margin-bottom: 2rem;
-    font-weight: 700; /* Negrita para el título */
-    position: relative; /* Para la línea decorativa */
-    padding-bottom: 0.5rem;
+.detalleVehiculo-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
 }
 
-.detalle-proveedor-titulo::after {
-    content: '';
-    display: block;
-    width: 60px; /* Ancho de la línea */
-    height: 4px; /* Grosor de la línea */
-    background-color: #007bff; /* Color azul primario */
-    margin: 10px auto 0; /* Centrar la línea y dar espacio */
-    border-radius: 2px;
+.detalleVehiculo-btn-back {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
 }
 
-.detalle-proveedor-info-grid {
-    display: grid;
-    /* Dos columnas iguales, se ajusta a una si no hay espacio */
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem 2.5rem; /* Más espacio entre los elementos del grid */
-    margin-bottom: 2.5rem;
+.detalleVehiculo-btn-back:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
 }
 
-.detalle-proveedor-campo {
-    font-size: 1.05rem; /* Tamaño de fuente ligeramente ajustado */
-    line-height: 1.6;
-    padding: 0.7rem 0; /* Padding para cada campo */
-    border-bottom: 1px dashed #e0e0e0; /* Línea de separación sutil */
-    display: flex; /* Para alinear el icono y el texto */
-    align-items: center; /* Centrar verticalmente icono y texto */
+.detalleVehiculo-title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.detalle-proveedor-campo:last-child {
-    border-bottom: none; /* Quitar línea del último elemento */
+.detalleVehiculo-page-title {
+  font-size: 28px;
+  color: #1a202c;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.detalle-proveedor-campo strong {
-    color: #555; /* Color más oscuro para la etiqueta */
-    font-weight: 600; /* Negrita para la etiqueta */
-    margin-right: 0.5rem; /* Espacio entre etiqueta y valor */
-    min-width: 90px; /* Ancho mínimo para alinear etiquetas */
+.detalleVehiculo-title-icon {
+  color: #2563eb;
+  font-size: 24px;
 }
 
-.detalle-proveedor-campo i {
-    color: #007bff; /* Color del icono */
-    margin-right: 0.8rem; /* Espacio entre icono y texto */
-    font-size: 1.2rem; /* Tamaño del icono */
-    width: 25px; /* Ancho fijo para alinear iconos */
-    text-align: center;
+.detalleVehiculo-subtitle {
+  color: #6b7280;
+  font-size: 16px;
+  margin: 0;
 }
 
-.detalle-proveedor-boton-contenedor {
-    display: flex;
-    justify-content: center;
-    gap: 20px; /* Más espacio entre los botones */
-    margin-top: 2.5rem;
+.detalleVehiculo-header-actions {
+  display: flex;
+  gap: 12px;
 }
 
-.detalle-proveedor-boton {
-    padding: 0.9rem 2rem; /* Más padding para botones más grandes */
-    background-color: #007bff; /* Color azul primario */
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.05rem; /* Fuente un poco más grande */
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease; /* Transición para efecto hover */
-    text-decoration: none;
-    display: inline-flex; /* Usar flex para centrar contenido del botón si es necesario */
-    align-items: center;
-    justify-content: center;
-    min-width: 160px;
-    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2); /* Sombra para botones */
+.detalleVehiculo-btn-edit {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
-.detalle-proveedor-boton:hover {
-    background-color: #0056b3; /* Azul más oscuro al hover */
-    transform: translateY(-2px); /* Efecto de "levantamiento" */
-    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
+.detalleVehiculo-btn-edit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
 }
 
-/* Estilo para el botón de "Volver" */
-.detalle-proveedor-boton.secondary {
-    background-color: #6c757d; /* Gris para el botón secundario */
-    box-shadow: 0 4px 10px rgba(108, 117, 125, 0.2);
+/* Secciones */
+.detalleVehiculo-section {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+  margin-bottom: 24px;
+  overflow: hidden;
 }
 
-.detalle-proveedor-boton.secondary:hover {
-    background-color: #545b62;
-    box-shadow: 0 6px 15px rgba(108, 117, 125, 0.3);
+.detalleVehiculo-section-header {
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 2px solid #e2e8f0;
 }
 
-/* Estilos para mensajes de carga/error */
-.detalle-proveedor-mensaje {
-    text-align: center;
-    font-size: 1.2rem;
-    padding: 1.5rem;
-    background-color: #e9ecef;
-    border-radius: 8px;
-    color: #495057;
+.detalleVehiculo-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.detalle-proveedor-mensaje.error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
+.detalleVehiculo-section-icon {
+  color: #2563eb;
+  font-size: 16px;
+}
+
+/* Información */
+.detalleVehiculo-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 24px;
+}
+
+.detalleVehiculo-info-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.detalleVehiculo-info-card:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.detalleVehiculo-info-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  border-radius: 12px;
+  flex-shrink: 0;
+  font-size: 18px;
+}
+
+.detalleVehiculo-info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.detalleVehiculo-info-label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detalleVehiculo-info-value {
+  font-size: 16px;
+  color: #1a202c;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+/* Estados */
+.detalleVehiculo-estado {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.detalleVehiculo-estado.activo {
+  background-color: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.detalleVehiculo-estado.inactivo {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+/* Loading y Error */
+.detalleVehiculo-loading,
+.detalleVehiculo-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  text-align: center;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+}
+
+.detalleVehiculo-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: #2563eb;
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.detalleVehiculo-error-icon {
+  font-size: 48px;
+  color: #ef4444;
+  margin-bottom: 16px;
+}
+
+.detalleVehiculo-error h2 {
+  font-size: 24px;
+  color: #1a202c;
+  margin: 0 0 8px 0;
+}
+
+.detalleVehiculo-error p {
+  color: #6b7280;
+  margin: 0 0 24px 0;
+  font-size: 16px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .detalleVehiculo-container {
+    padding: 16px;
+  }
+
+  .detalleVehiculo-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .detalleVehiculo-header-left {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .detalleVehiculo-info-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .detalleVehiculo-info-card {
+    padding: 16px;
+  }
+
+  .detalleVehiculo-info-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .detalleVehiculo-page-title {
+    font-size: 24px;
+  }
+
+  .detalleVehiculo-header {
+    padding: 16px;
+  }
+
+  .detalleVehiculo-section-header {
+    padding: 16px;
+  }
 }

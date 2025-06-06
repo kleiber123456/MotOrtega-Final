@@ -1,36 +1,47 @@
-.crearCompras-container {
+.crearCompra-container {
   padding: 25px;
   background-color: #f9fafb;
   min-height: 100vh;
   font-family: "Montserrat", sans-serif;
 }
 
-.crearCompras-header {
+.crearCompra-header {
   margin-bottom: 30px;
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
 }
 
-.crearCompras-page-title {
+.crearCompra-title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.crearCompra-page-title {
   font-size: 28px;
   color: #1a202c;
   font-weight: 600;
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 8px;
+  margin: 0;
 }
 
-.crearCompras-title-icon {
+.crearCompra-title-icon {
   color: #2563eb;
   font-size: 24px;
 }
 
-.crearCompras-subtitle {
+.crearCompra-subtitle {
   color: #6b7280;
   font-size: 16px;
   margin: 0;
 }
 
-.crearCompras-form {
+.crearCompra-form {
   background-color: white;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -38,16 +49,16 @@
   overflow: hidden;
 }
 
-.crearCompras-form-section {
+.crearCompra-form-section {
   padding: 24px;
   border-bottom: 1px solid #f1f5f9;
 }
 
-.crearCompras-form-section:last-child {
+.crearCompra-form-section:last-child {
   border-bottom: none;
 }
 
-.crearCompras-section-title {
+.crearCompra-section-title {
   font-size: 18px;
   font-weight: 600;
   color: #1a202c;
@@ -57,24 +68,24 @@
   gap: 8px;
 }
 
-.crearCompras-section-icon {
+.crearCompra-section-icon {
   color: #2563eb;
   font-size: 16px;
 }
 
-.crearCompras-form-grid {
+.crearCompra-form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 24px;
 }
 
-.crearCompras-form-group {
+.crearCompra-form-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.crearCompras-label {
+.crearCompra-label {
   font-size: 14px;
   font-weight: 600;
   color: #374151;
@@ -83,12 +94,12 @@
   gap: 6px;
 }
 
-.crearCompras-label-icon {
+.crearCompra-label-icon {
   color: #6b7280;
   font-size: 12px;
 }
 
-.crearCompras-form-input {
+.crearCompra-form-input {
   width: 100%;
   padding: 12px 16px;
   font-size: 14px;
@@ -97,22 +108,59 @@
   background-color: #f8fafc;
   transition: all 0.2s ease;
   font-family: inherit;
+  box-sizing: border-box;
 }
 
-.crearCompras-form-input:focus {
+.crearCompra-form-input:focus {
   border-color: #3b82f6;
   background-color: white;
   outline: none;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.crearCompras-add-products-section {
+.crearCompra-form-input.error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.crearCompra-form-input.error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.crearCompra-error-text {
+  font-size: 12px;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 8px 12px;
+  background-color: #fef2f2;
+  border-radius: 6px;
+  border-left: 3px solid #ef4444;
+}
+
+.crearCompra-error-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  color: #ef4444;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.crearCompra-add-products-section {
   display: flex;
   gap: 12px;
   margin-bottom: 24px;
 }
 
-.crearCompras-create-button {
+.crearCompra-create-button {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
   border: none;
@@ -128,34 +176,41 @@
   gap: 8px;
 }
 
-.crearCompras-create-button:hover {
+.crearCompra-create-button:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
 }
 
-.crearCompras-button-icon {
+.crearCompra-create-button:disabled {
+  background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.crearCompra-button-icon {
   font-size: 12px;
 }
 
-.crearCompras-selected-products-section {
+.crearCompra-selected-products-section {
   margin-top: 20px;
 }
 
-.crearCompras-products-header {
+.crearCompra-products-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
 }
 
-.crearCompras-products-header h4 {
+.crearCompra-products-header h4 {
   font-size: 16px;
   font-weight: 600;
   color: #1a202c;
   margin: 0;
 }
 
-.crearCompras-products-count {
+.crearCompra-products-count {
   background-color: #eff6ff;
   color: #2563eb;
   padding: 4px 12px;
@@ -164,13 +219,13 @@
   font-weight: 600;
 }
 
-.crearCompras-product-cards {
+.crearCompra-product-cards {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.crearCompras-product-card-selected {
+.crearCompra-product-card-selected {
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   border: 2px solid #e2e8f0;
   border-radius: 12px;
@@ -178,27 +233,32 @@
   transition: all 0.2s ease;
 }
 
-.crearCompras-product-card-selected:hover {
+.crearCompra-product-card-selected:hover {
   border-color: #cbd5e1;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.crearCompras-product-card-header {
+.crearCompra-product-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
 }
 
-.crearCompras-product-name {
+.crearCompra-product-name {
   font-size: 16px;
   font-weight: 600;
   color: #1a202c;
   margin: 0;
 }
 
-.crearCompras-remove-button {
+.crearCompra-product-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.crearCompra-remove-button {
   background-color: #ef4444;
   color: white;
   border: none;
@@ -209,61 +269,80 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 12px;
 }
 
-.crearCompras-remove-button:hover {
+.crearCompra-remove-button:hover {
   background-color: #dc2626;
   transform: scale(1.05);
 }
 
-.crearCompras-product-card-details {
+.crearCompra-product-card-details {
   margin-top: 12px;
 }
 
-.crearCompras-product-info-grid {
+.crearCompra-product-info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 16px;
 }
 
-.crearCompras-info-item {
+.crearCompra-info-item {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.crearCompras-info-label {
+.crearCompra-info-label {
   font-size: 12px;
   color: #6b7280;
   font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.crearCompras-info-value {
+.crearCompra-editable-field {
+  display: flex;
+  align-items: center;
+}
+
+.crearCompra-inline-input {
+  width: 100%;
+  padding: 8px 12px;
   font-size: 14px;
-  color: #1a202c;
-  font-weight: 600;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: white;
+  transition: all 0.2s ease;
+  font-family: inherit;
 }
 
-.crearCompras-subtotal-item {
+.crearCompra-inline-input:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.crearCompra-subtotal-item {
   grid-column: span 3;
   border-top: 1px solid #e2e8f0;
   padding-top: 12px;
   margin-top: 8px;
 }
 
-.crearCompras-subtotal {
+.crearCompra-subtotal {
   font-size: 16px;
   color: #2563eb;
   font-weight: 700;
 }
 
-.crearCompras-total-section {
+.crearCompra-total-section {
   margin-top: 24px;
   display: flex;
   justify-content: flex-end;
 }
 
-.crearCompras-total-card {
+.crearCompra-total-card {
   background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
   border: 2px solid #bfdbfe;
   border-radius: 12px;
@@ -273,19 +352,19 @@
   gap: 12px;
 }
 
-.crearCompras-total-label {
+.crearCompra-total-label {
   font-size: 16px;
   color: #1e40af;
   font-weight: 600;
 }
 
-.crearCompras-total-amount {
+.crearCompra-total-amount {
   font-size: 20px;
   font-weight: 700;
   color: #1e40af;
 }
 
-.crearCompras-form-actions {
+.crearCompra-form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
@@ -293,8 +372,8 @@
   background-color: #f8fafc;
 }
 
-.crearCompras-cancel-button {
-  background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+.crearCompra-cancel-button {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
   color: white;
   border: none;
   padding: 12px 24px;
@@ -303,19 +382,26 @@
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.crearCompras-cancel-button:hover {
+.crearCompra-cancel-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(211, 47, 47, 0.4);
+  box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
 }
 
-.crearCompras-submit-button {
-  background: linear-gradient(135deg, #388e3c 0%, #1b5e20 100%);
+.crearCompra-cancel-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.2);
+}
+
+.crearCompra-submit-button {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
   border: none;
   padding: 12px 24px;
@@ -324,18 +410,26 @@
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(56, 142, 60, 0.3);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.crearCompras-submit-button:hover {
+.crearCompra-submit-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(56, 142, 60, 0.4);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
 }
 
-.crearCompras-modal-overlay {
+.crearCompra-submit-button:disabled {
+  background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Modales */
+.crearCompra-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -349,7 +443,7 @@
   backdrop-filter: blur(4px);
 }
 
-.crearCompras-large-modal {
+.crearCompra-large-modal {
   background-color: white;
   border-radius: 16px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
@@ -374,7 +468,7 @@
   }
 }
 
-.crearCompras-modal-header {
+.crearCompra-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -383,7 +477,7 @@
   border-bottom: 2px solid #e2e8f0;
 }
 
-.crearCompras-modal-header h2 {
+.crearCompra-modal-header h2 {
   font-size: 20px;
   font-weight: 600;
   color: #1a202c;
@@ -393,12 +487,12 @@
   gap: 8px;
 }
 
-.crearCompras-modal-icon {
+.crearCompra-modal-icon {
   color: #2563eb;
   font-size: 18px;
 }
 
-.crearCompras-close-modal-button {
+.crearCompra-close-modal-button {
   background-color: #f3f4f6;
   border: none;
   cursor: pointer;
@@ -409,12 +503,12 @@
   transition: all 0.2s ease;
 }
 
-.crearCompras-close-modal-button:hover {
+.crearCompra-close-modal-button:hover {
   background-color: #e5e7eb;
   color: #374151;
 }
 
-.crearCompras-modal-content {
+.crearCompra-modal-content {
   display: flex;
   gap: 24px;
   padding: 24px;
@@ -423,42 +517,54 @@
   min-height: 0;
 }
 
-.crearCompras-left-pane {
+.crearCompra-left-pane {
   width: 55%;
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
 
-.crearCompras-search-section h4 {
+.crearCompra-search-section h4 {
   font-size: 16px;
   font-weight: 600;
   color: #1a202c;
   margin: 0 0 12px 0;
 }
 
-.crearCompras-search-bar {
+.crearCompra-search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
   margin-bottom: 16px;
 }
 
-.crearCompras-search-bar input {
-  width: 95%;
-  padding: 12px 16px;
+.crearCompra-search-icon {
+  position: absolute;
+  left: 12px;
+  color: #6b7280;
+  font-size: 14px;
+  z-index: 1;
+}
+
+.crearCompra-search-input {
+  width: 100%;
+  padding: 12px 16px 12px 36px;
   border: 2px solid #e2e8f0;
   border-radius: 10px;
   font-size: 14px;
   background-color: #f8fafc;
   transition: all 0.2s ease;
+  font-family: inherit;
 }
 
-.crearCompras-search-bar input:focus {
+.crearCompra-search-input:focus {
   border-color: #3b82f6;
   background-color: white;
   outline: none;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.crearCompras-product-list {
+.crearCompra-product-list {
   flex: 1;
   overflow-y: auto;
   padding-right: 8px;
@@ -469,17 +575,28 @@
   background-color: #f8fafc;
 }
 
-.crearCompras-no-results {
-  text-align: center;
+.crearCompra-no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
   color: #6b7280;
-  font-style: italic;
-  padding: 40px 20px;
-  background-color: #f9fafb;
-  border-radius: 12px;
-  border: 2px dashed #d1d5db;
+  text-align: center;
 }
 
-.crearCompras-product-card {
+.crearCompra-no-results-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.crearCompra-no-results p {
+  margin: 0;
+  font-size: 16px;
+}
+
+.crearCompra-product-card {
   background: white;
   border: 2px solid #e2e8f0;
   border-radius: 12px;
@@ -489,49 +606,61 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.crearCompras-product-info {
+.crearCompra-product-card:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.crearCompra-product-info {
   margin-bottom: 12px;
 }
 
-.crearCompras-product-main-info {
+.crearCompra-product-main-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 4px;
 }
 
-.crearCompras-product-name {
+.crearCompra-product-name {
   font-weight: 600;
   color: #1a202c;
   font-size: 14px;
 }
 
-.crearCompras-product-price {
+.crearCompra-product-price {
   font-size: 14px;
   color: #2563eb;
   font-weight: 600;
 }
 
-.crearCompras-product-stock {
+.crearCompra-product-stock {
   font-size: 12px;
   color: #6b7280;
 }
 
-.crearCompras-product-actions {
+.crearCompra-product-description {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.crearCompra-product-actions {
   display: flex;
   gap: 12px;
   align-items: flex-end;
   flex-wrap: wrap;
 }
 
-.crearCompras-input-group {
+.crearCompra-input-group {
   display: flex;
   gap: 8px;
   flex: 1;
   min-width: 200px;
 }
 
-.crearCompras-input-item {
+.crearCompra-input-item {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -539,13 +668,13 @@
   min-width: 80px;
 }
 
-.crearCompras-input-item label {
+.crearCompra-input-item label {
   font-size: 11px;
   color: #6b7280;
   font-weight: 500;
 }
 
-.crearCompras-quantity-input {
+.crearCompra-quantity-input {
   padding: 8px 10px;
   border: 2px solid #e2e8f0;
   border-radius: 6px;
@@ -556,7 +685,13 @@
   box-sizing: border-box;
 }
 
-.crearCompras-add-button {
+.crearCompra-quantity-input:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.crearCompra-add-button {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
   border: none;
@@ -572,12 +707,12 @@
   white-space: nowrap;
 }
 
-.crearCompras-add-button:hover {
+.crearCompra-add-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
-.crearCompras-right-pane {
+.crearCompra-right-pane {
   width: 45%;
   display: flex;
   flex-direction: column;
@@ -586,21 +721,21 @@
   min-height: 0;
 }
 
-.crearCompras-cart-header {
+.crearCompra-cart-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
 }
 
-.crearCompras-cart-header h4 {
+.crearCompra-cart-header h4 {
   font-size: 16px;
   font-weight: 600;
   color: #1a202c;
   margin: 0;
 }
 
-.crearCompras-cart-count {
+.crearCompra-cart-count {
   background-color: #eff6ff;
   color: #2563eb;
   padding: 4px 12px;
@@ -609,7 +744,7 @@
   font-weight: 600;
 }
 
-.crearCompras-cart-items {
+.crearCompra-cart-items {
   flex: 1;
   overflow-y: auto;
   padding-right: 8px;
@@ -620,27 +755,28 @@
   background-color: #f8fafc;
 }
 
-.crearCompras-empty-cart-message {
-  text-align: center;
+.crearCompra-empty-cart-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
   color: #6b7280;
-  padding: 40px 20px;
-  background-color: #f9fafb;
-  border-radius: 12px;
-  border: 2px dashed #d1d5db;
+  text-align: center;
 }
 
-.crearCompras-empty-icon {
-  font-size: 32px;
-  color: #d1d5db;
-  margin-bottom: 12px;
+.crearCompra-empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
 }
 
-.crearCompras-empty-cart-message p {
+.crearCompra-empty-cart-message p {
   margin: 0;
-  font-style: italic;
+  font-size: 16px;
 }
 
-.crearCompras-cart-item {
+.crearCompra-cart-item {
   background: white;
   border: 2px solid #e2e8f0;
   border-radius: 12px;
@@ -650,24 +786,24 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.crearCompras-cart-item:hover {
+.crearCompra-cart-item:hover {
   border-color: #cbd5e1;
 }
 
-.crearCompras-cart-item-header {
+.crearCompra-cart-item-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
 }
 
-.crearCompras-cart-item-name {
+.crearCompra-cart-item-name {
   font-weight: 600;
   color: #1a202c;
   font-size: 14px;
 }
 
-.crearCompras-remove-cart-item {
+.crearCompra-remove-cart-item {
   background-color: #ef4444;
   color: white;
   border: none;
@@ -678,24 +814,24 @@
   font-size: 12px;
 }
 
-.crearCompras-remove-cart-item:hover {
+.crearCompra-remove-cart-item:hover {
   background-color: #dc2626;
   transform: scale(1.05);
 }
 
-.crearCompras-cart-item-details {
+.crearCompra-cart-item-details {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.crearCompras-cart-controls {
+.crearCompra-cart-controls {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
 }
 
-.crearCompras-control-group {
+.crearCompra-control-group {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -703,13 +839,13 @@
   min-width: 100px;
 }
 
-.crearCompras-control-group label {
+.crearCompra-control-group label {
   font-size: 11px;
   color: #6b7280;
   font-weight: 500;
 }
 
-.crearCompras-control-input {
+.crearCompra-control-input {
   padding: 8px 10px;
   border: 2px solid #e2e8f0;
   border-radius: 6px;
@@ -720,7 +856,13 @@
   box-sizing: border-box;
 }
 
-.crearCompras-cart-item-total {
+.crearCompra-control-input:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.crearCompra-cart-item-total {
   text-align: right;
   font-size: 14px;
   color: #1a202c;
@@ -728,14 +870,14 @@
   border-top: 1px solid #e2e8f0;
 }
 
-.crearCompras-cart-summary {
+.crearCompra-cart-summary {
   margin-top: 20px;
   padding-top: 20px;
   border-top: 2px solid #f1f5f9;
   flex-shrink: 0;
 }
 
-.crearCompras-cart-total {
+.crearCompra-cart-total {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -749,7 +891,7 @@
   border: 2px solid #bfdbfe;
 }
 
-.crearCompras-confirm-cart-button {
+.crearCompra-confirm-cart-button {
   width: 100%;
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
@@ -767,20 +909,20 @@
   gap: 8px;
 }
 
-.crearCompras-confirm-cart-button:hover:not(:disabled) {
+.crearCompra-confirm-cart-button:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
 }
 
-.crearCompras-confirm-cart-button:disabled {
+.crearCompra-confirm-cart-button:disabled {
   background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
-/* Estilos para el modal de proveedores */
-.crearCompras-supplier-modal-overlay {
+/* Modal de Proveedores */
+.crearCompra-supplier-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -794,7 +936,7 @@
   backdrop-filter: blur(4px);
 }
 
-.crearCompras-supplier-modal {
+.crearCompra-supplier-modal {
   background-color: white;
   border-radius: 16px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
@@ -806,7 +948,7 @@
   animation: modalSlideIn 0.3s ease-out;
 }
 
-.crearCompras-supplier-modal-header {
+.crearCompra-supplier-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -815,7 +957,7 @@
   border-bottom: 2px solid #e2e8f0;
 }
 
-.crearCompras-supplier-modal-header h2 {
+.crearCompra-supplier-modal-header h2 {
   font-size: 20px;
   font-weight: 600;
   color: #1a202c;
@@ -825,7 +967,7 @@
   gap: 8px;
 }
 
-.crearCompras-supplier-close-button {
+.crearCompra-supplier-close-button {
   background-color: #f3f4f6;
   border: none;
   cursor: pointer;
@@ -836,12 +978,12 @@
   transition: all 0.2s ease;
 }
 
-.crearCompras-supplier-close-button:hover {
+.crearCompra-supplier-close-button:hover {
   background-color: #e5e7eb;
   color: #374151;
 }
 
-.crearCompras-supplier-modal-content {
+.crearCompra-supplier-modal-content {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -850,43 +992,47 @@
   overflow: hidden;
 }
 
-.crearCompras-supplier-search-bar {
+.crearCompra-supplier-search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
   margin-bottom: 16px;
 }
 
-.crearCompras-supplier-search-bar input {
+.crearCompra-supplier-search-input {
   width: 100%;
-  padding: 12px 16px;
+  padding: 12px 16px 12px 36px;
   border: 2px solid #e2e8f0;
   border-radius: 10px;
   font-size: 14px;
   background-color: #f8fafc;
   transition: all 0.2s ease;
+  font-family: inherit;
 }
 
-.crearCompras-supplier-search-bar input:focus {
+.crearCompra-supplier-search-input:focus {
   border-color: #3b82f6;
   background-color: white;
   outline: none;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.crearCompras-suppliers-list {
+.crearCompra-suppliers-list {
   flex: 1;
   overflow-y: auto;
 }
 
-.crearCompras-supplier-no-results {
-  text-align: center;
+.crearCompra-supplier-no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
   color: #6b7280;
-  font-style: italic;
-  padding: 40px 20px;
-  background-color: #f9fafb;
-  border-radius: 12px;
-  border: 2px dashed #d1d5db;
+  text-align: center;
 }
 
-.crearCompras-suppliers-table {
+.crearCompra-suppliers-table {
   width: 100%;
   border-collapse: collapse;
   background-color: white;
@@ -895,7 +1041,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.crearCompras-suppliers-table th {
+.crearCompra-suppliers-table th {
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   border: none;
   padding: 16px;
@@ -905,7 +1051,7 @@
   font-size: 14px;
 }
 
-.crearCompras-suppliers-table td {
+.crearCompra-suppliers-table td {
   border: none;
   border-bottom: 1px solid #f1f5f9;
   padding: 16px;
@@ -913,31 +1059,31 @@
   color: #1a202c;
 }
 
-.crearCompras-supplier-row {
+.crearCompra-supplier-row {
   transition: all 0.2s ease;
 }
 
-.crearCompras-supplier-row:hover {
+.crearCompra-supplier-row:hover {
   background-color: #f8fafc;
 }
 
-.crearCompras-supplier-name {
+.crearCompra-supplier-name {
   font-weight: 600;
   color: #1a202c;
 }
 
-.crearCompras-supplier-contact {
+.crearCompra-supplier-contact {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.crearCompras-supplier-contact div {
+.crearCompra-supplier-contact div {
   font-size: 13px;
   color: #6b7280;
 }
 
-.crearCompras-supplier-select-button {
+.crearCompra-supplier-select-button {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
   border: none;
@@ -947,14 +1093,17 @@
   font-size: 12px;
   font-weight: 600;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.crearCompras-supplier-select-button:hover {
+.crearCompra-supplier-select-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
-.crearCompras-supplier-pagination {
+.crearCompra-supplier-pagination {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -963,7 +1112,7 @@
   border-top: 2px solid #f1f5f9;
 }
 
-.crearCompras-supplier-pagination-button {
+.crearCompra-supplier-pagination-button {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
   border: none;
@@ -975,103 +1124,125 @@
   transition: all 0.2s ease;
 }
 
-.crearCompras-supplier-pagination-button:hover:not(:disabled) {
+.crearCompra-supplier-pagination-button:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
-.crearCompras-supplier-pagination-button:disabled {
+.crearCompra-supplier-pagination-button:disabled {
   background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
-.crearCompras-supplier-page-info {
+.crearCompra-supplier-page-info {
   font-size: 14px;
   color: #374151;
   font-weight: 500;
 }
 
+.crearCompra-error-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.crearCompra-retry-button {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  margin-top: 16px;
+}
+
+.crearCompra-retry-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
-  .crearCompras-form-grid {
+  .crearCompra-container {
+    padding: 16px;
+  }
+
+  .crearCompra-form-grid {
     grid-template-columns: 1fr;
   }
 
-  .crearCompras-modal-content {
+  .crearCompra-modal-content {
     flex-direction: column;
     padding: 16px;
   }
 
-  .crearCompras-left-pane,
-  .crearCompras-right-pane {
+  .crearCompra-left-pane,
+  .crearCompra-right-pane {
     width: 100%;
   }
 
-  .crearCompras-right-pane {
+  .crearCompra-right-pane {
     border-left: none;
     border-top: 2px solid #f1f5f9;
     padding-left: 0;
     padding-top: 24px;
   }
 
-  .crearCompras-product-info-grid {
+  .crearCompra-product-info-grid {
     grid-template-columns: 1fr 1fr;
   }
 
-  .crearCompras-subtotal-item {
+  .crearCompra-subtotal-item {
     grid-column: span 2;
   }
-}
 
-/* Responsive mejorado */
-@media (max-width: 1024px) {
-  .crearCompras-large-modal {
-    width: 98%;
-    max-width: none;
-    max-height: 98vh;
-  }
-
-  .crearCompras-modal-content {
+  .crearCompra-form-actions {
     flex-direction: column;
-    padding: 16px;
-    gap: 16px;
+    gap: 12px;
   }
 
-  .crearCompras-left-pane,
-  .crearCompras-right-pane {
+  .crearCompra-cancel-button,
+  .crearCompra-submit-button {
     width: 100%;
-  }
-
-  .crearCompras-right-pane {
-    border-left: none;
-    border-top: 2px solid #f1f5f9;
-    padding-left: 0;
-    padding-top: 16px;
-  }
-
-  .crearCompras-product-list,
-  .crearCompras-cart-items {
-    max-height: 300px;
+    justify-content: center;
   }
 }
 
-@media (max-width: 768px) {
-  .crearCompras-product-actions {
-    flex-direction: column;
-    align-items: stretch;
+@media (max-width: 480px) {
+  .crearCompra-page-title {
+    font-size: 24px;
   }
 
-  .crearCompras-input-group {
-    min-width: auto;
+  .crearCompra-header {
+    padding: 16px;
   }
 
-  .crearCompras-cart-controls {
-    flex-direction: column;
+  .crearCompra-form-section {
+    padding: 16px;
   }
 
-  .crearCompras-control-group {
-    min-width: auto;
+  .crearCompra-form-actions {
+    padding: 16px;
   }
 }

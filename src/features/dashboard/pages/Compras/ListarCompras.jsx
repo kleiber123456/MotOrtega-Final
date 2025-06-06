@@ -1,8 +1,17 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
-import { Eye, FileText, CheckCircle, XCircle } from "lucide-react"
+import {
+  Eye,
+  FileText,
+  CheckCircle,
+  XCircle,
+  ShoppingCartIcon as FaShoppingCart,
+  PlusIcon as FaPlus,
+  SearchIcon as FaSearch,
+  TriangleIcon as FaExclamationTriangle,
+} from "lucide-react"
 import Swal from "sweetalert2"
 import { generarFacturaPDF, cargarDatosCompletosCompra } from "../../utils/pdf-generator"
 import "../../../../shared/styles/listarCompras.css"
@@ -20,7 +29,7 @@ function ListarCompras() {
   const [comprasPorPagina] = useState(4)
 
   useEffect(() => {
-    document.body.style.backgroundColor = "#2d3748"
+    document.body.style.backgroundColor = "#f9fafb"
     cargarDatos()
     return () => {
       document.body.style.background = ""
@@ -68,10 +77,10 @@ function ListarCompras() {
     }
   }
 
-  const handleSearch = (e) => {
+  const handleSearch = useCallback((e) => {
     setBusqueda(e.target.value.toLowerCase())
     setPaginaActual(1)
-  }
+  }, [])
 
   // Función para confirmar una compra (cambiar a Completado)
   const handleConfirmarCompra = async (compraId, estadoActual) => {
@@ -265,9 +274,9 @@ function ListarCompras() {
 
   if (cargando) {
     return (
-      <div className="listar_compras_contenedor">
-        <div className="listar_compras_loading">
-          <div className="listar_compras_spinner"></div>
+      <div className="listarCompra-container">
+        <div className="listarCompra-loading">
+          <div className="listarCompra-spinner"></div>
           <p>Cargando compras...</p>
         </div>
       </div>
@@ -275,33 +284,46 @@ function ListarCompras() {
   }
 
   return (
-    <div className="listar_compras_contenedor">
-      <div className="listar_compras_header">
-        <h2 className="listar_compras_titulo">Listado de Compras</h2>
-        <button className="listar_compras_boton-crear" onClick={() => navigate("/CrearCompras")}>
+    <div className="listarCompra-container">
+      <div className="listarCompra-header">
+        <div className="listarCompra-title-section">
+          <h1 className="listarCompra-page-title">
+            <FaShoppingCart className="listarCompra-title-icon" />
+            Gestión de Compras
+          </h1>
+          <p className="listarCompra-subtitle">Administra las compras del sistema</p>
+        </div>
+        <button className="listarCompra-create-button" onClick={() => navigate("/CrearCompras")}>
+          <FaPlus className="listarCompra-button-icon" />
           Crear Compra
         </button>
       </div>
 
-      {/* Filtros organizados horizontalmente */}
-      <div className="listar_compras_filtros-container-horizontal">
-        <div className="listar_compras_filtro-item">
-          <label className="listar_compras_filtro-label">Buscar:</label>
-          <input
-            type="text"
-            className="listar_compras_input listar_compras_filtro-input"
-            placeholder="Buscar por fecha..."
-            value={busqueda}
-            onChange={handleSearch}
-          />
+      {/* Filtros */}
+      <div className="listarCompra-filters-container">
+        <div className="listarCompra-filter-item">
+          <label className="listarCompra-filter-label">Buscar:</label>
+          <div className="listarCompra-search-container">
+            <FaSearch className="listarCompra-search-icon" />
+            <input
+              type="text"
+              className="listarCompra-search-input"
+              placeholder="Buscar por fecha..."
+              value={busqueda}
+              onChange={handleSearch}
+            />
+          </div>
         </div>
 
-        <div className="listar_compras_filtro-item">
-          <label className="listar_compras_filtro-label">Proveedor:</label>
+        <div className="listarCompra-filter-item">
+          <label className="listarCompra-filter-label">Proveedor:</label>
           <select
             value={proveedorFiltro}
-            onChange={(e) => setProveedorFiltro(e.target.value)}
-            className="listar_compras_input listar_compras_filtro-select"
+            onChange={(e) => {
+              setProveedorFiltro(e.target.value)
+              setPaginaActual(1)
+            }}
+            className="listarCompra-filter-select"
           >
             <option value="">Todos los proveedores</option>
             {Object.keys(proveedores).map((id) => (
@@ -312,12 +334,15 @@ function ListarCompras() {
           </select>
         </div>
 
-        <div className="listar_compras_filtro-item">
-          <label className="listar_compras_filtro-label">Estado:</label>
+        <div className="listarCompra-filter-item">
+          <label className="listarCompra-filter-label">Estado:</label>
           <select
             value={estadoFiltro}
-            onChange={(e) => setEstadoFiltro(e.target.value)}
-            className="listar_compras_input listar_compras_filtro-select"
+            onChange={(e) => {
+              setEstadoFiltro(e.target.value)
+              setPaginaActual(1)
+            }}
+            className="listarCompra-filter-select"
           >
             <option value="">Todos los estados</option>
             <option value="Completado">Completado</option>
@@ -327,8 +352,9 @@ function ListarCompras() {
         </div>
       </div>
 
-      <div className="listar_compras_tabla-container" style={{ overflowX: "auto" }}>
-        <table className="listar_compras_tabla">
+      {/* Tabla */}
+      <div className="listarCompra-table-container">
+        <table className="listarCompra-table">
           <thead>
             <tr>
               <th>Fecha</th>
@@ -345,15 +371,15 @@ function ListarCompras() {
                 <td>{proveedores[compra.proveedor_id] || "Sin proveedor"}</td>
                 <td>{formatearPrecio(compra.total)}</td>
                 <td>
-                  <span className={`listar_compras_estado ${getEstadoClass(compra.estado)}`}>{compra.estado}</span>
+                  <span className={`listarCompra-estado ${getEstadoClass(compra.estado)}`}>{compra.estado}</span>
                 </td>
-                <td className="listar_compras_acciones">
+                <td className="listarCompra-actions">
                   {/* Solo mostrar botones de acción si la compra está en estado Pendiente */}
                   {compra.estado === "Pendiente" && (
                     <>
                       {/* Botón Confirmar */}
                       <button
-                        className="listar_compras_icon-button confirmar"
+                        className="listarCompra-action-button confirmar"
                         onClick={() => handleConfirmarCompra(compra.id, compra.estado)}
                         title="Confirmar compra"
                       >
@@ -362,7 +388,7 @@ function ListarCompras() {
 
                       {/* Botón Anular */}
                       <button
-                        className="listar_compras_icon-button anular"
+                        className="listarCompra-action-button anular"
                         onClick={() => handleAnularCompra(compra.id, compra.estado)}
                         title="Anular compra"
                       >
@@ -373,7 +399,7 @@ function ListarCompras() {
 
                   {/* Botón Ver Detalle - Siempre visible */}
                   <button
-                    className="listar_compras_icon-button detalle"
+                    className="listarCompra-action-button detail"
                     onClick={() => navigate(`/DetalleCompra/${compra.id}`)}
                     title="Ver detalle"
                   >
@@ -382,7 +408,7 @@ function ListarCompras() {
 
                   {/* Botón Generar PDF - Siempre visible */}
                   <button
-                    className="listar_compras_icon-button pdf"
+                    className="listarCompra-action-button pdf"
                     onClick={() => handleGenerarPDF(compra.id)}
                     title="Generar PDF"
                   >
@@ -395,15 +421,19 @@ function ListarCompras() {
         </table>
 
         {comprasFiltradas.length === 0 && (
-          <p className="listar_compras_sin-resultados">No se encontraron compras con los criterios de búsqueda.</p>
+          <div className="listarCompra-no-results">
+            <FaExclamationTriangle className="listarCompra-no-results-icon" />
+            <p>No se encontraron compras con los criterios de búsqueda.</p>
+          </div>
         )}
 
+        {/* Paginación */}
         {comprasFiltradas.length > comprasPorPagina && (
-          <div className="listar_compras_paginacion">
+          <div className="listarCompra-pagination">
             <button
-              onClick={() => setPaginaActual((prev) => prev - 1)}
+              onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
               disabled={paginaActual === 1}
-              className="listar_compras_boton-paginacion"
+              className="listarCompra-pagination-button"
             >
               Anterior
             </button>
@@ -412,16 +442,16 @@ function ListarCompras() {
               <button
                 key={i + 1}
                 onClick={() => setPaginaActual(i + 1)}
-                className={`listar_compras_boton-paginacion ${paginaActual === i + 1 ? "active" : ""}`}
+                className={`listarCompra-pagination-button ${paginaActual === i + 1 ? "active" : ""}`}
               >
                 {i + 1}
               </button>
             ))}
 
             <button
-              onClick={() => setPaginaActual((prev) => prev + 1)}
+              onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
               disabled={paginaActual === totalPaginas}
-              className="listar_compras_boton-paginacion"
+              className="listarCompra-pagination-button"
             >
               Siguiente
             </button>

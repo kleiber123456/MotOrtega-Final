@@ -1,166 +1,305 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Pencil, Trash2, Eye } from 'lucide-react';
-import Swal from 'sweetalert2';
-import '../../../../shared/styles/listarUsuarios.css';
+"use client"
 
-function ListarUsuarios() {
-  const [usuarios, setUsuarios] = useState([]);
-  const [busqueda, setBusqueda] = useState("");
-  const [paginaActual, setPaginaActual] = useState(1);
-  const [usuariosPorPagina] = useState(5);
-  const navigate = useNavigate();
+import { useState, useEffect, useCallback } from "react"
+import { useNavigate } from "react-router-dom"
+import {
+  FaUser,
+  FaEdit,
+  FaTrash,
+  FaEye,
+  FaSearch,
+  FaExclamationTriangle,
+  FaPlus,
+  FaToggleOn,
+  FaToggleOff,
+} from "react-icons/fa"
+import Swal from "sweetalert2"
+import "../../../../shared/styles/listarUsuarios.css"
 
-  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+// URL base de la API
+const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
+
+// Función para obtener token
+const getValidToken = () => {
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token")
+  if (!token) {
+    console.error("No hay token disponible")
+    return null
+  }
+  return token
+}
+
+// Hook personalizado para manejo de API
+const useApi = () => {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  const makeRequest = useCallback(async (url, options = {}) => {
+    setLoading(true)
+    setError(null)
+
+    const token = getValidToken()
+    if (!token) {
+      setError("Error de autenticación")
+      setLoading(false)
+      return null
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}${url}`, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+          ...options.headers,
+        },
+      })
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Sesión expirada. Por favor inicie sesión nuevamente.")
+        }
+        throw new Error(`Error ${response.status}: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      return data
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Error desconocido"
+      setError(errorMessage)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  return { makeRequest, loading, error }
+}
+
+const ListarUsuarios = () => {
+  const navigate = useNavigate()
+  const { makeRequest, loading: apiLoading } = useApi()
+
+  const [usuarios, setUsuarios] = useState([])
+  const [busqueda, setBusqueda] = useState("")
+  const [estadoFiltro, setEstadoFiltro] = useState("")
+  const [rolFiltro, setRolFiltro] = useState("")
+  const [paginaActual, setPaginaActual] = useState(1)
+  const [usuariosPorPagina] = useState(4)
+  const [cargando, setCargando] = useState(true)
 
   useEffect(() => {
-    document.body.style.backgroundColor = "#2d3748";
-    fetchUsuarios();
-    return () => { document.body.style.background = ""; };
-  }, []);
-
-  const fetchUsuarios = async () => {
-    try {
-      const res = await fetch("https://api-final-8rw7.onrender.com/api/usuarios", {
-        headers: {
-          "Authorization": `${token}`,
-          "Content-Type": "application/json"
-        }
-      });
-
-      if (!res.ok) throw new Error("Error al obtener usuarios");
-
-      const data = await res.json();
-      console.log("Usuarios obtenidos de la API:", data);
-      setUsuarios(data);
-    } catch (err) {
-      console.error("Error al obtener usuarios:", err);
-      setUsuarios([]);
+    document.body.style.backgroundColor = "#f9fafb"
+    cargarUsuarios()
+    return () => {
+      document.body.style.background = ""
     }
-  };
+  }, [])
 
-  const eliminarUsuario = async (id) => {
-    if (!id) {
-      Swal.fire("Error", "ID de usuario inválido", "error");
-      return;
-    }
-
-    const confirmacion = await Swal.fire({
-      title: "¿Estás seguro?",
-      text: "Esta acción eliminará al usuario permanentemente.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar"
-    });
-
-    if (!confirmacion.isConfirmed) return;
-
+  const cargarUsuarios = async () => {
     try {
-      const res = await fetch(`https://api-final-8rw7.onrender.com/api/usuarios/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Authorization": `${token}`,
-          "Content-Type": "application/json"
-        }
-      });
+      setCargando(true)
+      const data = await makeRequest("/usuarios")
+      if (data) {
+        setUsuarios(data)
+      }
+    } catch (error) {
+      console.error("Error al cargar usuarios:", error)
+      Swal.fire("Error", "No se pudieron cargar los usuarios", "error")
+    } finally {
+      setCargando(false)
+    }
+  }
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(`Error al eliminar el usuario: ${res.status} - ${errorText}`);
+  const eliminarUsuario = useCallback(
+    async (id) => {
+      if (!id) {
+        Swal.fire("Error", "ID de usuario inválido", "error")
+        return
       }
 
-      setUsuarios(prev => prev.filter(usuario => usuario.id !== id));
+      const result = await Swal.fire({
+        title: "¿Eliminar usuario?",
+        text: "Esta acción eliminará al usuario permanentemente y no se puede deshacer.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#ef4444",
+        cancelButtonColor: "#6b7280",
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar",
+      })
 
-      Swal.fire("Eliminado", "Usuario eliminado correctamente", "success");
+      if (!result.isConfirmed) return
 
-    } catch (err) {
-      console.error("Error al eliminar el usuario:", err);
-      Swal.fire("Error", "No se pudo eliminar el usuario", "error");
-    }
-  };
+      try {
+        await makeRequest(`/usuarios/${id}`, {
+          method: "DELETE",
+        })
 
-  const cambiarEstado = async (id) => {
-    try {
-      console.log("Cambiando estado del usuario con ID:", id);
-      
-      const res = await fetch(`https://api-final-8rw7.onrender.com/api/usuarios/${id}/cambiar-estado`, {
-        method: "PUT",
-        headers: {
-          "Authorization": `${token}`,
-          "Content-Type": "application/json"
-        }
-      });
+        setUsuarios((prev) => prev.filter((usuario) => usuario.id !== id))
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.error("Error del servidor:", errorText);
-        throw new Error("Error al cambiar el estado");
+        Swal.fire({
+          icon: "success",
+          title: "Usuario eliminado",
+          text: "El usuario ha sido eliminado correctamente",
+          timer: 2000,
+          showConfirmButton: false,
+        })
+      } catch (error) {
+        console.error("Error al eliminar usuario:", error)
+        Swal.fire("Error", "No se pudo eliminar el usuario", "error")
       }
+    },
+    [makeRequest],
+  )
 
-      const responseData = await res.json();
-      console.log("Respuesta del servidor:", responseData);
+  const cambiarEstado = useCallback(
+    async (id, estadoActual) => {
+      try {
+        const nuevoEstado = estadoActual?.toLowerCase() === "activo" ? "Inactivo" : "Activo"
 
-      // Actualizar estado localmente
-      setUsuarios(prev =>
-        prev.map(u =>
-          u.id === id
-            ? { ...u, estado: u.estado?.toLowerCase() === "activo" ? "Inactivo" : "Activo" }
-            : u
-        )
-      );
+        const result = await Swal.fire({
+          title: `¿Cambiar estado a ${nuevoEstado}?`,
+          text: `El usuario será marcado como ${nuevoEstado.toLowerCase()}`,
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonColor: "#2563eb",
+          cancelButtonColor: "#6b7280",
+          confirmButtonText: "Sí, cambiar",
+          cancelButtonText: "Cancelar",
+        })
 
-      Swal.fire("Éxito", "Estado cambiado correctamente", "success");
-      
-    } catch (err) {
-      console.error("Error al cambiar el estado:", err);
-      Swal.fire("Error", "No se pudo cambiar el estado del usuario", "error");
-    }
-  };
+        if (!result.isConfirmed) return
 
-  const handleSearch = (e) => {
-    setBusqueda(e.target.value.toLowerCase());
-    setPaginaActual(1);
-  };
+        await makeRequest(`/usuarios/${id}/cambiar-estado`, {
+          method: "PUT",
+        })
 
-  const usuariosFiltrados = Array.isArray(usuarios) ? usuarios.filter(u =>
-    Object.values(u).some(val =>
-      String(val).toLowerCase().includes(busqueda)
+        setUsuarios((prev) => prev.map((u) => (u.id === id ? { ...u, estado: nuevoEstado } : u)))
+
+        Swal.fire({
+          icon: "success",
+          title: "Estado actualizado",
+          text: `El usuario ahora está ${nuevoEstado.toLowerCase()}`,
+          timer: 2000,
+          showConfirmButton: false,
+        })
+      } catch (error) {
+        console.error("Error al cambiar estado:", error)
+        Swal.fire("Error", "No se pudo cambiar el estado del usuario", "error")
+      }
+    },
+    [makeRequest],
+  )
+
+  const handleSearch = useCallback((e) => {
+    setBusqueda(e.target.value.toLowerCase())
+    setPaginaActual(1)
+  }, [])
+
+  // Filtrar usuarios
+  const usuariosFiltrados = usuarios.filter((usuario) => {
+    const matchBusqueda = Object.values(usuario).some((val) => String(val).toLowerCase().includes(busqueda))
+    const matchEstado = estadoFiltro === "" || usuario.estado === estadoFiltro
+    const matchRol = rolFiltro === "" || usuario.rol_nombre === rolFiltro
+
+    return matchBusqueda && matchEstado && matchRol
+  })
+
+  // Paginación
+  const indiceUltimoUsuario = paginaActual * usuariosPorPagina
+  const indicePrimerUsuario = indiceUltimoUsuario - usuariosPorPagina
+  const usuariosActuales = usuariosFiltrados.slice(indicePrimerUsuario, indiceUltimoUsuario)
+  const totalPaginas = Math.ceil(usuariosFiltrados.length / usuariosPorPagina)
+
+  // Obtener roles únicos para el filtro
+  const rolesUnicos = [...new Set(usuarios.map((u) => u.rol_nombre).filter(Boolean))]
+
+  if (cargando) {
+    return (
+      <div className="listarUsuarios-container">
+        <div className="listarUsuarios-loading">
+          <div className="listarUsuarios-spinner"></div>
+          <p>Cargando usuarios...</p>
+        </div>
+      </div>
     )
-  ) : [];
-
-  const indiceUltimoUsuario = paginaActual * usuariosPorPagina;
-  const indicePrimerUsuario = indiceUltimoUsuario - usuariosPorPagina;
-  const usuariosActuales = usuariosFiltrados.slice(indicePrimerUsuario, indiceUltimoUsuario);
-  const totalPaginas = Math.ceil(usuariosFiltrados.length / usuariosPorPagina);
-
-  const cambiarPagina = (numeroPagina) => setPaginaActual(numeroPagina);
+  }
 
   return (
-    <div className="LiUs-contenedor">
-      <div className="LiUs-header">
-        <h2 className="LiUs-titulo">Listado de Usuarios</h2>
-        <button className="LiUs-boton-crear" onClick={() => navigate("/crearUsuarios")}>
+    <div className="listarUsuarios-container">
+      <div className="listarUsuarios-header">
+        <div className="listarUsuarios-title-section">
+          <h1 className="listarUsuarios-page-title">
+            <FaUser className="listarUsuarios-title-icon" />
+            Gestión de Usuarios
+          </h1>
+          <p className="listarUsuarios-subtitle">Administra los usuarios del sistema</p>
+        </div>
+        <button className="listarUsuarios-create-button" onClick={() => navigate("/crearUsuarios")}>
+          <FaPlus className="listarUsuarios-button-icon" />
           Crear Usuario
         </button>
       </div>
 
-      <input
-        type="text"
-        className="LiUs-input-busqueda"
-        placeholder="Buscar por cualquier campo..."
-        value={busqueda}
-        onChange={handleSearch}
-      />
+      {/* Filtros */}
+      <div className="listarUsuarios-filters-container">
+        <div className="listarUsuarios-filter-item">
+          <label className="listarUsuarios-filter-label">Buscar:</label>
+          <div className="listarUsuarios-search-container">
+            <FaSearch className="listarUsuarios-search-icon" />
+            <input
+              type="text"
+              className="listarUsuarios-search-input"
+              placeholder="Buscar por cualquier campo..."
+              value={busqueda}
+              onChange={handleSearch}
+            />
+          </div>
+        </div>
 
-      <div className="LiUs-tabla-container">
-        <table className="LiUs-tabla">
+        <div className="listarUsuarios-filter-item">
+          <label className="listarUsuarios-filter-label">Estado:</label>
+          <select
+            value={estadoFiltro}
+            onChange={(e) => {
+              setEstadoFiltro(e.target.value)
+              setPaginaActual(1)
+            }}
+            className="listarUsuarios-filter-select"
+          >
+            <option value="">Todos los estados</option>
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+          </select>
+        </div>
+
+        <div className="listarUsuarios-filter-item">
+          <label className="listarUsuarios-filter-label">Rol:</label>
+          <select
+            value={rolFiltro}
+            onChange={(e) => {
+              setRolFiltro(e.target.value)
+              setPaginaActual(1)
+            }}
+            className="listarUsuarios-filter-select"
+          >
+            <option value="">Todos los roles</option>
+            {rolesUnicos.map((rol) => (
+              <option key={rol} value={rol}>
+                {rol}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Tabla */}
+      <div className="listarUsuarios-table-container">
+        <table className="listarUsuarios-table">
           <thead>
             <tr>
-              <th>Nombre completo</th>
-              <th>Tipo documento</th>
+              <th>Nombre Completo</th>
               <th>Documento</th>
               <th>Correo</th>
               <th>Teléfono</th>
@@ -170,47 +309,59 @@ function ListarUsuarios() {
             </tr>
           </thead>
           <tbody>
-            {usuariosActuales.map(usuario => (
+            {usuariosActuales.map((usuario) => (
               <tr key={usuario.id}>
-                <td>{usuario.nombre} {usuario.apellido}</td>
-                <td>{usuario.tipo_documento}</td>
+                <td>
+                  <div className="listarUsuarios-user-info">
+                    <span className="listarUsuarios-user-name">
+                      {usuario.nombre} {usuario.apellido}
+                    </span>
+                    <span className="listarUsuarios-user-doc-type">{usuario.tipo_documento}</span>
+                  </div>
+                </td>
                 <td>{usuario.documento}</td>
                 <td>{usuario.correo}</td>
                 <td>{usuario.telefono}</td>
-                <td>{usuario.rol_nombre}</td>
                 <td>
-                  <div
-                    className={`estado-switch ${usuario.estado?.toLowerCase() === "activo" ? "activo" : "inactivo"}`}
-                    onClick={() => cambiarEstado(usuario.id)}
-                    title={`Estado: ${usuario.estado}`}
-                  >
-                    <div className="switch-bola"></div>
-                  </div>
-                  <small style={{display: 'block', marginTop: '4px', fontSize: '10px', color: '#666'}}>
-          
-                  </small>
+                  <span className="listarUsuarios-rol-badge">{usuario.rol_nombre || "Sin rol"}</span>
                 </td>
-                <td className="LiUs-acciones">
+                <td>
                   <button
-                    className="icon-button edit"
+                    className={`listarUsuarios-estado-toggle ${
+                      usuario.estado?.toLowerCase() === "activo" ? "activo" : "inactivo"
+                    }`}
+                    onClick={() => cambiarEstado(usuario.id, usuario.estado)}
+                    title={`Estado: ${usuario.estado} - Click para cambiar`}
+                  >
+                    {usuario.estado?.toLowerCase() === "activo" ? (
+                      <FaToggleOn className="listarUsuarios-toggle-icon" />
+                    ) : (
+                      <FaToggleOff className="listarUsuarios-toggle-icon" />
+                    )}
+                    <span className="listarUsuarios-estado-text">{usuario.estado}</span>
+                  </button>
+                </td>
+                <td className="listarUsuarios-actions">
+                  <button
+                    className="listarUsuarios-action-button edit"
                     onClick={() => navigate(`/usuarios/editar/${usuario.id}`)}
-                    title="Editar"
+                    title="Editar usuario"
                   >
-                    <Pencil size={18} />
+                    <FaEdit />
                   </button>
                   <button
-                    className="icon-button delete"
+                    className="listarUsuarios-action-button delete"
                     onClick={() => eliminarUsuario(usuario.id)}
-                    title="Eliminar"
+                    title="Eliminar usuario"
                   >
-                    <Trash2 size={18} />
+                    <FaTrash />
                   </button>
                   <button
-                    className="icon-button detail"
+                    className="listarUsuarios-action-button detail"
                     onClick={() => navigate(`/usuarios/detalle/${usuario.id}`)}
-                    title="Detalle"
+                    title="Ver detalle"
                   >
-                    <Eye size={18} />
+                    <FaEye />
                   </button>
                 </td>
               </tr>
@@ -219,15 +370,19 @@ function ListarUsuarios() {
         </table>
 
         {usuariosFiltrados.length === 0 && (
-          <p className="LiUs-sin-resultados">No se encontraron usuarios.</p>
+          <div className="listarUsuarios-no-results">
+            <FaExclamationTriangle className="listarUsuarios-no-results-icon" />
+            <p>No se encontraron usuarios con los criterios de búsqueda.</p>
+          </div>
         )}
 
+        {/* Paginación */}
         {usuariosFiltrados.length > usuariosPorPagina && (
-          <div className="LiUs-paginacion">
-            <button 
-              onClick={() => cambiarPagina(paginaActual - 1)} 
+          <div className="listarUsuarios-pagination">
+            <button
+              onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
               disabled={paginaActual === 1}
-              className="LiUs-boton-paginacion"
+              className="listarUsuarios-pagination-button"
             >
               Anterior
             </button>
@@ -235,17 +390,17 @@ function ListarUsuarios() {
             {Array.from({ length: totalPaginas }, (_, i) => (
               <button
                 key={i + 1}
-                onClick={() => cambiarPagina(i + 1)}
-                className={`LiUs-boton-paginacion ${paginaActual === i + 1 ? 'active' : ''}`}
+                onClick={() => setPaginaActual(i + 1)}
+                className={`listarUsuarios-pagination-button ${paginaActual === i + 1 ? "active" : ""}`}
               >
                 {i + 1}
               </button>
             ))}
 
-            <button 
-              onClick={() => cambiarPagina(paginaActual + 1)} 
+            <button
+              onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
               disabled={paginaActual === totalPaginas}
-              className="LiUs-boton-paginacion"
+              className="listarUsuarios-pagination-button"
             >
               Siguiente
             </button>
@@ -253,7 +408,7 @@ function ListarUsuarios() {
         )}
       </div>
     </div>
-  );
+  )
 }
 
-export default ListarUsuarios;
+export default ListarUsuarios

@@ -1,194 +1,321 @@
-/* Estilos base */
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f0f2f5;
-  color: #333;
+.editarCategoriaRepuesto-container {
+  padding: 25px;
+  background-color: #f9fafb;
+  min-height: 100vh;
+  font-family: "Montserrat", sans-serif;
 }
 
-/* Contenedor principal */
-.contenedor,
-.CatRep-contenedor {
-  background-color: #fff;
-  padding: 2rem;
-  max-width: 1100px;
-  margin: auto;
-  border-radius: 15px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.15);
-}
-
-/* Títulos */
-.titulo,
-.CatRep-titulo {
-  text-align: center;
-  color: #4a4a4a;
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-/* Línea decorativa */
-.linea-decorativa {
-  height: 3px;
-  width: 50px;
-  background: #007bff;
-  margin: 0 auto 30px;
-  border-radius: 2px;
-}
-
-/* Formularios */
-.formulario,
-.CatRep-formulario {
+.editarCategoriaRepuesto-header {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
 }
 
-/* Grid de columnas */
-.grid,
-.CatRep-grid {
+.editarCategoriaRepuesto-header-left {
   display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 20px;
 }
 
-/* Columnas */
-.columna,
-.CatRep-columna {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  min-width: 280px;
-}
-
-/* Labels */
-.columna label,
-.CatRep-columna label,
-.CatRep-label {
+.editarCategoriaRepuesto-btn-back {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 10px;
   font-weight: 600;
-  color: #555;
-  margin-bottom: 0.3rem;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
 }
 
-/* Inputs */
-.input,
-.input select,
-.CatRep-input {
-  padding: 0.7rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
+.editarCategoriaRepuesto-btn-back:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
+}
+
+.editarCategoriaRepuesto-title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.editarCategoriaRepuesto-page-title {
+  font-size: 28px;
+  color: #1a202c;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.editarCategoriaRepuesto-title-icon {
+  color: #2563eb;
+  font-size: 24px;
+}
+
+.editarCategoriaRepuesto-subtitle {
+  color: #6b7280;
+  font-size: 16px;
+  margin: 0;
+}
+
+.editarCategoriaRepuesto-form {
   background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
 }
 
-.input:focus,
-select.input:focus,
-.CatRep-input:focus {
+.editarCategoriaRepuesto-form-section {
+  padding: 24px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.editarCategoriaRepuesto-form-section:last-child {
+  border-bottom: none;
+}
+
+.editarCategoriaRepuesto-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editarCategoriaRepuesto-section-icon {
+  color: #2563eb;
+  font-size: 16px;
+}
+
+.editarCategoriaRepuesto-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.editarCategoriaRepuesto-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.editarCategoriaRepuesto-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.editarCategoriaRepuesto-label-icon {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.editarCategoriaRepuesto-form-input {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  background-color: #f8fafc;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.editarCategoriaRepuesto-form-input:focus {
+  border-color: #3b82f6;
+  background-color: white;
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-/* Input con error */
-.input-error {
-  border-color: #dc3545;
+.editarCategoriaRepuesto-form-input.error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
 }
 
-.input-error:focus {
-  border-color: #dc3545;
-  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
+.editarCategoriaRepuesto-form-input.error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
-/* Texto de error */
-.error-text {
-  color: #dc3545;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-}
-
-/* Contenedor de botones */
-.botones,
-.botones-container {
+.editarCategoriaRepuesto-error-text {
+  font-size: 12px;
+  color: #ef4444;
   display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 8px 12px;
+  background-color: #fef2f2;
+  border-radius: 6px;
+  border-left: 3px solid #ef4444;
+}
+
+.editarCategoriaRepuesto-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 24px;
+  background-color: #f8fafc;
+}
+
+.editarCategoriaRepuesto-cancel-button {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editarCategoriaRepuesto-cancel-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
+}
+
+.editarCategoriaRepuesto-cancel-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.2);
+}
+
+.editarCategoriaRepuesto-submit-button {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editarCategoriaRepuesto-submit-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+}
+
+.editarCategoriaRepuesto-submit-button:disabled {
+  background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.editarCategoriaRepuesto-button-icon {
+  font-size: 12px;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loading */
+.editarCategoriaRepuesto-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: 10px;
-  margin-top: 1rem;
+  height: 400px;
+  text-align: center;
 }
 
-/* Botones primarios */
-.btn-primario,
-.CatRep-boton {
-  padding: 12px 24px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 25px;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+.editarCategoriaRepuesto-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: #2563eb;
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 16px;
 }
 
-.btn-primario:hover,
-.CatRep-boton:hover {
-  background-color: #0056b3;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
-}
-
-/* Botones secundarios */
-.btn-secundario,
-.CatRep-boton-cancelar {
-  padding: 12px 24px;
-  background-color: #6c757d;
-  color: white;
-  border: none;
-  border-radius: 25px;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
-}
-
-.btn-secundario:hover,
-.CatRep-boton-cancelar:hover {
-  background-color: #545b62;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4);
-}
-
-/* Estilos responsivos */
+/* Responsive Design */
 @media (max-width: 768px) {
-  .grid,
-  .CatRep-grid {
+  .editarCategoriaRepuesto-container {
+    padding: 16px;
+  }
+
+  .editarCategoriaRepuesto-header {
     flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
   }
-  
-  .columna,
-  .CatRep-columna {
-    min-width: 100%;
-  }
-  
-  .botones,
-  .botones-container {
+
+  .editarCategoriaRepuesto-header-left {
     flex-direction: column;
-    align-items: center;
+    gap: 12px;
   }
-  
-  .btn-primario,
-  .btn-secundario,
-  .CatRep-boton,
-  .CatRep-boton-cancelar {
-    width: auto;
-    min-width: 180px;
+
+  .editarCategoriaRepuesto-form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .editarCategoriaRepuesto-form-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .editarCategoriaRepuesto-cancel-button,
+  .editarCategoriaRepuesto-submit-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .editarCategoriaRepuesto-page-title {
+    font-size: 24px;
+  }
+
+  .editarCategoriaRepuesto-form-section {
+    padding: 16px;
+  }
+
+  .editarCategoriaRepuesto-form-actions {
+    padding: 16px;
   }
 }

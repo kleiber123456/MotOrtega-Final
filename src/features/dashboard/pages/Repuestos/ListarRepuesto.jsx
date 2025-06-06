@@ -8,17 +8,13 @@ import {
   FaTrash,
   FaEye,
   FaSearch,
-  FaFilter,
-  FaSpinner,
   FaExclamationTriangle,
   FaBox,
   FaToggleOn,
   FaToggleOff,
-  FaChevronLeft,
-  FaChevronRight,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/Repuesto.css"
+import "../../../../shared/styles/listarRepuesto.css"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
@@ -96,10 +92,11 @@ function ListarRepuestos() {
 
   // Estados de paginación
   const [paginaActual, setPaginaActual] = useState(1)
-  const [repuestosPorPagina] = useState(10)
+  const [repuestosPorPagina] = useState(4)
 
   // Cargar datos iniciales
   useEffect(() => {
+    document.body.style.backgroundColor = "#f9fafb"
     const cargarDatos = async () => {
       try {
         setIsLoading(true)
@@ -136,6 +133,9 @@ function ListarRepuestos() {
     }
 
     cargarDatos()
+    return () => {
+      document.body.style.background = ""
+    }
   }, [makeRequest])
 
   // Filtrar repuestos
@@ -156,7 +156,7 @@ function ListarRepuestos() {
 
   // Manejadores
   const handleSearch = useCallback((e) => {
-    setBusqueda(e.target.value)
+    setBusqueda(e.target.value.toLowerCase())
     setPaginaActual(1)
   }, [])
 
@@ -175,6 +175,19 @@ function ListarRepuestos() {
       const nuevoEstado = estadoActual === "Activo" ? "Inactivo" : "Activo"
 
       try {
+        const result = await Swal.fire({
+          title: `¿Cambiar estado a ${nuevoEstado}?`,
+          text: `El repuesto será marcado como ${nuevoEstado.toLowerCase()}`,
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonColor: "#2563eb",
+          cancelButtonColor: "#6b7280",
+          confirmButtonText: "Sí, cambiar",
+          cancelButtonText: "Cancelar",
+        })
+
+        if (!result.isConfirmed) return
+
         await makeRequest(`/repuestos/estado/${id}`, {
           method: "PUT",
           body: JSON.stringify({ estado: nuevoEstado }),
@@ -263,245 +276,194 @@ function ListarRepuestos() {
 
   if (isLoading) {
     return (
-      <div className="repuestos-container">
-        <div className="repuestos-loading">
-          <FaSpinner className="spinning" />
-          <h2>Cargando repuestos...</h2>
-          <p>Por favor espere un momento</p>
+      <div className="listarRepuesto-container">
+        <div className="listarRepuesto-loading">
+          <div className="listarRepuesto-spinner"></div>
+          <p>Cargando repuestos...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="repuestos-container">
-      <div className="repuestos-header">
-        <div className="repuestos-header-content">
-          <h1 className="repuestos-page-title">
-            <FaBox className="repuestos-title-icon" />
+    <div className="listarRepuesto-container">
+      <div className="listarRepuesto-header">
+        <div className="listarRepuesto-title-section">
+          <h1 className="listarRepuesto-page-title">
+            <FaBox className="listarRepuesto-title-icon" />
             Gestión de Repuestos
           </h1>
-          <p className="repuestos-subtitle">Administra el inventario de repuestos de la empresa</p>
+          <p className="listarRepuesto-subtitle">Administra el inventario de repuestos de la empresa</p>
         </div>
-        <button className="repuestos-create-button" onClick={() => navigate("/crearRepuestos")}>
-          <FaPlus className="repuestos-button-icon" />
+        <button className="listarRepuesto-create-button" onClick={() => navigate("/crearRepuestos")}>
+          <FaPlus className="listarRepuesto-button-icon" />
           Crear Repuesto
         </button>
       </div>
 
       {/* Filtros */}
-      <div className="repuestos-filters-section">
-        <div className="repuestos-filters-header">
-          <h3>
-            <FaFilter className="repuestos-section-icon" />
-            Filtros de Búsqueda
-          </h3>
-          <button className="repuestos-clear-filters-button" onClick={limpiarFiltros}>
-            Limpiar Filtros
-          </button>
-        </div>
-
-        <div className="repuestos-filters-grid">
-          <div className="repuestos-filter-group">
-            <label className="repuestos-filter-label">
-              <FaSearch className="repuestos-filter-icon" />
-              Buscar
-            </label>
+      <div className="listarRepuesto-filters-container">
+        <div className="listarRepuesto-filter-item">
+          <label className="listarRepuesto-filter-label">Buscar:</label>
+          <div className="listarRepuesto-search-container">
+            <FaSearch className="listarRepuesto-search-icon" />
             <input
               type="text"
-              className="repuestos-filter-input"
+              className="listarRepuesto-search-input"
               placeholder="Buscar por nombre o descripción..."
               value={busqueda}
               onChange={handleSearch}
             />
           </div>
+        </div>
 
-          <div className="repuestos-filter-group">
-            <label className="repuestos-filter-label">
-              <FaBox className="repuestos-filter-icon" />
-              Categoría
-            </label>
-            <select value={categoriaFiltro} onChange={handleCategoriaFilter} className="repuestos-filter-select">
-              <option value="">Todas las categorías</option>
-              {listaCategoriasCompleta.map((cat) => (
-                <option key={cat.id} value={cat.id.toString()}>
-                  {cat.nombre}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div className="listarRepuesto-filter-item">
+          <label className="listarRepuesto-filter-label">Categoría:</label>
+          <select value={categoriaFiltro} onChange={handleCategoriaFilter} className="listarRepuesto-filter-select">
+            <option value="">Todas las categorías</option>
+            {listaCategoriasCompleta.map((cat) => (
+              <option key={cat.id} value={cat.id.toString()}>
+                {cat.nombre}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          <div className="repuestos-filter-group">
-            <label className="repuestos-filter-label">
-              <FaToggleOn className="repuestos-filter-icon" />
-              Estado
-            </label>
-            <select value={estadoFiltro} onChange={handleEstadoFilter} className="repuestos-filter-select">
-              <option value="">Todos los estados</option>
-              <option value="Activo">Activo</option>
-              <option value="Inactivo">Inactivo</option>
-            </select>
-          </div>
+        <div className="listarRepuesto-filter-item">
+          <label className="listarRepuesto-filter-label">Estado:</label>
+          <select value={estadoFiltro} onChange={handleEstadoFilter} className="listarRepuesto-filter-select">
+            <option value="">Todos los estados</option>
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+          </select>
         </div>
       </div>
 
       {/* Tabla de repuestos */}
-      <div className="repuestos-table-section">
-        <div className="repuestos-table-header">
-          <h3>Lista de Repuestos ({repuestosFiltrados.length})</h3>
-        </div>
-
-        <div className="repuestos-table-container">
-          <table className="repuestos-table">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Categoría</th>
-                <th>Cantidad</th>
-                <th>Precio Unitario</th>
-                <th>Total</th>
-                <th>Estado</th>
-                <th>Acciones</th>
+      <div className="listarRepuesto-table-container">
+        <table className="listarRepuesto-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th>Categoría</th>
+              <th>Cantidad</th>
+              <th>Precio Unitario</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {repuestosActuales.map((repuesto) => (
+              <tr key={repuesto.id}>
+                <td>
+                  <div className="listarRepuesto-product-info">
+                    <span className="listarRepuesto-product-name">{repuesto.nombre}</span>
+                  </div>
+                </td>
+                <td>
+                  <div className="listarRepuesto-description" title={repuesto.descripcion || "Sin descripción"}>
+                    {repuesto.descripcion
+                      ? repuesto.descripcion.length > 50
+                        ? repuesto.descripcion.substring(0, 50) + "..."
+                        : repuesto.descripcion
+                      : "Sin descripción"}
+                  </div>
+                </td>
+                <td>
+                  <span className="listarRepuesto-category-badge">
+                    {categorias[repuesto.categoria_repuesto_id] || "Sin categoría"}
+                  </span>
+                </td>
+                <td>
+                  <span className="listarRepuesto-quantity">{repuesto.cantidad || 0}</span>
+                </td>
+                <td>
+                  <span className="listarRepuesto-price">{formatearPrecio(repuesto.preciounitario)}</span>
+                </td>
+                <td>
+                  <span className="listarRepuesto-total">{formatearPrecio(repuesto.total)}</span>
+                </td>
+                <td>
+                  <button
+                    className={`listarRepuesto-estado-toggle ${
+                      repuesto.estado?.toLowerCase() === "activo" ? "activo" : "inactivo"
+                    }`}
+                    onClick={() => handleCambiarEstado(repuesto.id, repuesto.estado)}
+                    title={`Estado: ${repuesto.estado} - Click para cambiar`}
+                  >
+                    {repuesto.estado?.toLowerCase() === "activo" ? (
+                      <FaToggleOn className="listarRepuesto-toggle-icon" />
+                    ) : (
+                      <FaToggleOff className="listarRepuesto-toggle-icon" />
+                    )}
+                    <span className="listarRepuesto-estado-text">{repuesto.estado}</span>
+                  </button>
+                </td>
+                <td className="listarRepuesto-actions">
+                  <button
+                    className="listarRepuesto-action-button edit"
+                    onClick={() => navigate(`/repuestos/editar/${repuesto.id}`)}
+                    title="Editar repuesto"
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    className="listarRepuesto-action-button delete"
+                    onClick={() => handleEliminar(repuesto.id, repuesto.nombre)}
+                    title="Eliminar repuesto"
+                  >
+                    <FaTrash />
+                  </button>
+                  <button
+                    className="listarRepuesto-action-button detail"
+                    onClick={() => navigate(`/DetalleRepuesto/${repuesto.id}`)}
+                    title="Ver detalle"
+                  >
+                    <FaEye />
+                  </button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {repuestosActuales.map((repuesto) => (
-                <tr key={repuesto.id} className="repuestos-table-row">
-                  <td className="repuestos-table-cell">
-                    <div className="repuestos-product-name">{repuesto.nombre}</div>
-                  </td>
-                  <td className="repuestos-table-cell">
-                    <div className="repuestos-description" title={repuesto.descripcion || "Sin descripción"}>
-                      {repuesto.descripcion
-                        ? repuesto.descripcion.length > 50
-                          ? repuesto.descripcion.substring(0, 50) + "..."
-                          : repuesto.descripcion
-                        : "Sin descripción"}
-                    </div>
-                  </td>
-                  <td className="repuestos-table-cell">
-                    <span className="repuestos-category-badge">
-                      {categorias[repuesto.categoria_repuesto_id] || "Sin categoría"}
-                    </span>
-                  </td>
-                  <td className="repuestos-table-cell">
-                    <span className="repuestos-quantity">{repuesto.cantidad || 0}</span>
-                  </td>
-                  <td className="repuestos-table-cell">
-                    <span className="repuestos-price">{formatearPrecio(repuesto.preciounitario)}</span>
-                  </td>
-                  <td className="repuestos-table-cell">
-                    <span className="repuestos-total">{formatearPrecio(repuesto.total)}</span>
-                  </td>
-                  <td className="repuestos-table-cell">
-                    <button
-                      className={`repuestos-status-toggle ${repuesto.estado === "Activo" ? "active" : "inactive"}`}
-                      onClick={() => handleCambiarEstado(repuesto.id, repuesto.estado)}
-                      title={`Cambiar a ${repuesto.estado === "Activo" ? "Inactivo" : "Activo"}`}
-                    >
-                      {repuesto.estado === "Activo" ? (
-                        <FaToggleOn className="repuestos-toggle-icon" />
-                      ) : (
-                        <FaToggleOff className="repuestos-toggle-icon" />
-                      )}
-                      <span className="repuestos-status-text">{repuesto.estado}</span>
-                    </button>
-                  </td>
-                  <td className="repuestos-table-cell">
-                    <div className="repuestos-actions">
-                      <button
-                        className="repuestos-action-button view"
-                        onClick={() => navigate(`/DetalleRepuesto/${repuesto.id}`)}
-                        title="Ver detalles"
-                      >
-                        <FaEye />
-                      </button>
-                      <button
-                        className="repuestos-action-button edit"
-                        onClick={() => navigate(`/repuestos/editar/${repuesto.id}`)}
-                        title="Editar repuesto"
-                      >
-                        <FaEdit />
-                      </button>
-                      <button
-                        className="repuestos-action-button delete"
-                        onClick={() => handleEliminar(repuesto.id, repuesto.nombre)}
-                        title="Eliminar repuesto"
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            ))}
+          </tbody>
+        </table>
 
-          {repuestosFiltrados.length === 0 && (
-            <div className="repuestos-no-results">
-              <FaExclamationTriangle className="repuestos-no-results-icon" />
-              <h3>No se encontraron repuestos</h3>
-              <p>No hay repuestos que coincidan con los criterios de búsqueda.</p>
-              <button className="repuestos-clear-filters-button" onClick={limpiarFiltros}>
-                Limpiar Filtros
-              </button>
-            </div>
-          )}
-        </div>
+        {repuestosFiltrados.length === 0 && (
+          <div className="listarRepuesto-no-results">
+            <FaExclamationTriangle className="listarRepuesto-no-results-icon" />
+            <p>No se encontraron repuestos con los criterios de búsqueda.</p>
+          </div>
+        )}
 
         {/* Paginación */}
-        {totalPaginas > 1 && (
-          <div className="repuestos-pagination">
-            <div className="repuestos-pagination-info">
-              Mostrando {indicePrimerRepuesto + 1} - {Math.min(indiceUltimoRepuesto, repuestosFiltrados.length)} de{" "}
-              {repuestosFiltrados.length} repuestos
-            </div>
+        {repuestosFiltrados.length > repuestosPorPagina && (
+          <div className="listarRepuesto-pagination">
+            <button
+              onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
+              disabled={paginaActual === 1}
+              className="listarRepuesto-pagination-button"
+            >
+              Anterior
+            </button>
 
-            <div className="repuestos-pagination-controls">
+            {Array.from({ length: totalPaginas }, (_, i) => (
               <button
-                onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
-                disabled={paginaActual === 1}
-                className="repuestos-pagination-button"
+                key={i + 1}
+                onClick={() => setPaginaActual(i + 1)}
+                className={`listarRepuesto-pagination-button ${paginaActual === i + 1 ? "active" : ""}`}
               >
-                <FaChevronLeft />
-                Anterior
+                {i + 1}
               </button>
+            ))}
 
-              <div className="repuestos-pagination-numbers">
-                {Array.from({ length: Math.min(5, totalPaginas) }, (_, i) => {
-                  let pageNumber
-                  if (totalPaginas <= 5) {
-                    pageNumber = i + 1
-                  } else if (paginaActual <= 3) {
-                    pageNumber = i + 1
-                  } else if (paginaActual >= totalPaginas - 2) {
-                    pageNumber = totalPaginas - 4 + i
-                  } else {
-                    pageNumber = paginaActual - 2 + i
-                  }
-
-                  return (
-                    <button
-                      key={pageNumber}
-                      onClick={() => setPaginaActual(pageNumber)}
-                      className={`repuestos-pagination-number ${paginaActual === pageNumber ? "active" : ""}`}
-                    >
-                      {pageNumber}
-                    </button>
-                  )
-                })}
-              </div>
-
-              <button
-                onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
-                disabled={paginaActual === totalPaginas}
-                className="repuestos-pagination-button"
-              >
-                Siguiente
-                <FaChevronRight />
-              </button>
-            </div>
+            <button
+              onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
+              disabled={paginaActual === totalPaginas}
+              className="listarRepuesto-pagination-button"
+            >
+              Siguiente
+            </button>
           </div>
         )}
       </div>

@@ -13,8 +13,8 @@ import {
   FaExclamationTriangle,
   FaCheckCircle,
   FaSearch,
-  FaEdit,
   FaTrash,
+  FaSave,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/CrearCompras.css"
@@ -80,7 +80,7 @@ const useApi = () => {
 }
 
 // Componente principal mejorado
-const ComprasFormMejorado = () => {
+const CrearCompra = () => {
   const navigate = useNavigate()
   const { makeRequest, loading: apiLoading } = useApi()
 
@@ -285,31 +285,33 @@ const ComprasFormMejorado = () => {
   }, [selectedProducts.length, selectedSupplier, navigate])
 
   return (
-    <div className="crearCompras-container">
-      <div className="crearCompras-header">
-        <h1 className="crearCompras-page-title">
-          <FaShoppingCart className="crearCompras-title-icon" />
-          Nueva Compra
-        </h1>
-        <p className="crearCompras-subtitle">Registra una nueva compra de productos</p>
+    <div className="crearCompra-container">
+      <div className="crearCompra-header">
+        <div className="crearCompra-title-section">
+          <h1 className="crearCompra-page-title">
+            <FaShoppingCart className="crearCompra-title-icon" />
+            Crear Compra
+          </h1>
+          <p className="crearCompra-subtitle">Registra una nueva compra de productos</p>
+        </div>
       </div>
 
-      <form className="crearCompras-form" onSubmit={handleSubmit}>
-        <div className="crearCompras-form-section">
-          <h3 className="crearCompras-section-title">
-            <FaUser className="crearCompras-section-icon" />
+      <form className="crearCompra-form" onSubmit={handleSubmit}>
+        <div className="crearCompra-form-section">
+          <h3 className="crearCompra-section-title">
+            <FaUser className="crearCompra-section-icon" />
             Información General
           </h3>
-          <div className="crearCompras-form-grid">
-            <div className="crearCompras-form-group">
-              <label htmlFor="supplierName" className="crearCompras-label">
-                <FaUser className="crearCompras-label-icon" />
+          <div className="crearCompra-form-grid">
+            <div className="crearCompra-form-group">
+              <label htmlFor="supplierName" className="crearCompra-label">
+                <FaUser className="crearCompra-label-icon" />
                 Proveedor *
               </label>
               <input
                 type="text"
                 id="supplierName"
-                className={`crearCompras-form-input ${formErrors.supplier ? "error" : ""}`}
+                className={`crearCompra-form-input ${formErrors.supplier ? "error" : ""}`}
                 placeholder="Seleccione un proveedor"
                 value={selectedSupplier ? selectedSupplier.nombre : ""}
                 readOnly
@@ -318,29 +320,29 @@ const ComprasFormMejorado = () => {
                 required
               />
               {formErrors.supplier && (
-                <span className="crearCompras-error-text">
+                <span className="crearCompra-error-text">
                   <FaExclamationTriangle /> {formErrors.supplier}
                 </span>
               )}
             </div>
 
-            <div className="crearCompras-form-group">
-              <label htmlFor="fecha" className="crearCompras-label">
-                <FaCalendarAlt className="crearCompras-label-icon" />
+            <div className="crearCompra-form-group">
+              <label htmlFor="fecha" className="crearCompra-label">
+                <FaCalendarAlt className="crearCompra-label-icon" />
                 Fecha *
               </label>
               <input
                 type="date"
                 id="fecha"
                 name="fecha"
-                className={`crearCompras-form-input ${formErrors.fecha ? "error" : ""}`}
+                className={`crearCompra-form-input ${formErrors.fecha ? "error" : ""}`}
                 value={formData.fecha}
                 onChange={handleInputChange}
                 max={new Date().toISOString().substr(0, 10)}
                 required
               />
               {formErrors.fecha && (
-                <span className="crearCompras-error-text">
+                <span className="crearCompra-error-text">
                   <FaExclamationTriangle /> {formErrors.fecha}
                 </span>
               )}
@@ -348,57 +350,47 @@ const ComprasFormMejorado = () => {
           </div>
         </div>
 
-        <div className="crearCompras-form-section">
-          <h3 className="crearCompras-section-title">
-            <FaBoxes className="crearCompras-section-icon" />
+        <div className="crearCompra-form-section">
+          <h3 className="crearCompra-section-title">
+            <FaBoxes className="crearCompra-section-icon" />
             Productos
           </h3>
-          <div className="crearCompras-add-products-section">
+          <div className="crearCompra-add-products-section">
             <button
               type="button"
-              className="crearCompras-create-button"
+              className="crearCompra-create-button"
               onClick={openProductModal}
               disabled={isSubmitting}
             >
-              <FaPlus className="crearCompras-button-icon" />
+              <FaPlus className="crearCompra-button-icon" />
               Añadir Productos
             </button>
           </div>
 
           {formErrors.products && (
-            <div className="crearCompras-error-message">
+            <div className="crearCompra-error-message">
               <FaExclamationTriangle /> {formErrors.products}
             </div>
           )}
 
           {/* Sección de productos seleccionados mejorada */}
           {selectedProducts.length > 0 && (
-            <div className="crearCompras-selected-products-section">
-              <div className="crearCompras-products-header">
+            <div className="crearCompra-selected-products-section">
+              <div className="crearCompra-products-header">
                 <h4>Productos Seleccionados</h4>
-                <span className="crearCompras-products-count">
+                <span className="crearCompra-products-count">
                   {selectedProducts.length} producto{selectedProducts.length !== 1 ? "s" : ""}
                 </span>
               </div>
-              <div className="crearCompras-product-cards">
+              <div className="crearCompra-product-cards">
                 {selectedProducts.map((product) => (
-                  <div key={product.id} className="crearCompras-product-card-selected">
-                    <div className="crearCompras-product-card-header">
-                      <h4 className="crearCompras-product-name">{product.nombre}</h4>
-                      <div className="crearCompras-product-actions">
+                  <div key={product.id} className="crearCompra-product-card-selected">
+                    <div className="crearCompra-product-card-header">
+                      <h4 className="crearCompra-product-name">{product.nombre}</h4>
+                      <div className="crearCompra-product-actions">
                         <button
                           type="button"
-                          className="crearCompras-edit-button"
-                          onClick={() => {
-                            console.log("Editar producto:", product.id)
-                          }}
-                          title="Editar producto"
-                        >
-                          <FaEdit />
-                        </button>
-                        <button
-                          type="button"
-                          className="crearCompras-remove-button"
+                          className="crearCompra-remove-button"
                           onClick={() => removeProduct(product.id)}
                           title="Eliminar producto"
                         >
@@ -406,38 +398,36 @@ const ComprasFormMejorado = () => {
                         </button>
                       </div>
                     </div>
-                    <div className="crearCompras-product-card-details">
-                      <div className="crearCompras-product-info-grid">
-                        <div className="crearCompras-info-item">
-                          <span className="crearCompras-info-label">Precio:</span>
-                          <div className="crearCompras-editable-field">
+                    <div className="crearCompra-product-card-details">
+                      <div className="crearCompra-product-info-grid">
+                        <div className="crearCompra-info-item">
+                          <span className="crearCompra-info-label">Precio:</span>
+                          <div className="crearCompra-editable-field">
                             <input
                               type="number"
                               min="0"
                               step="0.01"
                               value={product.price}
                               onChange={(e) => updateProductPrice(product.id, Number.parseFloat(e.target.value) || 0)}
-                              className="crearCompras-inline-input"
+                              className="crearCompra-inline-input"
                             />
                           </div>
                         </div>
-                        <div className="crearCompras-info-item">
-                          <span className="crearCompras-info-label">Cantidad:</span>
-                          <div className="crearCompras-editable-field">
+                        <div className="crearCompra-info-item">
+                          <span className="crearCompra-info-label">Cantidad:</span>
+                          <div className="crearCompra-editable-field">
                             <input
                               type="number"
                               min="1"
                               value={product.quantity}
                               onChange={(e) => updateProductQuantity(product.id, Number.parseInt(e.target.value) || 1)}
-                              className="crearCompras-inline-input"
+                              className="crearCompra-inline-input"
                             />
                           </div>
                         </div>
-                        <div className="crearCompras-info-item crearCompras-subtotal-item">
-                          <span className="crearCompras-info-label">Subtotal:</span>
-                          <span className="crearCompras-subtotal">
-                            ${(product.price * product.quantity).toFixed(2)}
-                          </span>
+                        <div className="crearCompra-info-item crearCompra-subtotal-item">
+                          <span className="crearCompra-info-label">Subtotal:</span>
+                          <span className="crearCompra-subtotal">${(product.price * product.quantity).toFixed(2)}</span>
                         </div>
                       </div>
                     </div>
@@ -445,10 +435,10 @@ const ComprasFormMejorado = () => {
                 ))}
               </div>
 
-              <div className="crearCompras-total-section">
-                <div className="crearCompras-total-card">
-                  <span className="crearCompras-total-label">Total de la Compra:</span>
-                  <span className="crearCompras-total-amount">${total.toFixed(2)}</span>
+              <div className="crearCompra-total-section">
+                <div className="crearCompra-total-card">
+                  <span className="crearCompra-total-label">Total de la Compra:</span>
+                  <span className="crearCompra-total-amount">${total.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -456,20 +446,20 @@ const ComprasFormMejorado = () => {
         </div>
 
         {/* Acciones del formulario mejoradas */}
-        <div className="crearCompras-form-actions">
-          <button type="button" className="crearCompras-cancel-button" onClick={handleCancel} disabled={isSubmitting}>
-            <FaTimes className="crearCompras-button-icon" />
+        <div className="crearCompra-form-actions">
+          <button type="button" className="crearCompra-cancel-button" onClick={handleCancel} disabled={isSubmitting}>
+            <FaTimes className="crearCompra-button-icon" />
             Cancelar
           </button>
-          <button type="submit" className="crearCompras-submit-button" disabled={isSubmitting || apiLoading}>
+          <button type="submit" className="crearCompra-submit-button" disabled={isSubmitting || apiLoading}>
             {isSubmitting ? (
               <>
-                <FaSpinner className="crearCompras-button-icon spinning" />
+                <FaSpinner className="crearCompra-button-icon spinning" />
                 Guardando...
               </>
             ) : (
               <>
-                <FaCheckCircle className="crearCompras-button-icon" />
+                <FaSave className="crearCompra-button-icon" />
                 Guardar Compra
               </>
             )}
@@ -479,7 +469,7 @@ const ComprasFormMejorado = () => {
 
       {/* Modales */}
       {showProductModal && (
-        <ProductModalMejorado
+        <ProductModal
           closeModal={closeProductModal}
           addProduct={(products) => {
             if (Array.isArray(products)) {
@@ -492,13 +482,13 @@ const ComprasFormMejorado = () => {
         />
       )}
 
-      {showSupplierModal && <SupplierModalMejorado closeModal={closeSupplierModal} selectSupplier={selectSupplier} />}
+      {showSupplierModal && <SupplierModal closeModal={closeSupplierModal} selectSupplier={selectSupplier} />}
     </div>
   )
 }
 
-// Componente Modal de Productos Mejorado
-const ProductModalMejorado = ({ closeModal, addProduct, existingProducts }) => {
+// Componente Modal de Productos
+const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
   const { makeRequest, loading, error } = useApi()
   const [searchTerm, setSearchTerm] = useState("")
   const [products, setProducts] = useState([])
@@ -598,13 +588,13 @@ const ProductModalMejorado = ({ closeModal, addProduct, existingProducts }) => {
 
   if (loading) {
     return (
-      <div className="crearCompras-modal-overlay">
-        <div className="crearCompras-large-modal">
-          <div className="crearCompras-modal-header">
+      <div className="crearCompra-modal-overlay">
+        <div className="crearCompra-large-modal">
+          <div className="crearCompra-modal-header">
             <h2>
               <FaSpinner className="spinning" /> Cargando productos...
             </h2>
-            <button type="button" className="crearCompras-close-modal-button" onClick={closeModal}>
+            <button type="button" className="crearCompra-close-modal-button" onClick={closeModal}>
               <FaTimes />
             </button>
           </div>
@@ -615,20 +605,20 @@ const ProductModalMejorado = ({ closeModal, addProduct, existingProducts }) => {
 
   if (error) {
     return (
-      <div className="crearCompras-modal-overlay">
-        <div className="crearCompras-large-modal">
-          <div className="crearCompras-modal-header">
+      <div className="crearCompra-modal-overlay">
+        <div className="crearCompra-large-modal">
+          <div className="crearCompra-modal-header">
             <h2>
               <FaExclamationTriangle /> Error
             </h2>
-            <button type="button" className="crearCompras-close-modal-button" onClick={closeModal}>
+            <button type="button" className="crearCompra-close-modal-button" onClick={closeModal}>
               <FaTimes />
             </button>
           </div>
-          <div className="crearCompras-modal-content">
-            <div className="crearCompras-error-message">
+          <div className="crearCompra-modal-content">
+            <div className="crearCompra-error-message">
               <p>{error}</p>
-              <button className="crearCompras-retry-button" onClick={() => window.location.reload()}>
+              <button className="crearCompra-retry-button" onClick={() => window.location.reload()}>
                 Reintentar
               </button>
             </div>
@@ -639,69 +629,71 @@ const ProductModalMejorado = ({ closeModal, addProduct, existingProducts }) => {
   }
 
   return (
-    <div className="crearCompras-modal-overlay">
-      <div className="crearCompras-large-modal">
-        <div className="crearCompras-modal-header">
+    <div className="crearCompra-modal-overlay">
+      <div className="crearCompra-large-modal">
+        <div className="crearCompra-modal-header">
           <h2>
-            <FaBoxes className="crearCompras-modal-icon" />
+            <FaBoxes className="crearCompra-modal-icon" />
             Añadir Productos
           </h2>
-          <button type="button" className="crearCompras-close-modal-button" onClick={closeModal}>
+          <button type="button" className="crearCompra-close-modal-button" onClick={closeModal}>
             <FaTimes />
           </button>
         </div>
 
-        <div className="crearCompras-modal-content">
-          <div className="crearCompras-left-pane">
-            <div className="crearCompras-search-section">
+        <div className="crearCompra-modal-content">
+          <div className="crearCompra-left-pane">
+            <div className="crearCompra-search-section">
               <h4>Buscar Productos</h4>
-              <div className="crearCompras-search-bar">
-                <FaSearch className="crearCompras-search-icon" />
+              <div className="crearCompra-search-container">
+                <FaSearch className="crearCompra-search-icon" />
                 <input
                   type="text"
                   placeholder="Buscar productos..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  className="crearCompra-search-input"
                 />
               </div>
             </div>
 
-            <div className="crearCompras-product-list">
+            <div className="crearCompra-product-list">
               {availableProducts.length === 0 ? (
-                <div className="crearCompras-no-results">
-                  {searchTerm ? "No se encontraron productos" : "No hay productos disponibles"}
+                <div className="crearCompra-no-results">
+                  <FaExclamationTriangle className="crearCompra-no-results-icon" />
+                  <p>{searchTerm ? "No se encontraron productos" : "No hay productos disponibles"}</p>
                 </div>
               ) : (
                 availableProducts.map((product) => (
-                  <div key={product.id} className="crearCompras-product-card">
-                    <div className="crearCompras-product-info">
-                      <div className="crearCompras-product-main-info">
-                        <span className="crearCompras-product-name">{product.nombre}</span>
-                        <span className="crearCompras-product-price">${(product.preciounitario || 0).toFixed(2)}</span>
+                  <div key={product.id} className="crearCompra-product-card">
+                    <div className="crearCompra-product-info">
+                      <div className="crearCompra-product-main-info">
+                        <span className="crearCompra-product-name">{product.nombre}</span>
+                        <span className="crearCompra-product-price">${(product.preciounitario || 0).toFixed(2)}</span>
                       </div>
-                      <span className="crearCompras-product-stock">Stock: {product.cantidad || 0}</span>
+                      <span className="crearCompra-product-stock">Stock: {product.cantidad || 0}</span>
                       {product.descripcion && (
-                        <span className="crearCompras-product-description">{product.descripcion}</span>
+                        <span className="crearCompra-product-description">{product.descripcion}</span>
                       )}
                     </div>
-                    <div className="crearCompras-product-actions">
-                      <div className="crearCompras-input-group">
-                        <div className="crearCompras-input-item">
+                    <div className="crearCompra-product-actions">
+                      <div className="crearCompra-input-group">
+                        <div className="crearCompra-input-item">
                           <label>Cantidad</label>
                           <input
                             type="number"
-                            className="crearCompras-quantity-input"
+                            className="crearCompra-quantity-input"
                             min="1"
                             max={product.cantidad}
                             defaultValue="1"
                             id={`quantity-${product.id}`}
                           />
                         </div>
-                        <div className="crearCompras-input-item">
+                        <div className="crearCompra-input-item">
                           <label>Precio</label>
                           <input
                             type="number"
-                            className="crearCompras-quantity-input"
+                            className="crearCompra-quantity-input"
                             min="0"
                             step="0.01"
                             defaultValue={product.preciounitario || 0}
@@ -713,7 +705,7 @@ const ProductModalMejorado = ({ closeModal, addProduct, existingProducts }) => {
                       </div>
                       <button
                         type="button"
-                        className="crearCompras-add-button"
+                        className="crearCompra-add-button"
                         onClick={() => {
                           const quantityInput = document.getElementById(`quantity-${product.id}`)
                           const priceInput = document.getElementById(`price-${product.id}`)
@@ -742,45 +734,45 @@ const ProductModalMejorado = ({ closeModal, addProduct, existingProducts }) => {
             </div>
           </div>
 
-          <div className="crearCompras-right-pane">
-            <div className="crearCompras-cart-header">
+          <div className="crearCompra-right-pane">
+            <div className="crearCompra-cart-header">
               <h4>Productos Seleccionados</h4>
-              <span className="crearCompras-cart-count">
+              <span className="crearCompra-cart-count">
                 {cartItems.length} item{cartItems.length !== 1 ? "s" : ""}
               </span>
             </div>
-            <div className="crearCompras-cart-items">
+            <div className="crearCompra-cart-items">
               {cartItems.length === 0 ? (
-                <div className="crearCompras-empty-cart-message">
-                  <FaShoppingCart className="crearCompras-empty-icon" />
+                <div className="crearCompra-empty-cart-message">
+                  <FaShoppingCart className="crearCompra-empty-icon" />
                   <p>No hay productos seleccionados</p>
                 </div>
               ) : (
                 cartItems.map((item) => (
-                  <div key={item.id} className="crearCompras-cart-item">
-                    <div className="crearCompras-cart-item-header">
-                      <span className="crearCompras-cart-item-name">{item.nombre}</span>
+                  <div key={item.id} className="crearCompra-cart-item">
+                    <div className="crearCompra-cart-item-header">
+                      <span className="crearCompra-cart-item-name">{item.nombre}</span>
                       <button
                         type="button"
-                        className="crearCompras-remove-cart-item"
+                        className="crearCompra-remove-cart-item"
                         onClick={() => handleRemoveFromCart(item.id)}
                       >
                         <FaTimes />
                       </button>
                     </div>
-                    <div className="crearCompras-cart-item-details">
-                      <div className="crearCompras-cart-controls">
-                        <div className="crearCompras-control-group">
+                    <div className="crearCompra-cart-item-details">
+                      <div className="crearCompra-cart-controls">
+                        <div className="crearCompra-control-group">
                           <label>Cantidad:</label>
                           <input
                             type="number"
                             min="1"
                             value={item.quantity}
                             onChange={(e) => updateCartItemQuantity(item.id, Number.parseInt(e.target.value) || 1)}
-                            className="crearCompras-control-input"
+                            className="crearCompra-control-input"
                           />
                         </div>
-                        <div className="crearCompras-control-group">
+                        <div className="crearCompra-control-group">
                           <label>Precio:</label>
                           <input
                             type="number"
@@ -788,13 +780,13 @@ const ProductModalMejorado = ({ closeModal, addProduct, existingProducts }) => {
                             step="0.01"
                             value={item.price || 0}
                             onChange={(e) => updateCartItemPrice(item.id, Number.parseFloat(e.target.value) || 0)}
-                            className="crearCompras-control-input"
+                            className="crearCompra-control-input"
                             onFocus={(e) => e.target.select()}
                             placeholder="0.00"
                           />
                         </div>
                       </div>
-                      <div className="crearCompras-cart-item-total">
+                      <div className="crearCompra-cart-item-total">
                         Subtotal: <strong>${(item.price * item.quantity).toFixed(2)}</strong>
                       </div>
                     </div>
@@ -803,18 +795,18 @@ const ProductModalMejorado = ({ closeModal, addProduct, existingProducts }) => {
               )}
             </div>
 
-            <div className="crearCompras-cart-summary">
-              <div className="crearCompras-cart-total">
+            <div className="crearCompra-cart-summary">
+              <div className="crearCompra-cart-total">
                 <span>Total:</span>
                 <strong>${total.toFixed(2)}</strong>
               </div>
               <button
                 type="button"
-                className="crearCompras-confirm-cart-button"
+                className="crearCompra-confirm-cart-button"
                 onClick={handleConfirm}
                 disabled={cartItems.length === 0}
               >
-                <FaCheckCircle className="crearCompras-button-icon" />
+                <FaCheckCircle className="crearCompra-button-icon" />
                 Confirmar Selección ({cartItems.length})
               </button>
             </div>
@@ -825,8 +817,8 @@ const ProductModalMejorado = ({ closeModal, addProduct, existingProducts }) => {
   )
 }
 
-// Componente Modal de Proveedores Mejorado
-const SupplierModalMejorado = ({ closeModal, selectSupplier }) => {
+// Componente Modal de Proveedores
+const SupplierModal = ({ closeModal, selectSupplier }) => {
   const { makeRequest, loading, error } = useApi()
   const [searchTerm, setSearchTerm] = useState("")
   const [suppliers, setSuppliers] = useState([])
@@ -878,13 +870,13 @@ const SupplierModalMejorado = ({ closeModal, selectSupplier }) => {
 
   if (loading) {
     return (
-      <div className="crearCompras-supplier-modal-overlay">
-        <div className="crearCompras-supplier-modal">
-          <div className="crearCompras-supplier-modal-header">
+      <div className="crearCompra-supplier-modal-overlay">
+        <div className="crearCompra-supplier-modal">
+          <div className="crearCompra-supplier-modal-header">
             <h2>
               <FaSpinner className="spinning" /> Cargando proveedores...
             </h2>
-            <button type="button" className="crearCompras-supplier-close-button" onClick={closeModal}>
+            <button type="button" className="crearCompra-supplier-close-button" onClick={closeModal}>
               <FaTimes />
             </button>
           </div>
@@ -895,20 +887,20 @@ const SupplierModalMejorado = ({ closeModal, selectSupplier }) => {
 
   if (error) {
     return (
-      <div className="crearCompras-supplier-modal-overlay">
-        <div className="crearCompras-supplier-modal">
-          <div className="crearCompras-supplier-modal-header">
+      <div className="crearCompra-supplier-modal-overlay">
+        <div className="crearCompra-supplier-modal">
+          <div className="crearCompra-supplier-modal-header">
             <h2>
               <FaExclamationTriangle /> Error
             </h2>
-            <button type="button" className="crearCompras-supplier-close-button" onClick={closeModal}>
+            <button type="button" className="crearCompra-supplier-close-button" onClick={closeModal}>
               <FaTimes />
             </button>
           </div>
-          <div className="crearCompras-supplier-modal-content">
-            <div className="crearCompras-error-message">
+          <div className="crearCompra-supplier-modal-content">
+            <div className="crearCompra-error-message">
               <p>{error}</p>
-              <button className="crearCompras-retry-button" onClick={() => window.location.reload()}>
+              <button className="crearCompra-retry-button" onClick={() => window.location.reload()}>
                 Reintentar
               </button>
             </div>
@@ -919,21 +911,21 @@ const SupplierModalMejorado = ({ closeModal, selectSupplier }) => {
   }
 
   return (
-    <div className="crearCompras-supplier-modal-overlay">
-      <div className="crearCompras-supplier-modal">
-        <div className="crearCompras-supplier-modal-header">
+    <div className="crearCompra-supplier-modal-overlay">
+      <div className="crearCompra-supplier-modal">
+        <div className="crearCompra-supplier-modal-header">
           <h2>
-            <FaUser className="crearCompras-modal-icon" />
+            <FaUser className="crearCompra-modal-icon" />
             Seleccionar Proveedor
           </h2>
-          <button type="button" className="crearCompras-supplier-close-button" onClick={closeModal}>
+          <button type="button" className="crearCompra-supplier-close-button" onClick={closeModal}>
             <FaTimes />
           </button>
         </div>
 
-        <div className="crearCompras-supplier-modal-content">
-          <div className="crearCompras-supplier-search-bar">
-            <FaSearch className="crearCompras-search-icon" />
+        <div className="crearCompra-supplier-modal-content">
+          <div className="crearCompra-supplier-search-container">
+            <FaSearch className="crearCompra-search-icon" />
             <input
               type="text"
               placeholder="Buscar por nombre o documento..."
@@ -942,16 +934,18 @@ const SupplierModalMejorado = ({ closeModal, selectSupplier }) => {
                 setSearchTerm(e.target.value)
                 setCurrentPage(1) // Reset to first page when searching
               }}
+              className="crearCompra-supplier-search-input"
             />
           </div>
 
-          <div className="crearCompras-suppliers-list">
+          <div className="crearCompra-suppliers-list">
             {currentItems.length === 0 ? (
-              <div className="crearCompras-supplier-no-results">
-                {searchTerm ? "No se encontraron proveedores" : "No hay proveedores disponibles"}
+              <div className="crearCompra-supplier-no-results">
+                <FaExclamationTriangle className="crearCompra-no-results-icon" />
+                <p>{searchTerm ? "No se encontraron proveedores" : "No hay proveedores disponibles"}</p>
               </div>
             ) : (
-              <table className="crearCompras-suppliers-table">
+              <table className="crearCompra-suppliers-table">
                 <thead>
                   <tr>
                     <th>Nombre</th>
@@ -962,13 +956,13 @@ const SupplierModalMejorado = ({ closeModal, selectSupplier }) => {
                 </thead>
                 <tbody>
                   {currentItems.map((supplier) => (
-                    <tr key={supplier.id} className="crearCompras-supplier-row">
+                    <tr key={supplier.id} className="crearCompra-supplier-row">
                       <td>
-                        <div className="crearCompras-supplier-name">{supplier.nombre || "N/A"}</div>
+                        <div className="crearCompra-supplier-name">{supplier.nombre || "N/A"}</div>
                       </td>
                       <td>{supplier.documento || "N/A"}</td>
                       <td>
-                        <div className="crearCompras-supplier-contact">
+                        <div className="crearCompra-supplier-contact">
                           <div>{supplier.email || "N/A"}</div>
                           <div>{supplier.telefono || "N/A"}</div>
                         </div>
@@ -976,7 +970,7 @@ const SupplierModalMejorado = ({ closeModal, selectSupplier }) => {
                       <td>
                         <button
                           type="button"
-                          className="crearCompras-supplier-select-button"
+                          className="crearCompra-supplier-select-button"
                           onClick={() => handleSelectSupplier(supplier)}
                         >
                           <FaCheckCircle /> Seleccionar
@@ -990,23 +984,23 @@ const SupplierModalMejorado = ({ closeModal, selectSupplier }) => {
           </div>
 
           {totalPages > 1 && (
-            <div className="crearCompras-supplier-pagination">
+            <div className="crearCompra-supplier-pagination">
               <button
                 onClick={() => paginate(Math.max(currentPage - 1, 1))}
                 disabled={currentPage === 1}
-                className="crearCompras-supplier-pagination-button"
+                className="crearCompra-supplier-pagination-button"
               >
                 Anterior
               </button>
 
-              <span className="crearCompras-supplier-page-info">
+              <span className="crearCompra-supplier-page-info">
                 Página {currentPage} de {totalPages}
               </span>
 
               <button
                 onClick={() => paginate(Math.min(currentPage + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className="crearCompras-supplier-pagination-button"
+                className="crearCompra-supplier-pagination-button"
               >
                 Siguiente
               </button>
@@ -1018,4 +1012,4 @@ const SupplierModalMejorado = ({ closeModal, selectSupplier }) => {
   )
 }
 
-export default ComprasFormMejorado
+export default CrearCompra
