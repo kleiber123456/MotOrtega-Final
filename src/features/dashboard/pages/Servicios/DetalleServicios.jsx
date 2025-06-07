@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { FaCog, FaFileAlt, FaDollarSign, FaToggleOn, FaEdit, FaArrowLeft, FaExclamationTriangle } from "react-icons/fa"
-import "../../../../shared/styles/detalleServicios.css"
+import "../../../../shared/styles/Servicios/DetalleServicios.css"
 
 const DetalleServicio = () => {
   const { id } = useParams()

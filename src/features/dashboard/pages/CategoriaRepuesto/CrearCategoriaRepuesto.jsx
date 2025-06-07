@@ -4,7 +4,7 @@ import { useState, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import { FaTag, FaTimes, FaSpinner, FaExclamationTriangle, FaSave } from "react-icons/fa"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/crearCategoriaRepuesto.css"
+import "../../../../shared/styles/Categorias/CrearCategoriaRepuesto.css"
 
 const CrearCategoriaRepuesto = () => {
   const navigate = useNavigate()

@@ -22,7 +22,8 @@ import "../../../../shared/components/layout/sidebar.css"
 import "../../../../shared/components/layout/header.css"
 import "../../../../shared/components/layout/layout.css"
 
-// Componente Dropdown para el Sidebar (SIN TOOLTIPS)
+// Mejora 1: Optimizar el componente Dropdown para mejor consistencia visual
+// Actualizar el componente Dropdown para que tenga un estilo más coherente con el resto de la aplicación
 const Dropdown = ({ title, icon, options, isOpen, toggleDropdown, id, collapsed }) => {
   const dropdownRef = useRef(null)
 
@@ -46,6 +47,8 @@ const Dropdown = ({ title, icon, options, isOpen, toggleDropdown, id, collapsed 
       <button
         className={`mo-dropdown__btn ${isOpen ? "mo-dropdown__btn--active" : ""}`}
         onClick={() => toggleDropdown(id)}
+        aria-expanded={isOpen}
+        aria-controls={`dropdown-${id}`}
       >
         <span className="mo-dropdown__icon">{icon}</span>
         {!collapsed && (
@@ -56,6 +59,7 @@ const Dropdown = ({ title, icon, options, isOpen, toggleDropdown, id, collapsed 
         )}
       </button>
       <div
+        id={`dropdown-${id}`}
         className={`mo-dropdown__content ${isOpen ? "mo-dropdown__content--show" : ""} ${collapsed ? "mo-dropdown__content--collapsed" : ""}`}
       >
         {options.map((opt, idx) => (
@@ -68,7 +72,8 @@ const Dropdown = ({ title, icon, options, isOpen, toggleDropdown, id, collapsed 
   )
 }
 
-// Componente para enlaces simples (SIN TOOLTIPS)
+// Mejora 2: Optimizar el componente SimpleLink para mejor consistencia visual
+// Actualizar el componente SimpleLink para que tenga un estilo más coherente con el resto de la aplicación
 const SimpleLink = ({ title, icon, link, collapsed, onClick, isActive = false }) => {
   return (
     <div className="mo-simple-link">
@@ -76,6 +81,7 @@ const SimpleLink = ({ title, icon, link, collapsed, onClick, isActive = false })
         to={link}
         className={`mo-simple-link__btn ${isActive ? "mo-simple-link__btn--active" : ""}`}
         onClick={onClick}
+        aria-current={isActive ? "page" : undefined}
       >
         <span className="mo-simple-link__icon">{icon}</span>
         {!collapsed && <span className="mo-simple-link__title">{title}</span>}
@@ -84,12 +90,19 @@ const SimpleLink = ({ title, icon, link, collapsed, onClick, isActive = false })
   )
 }
 
-// Componente Sidebar
+// Mejora 3: Optimizar el componente Sidebar para mejor consistencia visual
+// Actualizar el componente Sidebar para que tenga un estilo más coherente con el resto de la aplicación
 const Sidebar = ({ collapsed, toggleSidebar }) => {
   const navigate = useNavigate()
   const [activeDropdown, setActiveDropdown] = useState(null)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [activePath, setActivePath] = useState("")
   const sidebarRef = useRef(null)
+  const location = window.location.pathname
+
+  useEffect(() => {
+    setActivePath(location)
+  }, [location])
 
   const toggleDropdown = (id) => {
     setActiveDropdown(activeDropdown === id ? null : id)
@@ -135,10 +148,20 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
     }
   }
 
+  // Función para verificar si un enlace está activo
+  const isLinkActive = (path) => {
+    return activePath === path
+  }
+
   return (
     <>
       {/* Botón móvil del sidebar (visible solo en móvil) */}
-      <button className="mo-sidebar-mobile-toggle" onClick={toggleMobileSidebar} aria-label="Toggle sidebar">
+      <button
+        className="mo-sidebar-mobile-toggle"
+        onClick={toggleMobileSidebar}
+        aria-label="Toggle sidebar"
+        aria-expanded={mobileOpen}
+      >
         <FaBars />
       </button>
 
@@ -149,14 +172,18 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
         <div className="mo-sidebar__header">
           {/* Botón de toggle ahora está centrado encima del logo */}
           <div className="mo-sidebar__toggle-container">
-            <button className="mo-sidebar__toggle" onClick={toggleSidebar} aria-label="Toggle sidebar">
+            <button
+              className="mo-sidebar__toggle"
+              onClick={toggleSidebar}
+              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
               {collapsed ? <FaBars /> : <FaTimes />}
             </button>
           </div>
 
           {/* Logo ahora está en un contenedor separado */}
           <div className="mo-sidebar__logo">
-            {!collapsed && <img className="mo-sidebar-logo" src="/Logo.png" alt="Logo" />}
+            {!collapsed && <img className="mo-sidebar-logo" src="/Logo.png" alt="MotOrtega Logo" />}
           </div>
 
           {/* Botón para cerrar en móvil */}
@@ -173,6 +200,7 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
             link="/dashboard"
             collapsed={collapsed}
             onClick={handleLinkClick}
+            isActive={isLinkActive("/dashboard")}
           />
 
           <Dropdown
@@ -257,8 +285,7 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
         </div>
 
         <div className="mo-sidebar__footer">
-          {/* Botón de logout SIN TOOLTIP */}
-          <button className="mo-sidebar__logout" onClick={handleLogout}>
+          <button className="mo-sidebar__logout" onClick={handleLogout} aria-label="Cerrar sesión">
             <FaSignOutAlt />
             {!collapsed && <span>Cerrar sesión</span>}
           </button>
@@ -268,7 +295,8 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
   )
 }
 
-// Componente Header
+// Mejora 4: Optimizar el componente Header para mejor consistencia visual
+// Actualizar el componente Header para que tenga un estilo más coherente con el resto de la aplicación
 const Header = ({ sidebarCollapsed, onToggleSidebar }) => {
   const [welcomeMessage, setWelcomeMessage] = useState("")
   const [userData, setUserData] = useState({
@@ -277,6 +305,7 @@ const Header = ({ sidebarCollapsed, onToggleSidebar }) => {
     avatar: "https://i.pravatar.cc/150",
   })
   const [isMobile, setIsMobile] = useState(false)
+  const [notifications, setNotifications] = useState(0)
 
   const navigate = useNavigate()
 
@@ -289,6 +318,9 @@ const Header = ({ sidebarCollapsed, onToggleSidebar }) => {
       role: user.rol || "Rol",
       avatar: user.avatar || "https://i.pravatar.cc/150",
     })
+
+    // Simulación de notificaciones para demostración
+    setNotifications(Math.floor(Math.random() * 5))
 
     const clientMessages = [
       `¡Hola ${user.nombre}! Qué bueno verte de vuelta`,
@@ -333,20 +365,24 @@ const Header = ({ sidebarCollapsed, onToggleSidebar }) => {
 
   return (
     <header className={`mo-header ${sidebarCollapsed ? "mo-header--sidebar-collapsed" : ""}`}>
-      <div className="mo-header__title">{/* Se eliminó el botón que desplegaba el menú */}</div>
+      <div className="mo-header__title">{/* Espacio para título de página si se necesita */}</div>
 
       <div className="mo-header__actions">
         <div className="mo-header__notifications">
-          <button className="mo-header__icon-btn mo-header__icon-btn--notification">
+          <button
+            className={`mo-header__icon-btn mo-header__icon-btn--notification ${notifications > 0 ? "has-notifications" : ""}`}
+            aria-label={`${notifications} notificaciones`}
+          >
             <FaBell />
           </button>
-          <button className="mo-header__icon-btn">
+          <button className="mo-header__icon-btn" aria-label="Calendario">
             <FaCalendarAlt />
           </button>
           <button
             className="mo-header__icon-btn mo-header__icon-btn--logout"
             onClick={handleLogout}
             title="Cerrar sesión"
+            aria-label="Cerrar sesión"
           >
             <FaSignOutAlt />
           </button>
@@ -367,7 +403,8 @@ const Header = ({ sidebarCollapsed, onToggleSidebar }) => {
   )
 }
 
-// Componente Layout principal que integra Sidebar y Header
+// Mejora 5: Optimizar el componente Layout principal para mejor consistencia visual
+// Actualizar el componente Layout para que tenga un estilo más coherente con el resto de la aplicación
 const Layout = ({ children }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [isMobile, setIsMobile] = useState(false)

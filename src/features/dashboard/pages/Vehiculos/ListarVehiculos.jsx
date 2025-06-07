@@ -15,7 +15,7 @@ import {
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import axios from "axios"
-import "../../../../shared/styles/listarVehiculos.css"
+import "../../../../shared/styles/Vehiculos/ListarVehiculos.css"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"

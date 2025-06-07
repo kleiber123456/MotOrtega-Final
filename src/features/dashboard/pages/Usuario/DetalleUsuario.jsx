@@ -16,7 +16,7 @@ import {
   FaToggleOn,
   FaToggleOff,
 } from "react-icons/fa"
-import "../../../../shared/styles/DetalleUsuario.css"
+import "../../../../shared/styles/Usuarios/DetalleUsuario.css"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"

@@ -14,7 +14,7 @@ import {
   FaToggleOff,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/listarCategoriaRepuesto.css"
+import "../../../../shared/styles/Categorias/ListarCategoriaRepuesto.css"
 
 const ListarCategoriasRepuesto = () => {
   const navigate = useNavigate()

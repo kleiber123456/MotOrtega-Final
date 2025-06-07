@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { Edit, Trash2, Power, Plus, Users, Eye } from "lucide-react"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/ListarClientes.css"
+import "../../../../shared/styles/Clientes/ListarClientes.css"
 
 function ListarClientes() {
   const navigate = useNavigate()

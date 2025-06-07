@@ -14,7 +14,7 @@ import {
 } from "lucide-react"
 import Swal from "sweetalert2"
 import { generarFacturaPDF, cargarDatosCompletosCompra } from "../../utils/pdf-generator"
-import "../../../../shared/styles/listarCompras.css"
+import "../../../../shared/styles/Compras/ListarCompras.css"
 
 function ListarCompras() {
   const navigate = useNavigate()

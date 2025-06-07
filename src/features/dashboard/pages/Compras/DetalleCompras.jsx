@@ -14,7 +14,7 @@ import {
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import { generarFacturaPDF } from "../../utils/pdf-generator"
-import "../../../../shared/styles/detalleCompras.css"
+import "../../../../shared/styles/Compras/DetalleCompras.css"
 
 const DetalleCompra = () => {
   const navigate = useNavigate()

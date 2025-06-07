@@ -47,14 +47,27 @@ import ListarVehiculos from "./features/dashboard/pages/Vehiculos/ListarVehiculo
 import CrearVehiculo from "./features/dashboard/pages/Vehiculos/CrearVehiculo";
 import EditarVehiculo from "./features/dashboard/pages/Vehiculos/EditarVehiculo";
 import DetalleVehiculo from "./features/dashboard/pages/Vehiculos/DetalleVehiculo";
+// ----------------------------------------------------------------------
+
 // ------------------------------------servicios----------------------------------
 import ListarServicios from './features/dashboard/pages/Servicios/ListarServicios';
 import CrearServicios from './features/dashboard/pages/Servicios/CrearServicios';
 import EditarServicios from './features/dashboard/pages/Servicios/EditarServicios';
 import DetalleServicios from './features/dashboard/pages/Servicios/DetalleServicios';
+// ----------------------------------------------------------------------
+
 // ------------------------------CLIENTES-----------------------------
 import ListarClientes from './features/dashboard/pages/Clientes/ListarClientes'
 import CrearClientes from './features/dashboard/pages/Clientes/CrearClientes'
+// ----------------------------------------------------------------------
+// ------------------------------MECANICOS-----------------------------
+import ListarMecanicos from './features/dashboard/pages/Mecanicos/ListarMecanicos';
+import CrearMecanicos from './features/dashboard/pages/Mecanicos/CrearMecanico';
+import EditarMecanicos from './features/dashboard/pages/Mecanicos/EditarMecanico';
+import DetalleMecanicos from './features/dashboard/pages/Mecanicos/DetalleMecanico';
+// ----------------------------------------------------------------------
+
+
 
 function App() {
   return (
@@ -332,6 +345,53 @@ function App() {
             </PrivateRoute>
           }
         />
+        {/* ------------------------------------------------------------------------ */}
+        {/* Mecanicos */}
+        <Route
+          path="/ListarMecanicos"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <ListarMecanicos />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/CrearMecanicos"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <CrearMecanicos />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        
+        <Route
+          path="/Mecanicos/editar/:id"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <EditarMecanicos />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/Mecanicos/detalle/:id"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <DetalleMecanicos/>
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        {/* ------------------------------------------------------------------------ */}
+
+
+
         <Route
           path="/ListarClientes"
           element={

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { FaTag, FaTimes, FaSpinner, FaExclamationTriangle, FaSave, FaArrowLeft } from "react-icons/fa"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/editarCategoriaRepuesto.css"
+import "../../../../shared/styles/Categorias/EditarCategoriaRepuesto.css"
 
 const EditarCategoriaRepuesto = () => {
   const { id } = useParams()

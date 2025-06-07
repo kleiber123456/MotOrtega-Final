@@ -13,7 +13,7 @@ import {
   FaSave,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/crearServicios.css"
+import "../../../../shared/styles/Servicios/CrearServicios.css"
 
 const CrearServicio = () => {
   const navigate = useNavigate()

@@ -1,0 +1,211 @@
+.editarMecanicos-container {
+  padding: 20px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.editarMecanicos-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.editarMecanicos-backButton {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.editarMecanicos-backButton:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+.editarMecanicos-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.editarMecanicos-loading {
+  text-align: center;
+  padding: 50px;
+  font-size: 18px;
+  color: #7f8c8d;
+}
+
+.editarMecanicos-form {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.editarMecanicos-section {
+  padding: 30px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.editarMecanicos-section:last-of-type {
+  border-bottom: none;
+}
+
+.editarMecanicos-sectionTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 25px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f39c12;
+}
+
+.editarMecanicos-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.editarMecanicos-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.editarMecanicos-label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+.editarMecanicos-input,
+.editarMecanicos-select {
+  padding: 12px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.editarMecanicos-input:focus,
+.editarMecanicos-select:focus {
+  outline: none;
+  border-color: #f39c12;
+  box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+}
+
+.editarMecanicos-input.error,
+.editarMecanicos-select.error {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
+.editarMecanicos-error {
+  color: #e74c3c;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.editarMecanicos-actions {
+  padding: 30px;
+  background: #f8f9fa;
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+}
+
+.editarMecanicos-cancelButton {
+  padding: 12px 24px;
+  border: 2px solid #6c757d;
+  background: white;
+  color: #6c757d;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.editarMecanicos-cancelButton:hover {
+  background: #6c757d;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.editarMecanicos-submitButton {
+  padding: 12px 24px;
+  border: none;
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  color: white;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.editarMecanicos-submitButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #e67e22, #d35400);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+}
+
+.editarMecanicos-submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 768px) {
+  .editarMecanicos-container {
+    padding: 10px;
+  }
+
+  .editarMecanicos-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+
+  .editarMecanicos-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .editarMecanicos-section {
+    padding: 20px;
+  }
+
+  .editarMecanicos-actions {
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .editarMecanicos-cancelButton,
+  .editarMecanicos-submitButton {
+    width: 100%;
+    justify-content: center;
+  }
+}

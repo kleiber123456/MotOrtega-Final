@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Save, X, Users, User, Mail, Phone, MapPin, FileText, CreditCard, ToggleLeft } from "lucide-react"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/CrearClientes.css"
+import "../../../../shared/styles/Clientes/CrearClientes.css"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"

@@ -17,7 +17,7 @@ import {
   FaPlus,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/crearRepuesto.css"
+import "../../../../shared/styles/Repuestos/CrearRepuesto.css"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"

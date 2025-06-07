@@ -17,7 +17,7 @@ import {
   FaSave,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/CrearCompras.css"
+import "../../../../shared/styles/Compras/CrearCompras.css"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"

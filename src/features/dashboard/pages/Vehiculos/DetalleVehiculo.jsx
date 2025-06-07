@@ -17,7 +17,7 @@ import {
   FaTag,
 } from "react-icons/fa"
 import axios from "axios"
-import "../../../../shared/styles/detalleVehiculo.css"
+import "../../../../shared/styles/Vehiculos/DetalleVehiculo.css"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"

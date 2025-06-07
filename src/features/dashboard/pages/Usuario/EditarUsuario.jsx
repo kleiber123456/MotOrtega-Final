@@ -16,7 +16,7 @@ import {
   FaArrowLeft,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/editarUsuario.css"
+import "../../../../shared/styles/Usuarios/EditarUsuario.css"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"

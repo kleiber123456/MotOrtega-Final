@@ -14,7 +14,7 @@ import {
   FaSave,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/editarServicios.css"
+import "../../../../shared/styles/Servicios/EditarServicios.css"
 
 const EditarServicio = () => {
   const { id } = useParams()

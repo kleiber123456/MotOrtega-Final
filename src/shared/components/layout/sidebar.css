@@ -386,6 +386,18 @@
   box-shadow: var(--mo-shadow-sm);
 }
 
+/* Mejora 4: Añadir estado activo para enlaces simples */
+.mo-simple-link__btn--active {
+  background: linear-gradient(135deg, var(--mo-primary-50) 0%, var(--mo-primary-100) 100%);
+  border-color: var(--mo-primary);
+  color: var(--mo-primary);
+  box-shadow: var(--mo-shadow-sm);
+}
+
+.mo-simple-link__btn--active::before {
+  opacity: 1;
+}
+
 .mo-simple-link__icon {
   margin-right: 12px;
   display: flex;

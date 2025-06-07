@@ -14,7 +14,7 @@ import {
   FaToggleOff,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/listarRepuesto.css"
+import "../../../../shared/styles/Repuestos/ListarRepuesto.css"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"

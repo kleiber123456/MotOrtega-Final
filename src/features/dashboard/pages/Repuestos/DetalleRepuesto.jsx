@@ -15,7 +15,7 @@ import {
   FaFileAlt,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/detalleRepuesto.css"
+import "../../../../shared/styles/Repuestos/DetalleRepuesto.css"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
