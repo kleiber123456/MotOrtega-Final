@@ -69,13 +69,16 @@ import EditarMecanicos from './features/dashboard/pages/Mecanicos/EditarMecanico
 import VerDetalleMecanico from './features/dashboard/pages/Mecanicos/VerDetalleMecanico';
 // ----------------------------------------------------------------------
 
-
-
 // ------------------------------HORARIOS-----------------------------
 import ListarHorarios from './features/dashboard/pages/Horarios/ListarHorarios';
 import CrearHorario from './features/dashboard/pages/Horarios/CrearHorario';
 import EditarHorario from './features/dashboard/pages/Horarios/EditarHorario';
 // ----------------------------------------------------------------------
+
+// ------------------------------CITAS-----------------------------
+import CitasCalendar from './features/dashboard/pages/Citas/CitasCalendar';
+// ----------------------------------------------------------------------
+
 function App() {
   return (
     <BrowserRouter>
@@ -106,6 +109,18 @@ function App() {
             </PrivateRoute>
           }
         />
+        
+        {/* CITAS */}
+        <Route
+          path="/citas"
+          element={
+            <PrivateRoute>
+              <Layout><CitasCalendar /></Layout>
+            </PrivateRoute>
+          }
+        />
+        {/* ------------------------------------------------------------------------ */}
+        
         {/* USUARIOS */}
         <Route
           path="/listarUsuarios"
