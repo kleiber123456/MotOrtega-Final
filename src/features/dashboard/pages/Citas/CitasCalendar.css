@@ -5,7 +5,7 @@
 }
 
 .citas-calendar-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
   border-radius: 15px;
   padding: 25px;
   margin-bottom: 25px;
@@ -91,7 +91,7 @@
 }
 
 .nav-btn {
-  background: #667eea;
+  background: #2d3748;
   border: none;
   color: white;
   width: 40px;
@@ -106,9 +106,9 @@
 }
 
 .nav-btn:hover {
-  background: #5a6fd8;
+  background: #1a202c;
   transform: scale(1.1);
-  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 3px 10px rgba(45, 55, 72, 0.3);
 }
 
 .month-year {
@@ -176,7 +176,7 @@
 }
 
 .calendar-day.selected {
-  background: #667eea;
+  background: #2d3748;
   color: white;
 }
 
@@ -187,7 +187,7 @@
 }
 
 .calendar-day.today.selected {
-  background: #667eea;
+  background: #2d3748;
 }
 
 .calendar-day.has-citas {
@@ -255,7 +255,7 @@
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 15px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #2d3748;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
@@ -306,30 +306,33 @@
 }
 
 .cita-detail svg {
-  color: #667eea;
+  color: #2d3748;
   width: 16px;
   height: 16px;
 }
 
-.no-citas, .select-date {
+.no-citas,
+.select-date {
   text-align: center;
   padding: 40px 20px;
   color: #6c757d;
 }
 
-.no-citas-icon, .select-date-icon {
+.no-citas-icon,
+.select-date-icon {
   font-size: 3rem;
   color: #dee2e6;
   margin-bottom: 15px;
 }
 
-.no-citas p, .select-date p {
+.no-citas p,
+.select-date p {
   margin: 0 0 20px 0;
   font-size: 1.1rem;
 }
 
 .btn-crear-cita-dia {
-  background: #667eea;
+  background: #2d3748;
   color: white;
   border: none;
   padding: 12px 24px;
@@ -344,9 +347,9 @@
 }
 
 .btn-crear-cita-dia:hover {
-  background: #5a6fd8;
+  background: #1a202c;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 5px 15px rgba(45, 55, 72, 0.3);
 }
 
 /* Modal Styles */
@@ -392,7 +395,7 @@
   align-items: center;
   padding: 25px;
   border-bottom: 1px solid #e9ecef;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
   color: white;
   border-radius: 15px 15px 0 0;
 }
@@ -459,8 +462,8 @@
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #2d3748;
+  box-shadow: 0 0 0 3px rgba(45, 55, 72, 0.1);
 }
 
 .form-group input.error,
@@ -502,7 +505,7 @@
 }
 
 .btn-submit {
-  background: #667eea;
+  background: #2d3748;
   color: white;
   border: none;
   padding: 12px 24px;
@@ -513,9 +516,9 @@
 }
 
 .btn-submit:hover {
-  background: #5a6fd8;
+  background: #1a202c;
   transform: translateY(-1px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 5px 15px rgba(45, 55, 72, 0.3);
 }
 
 .btn-submit:disabled {
@@ -542,14 +545,232 @@
   width: 50px;
   height: 50px;
   border: 4px solid #f3f3f3;
-  border-top: 4px solid #667eea;
+  border-top: 4px solid #2d3748;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Selector Modals */
+.selector-modal-content {
+  width: 95%;
+  max-width: 800px;
+}
+
+.selector-search {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.selector-search input {
+  width: 100%;
+  padding: 12px 15px 12px 40px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.selector-search input:focus {
+  outline: none;
+  border-color: #2d3748;
+  box-shadow: 0 0 0 3px rgba(45, 55, 72, 0.1);
+}
+
+.selector-search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+}
+
+.selector-list {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.selector-item {
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid #e9ecef;
+  background: #f8f9fa;
+}
+
+.selector-item:hover {
+  background: #e9ecef;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.selector-item.selected {
+  background: #2d3748;
+  color: white;
+  border-color: #2d3748;
+}
+
+.selector-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.selector-item-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.selector-item-subtitle {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.selector-item.selected .selector-item-subtitle {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.selector-item-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.9rem;
+}
+
+.selector-item-detail {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.selector-item.selected .selector-item-detail {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.selector-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.selector-pagination-button {
+  background: #e9ecef;
+  border: none;
+  color: #495057;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.selector-pagination-button:hover {
+  background: #dee2e6;
+}
+
+.selector-pagination-button.active {
+  background: #2d3748;
+  color: white;
+}
+
+.selector-pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.selector-no-results {
+  text-align: center;
+  padding: 30px;
+  color: #6c757d;
+}
+
+.selector-no-results-icon {
+  font-size: 3rem;
+  color: #dee2e6;
+  margin-bottom: 15px;
+}
+
+/* Horario disponibilidad */
+.horario-disponibilidad {
+  margin-top: 20px;
+  border-top: 1px solid #e9ecef;
+  padding-top: 20px;
+}
+
+.horario-disponibilidad h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+.horario-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.horario-slot {
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid #e9ecef;
+}
+
+.horario-slot.disponible {
+  background: #d1fae5;
+  border-color: #10b981;
+  color: #065f46;
+}
+
+.horario-slot.ocupado {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #991b1b;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.horario-slot.seleccionado {
+  background: #2d3748;
+  border-color: #1a202c;
+  color: white;
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.horario-slot:not(.ocupado):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.horario-no-disponible {
+  text-align: center;
+  padding: 20px;
+  color: #6c757d;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 15px;
 }
 
 /* Responsive Design */
@@ -565,7 +786,7 @@
     grid-template-rows: auto 1fr;
     height: auto;
   }
-  
+
   .citas-section {
     min-height: 400px;
   }
@@ -575,35 +796,35 @@
   .citas-calendar-container {
     padding: 15px;
   }
-  
+
   .header-content {
     flex-direction: column;
     text-align: center;
   }
-  
+
   .header-title h1 {
     font-size: 1.5rem;
   }
-  
+
   .calendar-section,
   .citas-section {
     padding: 20px;
   }
-  
+
   .calendar-day {
     min-height: 60px;
     font-size: 0.9rem;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .modal-content {
     width: 95%;
     margin: 10px;
   }
-  
+
   .modal-actions {
     flex-direction: column;
   }
@@ -614,16 +835,16 @@
     font-size: 0.7rem;
     padding: 8px 0;
   }
-  
+
   .calendar-day {
     min-height: 50px;
     padding: 4px 2px;
   }
-  
+
   .day-number {
     font-size: 0.8rem;
   }
-  
+
   .citas-indicator {
     width: 16px;
     height: 16px;
