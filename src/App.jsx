@@ -1,82 +1,87 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import MotOrtega from './features/dashboard/pages/Principal/MotOtega';
-import Login from './features/dashboard/pages/Acceso/Login';
-import Register from './features/dashboard/pages/Acceso/Register';
-import RecuperarPassword from './features/dashboard/pages/Acceso/RecuperarPassword';
-import Dashboard from './features/dashboard/pages/Dashboard/Dashboard';
-import Layout from './features/dashboard/components/layout/layout';
-import PrivateRoute from './features/auth/hooks/PrivateRoute';
-import Perfil from './features/dashboard/pages/Perfil/Perfil';
-import CambiarContraseña from './features/dashboard/pages/Acceso/CambiarContraseña';
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+import MotOrtega from "./features/dashboard/pages/Principal/MotOtega"
+import Login from "./features/dashboard/pages/Acceso/Login"
+import Register from "./features/dashboard/pages/Acceso/Register"
+import RecuperarPassword from "./features/dashboard/pages/Acceso/RecuperarPassword"
+import Dashboard from "./features/dashboard/pages/Dashboard/Dashboard"
+import Layout from "./features/dashboard/components/layout/layout"
+import PrivateRoute from "./features/auth/hooks/PrivateRoute"
+import Perfil from "./features/dashboard/pages/Perfil/Perfil"
+import CambiarContraseña from "./features/dashboard/pages/Acceso/CambiarContraseña"
 // --------------------------------USUARIOS-------------------------------
-import ListarUsuarios from './features/dashboard/pages/Usuario/ListarUsuarios';
-import CrearUsuario from './features/dashboard/pages/Usuario/CrearUsuario';
-import EditarUsuario from './features/dashboard/pages/Usuario/EditarUsuario';
-import DetalleUsuario from './features/dashboard/pages/Usuario/DetalleUsuario';
+import ListarUsuarios from "./features/dashboard/pages/Usuario/ListarUsuarios"
+import CrearUsuario from "./features/dashboard/pages/Usuario/CrearUsuario"
+import EditarUsuario from "./features/dashboard/pages/Usuario/EditarUsuario"
+import DetalleUsuario from "./features/dashboard/pages/Usuario/DetalleUsuario"
 // ----------------------------------------------------------------------
 
 // --------------------------CATEGORIA REPUESTO--------------------------
-import ListarCategoriasRepuesto from './features/dashboard/pages/CategoriaRepuesto/ListarCategoriasRepuesto';
-import CrearCategoriaRepuesto from './features/dashboard/pages/CategoriaRepuesto/CrearCategoriaRepuesto';
-import EditarCategoriaRepuesto from './features/dashboard/pages/CategoriaRepuesto/EditarCategoriaRepuesto';
-import DetalleCategoriaRepuesto from './features/dashboard/pages/CategoriaRepuesto/DetalleCategoriaRepuesto';
+import ListarCategoriasRepuesto from "./features/dashboard/pages/CategoriaRepuesto/ListarCategoriasRepuesto"
+import CrearCategoriaRepuesto from "./features/dashboard/pages/CategoriaRepuesto/CrearCategoriaRepuesto"
+import EditarCategoriaRepuesto from "./features/dashboard/pages/CategoriaRepuesto/EditarCategoriaRepuesto"
+import DetalleCategoriaRepuesto from "./features/dashboard/pages/CategoriaRepuesto/DetalleCategoriaRepuesto"
 // ----------------------------------------------------------------------
 
 // ------------------------------REPUESTOS-------------------------------
-import ListarRepuestos from './features/dashboard/pages/Repuestos/ListarRepuesto';
-import CrearRepuesto from './features/dashboard/pages/Repuestos/CrearRepuesto';
-import EditarRepuesto from './features/dashboard/pages/Repuestos/EditarRepuesto';
-import DetalleRepuesto from './features/dashboard/pages/Repuestos/DetalleRepuesto';
+import ListarRepuestos from "./features/dashboard/pages/Repuestos/ListarRepuesto"
+import CrearRepuesto from "./features/dashboard/pages/Repuestos/CrearRepuesto"
+import EditarRepuesto from "./features/dashboard/pages/Repuestos/EditarRepuesto"
+import DetalleRepuesto from "./features/dashboard/pages/Repuestos/DetalleRepuesto"
 // ----------------------------------------------------------------------
 
 // ------------------------------PROVEEDORES-----------------------------
-import ListarProveedores from './features/dashboard/pages/Proveedor/ListarProveedor';
-import EditarProveedor from './features/dashboard/pages/Proveedor/EditarProveedor';
-import DetalleProveedor from './features/dashboard/pages/Proveedor/DetalleProveedor';
-import CrearProveedor from './features/dashboard/pages/Proveedor/CrearProveedor';
+import ListarProveedores from "./features/dashboard/pages/Proveedor/ListarProveedor"
+import EditarProveedor from "./features/dashboard/pages/Proveedor/EditarProveedor"
+import DetalleProveedor from "./features/dashboard/pages/Proveedor/DetalleProveedor"
+import CrearProveedor from "./features/dashboard/pages/Proveedor/CrearProveedor"
 // ----------------------------------------------------------------------
 
 // ------------------------------COMPRAS-----------------------------
-import ListarCompras from './features/dashboard/pages/Compras/ListarCompras';
-import CrearCompras from './features/dashboard/pages/Compras/CrearCompras';
-import DetalleCompra from './features/dashboard/pages/Compras/DetalleCompras';
+import ListarCompras from "./features/dashboard/pages/Compras/ListarCompras"
+import CrearCompras from "./features/dashboard/pages/Compras/CrearCompras"
+import DetalleCompra from "./features/dashboard/pages/Compras/DetalleCompras"
+// ----------------------------------------------------------------------
+// ------------------------------VENTAS-----------------------------
+import ListarVentas from "./features/dashboard/pages/Ventas/ListarVentas"
+import CrearVenta from "./features/dashboard/pages/Ventas/CrearVenta"
+import DetalleVenta from "./features/dashboard/pages/Ventas/DetalleVenta"
 // ----------------------------------------------------------------------
 
 // ------------------------------VEHÍCULOS-------------------------------
-import ListarVehiculos from "./features/dashboard/pages/Vehiculos/ListarVehiculos";
-import CrearVehiculo from "./features/dashboard/pages/Vehiculos/CrearVehiculo";
-import EditarVehiculo from "./features/dashboard/pages/Vehiculos/EditarVehiculo";
-import DetalleVehiculo from "./features/dashboard/pages/Vehiculos/DetalleVehiculo";
+import ListarVehiculos from "./features/dashboard/pages/Vehiculos/ListarVehiculos"
+import CrearVehiculo from "./features/dashboard/pages/Vehiculos/CrearVehiculo"
+import EditarVehiculo from "./features/dashboard/pages/Vehiculos/EditarVehiculo"
+import DetalleVehiculo from "./features/dashboard/pages/Vehiculos/DetalleVehiculo"
 // ----------------------------------------------------------------------
 
 // ------------------------------------servicios----------------------------------
-import ListarServicios from './features/dashboard/pages/Servicios/ListarServicios';
-import CrearServicios from './features/dashboard/pages/Servicios/CrearServicios';
-import EditarServicios from './features/dashboard/pages/Servicios/EditarServicios';
-import DetalleServicios from './features/dashboard/pages/Servicios/DetalleServicios';
+import ListarServicios from "./features/dashboard/pages/Servicios/ListarServicios"
+import CrearServicios from "./features/dashboard/pages/Servicios/CrearServicios"
+import EditarServicios from "./features/dashboard/pages/Servicios/EditarServicios"
+import DetalleServicios from "./features/dashboard/pages/Servicios/DetalleServicios"
 // ----------------------------------------------------------------------
 
 // ------------------------------CLIENTES-----------------------------
-import ListarClientes from './features/dashboard/pages/Clientes/ListarClientes';
-import CrearClientes from  './features/dashboard/pages/Clientes/CrearClientes';
-import DetalleCliente from './features/dashboard/pages/Clientes/DetalleCliente';
-import EditarClientes from './features/dashboard/pages/Clientes/EditarCliente';    
+import ListarClientes from "./features/dashboard/pages/Clientes/ListarClientes"
+import CrearClientes from "./features/dashboard/pages/Clientes/CrearClientes"
+import DetalleCliente from "./features/dashboard/pages/Clientes/DetalleCliente"
+import EditarClientes from "./features/dashboard/pages/Clientes/EditarCliente"
 // ----------------------------------------------------------------------
 // ------------------------------MECANICOS-----------------------------
-import ListarMecanicos from './features/dashboard/pages/Mecanicos/ListarMecanicos';
-import CrearMecanicos from './features/dashboard/pages/Mecanicos/CrearMecanico';
-import EditarMecanicos from './features/dashboard/pages/Mecanicos/EditarMecanico';
-import VerDetalleMecanico from './features/dashboard/pages/Mecanicos/VerDetalleMecanico';
+import ListarMecanicos from "./features/dashboard/pages/Mecanicos/ListarMecanicos"
+import CrearMecanicos from "./features/dashboard/pages/Mecanicos/CrearMecanico"
+import EditarMecanicos from "./features/dashboard/pages/Mecanicos/EditarMecanico"
+import VerDetalleMecanico from "./features/dashboard/pages/Mecanicos/VerDetalleMecanico"
 // ----------------------------------------------------------------------
 
 // ------------------------------HORARIOS-----------------------------
-import ListarHorarios from './features/dashboard/pages/Horarios/ListarHorarios';
-import CrearHorario from './features/dashboard/pages/Horarios/CrearHorario';
-import EditarHorario from './features/dashboard/pages/Horarios/EditarHorario';
+import ListarHorarios from "./features/dashboard/pages/Horarios/ListarHorarios"
+import CrearHorario from "./features/dashboard/pages/Horarios/CrearHorario"
+import EditarHorario from "./features/dashboard/pages/Horarios/EditarHorario"
 // ----------------------------------------------------------------------
 
 // ------------------------------CITAS-----------------------------
-import CitasCalendar from './features/dashboard/pages/Citas/CitasCalendar';
+import CitasCalendar from "./features/dashboard/pages/Citas/CitasCalendar"
 // ----------------------------------------------------------------------
 
 function App() {
@@ -97,7 +102,9 @@ function App() {
           path="/dashboard"
           element={
             <PrivateRoute>
-              <Layout><Dashboard /></Layout>
+              <Layout>
+                <Dashboard />
+              </Layout>
             </PrivateRoute>
           }
         />
@@ -105,28 +112,34 @@ function App() {
           path="/perfil"
           element={
             <PrivateRoute>
-              <Layout><Perfil /></Layout>
+              <Layout>
+                <Perfil />
+              </Layout>
             </PrivateRoute>
           }
         />
-        
+
         {/* CITAS */}
         <Route
           path="/citas"
           element={
             <PrivateRoute>
-              <Layout><CitasCalendar /></Layout>
+              <Layout>
+                <CitasCalendar />
+              </Layout>
             </PrivateRoute>
           }
         />
         {/* ------------------------------------------------------------------------ */}
-        
+
         {/* USUARIOS */}
         <Route
           path="/listarUsuarios"
           element={
             <PrivateRoute>
-              <Layout><ListarUsuarios /></Layout>
+              <Layout>
+                <ListarUsuarios />
+              </Layout>
             </PrivateRoute>
           }
         />
@@ -134,7 +147,9 @@ function App() {
           path="/crearUsuarios"
           element={
             <PrivateRoute>
-              <Layout><CrearUsuario /></Layout>
+              <Layout>
+                <CrearUsuario />
+              </Layout>
             </PrivateRoute>
           }
         />
@@ -143,7 +158,9 @@ function App() {
           path="/usuarios/editar/:id"
           element={
             <PrivateRoute>
-              <Layout><EditarUsuario /></Layout>
+              <Layout>
+                <EditarUsuario />
+              </Layout>
             </PrivateRoute>
           }
         />
@@ -151,7 +168,9 @@ function App() {
           path="/usuarios/detalle/:id"
           element={
             <PrivateRoute>
-              <Layout><DetalleUsuario /></Layout>
+              <Layout>
+                <DetalleUsuario />
+              </Layout>
             </PrivateRoute>
           }
         />
@@ -161,7 +180,9 @@ function App() {
           path="/categorias-repuesto"
           element={
             <PrivateRoute>
-              <Layout><ListarCategoriasRepuesto /></Layout>
+              <Layout>
+                <ListarCategoriasRepuesto />
+              </Layout>
             </PrivateRoute>
           }
         />
@@ -169,7 +190,9 @@ function App() {
           path="/crearCategoriaRepuesto"
           element={
             <PrivateRoute>
-              <Layout><CrearCategoriaRepuesto /></Layout>
+              <Layout>
+                <CrearCategoriaRepuesto />
+              </Layout>
             </PrivateRoute>
           }
         />
@@ -177,15 +200,19 @@ function App() {
           path="/categorias-repuesto/editar/:id"
           element={
             <PrivateRoute>
-              <Layout><EditarCategoriaRepuesto /></Layout>
+              <Layout>
+                <EditarCategoriaRepuesto />
+              </Layout>
             </PrivateRoute>
           }
         />
-         <Route
+        <Route
           path="/categorias-repuesto/detalle/:id"
           element={
             <PrivateRoute>
-              <Layout><DetalleCategoriaRepuesto /></Layout>
+              <Layout>
+                <DetalleCategoriaRepuesto />
+              </Layout>
             </PrivateRoute>
           }
         />
@@ -195,7 +222,9 @@ function App() {
           path="/repuestos"
           element={
             <PrivateRoute>
-              <Layout><ListarRepuestos /></Layout>
+              <Layout>
+                <ListarRepuestos />
+              </Layout>
             </PrivateRoute>
           }
         />
@@ -203,7 +232,9 @@ function App() {
           path="/crearRepuestos"
           element={
             <PrivateRoute>
-              <Layout><CrearRepuesto /></Layout>
+              <Layout>
+                <CrearRepuesto />
+              </Layout>
             </PrivateRoute>
           }
         />
@@ -211,15 +242,19 @@ function App() {
           path="/repuestos/editar/:id"
           element={
             <PrivateRoute>
-              <Layout><EditarRepuesto /></Layout>
+              <Layout>
+                <EditarRepuesto />
+              </Layout>
             </PrivateRoute>
           }
         />
-         <Route
+        <Route
           path="/DetalleRepuesto/:id"
           element={
             <PrivateRoute>
-              <Layout><DetalleRepuesto /></Layout>
+              <Layout>
+                <DetalleRepuesto />
+              </Layout>
             </PrivateRoute>
           }
         />
@@ -229,7 +264,9 @@ function App() {
           path="/ListarProveedores"
           element={
             <PrivateRoute>
-              <Layout><ListarProveedores /></Layout>
+              <Layout>
+                <ListarProveedores />
+              </Layout>
             </PrivateRoute>
           }
         />
@@ -237,7 +274,9 @@ function App() {
           path="/CrearProveedor"
           element={
             <PrivateRoute>
-              <Layout><CrearProveedor  /></Layout>
+              <Layout>
+                <CrearProveedor />
+              </Layout>
             </PrivateRoute>
           }
         />
@@ -245,7 +284,9 @@ function App() {
           path="/EditarProveedor/editar/:id"
           element={
             <PrivateRoute>
-              <Layout><EditarProveedor /></Layout>
+              <Layout>
+                <EditarProveedor />
+              </Layout>
             </PrivateRoute>
           }
         />
@@ -253,36 +294,76 @@ function App() {
           path="/DetalleProveedor/:id"
           element={
             <PrivateRoute>
-              <Layout><DetalleProveedor /></Layout>
+              <Layout>
+                <DetalleProveedor />
+              </Layout>
             </PrivateRoute>
           }
         />
         {/* ------------------------------------------------------------------------ */}
         {/* COMPRAS */}
-          <Route
+        <Route
           path="/ListarCompras"
           element={
             <PrivateRoute>
-              <Layout><ListarCompras /></Layout>
+              <Layout>
+                <ListarCompras />
+              </Layout>
             </PrivateRoute>
           }
-        />    
+        />
         <Route
           path="/CrearCompras"
           element={
             <PrivateRoute>
-              <Layout><CrearCompras  /></Layout>
+              <Layout>
+                <CrearCompras />
+              </Layout>
             </PrivateRoute>
           }
-        />    
+        />
         <Route
           path="/DetalleCompra/:id"
           element={
             <PrivateRoute>
-              <Layout><DetalleCompra /></Layout>
+              <Layout>
+                <DetalleCompra />
+              </Layout>
             </PrivateRoute>
           }
-        />  
+        />
+        {/* ------------------------------------------------------------------------ */}
+        {/* VENTAS */}
+        <Route
+          path="/ListarVentas"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <ListarVentas />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/CrearVenta"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <CrearVenta />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/DetalleVenta/:id"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <DetalleVenta />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
         {/* ------------------------------------------------------------------------ */}
 
         {/* VEHÍCULOS */}
@@ -327,21 +408,23 @@ function App() {
           }
         />
         {/* ------------------------------------------------------------------------ */}
-         {/* Servicios */}
+        {/* Servicios */}
         <Route
           path="/listarServicios"
           element={
             <PrivateRoute>
-              <Layout><ListarServicios/></Layout>
+              <Layout>
+                <ListarServicios />
+              </Layout>
             </PrivateRoute>
           }
         />
-      <Route
+        <Route
           path="/CrearServicios"
           element={
             <PrivateRoute>
               <Layout>
-                <CrearServicios/>
+                <CrearServicios />
               </Layout>
             </PrivateRoute>
           }
@@ -362,7 +445,7 @@ function App() {
           element={
             <PrivateRoute>
               <Layout>
-                <DetalleServicios/>
+                <DetalleServicios />
               </Layout>
             </PrivateRoute>
           }
@@ -389,7 +472,7 @@ function App() {
             </PrivateRoute>
           }
         />
-        
+
         <Route
           path="/Mecanicos/editar/:id"
           element={
@@ -416,15 +499,19 @@ function App() {
           path="/ListarClientes"
           element={
             <PrivateRoute>
-              <Layout><ListarClientes /></Layout>
+              <Layout>
+                <ListarClientes />
+              </Layout>
             </PrivateRoute>
           }
-        />    
+        />
         <Route
           path="/CrearClientes"
           element={
             <PrivateRoute>
-              <Layout><CrearClientes /></Layout>
+              <Layout>
+                <CrearClientes />
+              </Layout>
             </PrivateRoute>
           }
         />
@@ -432,7 +519,9 @@ function App() {
           path="/DetalleCliente/:id"
           element={
             <PrivateRoute>
-              <Layout><DetalleCliente/></Layout>
+              <Layout>
+                <DetalleCliente />
+              </Layout>
             </PrivateRoute>
           }
         />
@@ -440,18 +529,22 @@ function App() {
           path="/EditarCliente/:id"
           element={
             <PrivateRoute>
-              <Layout><EditarClientes/></Layout>
+              <Layout>
+                <EditarClientes />
+              </Layout>
             </PrivateRoute>
           }
         />
         {/* ------------------------------------------------------------------------ */}
-                {/* ------------------------------------------------------------------------ */}
+        {/* ------------------------------------------------------------------------ */}
         {/* HORARIOS */}
         <Route
           path="/Horarios"
           element={
             <PrivateRoute>
-              <Layout><ListarHorarios /></Layout>
+              <Layout>
+                <ListarHorarios />
+              </Layout>
             </PrivateRoute>
           }
         />
@@ -459,7 +552,9 @@ function App() {
           path="/CrearHorario"
           element={
             <PrivateRoute>
-              <Layout><CrearHorario /></Layout>
+              <Layout>
+                <CrearHorario />
+              </Layout>
             </PrivateRoute>
           }
         />
@@ -467,19 +562,16 @@ function App() {
           path="/EditarHorario/:id"
           element={
             <PrivateRoute>
-              <Layout><EditarHorario /></Layout>
+              <Layout>
+                <EditarHorario />
+              </Layout>
             </PrivateRoute>
           }
         />
-        {/* ------------------------------------------------------------------------ */}   
+        {/* ------------------------------------------------------------------------ */}
       </Routes>
     </BrowserRouter>
-  );
+  )
 }
 
-export default App;
-
-
-
-
-
+export default App

@@ -278,7 +278,7 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
             title="Ventas"
             icon={<FaChartBar />}
             options={[
-              { label: "Ventas", link: "/ventas" },
+              { label: "Ventas", link: "/ListarVentas" },
               { label: "Pedidos", link: "/pedidos" },
               { label: "Citas", link: "/citas" },
             ]}
