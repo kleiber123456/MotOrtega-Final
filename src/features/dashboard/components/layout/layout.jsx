@@ -211,9 +211,23 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
               { label: "Usuarios", link: "/listarUsuarios" },
               { label: "Clientes", link: "/ListarClientes" },
               { label: "Roles", link: "/Roles" },
-              { label: "Mecánicos", link: "/Mecanicos" },
+              { label: "Mecánicos", link: "/ListarMecanicos" },
             ]}
             isOpen={activeDropdown === "configuracion"}
+            toggleDropdown={toggleDropdown}
+            collapsed={collapsed}
+          />
+
+          {/* Agregar después del menú de configuración */}
+          <Dropdown
+            id="horarios"
+            title="Horarios"
+            icon={<FaCalendarAlt />}
+            options={[
+              { label: "Lista de Horarios", link: "/Horarios" },
+              { label: "Crear Horario", link: "/CrearHorario" },
+            ]}
+            isOpen={activeDropdown === "horarios"}
             toggleDropdown={toggleDropdown}
             collapsed={collapsed}
           />

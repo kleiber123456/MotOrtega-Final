@@ -1,0 +1,132 @@
+.listarHorarios-container {
+  padding: 25px;
+  background-color: #f9fafb;
+  min-height: 100vh;
+  font-family: "Montserrat", sans-serif;
+}
+
+.listarHorarios-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.listarHorarios-title {
+  font-size: 24px;
+  color: #1a202c;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.listarHorarios-icon {
+  color: #2563eb;
+}
+
+.listarHorarios-button-crear {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.listarHorarios-button-crear:hover {
+  background-color: #1d4ed8;
+}
+
+.listarHorarios-table-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.listarHorarios-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.listarHorarios-table th,
+.listarHorarios-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.listarHorarios-table th {
+  background-color: #f8fafc;
+  font-weight: 600;
+  color: #475569;
+}
+
+.listarHorarios-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.listarHorarios-button {
+  padding: 6px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.listarHorarios-button.edit {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.listarHorarios-button.delete {
+  background-color: #ef4444;
+  color: white;
+}
+
+.listarHorarios-button:hover {
+  opacity: 0.9;
+}
+
+.listarHorarios-no-data {
+  text-align: center;
+  padding: 24px;
+  color: #64748b;
+}
+
+.listarHorarios-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.listarHorarios-pagination-button {
+  padding: 8px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.listarHorarios-pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.listarHorarios-pagination-info {
+  color: #64748b;
+}
+
+.listarHorarios-loading {
+  text-align: center;
+  padding: 40px;
+  color: #64748b;
+}

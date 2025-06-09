@@ -1,0 +1,153 @@
+.editarCliente-container {
+  padding: 25px;
+  background-color: #f9fafb;
+  min-height: 100vh;
+  font-family: "Montserrat", sans-serif;
+}
+
+.editarCliente-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.editarCliente-backButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.editarCliente-backButton:hover {
+  background-color: #e2e8f0;
+}
+
+.editarCliente-title {
+  font-size: 24px;
+  color: #1a202c;
+  margin: 0;
+}
+
+.editarCliente-form {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+}
+
+.editarCliente-section {
+  margin-bottom: 30px;
+}
+
+.editarCliente-sectionTitle {
+  font-size: 18px;
+  color: #1a202c;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.editarCliente-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.editarCliente-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.editarCliente-field label {
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.editarCliente-field input,
+.editarCliente-field select {
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.editarCliente-field input:focus,
+.editarCliente-field select:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.editarCliente-field input.error {
+  border-color: #ef4444;
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.editarCliente-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 30px;
+}
+
+.editarCliente-submitButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.editarCliente-submitButton:hover {
+  background-color: #1d4ed8;
+}
+
+.editarCliente-submitButton:disabled {
+  background-color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.editarCliente-submitError {
+  color: #ef4444;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.editarCliente-loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #64748b;
+}
+
+@media (max-width: 768px) {
+  .editarCliente-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .editarCliente-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -194,7 +194,7 @@ function ListarClientes() {
           <Users className="listarClientes-titulo-icon" />
           Listado de Clientes
         </h2>
-        <button className="listarClientes-boton-crear" onClick={() => navigate("/CrearCliente")}>
+        <button className="listarClientes-boton-crear" onClick={() => navigate("/CrearClientes")}>
           <Plus size={18} />
           Crear Cliente
         </button>

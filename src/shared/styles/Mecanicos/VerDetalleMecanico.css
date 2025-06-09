@@ -1,0 +1,181 @@
+.verDetalleMecanico-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.verDetalleMecanico-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.verDetalleMecanico-back-button,
+.verDetalleMecanico-edit-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.verDetalleMecanico-back-button {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.verDetalleMecanico-back-button:hover {
+  background-color: #e5e7eb;
+}
+
+.verDetalleMecanico-edit-button {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.verDetalleMecanico-edit-button:hover {
+  background-color: #2563eb;
+}
+
+.verDetalleMecanico-content {
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 2rem;
+}
+
+.verDetalleMecanico-title-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.verDetalleMecanico-title-icon {
+  font-size: 2.5rem;
+  color: #3b82f6;
+}
+
+.verDetalleMecanico-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.verDetalleMecanico-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.status-icon {
+  font-size: 0.75rem;
+}
+
+.status-icon.activo {
+  color: #10b981;
+}
+
+.status-icon.inactivo {
+  color: #ef4444;
+}
+
+.verDetalleMecanico-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.verDetalleMecanico-info-section h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.verDetalleMecanico-info-content {
+  background-color: #f9fafb;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+
+.info-item {
+  margin-bottom: 1rem;
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+}
+
+.info-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.info-value {
+  display: block;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.verDetalleMecanico-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 1rem;
+}
+
+.verDetalleMecanico-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f4f6;
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .verDetalleMecanico-container {
+    padding: 1rem;
+  }
+
+  .verDetalleMecanico-content {
+    padding: 1.5rem;
+  }
+
+  .verDetalleMecanico-title {
+    font-size: 1.5rem;
+  }
+
+  .verDetalleMecanico-info-grid {
+    grid-template-columns: 1fr;
+  }
+}

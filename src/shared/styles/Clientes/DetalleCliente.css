@@ -1,0 +1,146 @@
+.detalleCliente-container {
+  padding: 25px;
+  background-color: #f9fafb;
+  min-height: 100vh;
+  font-family: "Montserrat", sans-serif;
+}
+
+.detalleCliente-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.detalleCliente-headerInfo {
+  flex-grow: 1;
+  margin: 0 20px;
+}
+
+.detalleCliente-title {
+  font-size: 24px;
+  color: #1a202c;
+  margin: 0;
+  margin-bottom: 5px;
+}
+
+.detalleCliente-status {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.detalleCliente-status.activo {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.detalleCliente-status.inactivo {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.detalleCliente-backButton,
+.detalleCliente-editButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.detalleCliente-backButton {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.detalleCliente-editButton {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+}
+
+.detalleCliente-backButton:hover {
+  background-color: #e2e8f0;
+}
+
+.detalleCliente-editButton:hover {
+  background-color: #1d4ed8;
+}
+
+.detalleCliente-content {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+}
+
+.detalleCliente-section {
+  margin-bottom: 30px;
+}
+
+.detalleCliente-sectionTitle {
+  font-size: 18px;
+  color: #1a202c;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.detalleCliente-infoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.detalleCliente-infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.detalleCliente-infoItem label {
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.detalleCliente-infoItem span {
+  font-size: 16px;
+  color: #1a202c;
+}
+
+.detalleCliente-loading,
+.detalleCliente-error {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #64748b;
+}
+
+@media (max-width: 768px) {
+  .detalleCliente-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .detalleCliente-headerInfo {
+    margin: 15px 0;
+  }
+
+  .detalleCliente-infoGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -57,18 +57,25 @@ import DetalleServicios from './features/dashboard/pages/Servicios/DetalleServic
 // ----------------------------------------------------------------------
 
 // ------------------------------CLIENTES-----------------------------
-import ListarClientes from './features/dashboard/pages/Clientes/ListarClientes'
-import CrearClientes from './features/dashboard/pages/Clientes/CrearClientes'
+import ListarClientes from './features/dashboard/pages/Clientes/ListarClientes';
+import CrearClientes from  './features/dashboard/pages/Clientes/CrearClientes';
+import DetalleCliente from './features/dashboard/pages/Clientes/DetalleCliente';
+import EditarClientes from './features/dashboard/pages/Clientes/EditarCliente';    
 // ----------------------------------------------------------------------
 // ------------------------------MECANICOS-----------------------------
 import ListarMecanicos from './features/dashboard/pages/Mecanicos/ListarMecanicos';
 import CrearMecanicos from './features/dashboard/pages/Mecanicos/CrearMecanico';
 import EditarMecanicos from './features/dashboard/pages/Mecanicos/EditarMecanico';
-import DetalleMecanicos from './features/dashboard/pages/Mecanicos/DetalleMecanico';
+import VerDetalleMecanico from './features/dashboard/pages/Mecanicos/VerDetalleMecanico';
 // ----------------------------------------------------------------------
 
 
 
+// ------------------------------HORARIOS-----------------------------
+import ListarHorarios from './features/dashboard/pages/Horarios/ListarHorarios';
+import CrearHorario from './features/dashboard/pages/Horarios/CrearHorario';
+import EditarHorario from './features/dashboard/pages/Horarios/EditarHorario';
+// ----------------------------------------------------------------------
 function App() {
   return (
     <BrowserRouter>
@@ -383,14 +390,12 @@ function App() {
           element={
             <PrivateRoute>
               <Layout>
-                <DetalleMecanicos/>
+                <VerDetalleMecanico />
               </Layout>
             </PrivateRoute>
           }
         />
         {/* ------------------------------------------------------------------------ */}
-
-
 
         <Route
           path="/ListarClientes"
@@ -407,12 +412,59 @@ function App() {
               <Layout><CrearClientes /></Layout>
             </PrivateRoute>
           }
-        />    
+        />
+        <Route
+          path="/DetalleCliente/:id"
+          element={
+            <PrivateRoute>
+              <Layout><DetalleCliente/></Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/EditarCliente/:id"
+          element={
+            <PrivateRoute>
+              <Layout><EditarClientes/></Layout>
+            </PrivateRoute>
+          }
+        />
+        {/* ------------------------------------------------------------------------ */}
+                {/* ------------------------------------------------------------------------ */}
+        {/* HORARIOS */}
+        <Route
+          path="/Horarios"
+          element={
+            <PrivateRoute>
+              <Layout><ListarHorarios /></Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/CrearHorario"
+          element={
+            <PrivateRoute>
+              <Layout><CrearHorario /></Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/EditarHorario/:id"
+          element={
+            <PrivateRoute>
+              <Layout><EditarHorario /></Layout>
+            </PrivateRoute>
+          }
+        />
+        {/* ------------------------------------------------------------------------ */}   
       </Routes>
     </BrowserRouter>
   );
 }
 
 export default App;
+
+
+
 
 
