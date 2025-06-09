@@ -395,6 +395,9 @@ const CrearUsuario = () => {
               >
                 <option value="Cédula de ciudadanía">Cédula de ciudadanía</option>
                 <option value="Tarjeta de identidad">Tarjeta de identidad</option>
+                <option value="Cédula de Extranjería">Cédula de Extranjería</option>
+                <option value="Pasaporte">Pasaporte</option>
+                <option value="Otro">Otro</option>
               </select>
               {errores.tipo_documento && (
                 <span className="crearUsuario-error-text">
