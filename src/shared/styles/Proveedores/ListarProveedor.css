@@ -155,12 +155,15 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   border: 1px solid #e2e8f0;
   overflow: hidden;
+  width: 100%;
+  max-width: 100%;
 }
 
 .listarProveedor-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
+  table-layout: fixed; /* Fija el ancho de las columnas */
 }
 
 .listarProveedor-table th {
@@ -182,6 +185,9 @@
   padding: 16px 12px;
   font-size: 14px;
   color: #1a202c;
+  word-wrap: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .listarProveedor-table tr:hover {
@@ -451,34 +457,44 @@
 .listarProveedor-expanded-content {
   padding: 16px 24px;
   border-top: 1px solid #e2e8f0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .listarProveedor-expanded-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(4, 1fr); /* Siempre 4 columnas */
   gap: 16px;
+  max-width: 100%;
 }
 
 .listarProveedor-expanded-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   padding: 12px;
   background-color: white;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
+  min-width: 0; /* Permite que el contenido se contraiga */
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .listarProveedor-expanded-icon {
   color: #2563eb;
   font-size: 16px;
   flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .listarProveedor-expanded-item > div {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0; /* Permite que el contenido se contraiga */
+  flex: 1;
+  overflow: hidden;
 }
 
 .listarProveedor-expanded-label {
@@ -487,22 +503,100 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .listarProveedor-expanded-value {
   font-size: 14px;
   color: #1a202c;
   font-weight: 600;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  line-height: 1.4;
+  max-width: 100%;
 }
 
 /* Responsive para filas expandidas */
+@media (max-width: 1200px) {
+  .listarProveedor-expanded-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 columnas en pantallas medianas */
+    gap: 12px;
+  }
+}
+
 @media (max-width: 768px) {
   .listarProveedor-expanded-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* 1 columna en móviles */
     gap: 12px;
   }
 
   .listarProveedor-expanded-content {
     padding: 12px 16px;
   }
+
+  .listarProveedor-expanded-item {
+    padding: 10px;
+  }
+
+  .listarProveedor-expanded-value {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .listarProveedor-expanded-grid {
+    gap: 8px;
+  }
+
+  .listarProveedor-expanded-content {
+    padding: 8px 12px;
+  }
+
+  .listarProveedor-expanded-item {
+    padding: 8px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .listarProveedor-expanded-icon {
+    align-self: flex-start;
+  }
+
+  .listarProveedor-expanded-item > div {
+    width: 100%;
+  }
+}
+
+/* Ajustar anchos de columnas */
+.listarProveedor-table th:nth-child(1) {
+  width: 80px;
+} /* Expandir */
+.listarProveedor-table th:nth-child(2) {
+  width: 20%;
+} /* Nombre */
+.listarProveedor-table th:nth-child(3) {
+  width: 25%;
+} /* Empresa */
+.listarProveedor-table th:nth-child(4) {
+  width: 15%;
+} /* Teléfono */
+.listarProveedor-table th:nth-child(5) {
+  width: 15%;
+} /* Estado */
+.listarProveedor-table th:nth-child(6) {
+  width: 25%;
+} /* Acciones */
+
+.listarProveedor-table td {
+  border: none;
+  border-bottom: 1px solid #f1f5f9;
+  padding: 16px 12px;
+  font-size: 14px;
+  color: #1a202c;
+  word-wrap: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

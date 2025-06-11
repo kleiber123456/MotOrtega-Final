@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import {
   FaBuilding,
@@ -37,6 +37,7 @@ const getValidToken = () => {
 
 const ListarProveedor = () => {
   const navigate = useNavigate()
+  const tableRef = useRef(null)
 
   const [proveedores, setProveedores] = useState([])
   const [busqueda, setBusqueda] = useState("")
@@ -51,6 +52,20 @@ const ListarProveedor = () => {
     fetchProveedores()
     return () => {
       document.body.style.background = ""
+    }
+  }, [])
+
+  // Efecto para cerrar filas expandidas al hacer clic afuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (tableRef.current && !tableRef.current.contains(event.target)) {
+        setFilasExpandidas(new Set())
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
     }
   }, [])
 
@@ -209,10 +224,10 @@ const ListarProveedor = () => {
 
   const toggleFilaExpandida = useCallback((id) => {
     setFilasExpandidas((prev) => {
-      const nuevasFilas = new Set(prev)
-      if (nuevasFilas.has(id)) {
-        nuevasFilas.delete(id)
-      } else {
+      const nuevasFilas = new Set()
+      // Si la fila clickeada ya está expandida, la cerramos (set vacío)
+      // Si no está expandida, la abrimos (solo esa fila en el set)
+      if (!prev.has(id)) {
         nuevasFilas.add(id)
       }
       return nuevasFilas
@@ -304,7 +319,7 @@ const ListarProveedor = () => {
       </div>
 
       {/* Tabla */}
-      <div className="listarProveedor-table-container">
+      <div className="listarProveedor-table-container" ref={tableRef}>
         <table className="listarProveedor-table">
           <thead>
             <tr>
