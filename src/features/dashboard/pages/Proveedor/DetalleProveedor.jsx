@@ -68,7 +68,12 @@ const DetalleProveedor = () => {
         }
 
         const data = await response.json()
-        setProveedor(data)
+        // Validar que la respuesta tenga la estructura esperada
+        if (data && typeof data === "object") {
+          setProveedor(data)
+        } else {
+          throw new Error("Respuesta de la API inválida")
+        }
       } catch (err) {
         console.error("Error al obtener proveedor:", err)
         setError(err.message)
@@ -130,7 +135,8 @@ const DetalleProveedor = () => {
               Detalle del Proveedor
             </h1>
             <p className="detalleProveedor-subtitle">
-              Información completa de {proveedor.nombre} - {proveedor.nombre_empresa}
+              Información completa de {proveedor?.nombre || "No especificado"} -{" "}
+              {proveedor?.nombre_empresa || "No especificado"}
             </p>
           </div>
         </div>
@@ -160,7 +166,7 @@ const DetalleProveedor = () => {
             </div>
             <div className="detalleProveedor-info-content">
               <span className="detalleProveedor-info-label">Nombre</span>
-              <span className="detalleProveedor-info-value">{proveedor.nombre}</span>
+              <span className="detalleProveedor-info-value">{proveedor?.nombre || "No especificado"}</span>
             </div>
           </div>
 
@@ -170,7 +176,7 @@ const DetalleProveedor = () => {
             </div>
             <div className="detalleProveedor-info-content">
               <span className="detalleProveedor-info-label">Teléfono</span>
-              <span className="detalleProveedor-info-value">{proveedor.telefono}</span>
+              <span className="detalleProveedor-info-value">{proveedor?.telefono || "No especificado"}</span>
             </div>
           </div>
 
@@ -180,7 +186,7 @@ const DetalleProveedor = () => {
             </div>
             <div className="detalleProveedor-info-content">
               <span className="detalleProveedor-info-label">Correo Electrónico</span>
-              <span className="detalleProveedor-info-value">{proveedor.correo || "No especificado"}</span>
+              <span className="detalleProveedor-info-value">{proveedor?.correo || "No especificado"}</span>
             </div>
           </div>
 
@@ -190,7 +196,7 @@ const DetalleProveedor = () => {
             </div>
             <div className="detalleProveedor-info-content">
               <span className="detalleProveedor-info-label">Dirección</span>
-              <span className="detalleProveedor-info-value">{proveedor.direccion}</span>
+              <span className="detalleProveedor-info-value">{proveedor?.direccion || "No especificado"}</span>
             </div>
           </div>
         </div>
@@ -211,7 +217,7 @@ const DetalleProveedor = () => {
             </div>
             <div className="detalleProveedor-info-content">
               <span className="detalleProveedor-info-label">Nombre de la Empresa</span>
-              <span className="detalleProveedor-info-value">{proveedor.nombre_empresa}</span>
+              <span className="detalleProveedor-info-value">{proveedor?.nombre_empresa || "No especificado"}</span>
             </div>
           </div>
 
@@ -221,7 +227,7 @@ const DetalleProveedor = () => {
             </div>
             <div className="detalleProveedor-info-content">
               <span className="detalleProveedor-info-label">Teléfono Empresa</span>
-              <span className="detalleProveedor-info-value">{proveedor.telefono_empresa}</span>
+              <span className="detalleProveedor-info-value">{proveedor?.telefono_empresa || "No especificado"}</span>
             </div>
           </div>
 
@@ -231,18 +237,18 @@ const DetalleProveedor = () => {
             </div>
             <div className="detalleProveedor-info-content">
               <span className="detalleProveedor-info-label">NIT</span>
-              <span className="detalleProveedor-info-value">{proveedor.nit}</span>
+              <span className="detalleProveedor-info-value">{proveedor?.nit || "No especificado"}</span>
             </div>
           </div>
 
           <div className="detalleProveedor-info-card">
             <div className="detalleProveedor-info-icon">
-              {proveedor.estado?.toLowerCase() === "activo" ? <FaToggleOn /> : <FaToggleOff />}
+              {proveedor?.estado?.toLowerCase() === "activo" ? <FaToggleOn /> : <FaToggleOff />}
             </div>
             <div className="detalleProveedor-info-content">
               <span className="detalleProveedor-info-label">Estado</span>
-              <span className={`detalleProveedor-estado ${getEstadoClass(proveedor.estado)}`}>
-                {proveedor.estado || "No especificado"}
+              <span className={`detalleProveedor-estado ${getEstadoClass(proveedor?.estado)}`}>
+                {proveedor?.estado || "No especificado"}
               </span>
             </div>
           </div>

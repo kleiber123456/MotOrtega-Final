@@ -94,13 +94,11 @@ const CrearUsuario = () => {
     rol_id: "",
     estado: "Activo",
     password: "",
-    confirmPassword: "",
   })
 
   const [roles, setRoles] = useState([])
   const [errores, setErrores] = useState({})
   const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Cargar roles al montar el componente
@@ -126,110 +124,128 @@ const CrearUsuario = () => {
     validarCampo(name, value)
   }, [])
 
-  const validarCampo = useCallback(
-    (name, value) => {
-      let nuevoError = ""
+  const validarCampo = useCallback((name, value) => {
+    let nuevoError = ""
 
-      switch (name) {
-        case "nombre":
-          if (!value.trim()) {
-            nuevoError = "El nombre es obligatorio."
-          } else if (value.trim().length < 3) {
-            nuevoError = "El nombre debe tener al menos 3 caracteres."
+    switch (name) {
+      case "nombre":
+        if (!value.trim()) {
+          nuevoError = "El nombre es obligatorio."
+        } else if (value.trim().length < 3) {
+          nuevoError = "El nombre debe tener al menos 3 caracteres."
+        }
+        break
+      case "apellido":
+        if (!value.trim()) {
+          nuevoError = "El apellido es obligatorio."
+        } else if (value.trim().length < 3) {
+          nuevoError = "El apellido debe tener al menos 3 caracteres."
+        }
+        break
+      case "documento":
+        if (!value.trim()) {
+          nuevoError = "El documento es obligatorio."
+        }
+        break
+      case "tipo_documento":
+        if (!value) {
+          nuevoError = "Selecciona un tipo de documento."
+        }
+        break
+      case "direccion":
+        if (!value.trim()) {
+          nuevoError = "La dirección es obligatoria."
+        } else if (value.trim().length < 5) {
+          nuevoError = "La dirección debe tener al menos 5 caracteres."
+        }
+        break
+      case "correo":
+        if (!value.trim()) {
+          nuevoError = "El correo es obligatorio."
+        } else if (!/\S+@\S+\.\S+/.test(value)) {
+          nuevoError = "Ingresa un correo electrónico válido."
+        }
+        break
+      case "telefono":
+        if (!value.trim()) {
+          nuevoError = "El teléfono es obligatorio."
+        } else if (value.trim().length < 10) {
+          nuevoError = "El teléfono debe tener al menos 10 números."
+        }
+        break
+      case "rol_id":
+        if (!value) {
+          nuevoError = "Selecciona un rol."
+        }
+        break
+      case "password":
+        if (!value) {
+          nuevoError = "La contraseña es obligatoria."
+        } else {
+          const errores = []
+          if (value.length < 8) {
+            errores.push("al menos 8 caracteres")
           }
-          break
-        case "apellido":
-          if (!value.trim()) {
-            nuevoError = "El apellido es obligatorio."
-          } else if (value.trim().length < 3) {
-            nuevoError = "El apellido debe tener al menos 3 caracteres."
+          if (!/[A-Z]/.test(value)) {
+            errores.push("una letra mayúscula")
           }
-          break
-        case "documento":
-          if (!value.trim()) {
-            nuevoError = "El documento es obligatorio."
+          if (!/[0-9]/.test(value)) {
+            errores.push("un número")
           }
-          break
-        case "tipo_documento":
-          if (!value) {
-            nuevoError = "Selecciona un tipo de documento."
-          }
-          break
-        case "direccion":
-          if (!value.trim()) {
-            nuevoError = "La dirección es obligatoria."
-          } else if (value.trim().length < 5) {
-            nuevoError = "La dirección debe tener al menos 5 caracteres."
-          }
-          break
-        case "correo":
-          if (!value.trim()) {
-            nuevoError = "El correo es obligatorio."
-          } else if (!/\S+@\S+\.\S+/.test(value)) {
-            nuevoError = "Ingresa un correo electrónico válido."
-          }
-          break
-        case "telefono":
-          if (!value.trim()) {
-            nuevoError = "El teléfono es obligatorio."
-          } else if (value.trim().length < 10) {
-            nuevoError = "El teléfono debe tener al menos 10 números."
-          }
-          break
-        case "rol_id":
-          if (!value) {
-            nuevoError = "Selecciona un rol."
-          }
-          break
-        case "password":
-          if (!value) {
-            nuevoError = "La contraseña es obligatoria."
-          } else {
-            const errores = []
-            if (value.length < 8) {
-              errores.push("al menos 8 caracteres")
-            }
-            if (!/[A-Z]/.test(value)) {
-              errores.push("una letra mayúscula")
-            }
-            if (!/[0-9]/.test(value)) {
-              errores.push("un número")
-            }
 
-            if (errores.length > 0) {
-              nuevoError = "La contraseña debe contener: " + errores.join(", ") + "."
-            }
+          if (errores.length > 0) {
+            nuevoError = "La contraseña debe contener: " + errores.join(", ") + "."
           }
-          break
-        case "confirmPassword":
-          if (value !== formulario.password) {
-            nuevoError = "Las contraseñas no coinciden."
-          }
-          break
-      }
-
-      setErrores((prev) => ({ ...prev, [name]: nuevoError }))
-    },
-    [formulario.password],
-  )
-
-  const validarFormulario = useCallback(() => {
-    const nuevosErrores = {}
-
-    // Validar todos los campos
-    Object.keys(formulario).forEach((key) => {
-      if (key !== "confirmPassword") {
-        validarCampo(key, formulario[key])
-      }
-    })
-
-    // Validar confirmación de contraseña
-    if (formulario.password !== formulario.confirmPassword) {
-      nuevosErrores.confirmPassword = "Las contraseñas no coinciden."
+        }
+        break
     }
 
-    return Object.keys(errores).every((key) => !errores[key]) && Object.keys(nuevosErrores).length === 0
-  }, [formulario, errores, validarCampo])
+    setErrores((prev) => ({ ...prev, [name]: nuevoError }))
+  }, [])
+
+  const validarFormulario = useCallback(() => {
+    let hayErrores = false
+    const nuevosErrores = {}
+
+    // Validar todos los campos requeridos
+    if (!formulario.nombre.trim()) {
+      nuevosErrores.nombre = "El nombre es obligatorio."
+      hayErrores = true
+    }
+    if (!formulario.apellido.trim()) {
+      nuevosErrores.apellido = "El apellido es obligatorio."
+      hayErrores = true
+    }
+    if (!formulario.documento.trim()) {
+      nuevosErrores.documento = "El documento es obligatorio."
+      hayErrores = true
+    }
+    if (!formulario.correo.trim()) {
+      nuevosErrores.correo = "El correo es obligatorio."
+      hayErrores = true
+    }
+    if (!formulario.telefono.trim()) {
+      nuevosErrores.telefono = "El teléfono es obligatorio."
+      hayErrores = true
+    }
+    if (!formulario.direccion.trim()) {
+      nuevosErrores.direccion = "La dirección es obligatoria."
+      hayErrores = true
+    }
+    if (!formulario.rol_id) {
+      nuevosErrores.rol_id = "Selecciona un rol."
+      hayErrores = true
+    }
+    if (!formulario.password) {
+      nuevosErrores.password = "La contraseña es obligatoria."
+      hayErrores = true
+    }
+
+    // Actualizar errores
+    setErrores(nuevosErrores)
+
+    return !hayErrores
+  }, [formulario])
 
   // Función para permitir solo números
   const soloNumeros = useCallback((e) => {
@@ -258,12 +274,9 @@ const CrearUsuario = () => {
       setIsSubmitting(true)
 
       try {
-        const nuevoUsuario = { ...formulario }
-        delete nuevoUsuario.confirmPassword
-
         await makeRequest("/usuarios", {
           method: "POST",
-          body: JSON.stringify(nuevoUsuario),
+          body: JSON.stringify(formulario),
         })
 
         await Swal.fire({
@@ -580,38 +593,6 @@ const CrearUsuario = () => {
               {errores.password && (
                 <span className="crearUsuario-error-text">
                   <FaExclamationTriangle /> {errores.password}
-                </span>
-              )}
-            </div>
-
-            <div className="crearUsuario-form-group">
-              <label htmlFor="confirmPassword" className="crearUsuario-label">
-                <FaUser className="crearUsuario-label-icon" />
-                Confirmar Contraseña *
-              </label>
-              <div className="crearUsuario-password-container">
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formulario.confirmPassword}
-                  onChange={handleChange}
-                  maxLength={30}
-                  autoComplete="new-password"
-                  className={`crearUsuario-form-input ${errores.confirmPassword ? "error" : ""}`}
-                  required
-                />
-                <button
-                  type="button"
-                  className="crearUsuario-password-toggle"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
-                </button>
-              </div>
-              {errores.confirmPassword && (
-                <span className="crearUsuario-error-text">
-                  <FaExclamationTriangle /> {errores.confirmPassword}
                 </span>
               )}
             </div>

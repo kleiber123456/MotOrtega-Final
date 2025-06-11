@@ -12,7 +12,6 @@ import {
   FaEdit,
   FaArrowLeft,
   FaExclamationTriangle,
-  FaCalendarAlt,
   FaToggleOn,
   FaToggleOff,
 } from "react-icons/fa"
@@ -96,9 +95,15 @@ const DetalleUsuario = () => {
         setCargando(true)
         setError(null)
 
-        const data = await makeRequest(`/usuarios/${id}`)
+        const data = await makeRequest("/usuarios")
         if (data) {
-          setUsuario(data)
+          const usuarioEncontrado = data.find((u) => u.id === Number.parseInt(id))
+          if (usuarioEncontrado) {
+            setUsuario(usuarioEncontrado)
+            console.log("Usuario encontrado:", usuarioEncontrado)
+          } else {
+            throw new Error("Usuario no encontrado")
+          }
         }
       } catch (error) {
         console.error("Error al cargar usuario:", error)
@@ -274,7 +279,7 @@ const DetalleUsuario = () => {
             </div>
             <div className="detalleUsuario-info-content">
               <span className="detalleUsuario-info-label">Rol</span>
-              <span className="detalleUsuario-rol-badge">{usuario.rol_nombre || "Sin rol asignado"}</span>
+              <span className="detalleUsuario-rol-badge">{usuario.rol_nombre || "Sin rol"}</span>
             </div>
           </div>
 
@@ -289,30 +294,6 @@ const DetalleUsuario = () => {
               </span>
             </div>
           </div>
-
-          {usuario.fecha_creacion && (
-            <div className="detalleUsuario-info-card">
-              <div className="detalleUsuario-info-icon">
-                <FaCalendarAlt />
-              </div>
-              <div className="detalleUsuario-info-content">
-                <span className="detalleUsuario-info-label">Fecha de Registro</span>
-                <span className="detalleUsuario-info-value">{formatearFecha(usuario.fecha_creacion)}</span>
-              </div>
-            </div>
-          )}
-
-          {usuario.ultima_actualizacion && (
-            <div className="detalleUsuario-info-card">
-              <div className="detalleUsuario-info-icon">
-                <FaCalendarAlt />
-              </div>
-              <div className="detalleUsuario-info-content">
-                <span className="detalleUsuario-info-label">Última Actualización</span>
-                <span className="detalleUsuario-info-value">{formatearFecha(usuario.ultima_actualizacion)}</span>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>

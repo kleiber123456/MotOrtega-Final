@@ -1,4 +1,4 @@
-
+"use client"
 
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
@@ -131,6 +131,12 @@ const Dashboard = () => {
     return "Buenas noches"
   }
 
+  // Función para obtener solo el primer nombre
+  const getFirstName = (fullName) => {
+    if (!fullName) return "Usuario"
+    return fullName.split(" ")[0]
+  }
+
   // Colores para las gráficas
   const COLORS = ["#0066ff", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4"]
 
@@ -191,7 +197,7 @@ const Dashboard = () => {
       <div className="dashboard__welcome">
         <div className="dashboard__welcome-content">
           <h1>
-            {getGreeting()}, {userData.nombre}
+            {getGreeting()}, {getFirstName(userData.nombre)}
           </h1>
           <p>Bienvenido al panel de administración de MotOrtega</p>
         </div>
@@ -200,6 +206,40 @@ const Dashboard = () => {
             <FaChartLine />
             <span>Sistema Activo</span>
           </div>
+        </div>
+      </div>
+
+      {/* Acceso rápido */}
+      <div className="dashboard__quick-access">
+        <h2>Acceso Rápido</h2>
+        <div className="dashboard__quick-access-grid">
+          <Link to="/crearServicios" className="dashboard__quick-access-card">
+            <div className="dashboard__quick-access-icon">
+              <FaTools />
+            </div>
+            <h3>Nuevo Servicio</h3>
+          </Link>
+
+          <Link to="/crearRepuestos" className="dashboard__quick-access-card">
+            <div className="dashboard__quick-access-icon">
+              <FaCogs />
+            </div>
+            <h3>Nuevo Repuesto</h3>
+          </Link>
+
+          <Link to="/CrearProveedor" className="dashboard__quick-access-card">
+            <div className="dashboard__quick-access-icon">
+              <FaShoppingCart />
+            </div>
+            <h3>Nuevo Proveedor</h3>
+          </Link>
+
+          <Link to="/CrearCompras" className="dashboard__quick-access-card">
+            <div className="dashboard__quick-access-icon">
+              <FaClipboardList />
+            </div>
+            <h3>Nueva Compra</h3>
+          </Link>
         </div>
       </div>
 
@@ -309,6 +349,33 @@ const Dashboard = () => {
             </div>
           </div>
 
+          {/* Gráfica de repuestos bajo stock */}
+          <div className="dashboard__chart-card">
+            <div className="dashboard__chart-header">
+              <h3>Repuestos Bajo Stock</h3>
+              <p>Requieren reposición urgente</p>
+            </div>
+            <div className="dashboard__chart-content">
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={repuestosChartData.slice(0, 6)}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis dataKey="name" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={80} />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #e2e8f0",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    }}
+                  />
+                  <Bar dataKey="stock" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="minimo" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
           {/* Gráfica de compras recientes */}
           <div className="dashboard__chart-card dashboard__chart-card--full">
             <div className="dashboard__chart-header">
@@ -337,33 +404,6 @@ const Dashboard = () => {
                   />
                   <Area type="monotone" dataKey="total" stroke="#0066ff" fillOpacity={1} fill="url(#colorTotal)" />
                 </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Gráfica de repuestos bajo stock */}
-          <div className="dashboard__chart-card">
-            <div className="dashboard__chart-header">
-              <h3>Repuestos Bajo Stock</h3>
-              <p>Requieren reposición urgente</p>
-            </div>
-            <div className="dashboard__chart-content">
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={repuestosChartData.slice(0, 6)}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="name" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={80} />
-                  <YAxis tick={{ fontSize: 12 }} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#fff",
-                      border: "1px solid #e2e8f0",
-                      borderRadius: "8px",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                    }}
-                  />
-                  <Bar dataKey="stock" fill="#ef4444" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="minimo" fill="#f59e0b" radius={[4, 4, 0, 0]} />
-                </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
@@ -452,40 +492,6 @@ const Dashboard = () => {
               </table>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Acceso rápido */}
-      <div className="dashboard__quick-access">
-        <h2>Acceso Rápido</h2>
-        <div className="dashboard__quick-access-grid">
-          <Link to="/crearServicios" className="dashboard__quick-access-card">
-            <div className="dashboard__quick-access-icon">
-              <FaTools />
-            </div>
-            <h3>Nuevo Servicio</h3>
-          </Link>
-
-          <Link to="/crearRepuestos" className="dashboard__quick-access-card">
-            <div className="dashboard__quick-access-icon">
-              <FaCogs />
-            </div>
-            <h3>Nuevo Repuesto</h3>
-          </Link>
-
-          <Link to="/CrearProveedor" className="dashboard__quick-access-card">
-            <div className="dashboard__quick-access-icon">
-              <FaShoppingCart />
-            </div>
-            <h3>Nuevo Proveedor</h3>
-          </Link>
-
-          <Link to="/CrearCompras" className="dashboard__quick-access-card">
-            <div className="dashboard__quick-access-icon">
-              <FaClipboardList />
-            </div>
-            <h3>Nueva Compra</h3>
-          </Link>
         </div>
       </div>
     </div>

@@ -32,11 +32,59 @@ const getValidToken = () => {
   return token
 }
 
+// Hook personalizado para manejo de API (igual que en EditarUsuario)
+const useApi = () => {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  const makeRequest = useCallback(async (url, options = {}) => {
+    setLoading(true)
+    setError(null)
+
+    const token = getValidToken()
+    if (!token) {
+      setError("Error de autenticación")
+      setLoading(false)
+      return null
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}${url}`, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+          ...options.headers,
+        },
+      })
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Sesión expirada. Por favor inicie sesión nuevamente.")
+        }
+        throw new Error(`Error ${response.status}: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      return data
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Error desconocido"
+      setError(errorMessage)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  return { makeRequest, loading, error }
+}
+
 const EditarProveedor = () => {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { makeRequest, loading: apiLoading } = useApi()
 
-  const [formulario, setFormulario] = useState({
+  const [proveedor, setProveedor] = useState({
     nombre: "",
     telefono: "",
     nombre_empresa: "",
@@ -44,19 +92,53 @@ const EditarProveedor = () => {
     nit: "",
     direccion: "",
     correo: "",
-    estado: "Activo",
+    estado: "activo",
   })
 
   const [errores, setErrores] = useState({})
   const [cargando, setCargando] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const soloNumeros = useCallback((e) => {
-    e.target.value = e.target.value.replace(/[^0-9]/g, "")
-  }, [])
+  useEffect(() => {
+    const cargarDatos = async () => {
+      try {
+        setCargando(true)
 
-  const soloLetras = useCallback((e) => {
-    e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, "")
+        const proveedorData = await makeRequest(`/proveedores/${id}`)
+
+        if (proveedorData) {
+          setProveedor({
+            nombre: proveedorData.nombre || "",
+            telefono: proveedorData.telefono || "",
+            nombre_empresa: proveedorData.nombre_empresa || "",
+            telefono_empresa: proveedorData.telefono_empresa || "",
+            nit: proveedorData.nit || "",
+            direccion: proveedorData.direccion || "",
+            correo: proveedorData.correo || "",
+            estado: proveedorData.estado || "activo",
+          })
+        }
+      } catch (error) {
+        console.error("Error al cargar datos:", error)
+        Swal.fire("Error", "No se pudieron cargar los datos del proveedor", "error")
+        navigate("/ListarProveedores")
+      } finally {
+        setCargando(false)
+      }
+    }
+
+    if (id) {
+      cargarDatos()
+    }
+  }, [id, makeRequest, navigate])
+
+  const handleChange = useCallback((e) => {
+    const { name, value } = e.target
+    if (name !== "nit") {
+      // El NIT no se puede editar
+      setProveedor((prev) => ({ ...prev, [name]: value }))
+      validarCampo(name, value)
+    }
   }, [])
 
   const validarCampo = useCallback((name, value) => {
@@ -66,15 +148,15 @@ const EditarProveedor = () => {
       case "nombre":
         if (!value.trim()) {
           nuevoError = "El nombre es obligatorio."
-        } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
-          nuevoError = "El nombre solo debe contener letras."
+        } else if (value.trim().length < 3) {
+          nuevoError = "El nombre debe tener al menos 3 caracteres."
         }
         break
       case "telefono":
         if (!value.trim()) {
           nuevoError = "El teléfono es obligatorio."
-        } else if (!/^\d+$/.test(value)) {
-          nuevoError = "El teléfono solo debe contener números."
+        } else if (value.trim().length < 10) {
+          nuevoError = "El teléfono debe tener al menos 10 números."
         }
         break
       case "nombre_empresa":
@@ -85,98 +167,52 @@ const EditarProveedor = () => {
       case "telefono_empresa":
         if (!value.trim()) {
           nuevoError = "El teléfono de la empresa es obligatorio."
-        } else if (!/^\d+$/.test(value)) {
-          nuevoError = "El teléfono de la empresa solo debe contener números."
+        } else if (value.trim().length < 10) {
+          nuevoError = "El teléfono de la empresa debe tener al menos 10 números."
         }
         break
       case "direccion":
         if (!value.trim()) {
           nuevoError = "La dirección es obligatoria."
+        } else if (value.trim().length < 5) {
+          nuevoError = "La dirección debe tener al menos 5 caracteres."
         }
         break
       case "correo":
         if (!value.trim()) {
           nuevoError = "El correo es obligatorio."
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          nuevoError = "El correo no es válido."
-        }
-        break
-      case "estado":
-        if (!["Activo", "Inactivo"].includes(value)) {
-          nuevoError = "Estado inválido."
+        } else if (!/\S+@\S+\.\S+/.test(value)) {
+          nuevoError = "Ingresa un correo electrónico válido."
         }
         break
     }
 
     setErrores((prev) => ({ ...prev, [name]: nuevoError }))
-    return nuevoError === ""
   }, [])
 
   const validarFormulario = useCallback(() => {
-    let esValido = true
+    const nuevosErrores = {}
 
-    if (!validarCampo("nombre", formulario.nombre)) esValido = false
-    if (!validarCampo("telefono", formulario.telefono)) esValido = false
-    if (!validarCampo("nombre_empresa", formulario.nombre_empresa)) esValido = false
-    if (!validarCampo("telefono_empresa", formulario.telefono_empresa)) esValido = false
-    if (!validarCampo("direccion", formulario.direccion)) esValido = false
-    if (!validarCampo("correo", formulario.correo)) esValido = false
-    if (!validarCampo("estado", formulario.estado)) esValido = false
-
-    return esValido
-  }, [formulario, validarCampo])
-
-  useEffect(() => {
-    const obtenerProveedor = async () => {
-      try {
-        setCargando(true)
-        const token = getValidToken()
-        if (!token) {
-          Swal.fire("Error", "No autorizado: Token no encontrado.", "error")
-          navigate("/login")
-          return
-        }
-
-        const response = await fetch(`${API_BASE_URL}/proveedores/${id}`, {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        })
-
-        if (!response.ok) {
-          throw new Error("Error al cargar los datos del proveedor")
-        }
-
-        const data = await response.json()
-        setFormulario({
-          ...data,
-          estado: data.estado.charAt(0).toUpperCase() + data.estado.slice(1),
-        })
-      } catch (error) {
-        console.error("Error al obtener proveedor:", error)
-        Swal.fire("Error", "Error al cargar los datos del proveedor.", "error")
-        navigate("/ListarProveedores")
-      } finally {
-        setCargando(false)
+    // Validar todos los campos
+    Object.keys(proveedor).forEach((key) => {
+      if (key !== "nit") {
+        // No validar NIT ya que es solo lectura
+        validarCampo(key, proveedor[key])
       }
-    }
+    })
 
-    if (id) {
-      obtenerProveedor()
-    }
-  }, [id, navigate])
+    return Object.keys(errores).every((key) => !errores[key])
+  }, [proveedor, errores, validarCampo])
 
-  const handleChange = useCallback(
-    (e) => {
-      const { name, value } = e.target
-      if (name !== "nit") {
-        setFormulario((prev) => ({ ...prev, [name]: value }))
-        validarCampo(name, value)
-      }
-    },
-    [validarCampo],
-  )
+  // Función para permitir solo números
+  const soloNumeros = useCallback((e) => {
+    e.target.value = e.target.value.replace(/[^0-9]/g, "")
+  }, [])
+
+  // Función para permitir solo letras
+  const soloLetras = useCallback((e) => {
+    e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, "")
+  }, [])
 
   const handleSubmit = useCallback(
     async (e) => {
@@ -195,32 +231,15 @@ const EditarProveedor = () => {
       setIsSubmitting(true)
 
       try {
-        const token = getValidToken()
-        if (!token) {
-          Swal.fire("Error", "No autorizado: Token no encontrado.", "error")
-          navigate("/login")
-          return
-        }
-
-        const estadoParaAPI = formulario.estado.toLowerCase()
-
-        const response = await fetch(`${API_BASE_URL}/proveedores/${id}`, {
+        await makeRequest(`/proveedores/${id}`, {
           method: "PUT",
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ ...formulario, estado: estadoParaAPI }),
+          body: JSON.stringify(proveedor),
         })
-
-        if (!response.ok) {
-          throw new Error("Error al actualizar el proveedor")
-        }
 
         await Swal.fire({
           icon: "success",
           title: "¡Éxito!",
-          text: "Proveedor actualizado exitosamente.",
+          text: "Proveedor actualizado correctamente",
           confirmButtonColor: "#10b981",
           timer: 2000,
         })
@@ -231,14 +250,14 @@ const EditarProveedor = () => {
         await Swal.fire({
           icon: "error",
           title: "Error",
-          text: "No se pudo actualizar el proveedor.",
+          text: error instanceof Error ? error.message : "No se pudo actualizar el proveedor",
           confirmButtonColor: "#ef4444",
         })
       } finally {
         setIsSubmitting(false)
       }
     },
-    [formulario, validarFormulario, id, navigate],
+    [proveedor, validarFormulario, makeRequest, id, navigate],
   )
 
   const handleCancel = useCallback(async () => {
@@ -303,7 +322,7 @@ const EditarProveedor = () => {
                 type="text"
                 id="nombre"
                 name="nombre"
-                value={formulario.nombre}
+                value={proveedor.nombre}
                 onChange={handleChange}
                 onInput={soloLetras}
                 maxLength={50}
@@ -327,7 +346,7 @@ const EditarProveedor = () => {
                 type="text"
                 id="telefono"
                 name="telefono"
-                value={formulario.telefono}
+                value={proveedor.telefono}
                 onChange={handleChange}
                 onInput={soloNumeros}
                 maxLength={15}
@@ -359,7 +378,7 @@ const EditarProveedor = () => {
                 type="text"
                 id="nombre_empresa"
                 name="nombre_empresa"
-                value={formulario.nombre_empresa}
+                value={proveedor.nombre_empresa}
                 onChange={handleChange}
                 maxLength={45}
                 autoComplete="off"
@@ -382,7 +401,7 @@ const EditarProveedor = () => {
                 type="text"
                 id="telefono_empresa"
                 name="telefono_empresa"
-                value={formulario.telefono_empresa}
+                value={proveedor.telefono_empresa}
                 onChange={handleChange}
                 onInput={soloNumeros}
                 maxLength={45}
@@ -406,7 +425,7 @@ const EditarProveedor = () => {
                 type="text"
                 id="nit"
                 name="nit"
-                value={formulario.nit}
+                value={proveedor.nit}
                 readOnly
                 maxLength={15}
                 autoComplete="off"
@@ -424,7 +443,7 @@ const EditarProveedor = () => {
                 type="text"
                 id="direccion"
                 name="direccion"
-                value={formulario.direccion}
+                value={proveedor.direccion}
                 onChange={handleChange}
                 maxLength={45}
                 autoComplete="off"
@@ -447,7 +466,7 @@ const EditarProveedor = () => {
                 type="email"
                 id="correo"
                 name="correo"
-                value={formulario.correo}
+                value={proveedor.correo}
                 onChange={handleChange}
                 maxLength={45}
                 autoComplete="off"
@@ -469,13 +488,13 @@ const EditarProveedor = () => {
               <select
                 id="estado"
                 name="estado"
-                value={formulario.estado}
+                value={proveedor.estado}
                 onChange={handleChange}
                 className={`editarProveedor-form-input ${errores.estado ? "error" : ""}`}
                 required
               >
-                <option value="Activo">Activo</option>
-                <option value="Inactivo">Inactivo</option>
+                <option value="activo">Activo</option>
+                <option value="inactivo">Inactivo</option>
               </select>
               {errores.estado && (
                 <span className="editarProveedor-error-text">
@@ -496,7 +515,7 @@ const EditarProveedor = () => {
             <FaTimes className="editarProveedor-button-icon" />
             Cancelar
           </button>
-          <button type="submit" className="editarProveedor-submit-button" disabled={isSubmitting}>
+          <button type="submit" className="editarProveedor-submit-button" disabled={isSubmitting || apiLoading}>
             {isSubmitting ? (
               <>
                 <FaSpinner className="editarProveedor-button-icon spinning" />

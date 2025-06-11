@@ -280,8 +280,9 @@ function App() {
             </PrivateRoute>
           }
         />
+        {/* Corregida la ruta de editar proveedor */}
         <Route
-          path="/EditarProveedor/editar/:id"
+          path="/EditarProveedor/:id"
           element={
             <PrivateRoute>
               <Layout>

@@ -12,6 +12,12 @@ import {
   FaPlus,
   FaToggleOn,
   FaToggleOff,
+  FaChevronDown,
+  FaChevronUp,
+  FaPhone,
+  FaIdCard,
+  FaMapMarkerAlt,
+  FaEnvelope,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Proveedores/ListarProveedor.css"
@@ -38,6 +44,7 @@ const ListarProveedor = () => {
   const [paginaActual, setPaginaActual] = useState(1)
   const [proveedoresPorPagina] = useState(4)
   const [cargando, setCargando] = useState(true)
+  const [filasExpandidas, setFilasExpandidas] = useState(new Set())
 
   useEffect(() => {
     document.body.style.backgroundColor = "#f9fafb"
@@ -69,6 +76,7 @@ const ListarProveedor = () => {
       }
 
       const data = await response.json()
+      console.log("Datos de proveedores recibidos:", data) // Debug
       setProveedores(data)
     } catch (error) {
       console.error("Error al obtener proveedores:", error)
@@ -132,60 +140,94 @@ const ListarProveedor = () => {
     }
   }, [])
 
-  const cambiarEstado = useCallback(async (id, estadoActual) => {
-    try {
-      const nuevoEstado = estadoActual?.toLowerCase() === "activo" ? "Inactivo" : "Activo"
+  const cambiarEstado = useCallback(
+    async (id, estadoActual) => {
+      try {
+        const nuevoEstado = estadoActual?.toLowerCase() === "activo" ? "inactivo" : "activo"
 
-      const result = await Swal.fire({
-        title: `¿Cambiar estado a ${nuevoEstado}?`,
-        text: `El proveedor será marcado como ${nuevoEstado.toLowerCase()}`,
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonColor: "#2563eb",
-        cancelButtonColor: "#6b7280",
-        confirmButtonText: "Sí, cambiar",
-        cancelButtonText: "Cancelar",
-      })
+        const result = await Swal.fire({
+          title: `¿Cambiar estado a ${nuevoEstado}?`,
+          text: `El proveedor será marcado como ${nuevoEstado}`,
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonColor: "#2563eb",
+          cancelButtonColor: "#6b7280",
+          confirmButtonText: "Sí, cambiar",
+          cancelButtonText: "Cancelar",
+        })
 
-      if (!result.isConfirmed) return
+        if (!result.isConfirmed) return
 
-      const token = getValidToken()
-      if (!token) {
-        Swal.fire("Error", "No autorizado: Token no encontrado.", "error")
-        return
+        const token = getValidToken()
+        if (!token) {
+          Swal.fire("Error", "No autorizado: Token no encontrado.", "error")
+          return
+        }
+
+        // Obtener el proveedor actual
+        const proveedorActual = proveedores.find((p) => p._id === id)
+        if (!proveedorActual) {
+          Swal.fire("Error", "Proveedor no encontrado", "error")
+          return
+        }
+
+        // Actualizar el proveedor con el nuevo estado
+        const proveedorActualizado = {
+          ...proveedorActual,
+          estado: nuevoEstado,
+        }
+
+        const response = await fetch(`${API_BASE_URL}/proveedores/${id}`, {
+          method: "PUT",
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(proveedorActualizado),
+        })
+
+        if (!response.ok) {
+          throw new Error("Error al cambiar el estado")
+        }
+
+        setProveedores((prev) => prev.map((p) => (p._id === id ? { ...p, estado: nuevoEstado } : p)))
+
+        Swal.fire({
+          icon: "success",
+          title: "Estado actualizado",
+          text: `El proveedor ahora está ${nuevoEstado}`,
+          timer: 2000,
+          showConfirmButton: false,
+        })
+      } catch (error) {
+        console.error("Error al cambiar estado:", error)
+        Swal.fire("Error", "No se pudo cambiar el estado del proveedor", "error")
       }
+    },
+    [proveedores],
+  )
 
-      const response = await fetch(`${API_BASE_URL}/proveedores/${id}/cambiar-estado`, {
-        method: "PUT",
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error("Error al cambiar el estado")
+  const toggleFilaExpandida = useCallback((id) => {
+    setFilasExpandidas((prev) => {
+      const nuevasFilas = new Set(prev)
+      if (nuevasFilas.has(id)) {
+        nuevasFilas.delete(id)
+      } else {
+        nuevasFilas.add(id)
       }
-
-      setProveedores((prev) => prev.map((p) => (p._id === id ? { ...p, estado: nuevoEstado } : p)))
-
-      Swal.fire({
-        icon: "success",
-        title: "Estado actualizado",
-        text: `El proveedor ahora está ${nuevoEstado.toLowerCase()}`,
-        timer: 2000,
-        showConfirmButton: false,
-      })
-    } catch (error) {
-      console.error("Error al cambiar estado:", error)
-      Swal.fire("Error", "No se pudo cambiar el estado del proveedor", "error")
-    }
+      return nuevasFilas
+    })
   }, [])
 
   const handleSearch = useCallback((e) => {
     setBusqueda(e.target.value.toLowerCase())
     setPaginaActual(1)
   }, [])
+
+  // Función para obtener el ID del proveedor de manera segura
+  const getProveedorId = (proveedor) => {
+    return proveedor._id || proveedor.id || null
+  }
 
   // Filtrar proveedores
   const proveedoresFiltrados = proveedores.filter((proveedor) => {
@@ -255,8 +297,8 @@ const ListarProveedor = () => {
             className="listarProveedor-filter-select"
           >
             <option value="">Todos los estados</option>
-            <option value="Activo">Activo</option>
-            <option value="Inactivo">Inactivo</option>
+            <option value="activo">Activo</option>
+            <option value="inactivo">Inactivo</option>
           </select>
         </div>
       </div>
@@ -266,72 +308,124 @@ const ListarProveedor = () => {
         <table className="listarProveedor-table">
           <thead>
             <tr>
+              <th>Expandir</th>
               <th>Nombre</th>
-              <th>Teléfono</th>
               <th>Empresa</th>
-              <th>Teléfono Empresa</th>
-              <th>NIT</th>
-              <th>Dirección</th>
-              <th>Correo</th>
+              <th>Teléfono</th>
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {proveedoresActuales.map((proveedor) => (
-              <tr key={proveedor.id}>
-                <td>
-                  <div className="listarProveedor-proveedor-info">
-                    <span className="listarProveedor-proveedor-name">{proveedor.nombre}</span>
-                  </div>
-                </td>
-                <td>{proveedor.telefono}</td>
-                <td>{proveedor.nombre_empresa}</td>
-                <td>{proveedor.telefono_empresa}</td>
-                <td>{proveedor.nit}</td>
-                <td>{proveedor.direccion}</td>
-                <td>{proveedor.correo}</td>
-                <td>
-                  <button
-                    className={`listarProveedor-estado-toggle ${
-                      proveedor.estado?.toLowerCase() === "activo" ? "activo" : "inactivo"
-                    }`}
-                    onClick={() => cambiarEstado(proveedor._id, proveedor.estado)}
-                    title={`Estado: ${proveedor.estado} - Click para cambiar`}
-                  >
-                    {proveedor.estado?.toLowerCase() === "activo" ? (
-                      <FaToggleOn className="listarProveedor-toggle-icon" />
-                    ) : (
-                      <FaToggleOff className="listarProveedor-toggle-icon" />
-                    )}
-                    <span className="listarProveedor-estado-text">{proveedor.estado}</span>
-                  </button>
-                </td>
-                <td className="listarProveedor-actions">
-                  <button
-                    className="listarProveedor-action-button edit"
-                    onClick={() => navigate(`/EditarProveedor/editar/${proveedor._id}`)}
-                    title="Editar proveedor"
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    className="listarProveedor-action-button delete"
-                    onClick={() => eliminarProveedor(proveedor._id)}
-                    title="Eliminar proveedor"
-                  >
-                    <FaTrash />
-                  </button>
-                  <button
-                    className="listarProveedor-action-button detail"
-                    onClick={() => navigate(`/DetalleProveedor/${proveedor._id}`)}
-                    title="Ver detalle"
-                  >
-                    <FaEye />
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {proveedoresActuales.map((proveedor, index) => {
+              const proveedorId = getProveedorId(proveedor)
+              console.log(`Proveedor ${index}:`, { proveedor, proveedorId }) // Debug
+
+              if (!proveedorId) {
+                console.warn("Proveedor sin ID válido:", proveedor)
+                return null
+              }
+
+              return [
+                <tr key={`proveedor-${proveedorId}`}>
+                  <td>
+                    <button className="listarProveedor-expand-button" onClick={() => toggleFilaExpandida(proveedorId)}>
+                      {filasExpandidas.has(proveedorId) ? <FaChevronUp /> : <FaChevronDown />}
+                    </button>
+                  </td>
+                  <td>
+                    <div className="listarProveedor-proveedor-info">
+                      <span className="listarProveedor-proveedor-name">{proveedor.nombre || "Sin nombre"}</span>
+                    </div>
+                  </td>
+                  <td>{proveedor.nombre_empresa || "Sin empresa"}</td>
+                  <td>{proveedor.telefono || "Sin teléfono"}</td>
+                  <td>
+                    <button
+                      className={`listarProveedor-estado-toggle ${
+                        proveedor.estado?.toLowerCase() === "activo" ? "activo" : "inactivo"
+                      }`}
+                      onClick={() => cambiarEstado(proveedorId, proveedor.estado)}
+                      title={`Estado: ${proveedor.estado} - Click para cambiar`}
+                    >
+                      {proveedor.estado?.toLowerCase() === "activo" ? (
+                        <FaToggleOn className="listarProveedor-toggle-icon" />
+                      ) : (
+                        <FaToggleOff className="listarProveedor-toggle-icon" />
+                      )}
+                      <span className="listarProveedor-estado-text">{proveedor.estado || "Sin estado"}</span>
+                    </button>
+                  </td>
+                  <td className="listarProveedor-actions">
+                    <button
+                      className="listarProveedor-action-button edit"
+                      onClick={() => navigate(`/EditarProveedor/${proveedorId}`)}
+                      title="Editar proveedor"
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      className="listarProveedor-action-button delete"
+                      onClick={() => eliminarProveedor(proveedorId)}
+                      title="Eliminar proveedor"
+                    >
+                      <FaTrash />
+                    </button>
+                    <button
+                      className="listarProveedor-action-button detail"
+                      onClick={() => navigate(`/DetalleProveedor/${proveedorId}`)}
+                      title="Ver detalle"
+                    >
+                      <FaEye />
+                    </button>
+                  </td>
+                </tr>,
+                filasExpandidas.has(proveedorId) && (
+                  <tr key={`expanded-${proveedorId}`} className="listarProveedor-expanded-row">
+                    <td colSpan="6">
+                      <div className="listarProveedor-expanded-content">
+                        <div className="listarProveedor-expanded-grid">
+                          <div className="listarProveedor-expanded-item">
+                            <FaPhone className="listarProveedor-expanded-icon" />
+                            <div>
+                              <span className="listarProveedor-expanded-label">Teléfono Empresa:</span>
+                              <span className="listarProveedor-expanded-value">
+                                {proveedor.telefono_empresa || "No disponible"}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="listarProveedor-expanded-item">
+                            <FaIdCard className="listarProveedor-expanded-icon" />
+                            <div>
+                              <span className="listarProveedor-expanded-label">NIT:</span>
+                              <span className="listarProveedor-expanded-value">{proveedor.nit || "No disponible"}</span>
+                            </div>
+                          </div>
+                          <div className="listarProveedor-expanded-item">
+                            <FaMapMarkerAlt className="listarProveedor-expanded-icon" />
+                            <div>
+                              <span className="listarProveedor-expanded-label">Dirección:</span>
+                              <span className="listarProveedor-expanded-value">
+                                {proveedor.direccion || "No disponible"}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="listarProveedor-expanded-item">
+                            <FaEnvelope className="listarProveedor-expanded-icon" />
+                            <div>
+                              <span className="listarProveedor-expanded-label">Correo:</span>
+                              <span className="listarProveedor-expanded-value">
+                                {proveedor.correo || "No disponible"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                ),
+              ]
+            })}
           </tbody>
         </table>
 

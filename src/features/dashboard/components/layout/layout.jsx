@@ -11,7 +11,6 @@ import {
   FaChevronDown,
   FaChevronUp,
   FaShoppingCart,
-  FaChartBar,
   FaBars,
   FaTimes,
   FaBell,
@@ -74,12 +73,12 @@ const Dropdown = ({ title, icon, options, isOpen, toggleDropdown, id, collapsed 
 
 // Mejora 2: Optimizar el componente SimpleLink para mejor consistencia visual
 // Actualizar el componente SimpleLink para que tenga un estilo más coherente con el resto de la aplicación
-const SimpleLink = ({ title, icon, link, collapsed, onClick, isActive = false }) => {
+const SimpleLink = ({ title, icon, link, collapsed, onClick, isActive = false, isDashboard = false }) => {
   return (
     <div className="mo-simple-link">
       <Link
         to={link}
-        className={`mo-simple-link__btn ${isActive ? "mo-simple-link__btn--active" : ""}`}
+        className={`mo-simple-link__btn ${isActive ? "mo-simple-link__btn--active" : ""} ${isDashboard ? "mo-simple-link__btn--dashboard" : ""}`}
         onClick={onClick}
         aria-current={isActive ? "page" : undefined}
       >
@@ -201,6 +200,7 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
             collapsed={collapsed}
             onClick={handleLinkClick}
             isActive={isLinkActive("/dashboard")}
+            isDashboard={true}
           />
 
           <Dropdown
@@ -210,36 +210,23 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
             options={[
               { label: "Usuarios", link: "/listarUsuarios" },
               { label: "Clientes", link: "/ListarClientes" },
-              { label: "Roles", link: "/Roles" },
               { label: "Mecánicos", link: "/ListarMecanicos" },
+              { label: "Roles", link: "/Roles" },
             ]}
             isOpen={activeDropdown === "configuracion"}
             toggleDropdown={toggleDropdown}
             collapsed={collapsed}
           />
 
-          {/* Agregar después del menú de configuración */}
-          <Dropdown
-            id="horarios"
-            title="Horarios"
-            icon={<FaCalendarAlt />}
-            options={[
-              { label: "Lista de Horarios", link: "/Horarios" },
-              { label: "Crear Horario", link: "/CrearHorario" },
-            ]}
-            isOpen={activeDropdown === "horarios"}
-            toggleDropdown={toggleDropdown}
-            collapsed={collapsed}
-          />
-
           <Dropdown
             id="servicios"
-            title="Servicios"
+            title="Servicios & Repuestos"
             icon={<FaTools />}
             options={[
               { label: "Servicios", link: "/ListarServicios" },
               { label: "Repuestos", link: "/Repuestos" },
               { label: "Categorías", link: "/categorias-repuesto" },
+              { label: "Horarios", link: "/Horarios" },
             ]}
             isOpen={activeDropdown === "servicios"}
             toggleDropdown={toggleDropdown}
@@ -261,45 +248,37 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
           />
 
           <Dropdown
-            id="compras"
-            title="Compras"
+            id="operaciones"
+            title="Operaciones"
             icon={<FaShoppingCart />}
             options={[
               { label: "Compras", link: "/ListarCompras" },
               { label: "Proveedores", link: "/ListarProveedores" },
-            ]}
-            isOpen={activeDropdown === "compras"}
-            toggleDropdown={toggleDropdown}
-            collapsed={collapsed}
-          />
-
-          <Dropdown
-            id="ventas"
-            title="Ventas"
-            icon={<FaChartBar />}
-            options={[
               { label: "Ventas", link: "/ListarVentas" },
               { label: "Pedidos", link: "/pedidos" },
               { label: "Citas", link: "/citas" },
             ]}
-            isOpen={activeDropdown === "ventas"}
+            isOpen={activeDropdown === "operaciones"}
             toggleDropdown={toggleDropdown}
             collapsed={collapsed}
           />
 
-          <Dropdown
-            id="cuenta"
-            title="Tu Cuenta"
+          <SimpleLink
+            title="Mi Perfil"
             icon={<FaUser />}
-            options={[{ label: "Cuenta", link: "/Perfil" }]}
-            isOpen={activeDropdown === "cuenta"}
-            toggleDropdown={toggleDropdown}
+            link="/Perfil"
             collapsed={collapsed}
+            onClick={handleLinkClick}
+            isActive={isLinkActive("/Perfil")}
           />
         </div>
 
         <div className="mo-sidebar__footer">
-          <button className="mo-sidebar__logout" onClick={handleLogout} aria-label="Cerrar sesión">
+          <button
+            className={`mo-sidebar__logout ${collapsed ? "mo-sidebar__logout--collapsed" : ""}`}
+            onClick={handleLogout}
+            aria-label="Cerrar sesión"
+          >
             <FaSignOutAlt />
             {!collapsed && <span>Cerrar sesión</span>}
           </button>
