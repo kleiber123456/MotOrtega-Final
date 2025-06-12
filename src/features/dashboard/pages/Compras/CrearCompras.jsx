@@ -949,7 +949,7 @@ const SupplierModal = ({ closeModal, selectSupplier }) => {
                 <thead>
                   <tr>
                     <th>Nombre</th>
-                    <th>Documento</th>
+                    <th>Nit</th>
                     <th>Contacto</th>
                     <th>Acción</th>
                   </tr>
@@ -960,10 +960,10 @@ const SupplierModal = ({ closeModal, selectSupplier }) => {
                       <td>
                         <div className="crearCompra-supplier-name">{supplier.nombre || "N/A"}</div>
                       </td>
-                      <td>{supplier.documento || "N/A"}</td>
+                      <td>{supplier.nit || "N/A"}</td>
                       <td>
                         <div className="crearCompra-supplier-contact">
-                          <div>{supplier.email || "N/A"}</div>
+                          <div>{supplier.correo || "N/A"}</div>
                           <div>{supplier.telefono || "N/A"}</div>
                         </div>
                       </td>
