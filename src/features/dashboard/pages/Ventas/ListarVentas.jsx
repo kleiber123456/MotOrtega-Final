@@ -119,13 +119,13 @@ function ListarVentas() {
     setPaginaActual(1)
   }, [])
 
-  // Función para confirmar una venta (cambiar a Completado)
+  // Función para confirmar una venta (cambiar a Pagada)
   const handleConfirmarVenta = async (ventaId, estadoActual) => {
     try {
-      // Buscar el ID del estado "Completado"
-      const estadoCompletado = estadosVenta.find((estado) => estado.nombre === "Completado")
-      if (!estadoCompletado) {
-        Swal.fire("Error", "No se encontró el estado 'Completado'", "error")
+      // Buscar el ID del estado "Pagada"
+      const estadoPagada = estadosVenta.find((estado) => estado.nombre === "Pagada")
+      if (!estadoPagada) {
+        Swal.fire("Error", "No se encontró el estado 'Pagada'", "error")
         return
       }
 
@@ -156,7 +156,7 @@ function ListarVentas() {
           Authorization: token,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ estado_venta_id: estadoCompletado.id }),
+        body: JSON.stringify({ estado_venta_id: estadoPagada.id }),
       })
 
       if (!response.ok) {
@@ -166,7 +166,7 @@ function ListarVentas() {
       // Actualizar la lista de ventas
       setVentas(
         ventas.map((venta) =>
-          venta.id === ventaId ? { ...venta, estado_venta_id: estadoCompletado.id, estado: "Completado" } : venta,
+          venta.id === ventaId ? { ...venta, estado_venta_id: estadoPagada.id, estado: "Pagada" } : venta,
         ),
       )
 
@@ -177,13 +177,13 @@ function ListarVentas() {
     }
   }
 
-  // Función para anular una venta (cambiar a Cancelado)
+  // Función para anular una venta (cambiar a Cancelada)
   const handleAnularVenta = async (ventaId, estadoActual) => {
     try {
-      // Buscar el ID del estado "Cancelado"
-      const estadoCancelado = estadosVenta.find((estado) => estado.nombre === "Cancelado")
-      if (!estadoCancelado) {
-        Swal.fire("Error", "No se encontró el estado 'Cancelado'", "error")
+      // Buscar el ID del estado "Cancelada"
+      const estadoCancelada = estadosVenta.find((estado) => estado.nombre === "Cancelada")
+      if (!estadoCancelada) {
+        Swal.fire("Error", "No se encontró el estado 'Cancelada'", "error")
         return
       }
 
@@ -224,7 +224,7 @@ function ListarVentas() {
           Authorization: token,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ estado_venta_id: estadoCancelado.id }),
+        body: JSON.stringify({ estado_venta_id: estadoCancelada.id }),
       })
 
       if (!response.ok) {
@@ -234,7 +234,7 @@ function ListarVentas() {
       // Actualizar la lista de ventas
       setVentas(
         ventas.map((venta) =>
-          venta.id === ventaId ? { ...venta, estado_venta_id: estadoCancelado.id, estado: "Cancelado" } : venta,
+          venta.id === ventaId ? { ...venta, estado_venta_id: estadoCancelada.id, estado: "Cancelada" } : venta,
         ),
       )
 
@@ -361,12 +361,12 @@ function ListarVentas() {
   const getEstadoClass = (estadoId) => {
     const nombreEstado = getNombreEstado(estadoId)
     switch (nombreEstado) {
-      case "Completado":
-        return "estado-completado"
+      case "Pagada":
+        return "estado-Pagada"
       case "Pendiente":
         return "estado-pendiente"
-      case "Cancelado":
-        return "estado-cancelado"
+      case "Cancelada":
+        return "estado-cancelada"
       default:
         return ""
     }

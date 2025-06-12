@@ -33,10 +33,11 @@ const getValidToken = () => {
   return token
 }
 
-// Hook personalizado para manejo de API
+// Hook personalizado para manejo de API (SIN sistema de reservas)
 const useApi = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [mecanicos, setMecanicos] = useState([])
 
   const makeRequest = useCallback(async (url, options = {}) => {
     setLoading(true)
@@ -50,6 +51,7 @@ const useApi = () => {
     }
 
     try {
+      console.log(`Haciendo petición a: ${API_BASE_URL}${url}`)
       const response = await fetch(`${API_BASE_URL}${url}`, {
         ...options,
         headers: {
@@ -59,6 +61,8 @@ const useApi = () => {
         },
       })
 
+      console.log(`Respuesta del servidor: ${response.status} ${response.statusText}`)
+
       if (!response.ok) {
         if (response.status === 401) {
           throw new Error("Sesión expirada. Por favor inicie sesión nuevamente.")
@@ -67,9 +71,11 @@ const useApi = () => {
       }
 
       const data = await response.json()
+      console.log(`Datos recibidos:`, data)
       return data
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Error desconocido"
+      console.error(`Error en solicitud a ${url}:`, errorMessage)
       setError(errorMessage)
       throw err
     } finally {
@@ -77,13 +83,65 @@ const useApi = () => {
     }
   }, [])
 
-  return { makeRequest, loading, error }
+  useEffect(() => {
+    const fetchMecanicos = async () => {
+      try {
+        console.log("Iniciando carga de mecánicos...")
+        setError(null)
+
+        // CORREGIDO: Usar endpoint correcto para mecánicos activos
+        const data = await makeRequest("/mecanicos/estado/Activo")
+
+        if (data) {
+          const mecanicosList = Array.isArray(data) ? data : data.mecanicos || data.data || []
+
+          if (Array.isArray(mecanicosList) && mecanicosList.length > 0) {
+            setMecanicos(mecanicosList)
+            console.log(`Se cargaron ${mecanicosList.length} mecánicos exitosamente`)
+          } else {
+            console.warn("No se encontraron mecánicos en la respuesta")
+            setMecanicos([])
+            setError("No se encontraron mecánicos disponibles")
+          }
+        } else {
+          console.warn("Respuesta vacía del servidor")
+          setMecanicos([])
+          setError("No se recibió respuesta del servidor")
+        }
+      } catch (error) {
+        console.error("Error detallado al cargar mecánicos:", error)
+        setMecanicos([])
+
+        if (error.message.includes("500")) {
+          setError("Error interno del servidor. El endpoint de mecánicos puede estar experimentando problemas.")
+        } else if (error.message.includes("404")) {
+          setError("El endpoint de mecánicos no fue encontrado. Verifique la configuración de la API.")
+        } else if (error.message.includes("401")) {
+          setError("Error de autenticación. Por favor inicie sesión nuevamente.")
+        } else {
+          setError(`Error al cargar mecánicos: ${error.message}`)
+        }
+      }
+    }
+
+    fetchMecanicos()
+  }, [makeRequest])
+
+  return {
+    makeRequest,
+    loading,
+    setLoading,
+    error,
+    setError,
+    mecanicos,
+    setMecanicos,
+  }
 }
 
 // Componente principal
 const CrearVenta = () => {
   const navigate = useNavigate()
-  const { makeRequest, loading: apiLoading } = useApi()
+  const { makeRequest, loading: apiLoading, setLoading, mecanicos, error, setError, setMecanicos } = useApi()
 
   const [showProductModal, setShowProductModal] = useState(false)
   const [showServiceModal, setShowServiceModal] = useState(false)
@@ -94,17 +152,21 @@ const CrearVenta = () => {
   const [total, setTotal] = useState(0)
   const [formData, setFormData] = useState({
     fecha: new Date().toISOString().substr(0, 10),
+    mecanico_id: "",
   })
   const [formErrors, setFormErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [estadosVenta, setEstadosVenta] = useState([])
+  const [vehiculosCliente, setVehiculosCliente] = useState([])
 
   // Cargar estados de venta al iniciar
   useEffect(() => {
     const cargarEstadosVenta = async () => {
       try {
         const data = await makeRequest("/estados-venta")
-        setEstadosVenta(data)
+        if (data && Array.isArray(data)) {
+          setEstadosVenta(data)
+        }
       } catch (error) {
         console.error("Error al cargar estados de venta:", error)
       }
@@ -136,7 +198,10 @@ const CrearVenta = () => {
       errors.fecha = "La fecha es obligatoria"
     }
 
-    // Validar que todos los productos tengan cantidad y precio válidos
+    if (!formData.mecanico_id) {
+      errors.mecanico = "Debe seleccionar un mecánico"
+    }
+
     selectedProducts.forEach((product, index) => {
       if (product.quantity <= 0) {
         errors[`product_${index}_quantity`] = `Cantidad inválida para ${product.nombre}`
@@ -144,11 +209,15 @@ const CrearVenta = () => {
       if (product.price <= 0) {
         errors[`product_${index}_price`] = `Precio inválido para ${product.nombre}`
       }
+      // NUEVA VALIDACIÓN: Verificar que no exceda el stock disponible
+      if (product.quantity > product.stockOriginal) {
+        errors[`product_${index}_stock`] = `Cantidad excede el stock disponible para ${product.nombre}`
+      }
     })
 
     setFormErrors(errors)
     return Object.keys(errors).length === 0
-  }, [selectedClient, selectedProducts, selectedServices, formData.fecha])
+  }, [selectedClient, selectedProducts, selectedServices, formData])
 
   // Manejadores para modales
   const openProductModal = useCallback(() => setShowProductModal(true), [])
@@ -158,7 +227,7 @@ const CrearVenta = () => {
   const openClientModal = useCallback(() => setShowClientModal(true), [])
   const closeClientModal = useCallback(() => setShowClientModal(false), [])
 
-  // Manejador para eliminar productos con confirmación
+  // Manejador para eliminar productos
   const removeProduct = useCallback(async (id) => {
     const result = await Swal.fire({
       title: "¿Eliminar producto?",
@@ -183,7 +252,7 @@ const CrearVenta = () => {
     }
   }, [])
 
-  // Manejador para eliminar servicios con confirmación
+  // Manejador para eliminar servicios
   const removeService = useCallback(async (id) => {
     const result = await Swal.fire({
       title: "¿Eliminar servicio?",
@@ -210,15 +279,28 @@ const CrearVenta = () => {
 
   // Manejador para seleccionar cliente
   const selectClient = useCallback(
-    (client) => {
+    async (client) => {
       setSelectedClient(client)
       closeClientModal()
-      // Limpiar error de cliente si existe
+
       if (formErrors.client) {
         setFormErrors((prev) => ({ ...prev, client: "" }))
       }
+
+      try {
+        // CORREGIDO: Usar endpoint correcto para vehículos por cliente
+        const data = await makeRequest(`/vehiculos/cliente/${client.id}`)
+        if (data && Array.isArray(data)) {
+          setVehiculosCliente(data)
+        } else {
+          setVehiculosCliente([])
+        }
+      } catch (error) {
+        console.error("Error al cargar vehículos del cliente:", error)
+        setVehiculosCliente([])
+      }
     },
-    [formErrors.client, closeClientModal],
+    [formErrors.client, closeClientModal, makeRequest],
   )
 
   // Manejador para cambios en el formulario
@@ -227,7 +309,6 @@ const CrearVenta = () => {
       const { name, value } = e.target
       setFormData((prev) => ({ ...prev, [name]: value }))
 
-      // Limpiar error del campo si existe
       if (formErrors[name]) {
         setFormErrors((prev) => ({ ...prev, [name]: "" }))
       }
@@ -235,12 +316,27 @@ const CrearVenta = () => {
     [formErrors],
   )
 
-  // Función para actualizar cantidad de producto
+  // CORREGIDO: Función para actualizar cantidad de producto con validación simple
   const updateProductQuantity = useCallback((productId, newQuantity) => {
     if (newQuantity <= 0) return
 
     setSelectedProducts((prev) =>
-      prev.map((item) => (item.id === productId ? { ...item, quantity: newQuantity } : item)),
+      prev.map((item) => {
+        if (item.id === productId) {
+          // Validar que no exceda el stock disponible
+          if (newQuantity > item.stockOriginal) {
+            Swal.fire({
+              icon: "warning",
+              title: "Stock insuficiente",
+              text: `Solo hay ${item.stockOriginal} unidades disponibles`,
+              confirmButtonColor: "#2563eb",
+            })
+            return item // No actualizar si excede el stock
+          }
+          return { ...item, quantity: newQuantity }
+        }
+        return item
+      }),
     )
   }, [])
 
@@ -251,7 +347,59 @@ const CrearVenta = () => {
     setSelectedProducts((prev) => prev.map((item) => (item.id === productId ? { ...item, price: newPrice } : item)))
   }, [])
 
-  // Manejador mejorado para envío del formulario
+  // Función para recargar mecánicos
+  const recargarMecanicos = useCallback(async () => {
+    try {
+      console.log("Recargando mecánicos...")
+      setLoading(true)
+      setError(null)
+
+      const data = await makeRequest("/mecanicos/estado/Activo")
+
+      if (data) {
+        const mecanicosList = Array.isArray(data) ? data : data.mecanicos || data.data || []
+
+        if (Array.isArray(mecanicosList)) {
+          setMecanicos(mecanicosList)
+          console.log(`Mecánicos recargados: ${mecanicosList.length}`)
+
+          if (mecanicosList.length > 0) {
+            Swal.fire({
+              icon: "success",
+              title: "Mecánicos actualizados",
+              text: `Se cargaron ${mecanicosList.length} mecánicos`,
+              timer: 1500,
+              showConfirmButton: false,
+            })
+          } else {
+            Swal.fire({
+              icon: "info",
+              title: "Sin mecánicos",
+              text: "No se encontraron mecánicos en el sistema",
+              timer: 2000,
+              showConfirmButton: false,
+            })
+          }
+        } else {
+          throw new Error("Formato de respuesta inválido")
+        }
+      } else {
+        throw new Error("Respuesta vacía del servidor")
+      }
+    } catch (error) {
+      console.error("Error al recargar mecánicos:", error)
+      setError(`Error al cargar mecánicos: ${error.message}`)
+      Swal.fire({
+        icon: "error",
+        title: "Error al cargar mecánicos",
+        text: "No se pudieron cargar los mecánicos. Verifique la conexión con el servidor.",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }, [makeRequest, setLoading, setError, setMecanicos])
+
+  // Manejador para envío del formulario
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault()
@@ -269,7 +417,6 @@ const CrearVenta = () => {
       setIsSubmitting(true)
 
       try {
-        // Buscar el estado "Pendiente"
         const estadoPendiente = estadosVenta.find((estado) => estado.nombre === "Pendiente")
         if (!estadoPendiente) {
           throw new Error("No se encontró el estado 'Pendiente'")
@@ -278,6 +425,7 @@ const CrearVenta = () => {
         const ventaData = {
           cliente_id: selectedClient.id,
           estado_venta_id: estadoPendiente.id,
+          mecanico_id: formData.mecanico_id || null,
           servicios: selectedServices.map((service) => ({
             servicio_id: service.id,
           })),
@@ -286,6 +434,8 @@ const CrearVenta = () => {
             cantidad: product.quantity,
           })),
         }
+
+        console.log("Enviando datos de venta:", ventaData)
 
         await makeRequest("/ventas", {
           method: "POST",
@@ -300,9 +450,10 @@ const CrearVenta = () => {
           timer: 2000,
         })
 
-        navigate("/ventas")
+        navigate("/ListarVentas")
       } catch (error) {
         console.error("Error al crear venta:", error)
+
         await Swal.fire({
           icon: "error",
           title: "Error",
@@ -313,10 +464,10 @@ const CrearVenta = () => {
         setIsSubmitting(false)
       }
     },
-    [validateForm, selectedClient, selectedProducts, selectedServices, makeRequest, navigate, estadosVenta],
+    [validateForm, selectedClient, selectedProducts, selectedServices, makeRequest, navigate, estadosVenta, formData],
   )
 
-  // Manejador para cancelar con confirmación
+  // Manejador para cancelar
   const handleCancel = useCallback(async () => {
     if (selectedProducts.length > 0 || selectedServices.length > 0 || selectedClient) {
       const result = await Swal.fire({
@@ -331,15 +482,24 @@ const CrearVenta = () => {
       })
 
       if (result.isConfirmed) {
-        navigate("/ventas")
+        navigate("/ListarVentas")
       }
     } else {
-      navigate("/ventas")
+      navigate("/ListarVentas")
     }
   }, [selectedProducts.length, selectedServices.length, selectedClient, navigate])
 
   return (
     <div className="crearVenta-container">
+      {error && (
+        <div className="crearVenta-error-banner">
+          <AlertTriangle className="crearVenta-error-icon" />
+          <p>Hay problemas de conexión con el servidor. Algunas funciones pueden estar limitadas.</p>
+          <button className="crearVenta-retry-button" onClick={() => window.location.reload()}>
+            Reintentar
+          </button>
+        </div>
+      )}
       <div className="crearVenta-header">
         <div className="crearVenta-title-section">
           <h1 className="crearVenta-page-title">
@@ -367,12 +527,124 @@ const CrearVenta = () => {
                 id="clientName"
                 className={`crearVenta-form-input ${formErrors.client ? "error" : ""}`}
                 placeholder="Seleccione un cliente"
-                value={selectedClient ? selectedClient.nombre : ""}
+                value={selectedClient ? `${selectedClient.nombre} ${selectedClient.apellido}` : ""}
                 readOnly
                 onClick={openClientModal}
                 style={{ cursor: "pointer" }}
                 required
               />
+              {selectedClient && (
+                <div className="crearVenta-client-details">
+                  <p>
+                    <strong>Correo:</strong> {selectedClient.correo || selectedClient.email}
+                  </p>
+                  <p>
+                    <strong>Teléfono:</strong> {selectedClient.telefono}
+                  </p>
+                </div>
+              )}
+              <button
+                type="button"
+                className="crearVenta-link-button"
+                onClick={() => navigate("/crearclientes", { state: { from: "/crearventa" } })}
+              >
+                Registrar nuevo cliente
+              </button>
+
+              {selectedClient && vehiculosCliente.length === 0 && (
+                <button
+                  type="button"
+                  className="crearVenta-link-button"
+                  onClick={() =>
+                    navigate("/vehiculos/crear", {
+                      state: {
+                        from: "/crearventa",
+                        clienteId: selectedClient.id,
+                      },
+                    })
+                  }
+                >
+                  Registrar vehículo para este cliente
+                </button>
+              )}
+
+              {vehiculosCliente.length > 0 && (
+                <div className="crearVenta-form-group">
+                  <label htmlFor="vehiculoCliente" className="crearVenta-label">
+                    <Package className="crearVenta-label-icon" />
+                    Vehículo del Cliente
+                  </label>
+                  <select
+                    id="vehiculoCliente"
+                    className="crearVenta-form-input"
+                    value={formData.vehiculo_id || ""}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        vehiculo_id: e.target.value,
+                      }))
+                    }
+                  >
+                    <option value="">Seleccione un vehículo</option>
+                    {vehiculosCliente.map((vehiculo) => (
+                      <option key={vehiculo.id} value={vehiculo.id}>
+                        {vehiculo.placa} - {vehiculo.marca} {vehiculo.modelo}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              <div className="crearVenta-form-group">
+                <label htmlFor="mecanico_id" className="crearVenta-label">
+                  <Wrench className="crearVenta-label-icon" />
+                  Mecánico Asignado *
+                </label>
+                <div className="crearVenta-input-with-button">
+                  <select
+                    id="mecanico_id"
+                    name="mecanico_id"
+                    className={`crearVenta-form-input ${formErrors.mecanico ? "error" : ""}`}
+                    value={formData.mecanico_id || ""}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        mecanico_id: e.target.value,
+                      }))
+                    }
+                    required
+                  >
+                    <option value="">Seleccione un mecánico</option>
+                    {mecanicos.map((mecanico) => (
+                      <option key={mecanico.id} value={mecanico.id}>
+                        {mecanico.nombre} {mecanico.apellido}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    className="crearVenta-reload-button"
+                    onClick={recargarMecanicos}
+                    title="Recargar mecánicos"
+                    disabled={apiLoading}
+                  >
+                    <Loader size={16} className={apiLoading ? "spinning" : ""} />
+                  </button>
+                </div>
+                {formErrors.mecanico && (
+                  <span className="crearVenta-error-text">
+                    <AlertTriangle size={16} /> {formErrors.mecanico}
+                  </span>
+                )}
+                {mecanicos.length === 0 && !apiLoading && (
+                  <div className="crearVenta-warning-message">
+                    <AlertTriangle size={16} />
+                    <span>
+                      No se encontraron mecánicos. Verifique la conexión con el servidor o contacte al administrador.
+                    </span>
+                  </div>
+                )}
+              </div>
+
               {formErrors.client && (
                 <span className="crearVenta-error-text">
                   <AlertTriangle size={16} /> {formErrors.client}
@@ -444,7 +716,8 @@ const CrearVenta = () => {
                   <Package size={16} /> Productos Seleccionados
                 </h4>
                 <span className="crearVenta-items-count">
-                  {selectedProducts.length} producto{selectedProducts.length !== 1 ? "s" : ""}
+                  {selectedProducts.length} producto
+                  {selectedProducts.length !== 1 ? "s" : ""}
                 </span>
               </div>
               <div className="crearVenta-item-cards">
@@ -484,6 +757,7 @@ const CrearVenta = () => {
                             <input
                               type="number"
                               min="1"
+                              max={product.stockOriginal}
                               value={product.quantity}
                               onChange={(e) => updateProductQuantity(product.id, Number.parseInt(e.target.value) || 1)}
                               className="crearVenta-inline-input"
@@ -494,6 +768,9 @@ const CrearVenta = () => {
                           <span className="crearVenta-info-label">Subtotal:</span>
                           <span className="crearVenta-subtotal">${(product.price * product.quantity).toFixed(2)}</span>
                         </div>
+                      </div>
+                      <div className="crearVenta-stock-info">
+                        <small className="text-gray-600">Stock disponible: {product.stockOriginal} unidades</small>
                       </div>
                     </div>
                   </div>
@@ -510,7 +787,8 @@ const CrearVenta = () => {
                   <Wrench size={16} /> Servicios Seleccionados
                 </h4>
                 <span className="crearVenta-items-count">
-                  {selectedServices.length} servicio{selectedServices.length !== 1 ? "s" : ""}
+                  {selectedServices.length} servicio
+                  {selectedServices.length !== 1 ? "s" : ""}
                 </span>
               </div>
               <div className="crearVenta-item-cards">
@@ -614,7 +892,7 @@ const CrearVenta = () => {
   )
 }
 
-// Componente Modal de Productos
+// SIMPLIFICADO: Componente Modal de Productos sin sistema de reservas
 const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
   const { makeRequest, loading, error } = useApi()
   const [searchTerm, setSearchTerm] = useState("")
@@ -627,8 +905,7 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
     const fetchProducts = async () => {
       try {
         const data = await makeRequest("/repuestos")
-        if (data) {
-          // Filtrar productos activos y con stock
+        if (data && Array.isArray(data)) {
           const activeProducts = data.filter((product) => product.cantidad > 0 && product.estado === "Activo")
           setProducts(activeProducts)
         }
@@ -640,7 +917,7 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
     fetchProducts()
   }, [makeRequest])
 
-  // Filtrar productos disponibles (no ya seleccionados)
+  // Filtrar productos disponibles
   const availableProducts = products.filter(
     (product) =>
       !existingProducts.some((existing) => existing.id === product.id) &&
@@ -653,15 +930,37 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
     setTotal(newTotal)
   }, [cartItems])
 
+  // SIMPLIFICADO: Agregar al carrito con validación básica
   const handleAddToCart = useCallback(
     (product, quantity) => {
       const existingItem = cartItems.find((item) => item.id === product.id)
+      const cantidadEnCarrito = existingItem ? existingItem.quantity : 0
+      const nuevaCantidadTotal = cantidadEnCarrito + quantity
+
+      // Validación simple de stock
+      if (nuevaCantidadTotal > product.cantidad) {
+        Swal.fire({
+          icon: "warning",
+          title: "Stock insuficiente",
+          text: `Solo hay ${product.cantidad} unidades disponibles. Ya tienes ${cantidadEnCarrito} en el carrito.`,
+          confirmButtonColor: "#2563eb",
+        })
+        return
+      }
+
       const finalPrice = product.preciounitario || 0
 
       if (existingItem) {
         setCartItems((prev) =>
           prev.map((item) =>
-            item.id === product.id ? { ...item, quantity: item.quantity + quantity, price: finalPrice } : item,
+            item.id === product.id
+              ? {
+                  ...item,
+                  quantity: nuevaCantidadTotal,
+                  price: finalPrice,
+                  stockOriginal: product.cantidad, // Guardar stock original
+                }
+              : item,
           ),
         )
       } else {
@@ -669,19 +968,30 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
           ...prev,
           {
             ...product,
-            quantity,
+            quantity: nuevaCantidadTotal,
             price: finalPrice,
+            stockOriginal: product.cantidad, // Guardar stock original
           },
         ])
       }
+
+      Swal.fire({
+        icon: "success",
+        title: "Producto agregado",
+        text: `${quantity} unidad(es) de ${product.nombre} agregadas al carrito`,
+        timer: 1500,
+        showConfirmButton: false,
+      })
     },
     [cartItems],
   )
 
+  // Remover del carrito
   const handleRemoveFromCart = useCallback((productId) => {
     setCartItems((prev) => prev.filter((item) => item.id !== productId))
   }, [])
 
+  // Actualizar cantidad con validación
   const updateCartItemQuantity = useCallback(
     (productId, newQuantity) => {
       if (newQuantity <= 0) {
@@ -689,13 +999,14 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
         return
       }
 
-      // Verificar que no exceda el stock disponible
-      const product = products.find((p) => p.id === productId)
-      if (product && newQuantity > product.cantidad) {
+      const cartItem = cartItems.find((item) => item.id === productId)
+      if (!cartItem) return
+
+      if (newQuantity > cartItem.stockOriginal) {
         Swal.fire({
           icon: "warning",
           title: "Cantidad excedida",
-          text: `Solo hay ${product.cantidad} unidades disponibles`,
+          text: `Solo hay ${cartItem.stockOriginal} unidades disponibles`,
           confirmButtonColor: "#2563eb",
         })
         return
@@ -703,7 +1014,7 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
 
       setCartItems((prev) => prev.map((item) => (item.id === productId ? { ...item, quantity: newQuantity } : item)))
     },
-    [handleRemoveFromCart, products],
+    [cartItems, handleRemoveFromCart],
   )
 
   const handleConfirm = useCallback(async () => {
@@ -805,7 +1116,7 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                         <span className="crearVenta-product-name">{product.nombre}</span>
                         <span className="crearVenta-product-price">${(product.preciounitario || 0).toFixed(2)}</span>
                       </div>
-                      <span className="crearVenta-product-stock">Stock: {product.cantidad || 0}</span>
+                      <span className="crearVenta-product-stock">Stock: {product.cantidad}</span>
                       {product.descripcion && (
                         <span className="crearVenta-product-description">{product.descripcion}</span>
                       )}
@@ -821,12 +1132,19 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                             max={product.cantidad}
                             defaultValue="1"
                             id={`quantity-${product.id}`}
+                            onInput={(e) => {
+                              const value = Number.parseInt(e.target.value) || 1
+                              if (value > product.cantidad) {
+                                e.target.value = product.cantidad
+                              }
+                            }}
                           />
                         </div>
                       </div>
                       <button
                         type="button"
                         className="crearVenta-add-button"
+                        disabled={product.cantidad === 0}
                         onClick={() => {
                           const quantityInput = document.getElementById(`quantity-${product.id}`)
                           const quantity = Number.parseInt(quantityInput.value) || 1
@@ -838,13 +1156,14 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                               text: `Solo hay ${product.cantidad} unidades disponibles`,
                               confirmButtonColor: "#2563eb",
                             })
+                            quantityInput.value = product.cantidad
                             return
                           }
 
                           handleAddToCart(product, quantity)
                         }}
                       >
-                        <Plus size={16} /> Agregar
+                        <Plus size={16} /> {product.cantidad === 0 ? "Sin stock" : "Agregar"}
                       </button>
                     </div>
                   </div>
@@ -886,8 +1205,16 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                           <input
                             type="number"
                             min="1"
+                            max={item.stockOriginal}
                             value={item.quantity}
-                            onChange={(e) => updateCartItemQuantity(item.id, Number.parseInt(e.target.value) || 1)}
+                            onChange={(e) => {
+                              const newValue = Number.parseInt(e.target.value) || 1
+                              if (newValue > item.stockOriginal) {
+                                e.target.value = item.stockOriginal
+                                return
+                              }
+                              updateCartItemQuantity(item.id, newValue)
+                            }}
                             className="crearVenta-control-input"
                           />
                         </div>
@@ -898,6 +1225,9 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                       </div>
                       <div className="crearVenta-cart-item-total">
                         Subtotal: <strong>${(item.price * item.quantity).toFixed(2)}</strong>
+                      </div>
+                      <div className="crearVenta-cart-stock-info">
+                        <small className="text-gray-600">Stock disponible: {item.stockOriginal} unidades</small>
                       </div>
                     </div>
                   </div>
@@ -927,20 +1257,18 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
   )
 }
 
-// Componente Modal de Servicios
+// Componente Modal de Servicios (sin cambios)
 const ServiceModal = ({ closeModal, addService, existingServices }) => {
   const { makeRequest, loading, error } = useApi()
   const [searchTerm, setSearchTerm] = useState("")
   const [services, setServices] = useState([])
   const [selectedServices, setSelectedServices] = useState([])
 
-  // Cargar servicios desde la API
   useEffect(() => {
     const fetchServices = async () => {
       try {
         const data = await makeRequest("/servicios")
-        if (data) {
-          // Filtrar servicios activos
+        if (data && Array.isArray(data)) {
           const activeServices = data.filter((service) => service.estado === "Activo")
           setServices(activeServices)
         }
@@ -952,7 +1280,6 @@ const ServiceModal = ({ closeModal, addService, existingServices }) => {
     fetchServices()
   }, [makeRequest])
 
-  // Filtrar servicios disponibles (no ya seleccionados)
   const availableServices = services.filter(
     (service) =>
       !existingServices.some((existing) => existing.id === service.id) &&
@@ -995,31 +1322,6 @@ const ServiceModal = ({ closeModal, addService, existingServices }) => {
             <button type="button" className="crearVenta-close-modal-button" onClick={closeModal}>
               <X />
             </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="crearVenta-modal-overlay">
-        <div className="crearVenta-large-modal">
-          <div className="crearVenta-modal-header">
-            <h2>
-              <AlertTriangle /> Error
-            </h2>
-            <button type="button" className="crearVenta-close-modal-button" onClick={closeModal}>
-              <X />
-            </button>
-          </div>
-          <div className="crearVenta-modal-content">
-            <div className="crearVenta-error-message">
-              <p>{error}</p>
-              <button className="crearVenta-retry-button" onClick={() => window.location.reload()}>
-                Reintentar
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -1096,7 +1398,8 @@ const ServiceModal = ({ closeModal, addService, existingServices }) => {
             <div className="crearVenta-cart-header">
               <h4>Servicios Seleccionados</h4>
               <span className="crearVenta-cart-count">
-                {selectedServices.length} servicio{selectedServices.length !== 1 ? "s" : ""}
+                {selectedServices.length} servicio
+                {selectedServices.length !== 1 ? "s" : ""}
               </span>
             </div>
             <div className="crearVenta-cart-items">
@@ -1153,34 +1456,36 @@ const ServiceModal = ({ closeModal, addService, existingServices }) => {
   )
 }
 
-// Componente Modal de Clientes
+// Componente Modal de Clientes (sin cambios)
 const ClientModal = ({ closeModal, selectClient }) => {
   const { makeRequest, loading, error } = useApi()
   const [searchTerm, setSearchTerm] = useState("")
   const [clients, setClients] = useState([])
 
-  // Cargar clientes desde la API
   useEffect(() => {
     const fetchClients = async () => {
       try {
         const data = await makeRequest("/clientes")
-        if (data) {
+        if (data && Array.isArray(data)) {
           setClients(data)
+        } else {
+          setClients([])
         }
       } catch (error) {
-        console.error("Error fetching clients:", error)
+        console.error("Error al cargar clientes:", error)
+        setClients([])
       }
     }
 
     fetchClients()
   }, [makeRequest])
 
-  // Filtrar clientes por término de búsqueda
   const filteredClients = clients.filter(
     (client) =>
       client.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.telefono.includes(searchTerm),
+      (client.email && client.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (client.correo && client.correo.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (client.telefono && client.telefono.includes(searchTerm)),
   )
 
   if (loading) {
@@ -1194,31 +1499,6 @@ const ClientModal = ({ closeModal, selectClient }) => {
             <button type="button" className="crearVenta-close-modal-button" onClick={closeModal}>
               <X />
             </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="crearVenta-modal-overlay">
-        <div className="crearVenta-modal">
-          <div className="crearVenta-modal-header">
-            <h2>
-              <AlertTriangle /> Error
-            </h2>
-            <button type="button" className="crearVenta-close-modal-button" onClick={closeModal}>
-              <X />
-            </button>
-          </div>
-          <div className="crearVenta-modal-content">
-            <div className="crearVenta-error-message">
-              <p>{error}</p>
-              <button className="crearVenta-retry-button" onClick={() => window.location.reload()}>
-                Reintentar
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -1268,8 +1548,10 @@ const ClientModal = ({ closeModal, selectClient }) => {
                 >
                   <div className="crearVenta-client-info">
                     <div className="crearVenta-client-main-info">
-                      <span className="crearVenta-client-name">{client.nombre}</span>
-                      <span className="crearVenta-client-email">{client.email}</span>
+                      <span className="crearVenta-client-name">
+                        {client.nombre} {client.apellido}
+                      </span>
+                      <span className="crearVenta-client-email">{client.email || client.correo}</span>
                     </div>
                     <span className="crearVenta-client-phone">{client.telefono}</span>
                   </div>
