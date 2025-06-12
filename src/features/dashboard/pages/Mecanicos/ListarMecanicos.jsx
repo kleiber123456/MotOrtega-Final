@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import {
-  FaUser,
   FaEdit,
   FaTrash,
   FaEye,
@@ -12,10 +11,10 @@ import {
   FaPlus,
   FaToggleOn,
   FaToggleOff,
-  FaWrench
+  FaTools,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/Mecanicos/ListarMecanicos.css"
+import "../../../../shared/styles/Usuarios/ListarUsuarios.css"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
@@ -212,9 +211,9 @@ const ListarMecanicos = () => {
 
   if (cargando) {
     return (
-      <div className="listarMecanicos-container">
-        <div className="listarMecanicos-loading">
-          <div className="listarMecanicos-spinner"></div>
+      <div className="listarUsuarios-container">
+        <div className="listarUsuarios-loading">
+          <div className="listarUsuarios-spinner"></div>
           <p>Cargando mecánicos...</p>
         </div>
       </div>
@@ -222,30 +221,30 @@ const ListarMecanicos = () => {
   }
 
   return (
-    <div className="listarMecanicos-container">
-      <div className="listarMecanicos-header">
-        <div className="listarMecanicos-title-section">
-          <h1 className="listarMecanicos-page-title">
-            <FaWrench className="listarMecanicos-title-icon" />
+    <div className="listarUsuarios-container">
+      <div className="listarUsuarios-header">
+        <div className="listarUsuarios-title-section">
+          <h1 className="listarUsuarios-page-title">
+            <FaTools className="listarUsuarios-title-icon" />
             Gestión de Mecánicos
           </h1>
-          <p className="listarMecanicos-subtitle">Administra los mecánicos del taller</p>
+          <p className="listarUsuarios-subtitle">Administra los mecánicos del taller</p>
         </div>
-        <button className="listarMecanicos-create-button" onClick={() => navigate("/CrearMecanicos")}>
-          <FaPlus className="listarMecanicos-button-icon" />
+        <button className="listarUsuarios-create-button" onClick={() => navigate("/CrearMecanicos")}>
+          <FaPlus className="listarUsuarios-button-icon" />
           Crear Mecánico
         </button>
       </div>
 
       {/* Filtros */}
-      <div className="listarMecanicos-filters-container">
-        <div className="listarMecanicos-filter-item">
-          <label className="listarMecanicos-filter-label">Buscar:</label>
-          <div className="listarMecanicos-search-container">
-            <FaSearch className="listarMecanicos-search-icon" />
+      <div className="listarUsuarios-filters-container">
+        <div className="listarUsuarios-filter-item">
+          <label className="listarUsuarios-filter-label">Buscar:</label>
+          <div className="listarUsuarios-search-container">
+            <FaSearch className="listarUsuarios-search-icon" />
             <input
               type="text"
-              className="listarMecanicos-search-input"
+              className="listarUsuarios-search-input"
               placeholder="Buscar por cualquier campo..."
               value={busqueda}
               onChange={handleSearch}
@@ -253,15 +252,15 @@ const ListarMecanicos = () => {
           </div>
         </div>
 
-        <div className="listarMecanicos-filter-item">
-          <label className="listarMecanicos-filter-label">Estado:</label>
+        <div className="listarUsuarios-filter-item">
+          <label className="listarUsuarios-filter-label">Estado:</label>
           <select
             value={estadoFiltro}
             onChange={(e) => {
               setEstadoFiltro(e.target.value)
               setPaginaActual(1)
             }}
-            className="listarMecanicos-filter-select"
+            className="listarUsuarios-filter-select"
           >
             <option value="">Todos los estados</option>
             <option value="Activo">Activo</option>
@@ -271,8 +270,8 @@ const ListarMecanicos = () => {
       </div>
 
       {/* Tabla */}
-      <div className="listarMecanicos-table-container">
-        <table className="listarMecanicos-table">
+      <div className="listarUsuarios-table-container">
+        <table className="listarUsuarios-table">
           <thead>
             <tr>
               <th>Nombre Completo</th>
@@ -288,11 +287,11 @@ const ListarMecanicos = () => {
             {mecanicosActuales.map((mecanico) => (
               <tr key={mecanico.id}>
                 <td>
-                  <div className="listarMecanicos-user-info">
-                    <span className="listarMecanicos-user-name">
+                  <div className="listarUsuarios-user-info">
+                    <span className="listarUsuarios-user-name">
                       {mecanico.nombre} {mecanico.apellido}
                     </span>
-                    <span className="listarMecanicos-user-doc-type">{mecanico.tipo_documento}</span>
+                    <span className="listarUsuarios-user-doc-type">{mecanico.tipo_documento}</span>
                   </div>
                 </td>
                 <td>{mecanico.documento}</td>
@@ -301,37 +300,37 @@ const ListarMecanicos = () => {
                 <td>{mecanico.telefono_emergencia}</td>
                 <td>
                   <button
-                    className={`listarMecanicos-estado-toggle ${
+                    className={`listarUsuarios-estado-toggle ${
                       mecanico.estado?.toLowerCase() === "activo" ? "activo" : "inactivo"
                     }`}
                     onClick={() => cambiarEstado(mecanico.id, mecanico.estado)}
                     title={`Estado: ${mecanico.estado} - Click para cambiar`}
                   >
                     {mecanico.estado?.toLowerCase() === "activo" ? (
-                      <FaToggleOn className="listarMecanicos-toggle-icon" />
+                      <FaToggleOn className="listarUsuarios-toggle-icon" />
                     ) : (
-                      <FaToggleOff className="listarMecanicos-toggle-icon" />
+                      <FaToggleOff className="listarUsuarios-toggle-icon" />
                     )}
-                    <span className="listarMecanicos-estado-text">{mecanico.estado}</span>
+                    <span className="listarUsuarios-estado-text">{mecanico.estado}</span>
                   </button>
                 </td>
-                <td className="listarMecanicos-actions">
+                <td className="listarUsuarios-actions">
                   <button
-                    className="listarMecanicos-action-button edit"
+                    className="listarUsuarios-action-button edit"
                     onClick={() => navigate(`/Mecanicos/editar/${mecanico.id}`)}
                     title="Editar mecánico"
                   >
                     <FaEdit />
                   </button>
                   <button
-                    className="listarMecanicos-action-button delete"
+                    className="listarUsuarios-action-button delete"
                     onClick={() => eliminarMecanico(mecanico.id)}
                     title="Eliminar mecánico"
                   >
                     <FaTrash />
                   </button>
                   <button
-                    className="listarMecanicos-action-button detail"
+                    className="listarUsuarios-action-button detail"
                     onClick={() => navigate(`/Mecanicos/detalle/${mecanico.id}`)}
                     title="Ver detalle"
                   >
@@ -344,19 +343,19 @@ const ListarMecanicos = () => {
         </table>
 
         {mecanicosFiltrados.length === 0 && (
-          <div className="listarMecanicos-no-results">
-            <FaExclamationTriangle className="listarMecanicos-no-results-icon" />
+          <div className="listarUsuarios-no-results">
+            <FaExclamationTriangle className="listarUsuarios-no-results-icon" />
             <p>No se encontraron mecánicos con los criterios de búsqueda.</p>
           </div>
         )}
 
         {/* Paginación */}
         {mecanicosFiltrados.length > mecanicosPorPagina && (
-          <div className="listarMecanicos-pagination">
+          <div className="listarUsuarios-pagination">
             <button
               onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
               disabled={paginaActual === 1}
-              className="listarMecanicos-pagination-button"
+              className="listarUsuarios-pagination-button"
             >
               Anterior
             </button>
@@ -365,7 +364,7 @@ const ListarMecanicos = () => {
               <button
                 key={i + 1}
                 onClick={() => setPaginaActual(i + 1)}
-                className={`listarMecanicos-pagination-button ${paginaActual === i + 1 ? "active" : ""}`}
+                className={`listarUsuarios-pagination-button ${paginaActual === i + 1 ? "active" : ""}`}
               >
                 {i + 1}
               </button>
@@ -374,7 +373,7 @@ const ListarMecanicos = () => {
             <button
               onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
               disabled={paginaActual === totalPaginas}
-              className="listarMecanicos-pagination-button"
+              className="listarUsuarios-pagination-button"
             >
               Siguiente
             </button>

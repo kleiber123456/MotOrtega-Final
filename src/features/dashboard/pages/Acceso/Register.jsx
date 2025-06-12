@@ -286,7 +286,7 @@ function Register() {
   return (
     <div className="register-reset">
       <div className="register-page">
-        <div className="register-bodyLogin" transition-style="in:circle:hesitate">
+        <div className="register-bodyLogin">
           <div className="register-login-contendor">
             <div className="register-ca-login">
               <div className="register-contenedor-login">

@@ -11,11 +11,13 @@ import {
   FaTools,
   FaClock,
   FaArrowLeft,
-  FaPen,
-  FaCircle,
+  FaEdit,
+  FaExclamationTriangle,
+  FaToggleOn,
+  FaToggleOff,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/Mecanicos/VerDetalleMecanico.css"
+import "../../../../shared/styles/Usuarios/DetalleUsuario.css"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
@@ -84,10 +86,14 @@ const VerDetalleMecanico = () => {
 
   const [mecanico, setMecanico] = useState(null)
   const [horario, setHorario] = useState(null)
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     const cargarMecanico = async () => {
       try {
+        setCargando(true)
+        setError(null)
         const data = await makeRequest(`/mecanicos/${id}`)
         if (data) {
           setMecanico(data)
@@ -104,115 +110,191 @@ const VerDetalleMecanico = () => {
         }
       } catch (error) {
         console.error("Error al cargar mecánico:", error)
+        setError(error.message)
         Swal.fire("Error", "No se pudo cargar la información del mecánico", "error")
-        navigate("/ListarMecanicos")
+      } finally {
+        setCargando(false)
       }
     }
-    cargarMecanico()
-  }, [id, makeRequest, navigate])
 
-  if (loading || !mecanico) {
+    if (id) {
+      cargarMecanico()
+    }
+  }, [id, makeRequest])
+
+  const getEstadoClass = (estado) => {
+    return estado?.toLowerCase() === "activo" ? "activo" : "inactivo"
+  }
+
+  if (cargando) {
     return (
-      <div className="verDetalleMecanico-loading">
-        <div className="verDetalleMecanico-spinner"></div>
-        <p>Cargando información del mecánico...</p>
+      <div className="detalleUsuario-container">
+        <div className="detalleUsuario-loading">
+          <div className="detalleUsuario-spinner"></div>
+          <p>Cargando información del mecánico...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !mecanico) {
+    return (
+      <div className="detalleUsuario-container">
+        <div className="detalleUsuario-error">
+          <div className="detalleUsuario-error-icon">
+            <FaExclamationTriangle />
+          </div>
+          <h2>Error</h2>
+          <p>{error || "No se encontró el mecánico"}</p>
+          <button className="detalleUsuario-btn-back" onClick={() => navigate("/ListarMecanicos")}>
+            <FaArrowLeft />
+            Volver al listado
+          </button>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="verDetalleMecanico-container">
-      <div className="verDetalleMecanico-header">
-        <button className="verDetalleMecanico-back-button" onClick={() => navigate("/ListarMecanicos")}>
-          <FaArrowLeft /> Volver
-        </button>
-        <button className="verDetalleMecanico-edit-button" onClick={() => navigate(`/EditarMecanico/${id}`)}>
-          <FaPen /> Editar
-        </button>
+    <div className="detalleUsuario-container">
+      {/* Header */}
+      <div className="detalleUsuario-header">
+        <div className="detalleUsuario-header-left">
+          <button className="detalleUsuario-btn-back" onClick={() => navigate("/ListarMecanicos")}>
+            <FaArrowLeft />
+            Volver
+          </button>
+          <div className="detalleUsuario-title-section">
+            <h1 className="detalleUsuario-page-title">
+              <FaTools className="detalleUsuario-title-icon" />
+              Detalle del Mecánico
+            </h1>
+            <p className="detalleUsuario-subtitle">
+              Información completa de {mecanico.nombre} {mecanico.apellido}
+            </p>
+          </div>
+        </div>
+        <div className="detalleUsuario-header-actions">
+          <button className="detalleUsuario-btn-edit" onClick={() => navigate(`/Mecanicos/editar/${mecanico.id}`)}>
+            <FaEdit />
+            Editar Mecánico
+          </button>
+        </div>
       </div>
 
-      <div className="verDetalleMecanico-content">
-        <div className="verDetalleMecanico-title-section">
-          <FaTools className="verDetalleMecanico-title-icon" />
-          <div>
-            <h1 className="verDetalleMecanico-title">
-              {mecanico.nombre} {mecanico.apellido}
-            </h1>
-            <div className="verDetalleMecanico-status">
-              <FaCircle className={`status-icon ${mecanico.estado.toLowerCase()}`} />
-              {mecanico.estado}
+      {/* Información Personal */}
+      <div className="detalleUsuario-section">
+        <div className="detalleUsuario-section-header">
+          <h2 className="detalleUsuario-section-title">
+            <FaUser className="detalleUsuario-section-icon" />
+            Información Personal
+          </h2>
+        </div>
+        <div className="detalleUsuario-info-grid">
+          <div className="detalleUsuario-info-card">
+            <div className="detalleUsuario-info-icon">
+              <FaUser />
+            </div>
+            <div className="detalleUsuario-info-content">
+              <span className="detalleUsuario-info-label">Nombre Completo</span>
+              <span className="detalleUsuario-info-value">
+                {mecanico.nombre} {mecanico.apellido}
+              </span>
+            </div>
+          </div>
+
+          <div className="detalleUsuario-info-card">
+            <div className="detalleUsuario-info-icon">
+              <FaIdCard />
+            </div>
+            <div className="detalleUsuario-info-content">
+              <span className="detalleUsuario-info-label">Tipo de Documento</span>
+              <span className="detalleUsuario-info-value">{mecanico.tipo_documento || "No especificado"}</span>
+            </div>
+          </div>
+
+          <div className="detalleUsuario-info-card">
+            <div className="detalleUsuario-info-icon">
+              <FaIdCard />
+            </div>
+            <div className="detalleUsuario-info-content">
+              <span className="detalleUsuario-info-label">Número de Documento</span>
+              <span className="detalleUsuario-info-value">{mecanico.documento || "No especificado"}</span>
+            </div>
+          </div>
+
+          <div className="detalleUsuario-info-card">
+            <div className="detalleUsuario-info-icon">
+              <FaEnvelope />
+            </div>
+            <div className="detalleUsuario-info-content">
+              <span className="detalleUsuario-info-label">Correo Electrónico</span>
+              <span className="detalleUsuario-info-value">{mecanico.correo || "No especificado"}</span>
+            </div>
+          </div>
+
+          <div className="detalleUsuario-info-card">
+            <div className="detalleUsuario-info-icon">
+              <FaPhone />
+            </div>
+            <div className="detalleUsuario-info-content">
+              <span className="detalleUsuario-info-label">Teléfono</span>
+              <span className="detalleUsuario-info-value">{mecanico.telefono || "No especificado"}</span>
+            </div>
+          </div>
+
+          <div className="detalleUsuario-info-card">
+            <div className="detalleUsuario-info-icon">
+              <FaPhone />
+            </div>
+            <div className="detalleUsuario-info-content">
+              <span className="detalleUsuario-info-label">Teléfono de Emergencia</span>
+              <span className="detalleUsuario-info-value">{mecanico.telefono_emergencia || "No especificado"}</span>
+            </div>
+          </div>
+
+          <div className="detalleUsuario-info-card">
+            <div className="detalleUsuario-info-icon">
+              <FaMapMarkerAlt />
+            </div>
+            <div className="detalleUsuario-info-content">
+              <span className="detalleUsuario-info-label">Dirección</span>
+              <span className="detalleUsuario-info-value">{mecanico.direccion || "No especificada"}</span>
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="verDetalleMecanico-info-grid">
-          <div className="verDetalleMecanico-info-section">
-            <h2>
-              <FaUser /> Información Personal
-            </h2>
-            <div className="verDetalleMecanico-info-content">
-              <div className="info-item">
-                <span className="info-label">
-                  <FaIdCard /> Tipo de Documento:
-                </span>
-                <span className="info-value">{mecanico.tipo_documento}</span>
-              </div>
-              <div className="info-item">
-                <span className="info-label">
-                  <FaIdCard /> Número de Documento:
-                </span>
-                <span className="info-value">{mecanico.documento}</span>
-              </div>
+      {/* Información del Sistema */}
+      <div className="detalleUsuario-section">
+        <div className="detalleUsuario-section-header">
+          <h2 className="detalleUsuario-section-title">
+            <FaTools className="detalleUsuario-section-icon" />
+            Información del Sistema
+          </h2>
+        </div>
+        <div className="detalleUsuario-info-grid">
+          <div className="detalleUsuario-info-card">
+            <div className="detalleUsuario-info-icon">
+              <FaClock />
+            </div>
+            <div className="detalleUsuario-info-content">
+              <span className="detalleUsuario-info-label">Horario Asignado</span>
+              <span className="detalleUsuario-rol-badge">
+                {horario ? `${horario.dia} - ${horario.hora_inicio} a ${horario.hora_fin}` : "Sin horario"}
+              </span>
             </div>
           </div>
 
-          <div className="verDetalleMecanico-info-section">
-            <h2>
-              <FaEnvelope /> Contacto
-            </h2>
-            <div className="verDetalleMecanico-info-content">
-              <div className="info-item">
-                <span className="info-label">
-                  <FaEnvelope /> Correo Electrónico:
-                </span>
-                <span className="info-value">{mecanico.correo}</span>
-              </div>
-              <div className="info-item">
-                <span className="info-label">
-                  <FaPhone /> Teléfono:
-                </span>
-                <span className="info-value">{mecanico.telefono}</span>
-              </div>
-              <div className="info-item">
-                <span className="info-label">
-                  <FaPhone /> Teléfono de Emergencia:
-                </span>
-                <span className="info-value">{mecanico.telefono_emergencia}</span>
-              </div>
-              <div className="info-item">
-                <span className="info-label">
-                  <FaMapMarkerAlt /> Dirección:
-                </span>
-                <span className="info-value">{mecanico.direccion}</span>
-              </div>
+          <div className="detalleUsuario-info-card">
+            <div className="detalleUsuario-info-icon">
+              {mecanico.estado?.toLowerCase() === "activo" ? <FaToggleOn /> : <FaToggleOff />}
             </div>
-          </div>
-
-          <div className="verDetalleMecanico-info-section">
-            <h2>
-              <FaClock /> Horario
-            </h2>
-            <div className="verDetalleMecanico-info-content">
-              {horario && (
-                <div className="info-item">
-                  <span className="info-label">
-                    <FaClock /> Horario Asignado:
-                  </span>
-                  <span className="info-value">
-                    {horario.dia} - {horario.hora_inicio} a {horario.hora_fin}
-                  </span>
-                </div>
-              )}
+            <div className="detalleUsuario-info-content">
+              <span className="detalleUsuario-info-label">Estado</span>
+              <span className={`detalleUsuario-estado ${getEstadoClass(mecanico.estado)}`}>
+                {mecanico.estado || "No especificado"}
+              </span>
             </div>
           </div>
         </div>

@@ -1,232 +1,265 @@
+"use client"
+
 // src/pages/auth/Login.jsx
-import React, { useState, useCallback, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import '../../../../shared/styles/login.css';
+import { useState, useCallback, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+import {
+  FaEnvelope,
+  FaLock,
+  FaEye,
+  FaEyeSlash,
+  FaSpinner,
+  FaExclamationTriangle,
+  FaSignInAlt,
+  FaUserPlus,
+} from "react-icons/fa"
+import "../../../../shared/styles/login.css"
 
 function Login() {
   useEffect(() => {
-    document.body.style.backgroundColor = "Black";
+    document.body.style.backgroundColor = "#f9fafb"
     return () => {
-      document.body.style.background = "";
-    };
-  }, []);
+      document.body.style.background = ""
+    }
+  }, [])
 
-  const navigate = useNavigate();
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     correo: "",
-    password: ""
-  });
+    password: "",
+  })
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [showPassword, setShowPassword] = useState(false);
-  const [errores, setErrores] = useState({});
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [showPassword, setShowPassword] = useState(false)
+  const [errores, setErrores] = useState({})
 
   const handleChange = useCallback((e) => {
-    const { name, value } = e.target;
-    setFormData(prevData => ({
+    const { name, value } = e.target
+    setFormData((prevData) => ({
       ...prevData,
-      [name]: value
-    }));
-    validarCampo(name, value);
-  }, []);
+      [name]: value,
+    }))
+    validarCampo(name, value)
+  }, [])
 
   const validarCampo = (name, value) => {
-    let nuevoError = '';
+    let nuevoError = ""
 
-    if (name === 'correo') {
+    if (name === "correo") {
       if (!value.trim()) {
-        nuevoError = 'El correo electrónico es obligatorio.';
+        nuevoError = "El correo electrónico es obligatorio."
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-        nuevoError = 'Por favor ingrese un correo electrónico válido.';
+        nuevoError = "Por favor ingrese un correo electrónico válido."
       }
-    } else if (name === 'password') {
+    } else if (name === "password") {
       if (!value.trim()) {
-        nuevoError = 'La contraseña es obligatoria.';
+        nuevoError = "La contraseña es obligatoria."
       } else if (value.length < 6) {
-        nuevoError = 'La contraseña debe tener al menos 6 caracteres.';
+        nuevoError = "La contraseña debe tener al menos 6 caracteres."
       }
     }
 
-    setErrores(prev => ({ ...prev, [name]: nuevoError }));
-  };
+    setErrores((prev) => ({ ...prev, [name]: nuevoError }))
+  }
 
   const validarFormulario = () => {
-    const nuevosErrores = {};
+    const nuevosErrores = {}
 
     if (!formData.correo.trim()) {
-      nuevosErrores.correo = 'El correo electrónico es obligatorio.';
+      nuevosErrores.correo = "El correo electrónico es obligatorio."
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.correo)) {
-      nuevosErrores.correo = 'Por favor ingrese un correo electrónico válido.';
+      nuevosErrores.correo = "Por favor ingrese un correo electrónico válido."
     }
 
     if (!formData.password.trim()) {
-      nuevosErrores.password = 'La contraseña es obligatoria.';
+      nuevosErrores.password = "La contraseña es obligatoria."
     } else if (formData.password.length < 6) {
-      nuevosErrores.password = 'La contraseña debe tener al menos 6 caracteres.';
+      nuevosErrores.password = "La contraseña debe tener al menos 6 caracteres."
     }
 
-    setErrores(nuevosErrores);
-    return Object.keys(nuevosErrores).length === 0;
-  };
+    setErrores(nuevosErrores)
+    return Object.keys(nuevosErrores).length === 0
+  }
 
   const togglePasswordVisibility = useCallback(() => {
-    setShowPassword(prev => !prev);
-  }, []);
+    setShowPassword((prev) => !prev)
+  }, [])
 
-  const handleSubmit = useCallback(async (e) => {
-    e.preventDefault();
-    
-    if (!validarFormulario()) {
-      return;
-    }
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault()
 
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch("https://api-final-8rw7.onrender.com/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        // Manejo específico de errores según el código de estado o mensaje
-        if (response.status === 404) {
-          throw new Error("Correo electrónico no registrado en el sistema");
-        } else if (response.status === 401) {
-          throw new Error("Correo o contraseña incorrectos.");
-        } else if (data.message && data.message.includes("correo")) {
-          throw new Error("Correo electrónico no encontrado");
-        } else if (data.message && data.message.includes("contraseña")) {
-          throw new Error("Contraseña incorrecta");
-        } else {
-          throw new Error(data.message || "Error al iniciar sesión");
-        }
+      if (!validarFormulario()) {
+        return
       }
 
-      const usuario = data.usuario || {};
-      const usuarioFinal = {
-        nombre: `${usuario.nombre} ${usuario.apellido}`,
-        rol: usuario.rol
-      };
+      setLoading(true)
+      setError(null)
 
-      // ✅ Guardar SIEMPRE en localStorage
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("usuario", JSON.stringify(usuarioFinal));
+      try {
+        const response = await fetch("https://api-final-8rw7.onrender.com/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        })
 
-      navigate("/dashboard");
-    } catch (err) {
-      setError(err.message || "Error en la conexión");
-    } finally {
-      setLoading(false);
-    }
-  }, [formData, navigate]);
+        const data = await response.json()
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error("Correo electrónico no registrado en el sistema")
+          } else if (response.status === 401) {
+            throw new Error("Correo o contraseña incorrectos.")
+          } else if (data.message && data.message.includes("correo")) {
+            throw new Error("Correo electrónico no encontrado")
+          } else if (data.message && data.message.includes("contraseña")) {
+            throw new Error("Contraseña incorrecta")
+          } else {
+            throw new Error(data.message || "Error al iniciar sesión")
+          }
+        }
+
+        const usuario = data.usuario || {}
+        const usuarioFinal = {
+          nombre: `${usuario.nombre} ${usuario.apellido}`,
+          rol: usuario.rol,
+        }
+
+        localStorage.setItem("token", data.token)
+        localStorage.setItem("usuario", JSON.stringify(usuarioFinal))
+
+        navigate("/dashboard")
+      } catch (err) {
+        setError(err.message || "Error en la conexión")
+      } finally {
+        setLoading(false)
+      }
+    },
+    [formData, navigate],
+  )
 
   const handleForgotPassword = () => {
-    navigate("/recuperarContraseña");
-  };
+    navigate("/recuperarContraseña")
+  }
 
-  const renderInput = (type, name, placeholder) => (
-    <div className="Login-input-container">
-      <input 
-        type={type}
-        className={`register-input ${errores[name] ? 'input-error' : ''}`}
-        placeholder={placeholder}
-        name={name}
-        value={formData[name]}
-        onChange={handleChange}
-        required
-      />
-      {errores[name] && <span className="perfil-validacion">{errores[name]}</span>}
-    </div>
-  );
+  const handleRegister = () => {
+    navigate("/register")
+  }
 
   return (
-    <div className='bodyLogin' transition-style="in:circle:hesitate">
-      <div className="login-contendor">
-        <div className='ca-login'>
-          <div className="contenedor-login">
-            <div className="Login-form-box">
-              <form className="Login-form" onSubmit={handleSubmit} autoComplete="off">
-                <div className="Login-logo-container">
-                  <img src="/Logo.png" alt="Logo" className="Login-logo" />
-                </div>
-                <span className="Login-title">Iniciar Sesión</span>
-                <span className="Login-subtitle">Ingresa tus credenciales para acceder</span>
+    <div className="login-body">
+      <div className="login-container">
+        <div className="login-wrapper">
+          <div className="login-form-box">
+            <div className="login-header">
+              <div className="login-logo-container">
+                <img src="/Logo.png" alt="Logo" className="login-logo" />
+              </div>
+              <h1 className="login-title">Iniciar Sesión</h1>
+              <p className="login-subtitle">Ingresa tus credenciales para acceder al sistema</p>
+            </div>
 
-                <div className="Login-form-container">
-                  {renderInput("email", "correo", "Correo electrónico*")}
-                  
-                  <div className="Login-input-container password-field">
-                    <div className="password-container">
-                      <input 
+            <form className="login-form" onSubmit={handleSubmit} autoComplete="off">
+              <div className="login-form-section">
+                <div className="login-form-grid">
+                  <div className="login-form-group">
+                    <label htmlFor="correo" className="login-label">
+                      <FaEnvelope className="login-label-icon" />
+                      Correo Electrónico *
+                    </label>
+                    <input
+                      type="email"
+                      id="correo"
+                      name="correo"
+                      value={formData.correo}
+                      onChange={handleChange}
+                      className={`login-form-input ${errores.correo ? "error" : ""}`}
+                      placeholder="ejemplo@correo.com"
+                      required
+                      autoComplete="email"
+                    />
+                    {errores.correo && (
+                      <span className="login-error-text">
+                        <FaExclamationTriangle /> {errores.correo}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="login-form-group">
+                    <label htmlFor="password" className="login-label">
+                      <FaLock className="login-label-icon" />
+                      Contraseña *
+                    </label>
+                    <div className="login-password-container">
+                      <input
                         type={showPassword ? "text" : "password"}
-                        className={`register-input ${errores.password ? 'input-error' : ''}`}
-                        placeholder="Contraseña*" 
+                        id="password"
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
+                        className={`login-form-input ${errores.password ? "error" : ""}`}
+                        placeholder="Ingresa tu contraseña"
                         required
                         autoComplete="current-password"
                       />
-                      <span 
-                        className="password-toggle" 
-                        onClick={togglePasswordVisibility}
-                      >
-                        {showPassword ? (
-                          <i className="fas fa-eye-slash"></i>
-                        ) : (
-                          <i className="fas fa-eye"></i>
-                        )}
-                      </span>
+                      <button type="button" className="login-password-toggle" onClick={togglePasswordVisibility}>
+                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                      </button>
                     </div>
-                    {errores.password && <span className="perfil-validacion">{errores.password}</span>}
+                    {errores.password && (
+                      <span className="login-error-text">
+                        <FaExclamationTriangle /> {errores.password}
+                      </span>
+                    )}
                   </div>
                 </div>
+              </div>
 
-                {error && (
-                  <span className="Perfil-validacion">
-                    <i className="fas fa-exclamation-circle"></i> {error}
-                  </span>
-                )}
+              {error && (
+                <div className="login-error-message">
+                  <FaExclamationTriangle className="login-error-icon" />
+                  {error}
+                </div>
+              )}
 
-                <button 
-                  type="submit" 
-                  disabled={loading} 
-                  className="Login-button"
-                >
+              <div className="login-form-actions">
+                <button type="submit" disabled={loading} className="login-submit-button">
                   {loading ? (
                     <>
-                      <span className="Login-spinner"></span>
+                      <FaSpinner className="login-button-icon spinning" />
                       Verificando...
                     </>
                   ) : (
-                    "Iniciar Sesión"
+                    <>
+                      <FaSignInAlt className="login-button-icon" />
+                      Iniciar Sesión
+                    </>
                   )}
                 </button>
 
-                <div className="Login-options">
-                  <div className="Login-forgot-password">
-                    <span onClick={handleForgotPassword}>¿Olvidaste tu contraseña?</span>
-                  </div>
+                <div className="login-options">
+                  <button type="button" className="login-forgot-password" onClick={handleForgotPassword}>
+                    ¿Olvidaste tu contraseña?
+                  </button>
                 </div>
-              </form>
-
-              <div className="Login-form-section">
-                <p>¿No tienes una cuenta? <a href="/register">Regístrate</a></p>
               </div>
+            </form>
+
+            <div className="login-footer">
+              <p>¿No tienes una cuenta?</p>
+              <button type="button" className="login-register-button" onClick={handleRegister}>
+                <FaUserPlus className="login-button-icon" />
+                Crear cuenta
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default Login;
+export default Login

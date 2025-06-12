@@ -9,16 +9,14 @@ import {
   FaPhone,
   FaMapMarkerAlt,
   FaTools,
-  FaEye,
-  FaEyeSlash,
   FaTimes,
   FaSpinner,
   FaExclamationTriangle,
   FaSave,
-  FaClock,  // Agregamos este import
+  FaClock,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/Mecanicos/CrearMecanico.css"
+import "../../../../shared/styles/Usuarios/CrearUsuarios.css"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
@@ -111,7 +109,7 @@ const CrearMecanico = () => {
   useEffect(() => {
     const cargarHorarios = async () => {
       try {
-        const data = await makeRequest("/horarios")  // Removemos el /api extra
+        const data = await makeRequest("/horarios")
         if (data) {
           setHorarios(data)
         }
@@ -124,74 +122,71 @@ const CrearMecanico = () => {
     cargarHorarios()
   }, [makeRequest])
 
-  const validarCampo = useCallback(
-    (name, value) => {
-      let nuevoError = ""
+  const validarCampo = useCallback((name, value) => {
+    let nuevoError = ""
 
-      switch (name) {
-        case "nombre":
-          if (!value.trim()) {
-            nuevoError = "El nombre es obligatorio."
-          } else if (value.trim().length < 3) {
-            nuevoError = "El nombre debe tener al menos 3 caracteres."
-          }
-          break
-        case "apellido":
-          if (!value.trim()) {
-            nuevoError = "El apellido es obligatorio."
-          } else if (value.trim().length < 3) {
-            nuevoError = "El apellido debe tener al menos 3 caracteres."
-          }
-          break
-        case "documento":
-          if (!value.trim()) {
-            nuevoError = "El documento es obligatorio."
-          }
-          break
-        case "tipo_documento":
-          if (!value) {
-            nuevoError = "Selecciona un tipo de documento."
-          }
-          break
-        case "direccion":
-          if (!value.trim()) {
-            nuevoError = "La dirección es obligatoria."
-          } else if (value.trim().length < 5) {
-            nuevoError = "La dirección debe tener al menos 5 caracteres."
-          }
-          break
-        case "correo":
-          if (!value.trim()) {
-            nuevoError = "El correo es obligatorio."
-          } else if (!/\S+@\S+\.\S+/.test(value)) {
-            nuevoError = "Ingresa un correo electrónico válido."
-          }
-          break
-        case "telefono":
-          if (!value.trim()) {
-            nuevoError = "El teléfono es obligatorio."
-          } else if (value.trim().length < 10) {
-            nuevoError = "El teléfono debe tener al menos 10 números."
-          }
-          break
-        case "telefono_emergencia":
-          if (!value.trim()) {
-            nuevoError = "El teléfono de emergencia es obligatorio."
-          } else if (value.trim().length < 10) {
-            nuevoError = "El teléfono de emergencia debe tener al menos 10 números."
-          }
-          break
-        case "horario_id":
-          if (!value) {
-            nuevoError = "Selecciona un horario."
-          }
-          break
-      }
+    switch (name) {
+      case "nombre":
+        if (!value.trim()) {
+          nuevoError = "El nombre es obligatorio."
+        } else if (value.trim().length < 3) {
+          nuevoError = "El nombre debe tener al menos 3 caracteres."
+        }
+        break
+      case "apellido":
+        if (!value.trim()) {
+          nuevoError = "El apellido es obligatorio."
+        } else if (value.trim().length < 3) {
+          nuevoError = "El apellido debe tener al menos 3 caracteres."
+        }
+        break
+      case "documento":
+        if (!value.trim()) {
+          nuevoError = "El documento es obligatorio."
+        }
+        break
+      case "tipo_documento":
+        if (!value) {
+          nuevoError = "Selecciona un tipo de documento."
+        }
+        break
+      case "direccion":
+        if (!value.trim()) {
+          nuevoError = "La dirección es obligatoria."
+        } else if (value.trim().length < 5) {
+          nuevoError = "La dirección debe tener al menos 5 caracteres."
+        }
+        break
+      case "correo":
+        if (!value.trim()) {
+          nuevoError = "El correo es obligatorio."
+        } else if (!/\S+@\S+\.\S+/.test(value)) {
+          nuevoError = "Ingresa un correo electrónico válido."
+        }
+        break
+      case "telefono":
+        if (!value.trim()) {
+          nuevoError = "El teléfono es obligatorio."
+        } else if (value.trim().length < 10) {
+          nuevoError = "El teléfono debe tener al menos 10 números."
+        }
+        break
+      case "telefono_emergencia":
+        if (!value.trim()) {
+          nuevoError = "El teléfono de emergencia es obligatorio."
+        } else if (value.trim().length < 10) {
+          nuevoError = "El teléfono de emergencia debe tener al menos 10 números."
+        }
+        break
+      case "horario_id":
+        if (!value) {
+          nuevoError = "Selecciona un horario."
+        }
+        break
+    }
 
-      setErrores((prev) => ({ ...prev, [name]: nuevoError }))
-    },
-    [],
-  )
+    setErrores((prev) => ({ ...prev, [name]: nuevoError }))
+  }, [])
 
   const validarFormulario = useCallback(() => {
     const nuevosErrores = {}
@@ -286,25 +281,25 @@ const CrearMecanico = () => {
   }, [formulario, navigate])
 
   return (
-    <div className="crearMecanico-container">
-      <div className="crearMecanico-header">
-        <h1 className="crearMecanico-page-title">
-          <FaTools className="crearMecanico-title-icon" />
+    <div className="crearUsuario-container">
+      <div className="crearUsuario-header">
+        <h1 className="crearUsuario-page-title">
+          <FaTools className="crearUsuario-title-icon" />
           Crear Mecánico
         </h1>
-        <p className="crearMecanico-subtitle">Registra un nuevo mecánico en el sistema</p>
+        <p className="crearUsuario-subtitle">Registra un nuevo mecánico en el sistema</p>
       </div>
 
-      <form className="crearMecanico-form" onSubmit={handleSubmit}>
-        <div className="crearMecanico-form-section">
-          <h3 className="crearMecanico-section-title">
-            <FaUser className="crearMecanico-section-icon" />
+      <form className="crearUsuario-form" onSubmit={handleSubmit}>
+        <div className="crearUsuario-form-section">
+          <h3 className="crearUsuario-section-title">
+            <FaUser className="crearUsuario-section-icon" />
             Información Personal
           </h3>
-          <div className="crearMecanico-form-grid">
-            <div className="crearMecanico-form-group">
-              <label htmlFor="nombre" className="crearMecanico-label">
-                <FaUser className="crearMecanico-label-icon" />
+          <div className="crearUsuario-form-grid">
+            <div className="crearUsuario-form-group">
+              <label htmlFor="nombre" className="crearUsuario-label">
+                <FaUser className="crearUsuario-label-icon" />
                 Nombre *
               </label>
               <input
@@ -316,19 +311,19 @@ const CrearMecanico = () => {
                 onInput={soloLetras}
                 maxLength={30}
                 autoComplete="off"
-                className={`crearMecanico-form-input ${errores.nombre ? "error" : ""}`}
+                className={`crearUsuario-form-input ${errores.nombre ? "error" : ""}`}
                 required
               />
               {errores.nombre && (
-                <span className="crearMecanico-error-text">
+                <span className="crearUsuario-error-text">
                   <FaExclamationTriangle /> {errores.nombre}
                 </span>
               )}
             </div>
 
-            <div className="crearMecanico-form-group">
-              <label htmlFor="apellido" className="crearMecanico-label">
-                <FaUser className="crearMecanico-label-icon" />
+            <div className="crearUsuario-form-group">
+              <label htmlFor="apellido" className="crearUsuario-label">
+                <FaUser className="crearUsuario-label-icon" />
                 Apellido *
               </label>
               <input
@@ -340,19 +335,19 @@ const CrearMecanico = () => {
                 onInput={soloLetras}
                 maxLength={35}
                 autoComplete="off"
-                className={`crearMecanico-form-input ${errores.apellido ? "error" : ""}`}
+                className={`crearUsuario-form-input ${errores.apellido ? "error" : ""}`}
                 required
               />
               {errores.apellido && (
-                <span className="crearMecanico-error-text">
+                <span className="crearUsuario-error-text">
                   <FaExclamationTriangle /> {errores.apellido}
                 </span>
               )}
             </div>
 
-            <div className="crearMecanico-form-group">
-              <label htmlFor="tipo_documento" className="crearMecanico-label">
-                <FaIdCard className="crearMecanico-label-icon" />
+            <div className="crearUsuario-form-group">
+              <label htmlFor="tipo_documento" className="crearUsuario-label">
+                <FaIdCard className="crearUsuario-label-icon" />
                 Tipo Documento *
               </label>
               <select
@@ -360,7 +355,7 @@ const CrearMecanico = () => {
                 name="tipo_documento"
                 value={formulario.tipo_documento}
                 onChange={handleChange}
-                className={`crearMecanico-form-input ${errores.tipo_documento ? "error" : ""}`}
+                className={`crearUsuario-form-input ${errores.tipo_documento ? "error" : ""}`}
                 required
               >
                 <option value="Cédula de ciudadanía">Cédula de ciudadanía</option>
@@ -370,15 +365,15 @@ const CrearMecanico = () => {
                 <option value="Otro">Otro</option>
               </select>
               {errores.tipo_documento && (
-                <span className="crearMecanico-error-text">
+                <span className="crearUsuario-error-text">
                   <FaExclamationTriangle /> {errores.tipo_documento}
                 </span>
               )}
             </div>
 
-            <div className="crearMecanico-form-group">
-              <label htmlFor="documento" className="crearMecanico-label">
-                <FaIdCard className="crearMecanico-label-icon" />
+            <div className="crearUsuario-form-group">
+              <label htmlFor="documento" className="crearUsuario-label">
+                <FaIdCard className="crearUsuario-label-icon" />
                 Documento *
               </label>
               <input
@@ -390,19 +385,19 @@ const CrearMecanico = () => {
                 onInput={soloNumeros}
                 maxLength={15}
                 autoComplete="off"
-                className={`crearMecanico-form-input ${errores.documento ? "error" : ""}`}
+                className={`crearUsuario-form-input ${errores.documento ? "error" : ""}`}
                 required
               />
               {errores.documento && (
-                <span className="crearMecanico-error-text">
+                <span className="crearUsuario-error-text">
                   <FaExclamationTriangle /> {errores.documento}
                 </span>
               )}
             </div>
 
-            <div className="crearMecanico-form-group">
-              <label htmlFor="correo" className="crearMecanico-label">
-                <FaEnvelope className="crearMecanico-label-icon" />
+            <div className="crearUsuario-form-group">
+              <label htmlFor="correo" className="crearUsuario-label">
+                <FaEnvelope className="crearUsuario-label-icon" />
                 Correo Electrónico *
               </label>
               <input
@@ -413,19 +408,19 @@ const CrearMecanico = () => {
                 onChange={handleChange}
                 maxLength={254}
                 autoComplete="off"
-                className={`crearMecanico-form-input ${errores.correo ? "error" : ""}`}
+                className={`crearUsuario-form-input ${errores.correo ? "error" : ""}`}
                 required
               />
               {errores.correo && (
-                <span className="crearMecanico-error-text">
+                <span className="crearUsuario-error-text">
                   <FaExclamationTriangle /> {errores.correo}
                 </span>
               )}
             </div>
 
-            <div className="crearMecanico-form-group">
-              <label htmlFor="telefono" className="crearMecanico-label">
-                <FaPhone className="crearMecanico-label-icon" />
+            <div className="crearUsuario-form-group">
+              <label htmlFor="telefono" className="crearUsuario-label">
+                <FaPhone className="crearUsuario-label-icon" />
                 Teléfono *
               </label>
               <input
@@ -437,19 +432,19 @@ const CrearMecanico = () => {
                 onInput={soloNumeros}
                 maxLength={15}
                 autoComplete="off"
-                className={`crearMecanico-form-input ${errores.telefono ? "error" : ""}`}
+                className={`crearUsuario-form-input ${errores.telefono ? "error" : ""}`}
                 required
               />
               {errores.telefono && (
-                <span className="crearMecanico-error-text">
+                <span className="crearUsuario-error-text">
                   <FaExclamationTriangle /> {errores.telefono}
                 </span>
               )}
             </div>
 
-            <div className="crearMecanico-form-group">
-              <label htmlFor="direccion" className="crearMecanico-label">
-                <FaMapMarkerAlt className="crearMecanico-label-icon" />
+            <div className="crearUsuario-form-group">
+              <label htmlFor="direccion" className="crearUsuario-label">
+                <FaMapMarkerAlt className="crearUsuario-label-icon" />
                 Dirección *
               </label>
               <input
@@ -460,19 +455,19 @@ const CrearMecanico = () => {
                 onChange={handleChange}
                 maxLength={100}
                 autoComplete="off"
-                className={`crearMecanico-form-input ${errores.direccion ? "error" : ""}`}
+                className={`crearUsuario-form-input ${errores.direccion ? "error" : ""}`}
                 required
               />
               {errores.direccion && (
-                <span className="crearMecanico-error-text">
+                <span className="crearUsuario-error-text">
                   <FaExclamationTriangle /> {errores.direccion}
                 </span>
               )}
             </div>
 
-            <div className="crearMecanico-form-group">
-              <label htmlFor="telefono_emergencia" className="crearMecanico-label">
-                <FaPhone className="crearMecanico-label-icon" />
+            <div className="crearUsuario-form-group">
+              <label htmlFor="telefono_emergencia" className="crearUsuario-label">
+                <FaPhone className="crearUsuario-label-icon" />
                 Teléfono de Emergencia *
               </label>
               <input
@@ -484,19 +479,19 @@ const CrearMecanico = () => {
                 onInput={soloNumeros}
                 maxLength={15}
                 autoComplete="off"
-                className={`crearMecanico-form-input ${errores.telefono_emergencia ? "error" : ""}`}
+                className={`crearUsuario-form-input ${errores.telefono_emergencia ? "error" : ""}`}
                 required
               />
               {errores.telefono_emergencia && (
-                <span className="crearMecanico-error-text">
+                <span className="crearUsuario-error-text">
                   <FaExclamationTriangle /> {errores.telefono_emergencia}
                 </span>
               )}
             </div>
 
-            <div className="crearMecanico-form-group">
-              <label htmlFor="horario_id" className="crearMecanico-label">
-                <FaClock className="crearMecanico-label-icon" />
+            <div className="crearUsuario-form-group">
+              <label htmlFor="horario_id" className="crearUsuario-label">
+                <FaClock className="crearUsuario-label-icon" />
                 Horario *
               </label>
               <select
@@ -504,7 +499,7 @@ const CrearMecanico = () => {
                 name="horario_id"
                 value={formulario.horario_id}
                 onChange={handleChange}
-                className={`crearMecanico-form-input ${errores.horario_id ? "error" : ""}`}
+                className={`crearUsuario-form-input ${errores.horario_id ? "error" : ""}`}
                 required
               >
                 <option value="">Seleccione un horario...</option>
@@ -515,15 +510,15 @@ const CrearMecanico = () => {
                 ))}
               </select>
               {errores.horario_id && (
-                <span className="crearMecanico-error-text">
+                <span className="crearUsuario-error-text">
                   <FaExclamationTriangle /> {errores.horario_id}
                 </span>
               )}
             </div>
 
-            <div className="crearMecanico-form-group">
-              <label htmlFor="estado" className="crearMecanico-label">
-                <FaUser className="crearMecanico-label-icon" />
+            <div className="crearUsuario-form-group">
+              <label htmlFor="estado" className="crearUsuario-label">
+                <FaUser className="crearUsuario-label-icon" />
                 Estado
               </label>
               <select
@@ -531,7 +526,7 @@ const CrearMecanico = () => {
                 name="estado"
                 value={formulario.estado}
                 onChange={handleChange}
-                className="crearMecanico-form-input"
+                className="crearUsuario-form-input"
               >
                 <option value="Activo">Activo</option>
                 <option value="Inactivo">Inactivo</option>
@@ -540,20 +535,20 @@ const CrearMecanico = () => {
           </div>
         </div>
 
-        <div className="crearMecanico-form-actions">
-          <button type="button" className="crearMecanico-cancel-button" onClick={handleCancel} disabled={isSubmitting}>
-            <FaTimes className="crearMecanico-button-icon" />
+        <div className="crearUsuario-form-actions">
+          <button type="button" className="crearUsuario-cancel-button" onClick={handleCancel} disabled={isSubmitting}>
+            <FaTimes className="crearUsuario-button-icon" />
             Cancelar
           </button>
-          <button type="submit" className="crearMecanico-submit-button" disabled={isSubmitting || apiLoading}>
+          <button type="submit" className="crearUsuario-submit-button" disabled={isSubmitting || apiLoading}>
             {isSubmitting ? (
               <>
-                <FaSpinner className="crearMecanico-button-icon spinning" />
+                <FaSpinner className="crearUsuario-button-icon spinning" />
                 Guardando...
               </>
             ) : (
               <>
-                <FaSave className="crearMecanico-button-icon" />
+                <FaSave className="crearUsuario-button-icon" />
                 Guardar Mecánico
               </>
             )}
