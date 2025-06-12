@@ -224,6 +224,11 @@
   color: #1a202c;
 }
 
+.listarRepuesto-price-compra {
+  font-weight: 600;
+  color: #f59e0b;
+}
+
 .listarRepuesto-price,
 .listarRepuesto-total {
   font-weight: 600;
@@ -425,7 +430,7 @@
   }
 
   .listarRepuesto-table {
-    min-width: 800px;
+    min-width: 900px;
   }
 
   .listarRepuesto-pagination {

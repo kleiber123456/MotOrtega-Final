@@ -6,13 +6,14 @@ import {
   FaBox,
   FaTag,
   FaDollarSign,
-  FaCalendar,
   FaToggleOn,
   FaToggleOff,
   FaEdit,
   FaArrowLeft,
   FaExclamationTriangle,
   FaFileAlt,
+  FaShoppingCart,
+  FaChartLine,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Repuestos/DetalleRepuesto.css"
@@ -153,6 +154,11 @@ function DetalleRepuesto() {
     })
   }, [])
 
+  const calcularMargenGanancia = useCallback(() => {
+    if (!repuesto?.precio_compra || !repuesto?.preciounitario || repuesto.precio_compra <= 0) return 0
+    return ((repuesto.preciounitario - repuesto.precio_compra) / repuesto.precio_compra) * 100
+  }, [repuesto])
+
   const handleEditar = useCallback(() => {
     navigate(`/repuestos/editar/${repuesto.id}`)
   }, [navigate, repuesto])
@@ -270,11 +276,56 @@ function DetalleRepuesto() {
 
           <div className="detalleRepuesto-info-card">
             <div className="detalleRepuesto-info-icon">
+              {repuesto.estado?.toLowerCase() === "activo" ? <FaToggleOn /> : <FaToggleOff />}
+            </div>
+            <div className="detalleRepuesto-info-content">
+              <span className="detalleRepuesto-info-label">Estado del Repuesto</span>
+              <span className={`detalleRepuesto-estado ${getEstadoClass(repuesto.estado)}`}>
+                {repuesto.estado || "No especificado"}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Información de Precios */}
+      <div className="detalleRepuesto-section">
+        <div className="detalleRepuesto-section-header">
+          <h2 className="detalleRepuesto-section-title">
+            <FaDollarSign className="detalleRepuesto-section-icon" />
+            Información de Precios
+          </h2>
+        </div>
+        <div className="detalleRepuesto-info-grid">
+          <div className="detalleRepuesto-info-card">
+            <div className="detalleRepuesto-info-icon">
+              <FaShoppingCart />
+            </div>
+            <div className="detalleRepuesto-info-content">
+              <span className="detalleRepuesto-info-label">Precio de Compra</span>
+              <span className="detalleRepuesto-price-compra-display">{formatearPrecio(repuesto.precio_compra)}</span>
+            </div>
+          </div>
+
+          <div className="detalleRepuesto-info-card">
+            <div className="detalleRepuesto-info-icon">
               <FaDollarSign />
             </div>
             <div className="detalleRepuesto-info-content">
-              <span className="detalleRepuesto-info-label">Precio Unitario</span>
+              <span className="detalleRepuesto-info-label">Precio de Venta</span>
               <span className="detalleRepuesto-price-display">{formatearPrecio(repuesto.preciounitario)}</span>
+            </div>
+          </div>
+
+          <div className="detalleRepuesto-info-card">
+            <div className="detalleRepuesto-info-icon">
+              <FaChartLine />
+            </div>
+            <div className="detalleRepuesto-info-content">
+              <span className="detalleRepuesto-info-label">Margen de Ganancia</span>
+              <span className="detalleRepuesto-margin-display">
+                {calcularMargenGanancia() > 0 ? `${calcularMargenGanancia().toFixed(2)}%` : "0%"}
+              </span>
             </div>
           </div>
 
@@ -285,29 +336,6 @@ function DetalleRepuesto() {
             <div className="detalleRepuesto-info-content">
               <span className="detalleRepuesto-info-label">Valor Total en Inventario</span>
               <span className="detalleRepuesto-total-display">{formatearPrecio(repuesto.total)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Información del Sistema */}
-      <div className="detalleRepuesto-section">
-        <div className="detalleRepuesto-section-header">
-          <h2 className="detalleRepuesto-section-title">
-            <FaCalendar className="detalleRepuesto-section-icon" />
-            Información del Sistema
-          </h2>
-        </div>
-        <div className="detalleRepuesto-info-grid">
-          <div className="detalleRepuesto-info-card">
-            <div className="detalleRepuesto-info-icon">
-              {repuesto.estado?.toLowerCase() === "activo" ? <FaToggleOn /> : <FaToggleOff />}
-            </div>
-            <div className="detalleRepuesto-info-content">
-              <span className="detalleRepuesto-info-label">Estado del Repuesto</span>
-              <span className={`detalleRepuesto-estado ${getEstadoClass(repuesto.estado)}`}>
-                {repuesto.estado || "No especificado"}
-              </span>
             </div>
           </div>
         </div>

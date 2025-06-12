@@ -15,6 +15,8 @@ import {
   FaSave,
   FaArrowLeft,
   FaPlus,
+  FaShoppingCart,
+  FaChartLine,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Repuestos/CrearRepuesto.css"
@@ -255,11 +257,14 @@ function CrearRepuesto() {
   const navigate = useNavigate()
   const { makeRequest, loading: apiLoading } = useApi()
 
+  // Modificar el estado inicial para incluir el margen
   const [repuesto, setRepuesto] = useState({
     nombre: "",
     descripcion: "",
     cantidad: "",
     preciounitario: "",
+    precio_compra: "",
+    margen: "40", // Valor predeterminado de 40%
     estado: "Activo",
     categoria_repuesto_id: "",
   })
@@ -293,7 +298,39 @@ function CrearRepuesto() {
     cargarCategorias()
   }, [makeRequest])
 
-  // Validaciones del formulario
+  // Modificar el handleChange para calcular automáticamente el precio de venta cuando cambie el precio de compra o el margen
+  const handleChange = useCallback(
+    (e) => {
+      const { name, value } = e.target
+
+      // Actualizar el estado con el nuevo valor
+      setRepuesto((prev) => {
+        const newState = { ...prev, [name]: value }
+
+        // Si cambia el precio de compra o el margen, calcular el precio de venta
+        if (name === "precio_compra" || name === "margen") {
+          const precioCompra = Number.parseFloat(name === "precio_compra" ? value : prev.precio_compra) || 0
+          const margen = Number.parseFloat(name === "margen" ? value : prev.margen) || 0
+
+          if (precioCompra > 0 && margen >= 0) {
+            // Calcular precio de venta: precio_compra * (1 + (margen / 100))
+            const precioVenta = precioCompra * (1 + margen / 100)
+            newState.preciounitario = precioVenta.toFixed(2)
+          }
+        }
+
+        return newState
+      })
+
+      // Limpiar error del campo si existe
+      if (errores[name]) {
+        setErrores((prev) => ({ ...prev, [name]: "" }))
+      }
+    },
+    [errores],
+  )
+
+  // Agregar validación para el margen en validateForm
   const validateForm = useCallback(() => {
     const errors = {}
 
@@ -319,6 +356,18 @@ function CrearRepuesto() {
       errors.preciounitario = "El precio unitario debe ser un número positivo"
     }
 
+    if (repuesto.precio_compra === "" || isNaN(repuesto.precio_compra)) {
+      errors.precio_compra = "El precio de compra es obligatorio y debe ser un número"
+    } else if (Number.parseFloat(repuesto.precio_compra) < 0) {
+      errors.precio_compra = "El precio de compra debe ser un número positivo"
+    }
+
+    if (repuesto.margen === "" || isNaN(repuesto.margen)) {
+      errors.margen = "El margen es obligatorio y debe ser un número"
+    } else if (Number.parseFloat(repuesto.margen) < 0) {
+      errors.margen = "El margen debe ser un número positivo"
+    }
+
     if (!repuesto.categoria_repuesto_id) {
       errors.categoria_repuesto_id = "Debe seleccionar una categoría"
     }
@@ -330,19 +379,6 @@ function CrearRepuesto() {
     setErrores(errors)
     return Object.keys(errors).length === 0
   }, [repuesto])
-
-  const handleChange = useCallback(
-    (e) => {
-      const { name, value } = e.target
-      setRepuesto((prev) => ({ ...prev, [name]: value }))
-
-      // Limpiar error del campo si existe
-      if (errores[name]) {
-        setErrores((prev) => ({ ...prev, [name]: "" }))
-      }
-    },
-    [errores],
-  )
 
   const handleSeleccionarCategoria = useCallback(
     (categoria) => {
@@ -361,6 +397,7 @@ function CrearRepuesto() {
     [errores.categoria_repuesto_id],
   )
 
+  // Modificar el handleSubmit para asegurarse de que se envía el precio calculado
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault()
@@ -378,12 +415,18 @@ function CrearRepuesto() {
       setIsSubmitting(true)
 
       try {
+        // Asegurarse de que el precio unitario esté calculado correctamente
+        const precioCompra = Number.parseFloat(repuesto.precio_compra)
+        const margen = Number.parseFloat(repuesto.margen)
+        const precioUnitario = precioCompra * (1 + margen / 100)
+
         const datosRepuesto = {
           ...repuesto,
           cantidad: Number.parseInt(repuesto.cantidad),
-          preciounitario: Number.parseFloat(repuesto.preciounitario),
+          preciounitario: precioUnitario,
+          precio_compra: precioCompra,
           categoria_repuesto_id: Number.parseInt(repuesto.categoria_repuesto_id),
-          total: Number.parseFloat(repuesto.cantidad) * Number.parseFloat(repuesto.preciounitario),
+          total: Number.parseInt(repuesto.cantidad) * precioUnitario,
         }
 
         await makeRequest("/repuestos", {
@@ -417,7 +460,12 @@ function CrearRepuesto() {
 
   const handleCancel = useCallback(async () => {
     const hasData =
-      repuesto.nombre || repuesto.descripcion || repuesto.cantidad || repuesto.preciounitario || categoriaSeleccionada
+      repuesto.nombre ||
+      repuesto.descripcion ||
+      repuesto.cantidad ||
+      repuesto.preciounitario ||
+      repuesto.precio_compra ||
+      categoriaSeleccionada
 
     if (hasData) {
       const result = await Swal.fire({
@@ -449,6 +497,9 @@ function CrearRepuesto() {
   }, [])
 
   const totalCalculado = Number.parseFloat(repuesto.cantidad || 0) * Number.parseFloat(repuesto.preciounitario || 0)
+
+  // Reemplazar el cálculo del margen de ganancia
+  const margenGanancia = repuesto.margen ? Number.parseFloat(repuesto.margen) : 0
 
   return (
     <div className="crearRepuesto-container">
@@ -573,32 +624,6 @@ function CrearRepuesto() {
             </div>
 
             <div className="crearRepuesto-form-group">
-              <label htmlFor="preciounitario" className="crearRepuesto-label">
-                <FaDollarSign className="crearRepuesto-label-icon" />
-                Precio Unitario *
-              </label>
-              <input
-                type="number"
-                id="preciounitario"
-                name="preciounitario"
-                value={repuesto.preciounitario}
-                onChange={handleChange}
-                min="0"
-                step="0.01"
-                className={`crearRepuesto-form-input ${errores.preciounitario ? "error" : ""}`}
-                placeholder="Ingrese el precio unitario"
-                required
-              />
-              {errores.preciounitario && (
-                <span className="crearRepuesto-error-text">
-                  <FaExclamationTriangle /> {errores.preciounitario}
-                </span>
-              )}
-            </div>
-          </div>
-
-          <div className="crearRepuesto-form-grid">
-            <div className="crearRepuesto-form-group">
               <label htmlFor="estado" className="crearRepuesto-label">
                 <FaCheckCircle className="crearRepuesto-label-icon" />
                 Estado *
@@ -620,11 +645,88 @@ function CrearRepuesto() {
                 </span>
               )}
             </div>
+          </div>
+
+          {/* Reemplazar la sección de precios en el formulario con el nuevo campo de margen */}
+          <div className="crearRepuesto-form-grid">
+            <div className="crearRepuesto-form-group">
+              <label htmlFor="precio_compra" className="crearRepuesto-label">
+                <FaShoppingCart className="crearRepuesto-label-icon" />
+                Precio de Compra *
+              </label>
+              <input
+                type="number"
+                id="precio_compra"
+                name="precio_compra"
+                value={repuesto.precio_compra}
+                onChange={handleChange}
+                min="0"
+                step="0.01"
+                className={`crearRepuesto-form-input ${errores.precio_compra ? "error" : ""}`}
+                placeholder="Ingrese el precio de compra"
+                required
+              />
+              {errores.precio_compra && (
+                <span className="crearRepuesto-error-text">
+                  <FaExclamationTriangle /> {errores.precio_compra}
+                </span>
+              )}
+            </div>
+
+            <div className="crearRepuesto-form-group">
+              <label htmlFor="margen" className="crearRepuesto-label">
+                <FaChartLine className="crearRepuesto-label-icon" />
+                Margen de Ganancia (%) *
+              </label>
+              <input
+                type="number"
+                id="margen"
+                name="margen"
+                value={repuesto.margen}
+                onChange={handleChange}
+                min="0"
+                step="0.01"
+                className={`crearRepuesto-form-input ${errores.margen ? "error" : ""}`}
+                placeholder="Ingrese el margen de ganancia"
+                required
+              />
+              {errores.margen && (
+                <span className="crearRepuesto-error-text">
+                  <FaExclamationTriangle /> {errores.margen}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="crearRepuesto-form-grid">
+            <div className="crearRepuesto-form-group">
+              <label htmlFor="preciounitario" className="crearRepuesto-label">
+                <FaDollarSign className="crearRepuesto-label-icon" />
+                Precio de Venta (calculado) *
+              </label>
+              <input
+                type="number"
+                id="preciounitario"
+                name="preciounitario"
+                value={repuesto.preciounitario}
+                onChange={handleChange}
+                min="0"
+                step="0.01"
+                className={`crearRepuesto-form-input ${errores.preciounitario ? "error" : ""}`}
+                placeholder="Precio calculado automáticamente"
+                readOnly
+              />
+              {errores.preciounitario && (
+                <span className="crearRepuesto-error-text">
+                  <FaExclamationTriangle /> {errores.preciounitario}
+                </span>
+              )}
+            </div>
 
             <div className="crearRepuesto-form-group">
               <label className="crearRepuesto-label">
                 <FaDollarSign className="crearRepuesto-label-icon" />
-                Total Calculado
+                Total en Inventario
               </label>
               <div className="crearRepuesto-total-display">{formatearPrecio(totalCalculado)}</div>
             </div>

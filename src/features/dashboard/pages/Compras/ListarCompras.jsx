@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import {
   Eye,
@@ -11,10 +11,182 @@ import {
   PlusIcon as FaPlus,
   SearchIcon as FaSearch,
   TriangleIcon as FaExclamationTriangle,
+  FanIcon as FaTimes,
+  TagIcon as FaTag,
 } from "lucide-react"
 import Swal from "sweetalert2"
 import { generarFacturaPDF, cargarDatosCompletosCompra } from "../../utils/pdf-generator"
 import "../../../../shared/styles/Compras/ListarCompras.css"
+
+// Componente del modal para proveedores
+const ProveedorModal = ({ show, onClose, proveedores, onSelect, proveedorActual }) => {
+  const [busquedaProveedor, setBusquedaProveedor] = useState("")
+  const [proveedoresPorPagina] = useState(5)
+  const [paginaActualProveedores, setPaginaActualProveedores] = useState(1)
+  const modalRef = useRef(null)
+
+  useEffect(() => {
+    if (show) {
+      setBusquedaProveedor("")
+      setPaginaActualProveedores(1)
+    }
+  }, [show])
+
+  // Cerrar modal al hacer clic afuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        onClose()
+      }
+    }
+
+    if (show) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [show, onClose])
+
+  // Convertir objeto de proveedores a array
+  const proveedoresArray = Object.keys(proveedores).map((id) => ({
+    id: Number.parseInt(id),
+    nombre: proveedores[id],
+  }))
+
+  // Filtrar proveedores basado en la búsqueda
+  const proveedoresFiltrados = proveedoresArray.filter((proveedor) =>
+    proveedor.nombre.toLowerCase().includes(busquedaProveedor.toLowerCase()),
+  )
+
+  // Calcular índices para la paginación
+  const indiceUltimoProveedor = paginaActualProveedores * proveedoresPorPagina
+  const indicePrimerProveedor = indiceUltimoProveedor - proveedoresPorPagina
+  const proveedoresActuales = proveedoresFiltrados.slice(indicePrimerProveedor, indiceUltimoProveedor)
+  const totalPaginasProveedores = Math.ceil(proveedoresFiltrados.length / proveedoresPorPagina)
+
+  // Función para ir a la página anterior
+  const irPaginaAnterior = () => {
+    setPaginaActualProveedores((prev) => Math.max(prev - 1, 1))
+  }
+
+  // Función para ir a la página siguiente
+  const irPaginaSiguiente = () => {
+    setPaginaActualProveedores((prev) => Math.min(prev + 1, totalPaginasProveedores))
+  }
+
+  // Función para manejar el cambio de búsqueda
+  const handleBusquedaChange = (e) => {
+    setBusquedaProveedor(e.target.value)
+    setPaginaActualProveedores(1)
+  }
+
+  if (!show) return null
+
+  return (
+    <div className="listarCompra-modal-overlay">
+      <div className="listarCompra-proveedor-modal" ref={modalRef}>
+        <div className="listarCompra-proveedor-modal-header">
+          <h2>
+            <FaTag className="listarCompra-modal-header-icon" />
+            Seleccionar Proveedor
+          </h2>
+          <button type="button" className="listarCompra-proveedor-close-button" onClick={onClose}>
+            <FaTimes />
+          </button>
+        </div>
+
+        <div className="listarCompra-proveedor-modal-content">
+          {/* Buscador centrado */}
+          <div className="listarCompra-proveedor-search-container">
+            <div className="listarCompra-proveedor-search-wrapper">
+              <FaSearch className="listarCompra-proveedor-search-icon" />
+              <input
+                type="text"
+                placeholder="Buscar proveedor..."
+                value={busquedaProveedor}
+                onChange={handleBusquedaChange}
+                className="listarCompra-proveedor-search-input"
+                autoFocus
+              />
+            </div>
+          </div>
+
+          {/* Lista de proveedores con paginación */}
+          <div className="listarCompra-proveedor-list">
+            {proveedoresActuales.length === 0 ? (
+              <div className="listarCompra-proveedor-no-results">
+                <FaExclamationTriangle className="listarCompra-proveedor-no-results-icon" />
+                <p>{busquedaProveedor ? "No se encontraron proveedores" : "No hay proveedores disponibles"}</p>
+              </div>
+            ) : (
+              <table className="listarCompra-proveedor-table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {proveedoresActuales.map((proveedor) => (
+                    <tr key={proveedor.id} className="listarCompra-proveedor-row">
+                      <td>
+                        <div className="listarCompra-proveedor-name">{proveedor.nombre || "N/A"}</div>
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          className="listarCompra-proveedor-select-button"
+                          onClick={() => onSelect(proveedor)}
+                        >
+                          <CheckCircle /> Seleccionar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+
+          {/* Controles de paginación */}
+          {totalPaginasProveedores > 1 && (
+            <div className="listarCompra-proveedor-pagination">
+              <button
+                onClick={irPaginaAnterior}
+                disabled={paginaActualProveedores === 1}
+                className="listarCompra-proveedor-pagination-button"
+                type="button"
+              >
+                Anterior
+              </button>
+
+              <span className="listarCompra-proveedor-page-info">
+                Página {paginaActualProveedores} de {totalPaginasProveedores}
+                {proveedoresFiltrados.length > 0 && (
+                  <span className="listarCompra-proveedor-total-info">
+                    {" "}
+                    ({proveedoresFiltrados.length} proveedor{proveedoresFiltrados.length !== 1 ? "es" : ""})
+                  </span>
+                )}
+              </span>
+
+              <button
+                onClick={irPaginaSiguiente}
+                disabled={paginaActualProveedores === totalPaginasProveedores}
+                className="listarCompra-proveedor-pagination-button"
+                type="button"
+              >
+                Siguiente
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function ListarCompras() {
   const navigate = useNavigate()
@@ -27,6 +199,8 @@ function ListarCompras() {
   const [estadoFiltro, setEstadoFiltro] = useState("")
   const [paginaActual, setPaginaActual] = useState(1)
   const [comprasPorPagina] = useState(4)
+  const [mostrarModalProveedores, setMostrarModalProveedores] = useState(false)
+  const [proveedorSeleccionado, setProveedorSeleccionado] = useState(null)
 
   useEffect(() => {
     document.body.style.backgroundColor = "#f9fafb"
@@ -82,16 +256,27 @@ function ListarCompras() {
     setPaginaActual(1)
   }, [])
 
+  const handleSeleccionarProveedor = useCallback((proveedor) => {
+    setProveedorSeleccionado(proveedor)
+    setProveedorFiltro(proveedor.id.toString())
+    setMostrarModalProveedores(false)
+    setPaginaActual(1)
+  }, [])
+
+  const limpiarFiltroProveedor = useCallback(() => {
+    setProveedorSeleccionado(null)
+    setProveedorFiltro("")
+    setPaginaActual(1)
+  }, [])
+
   // Función para confirmar una compra (cambiar a Completado)
   const handleConfirmarCompra = async (compraId, estadoActual) => {
     try {
-      // Validar que solo se puedan confirmar compras pendientes
       if (estadoActual !== "Pendiente") {
         Swal.fire("Información", "Solo se pueden confirmar compras en estado Pendiente", "info")
         return
       }
 
-      // Mostrar confirmación
       const { isConfirmed } = await Swal.fire({
         title: "Confirmar Compra",
         text: "¿Está seguro de que desea confirmar esta compra? Esta acción no se puede deshacer.",
@@ -105,7 +290,6 @@ function ListarCompras() {
 
       if (!isConfirmed) return
 
-      // Realizar la petición usando el endpoint correcto
       const response = await fetch(`https://api-final-8rw7.onrender.com/api/compras/${compraId}/cambiar-estado`, {
         method: "PUT",
         headers: {
@@ -119,7 +303,6 @@ function ListarCompras() {
         throw new Error("Error al confirmar la compra")
       }
 
-      // Actualizar la lista de compras
       setCompras(compras.map((compra) => (compra.id === compraId ? { ...compra, estado: "Completado" } : compra)))
 
       Swal.fire("¡Éxito!", "La compra ha sido confirmada exitosamente", "success")
@@ -132,13 +315,11 @@ function ListarCompras() {
   // Función para anular una compra (cambiar a Cancelado)
   const handleAnularCompra = async (compraId, estadoActual) => {
     try {
-      // Validar que solo se puedan anular compras pendientes
       if (estadoActual !== "Pendiente") {
         Swal.fire("Información", "Solo se pueden anular compras en estado Pendiente", "info")
         return
       }
 
-      // Mostrar confirmación
       const { isConfirmed } = await Swal.fire({
         title: "Anular Compra",
         text: "¿Está seguro de que desea anular esta compra? Esta acción no se puede deshacer.",
@@ -152,7 +333,6 @@ function ListarCompras() {
 
       if (!isConfirmed) return
 
-      // Mostrar loading mientras se procesa
       Swal.fire({
         title: "Procesando...",
         text: "Anulando la compra",
@@ -162,8 +342,6 @@ function ListarCompras() {
         },
       })
 
-      // Realizar DOS peticiones consecutivas para forzar el estado "Cancelado"
-      // Primera petición
       const response1 = await fetch(`https://api-final-8rw7.onrender.com/api/compras/${compraId}/cambiar-estado`, {
         method: "PUT",
         headers: {
@@ -177,7 +355,6 @@ function ListarCompras() {
         throw new Error("Error en la primera petición para anular la compra")
       }
 
-      // Segunda petición (para asegurar que llegue a "Cancelado")
       const response2 = await fetch(`https://api-final-8rw7.onrender.com/api/compras/${compraId}/cambiar-estado`, {
         method: "PUT",
         headers: {
@@ -191,10 +368,8 @@ function ListarCompras() {
         throw new Error("Error en la segunda petición para anular la compra")
       }
 
-      // Actualizar la lista de compras
       setCompras(compras.map((compra) => (compra.id === compraId ? { ...compra, estado: "Cancelado" } : compra)))
 
-      // Cerrar loading y mostrar éxito
       Swal.close()
       Swal.fire("¡Éxito!", "La compra ha sido anulada exitosamente", "success")
     } catch (error) {
@@ -204,10 +379,9 @@ function ListarCompras() {
     }
   }
 
-  // Función para generar PDF usando el nuevo generador
+  // Función para generar PDF
   const handleGenerarPDF = async (compraId) => {
     try {
-      // Mostrar loading
       Swal.fire({
         title: "Generando PDF...",
         text: "Por favor espere mientras se genera el documento",
@@ -217,13 +391,9 @@ function ListarCompras() {
         },
       })
 
-      // Cargar datos completos de la compra
       const { compra, proveedor, detallesConProductos } = await cargarDatosCompletosCompra(compraId, token)
-
-      // Generar el PDF
       await generarFacturaPDF(compra, proveedor, detallesConProductos, token)
 
-      // Cerrar loading y mostrar éxito
       Swal.close()
       Swal.fire("¡Éxito!", "El PDF se ha generado correctamente", "success")
     } catch (error) {
@@ -317,21 +487,27 @@ function ListarCompras() {
 
         <div className="listarCompra-filter-item">
           <label className="listarCompra-filter-label">Proveedor:</label>
-          <select
-            value={proveedorFiltro}
-            onChange={(e) => {
-              setProveedorFiltro(e.target.value)
-              setPaginaActual(1)
-            }}
-            className="listarCompra-filter-select"
-          >
-            <option value="">Todos los proveedores</option>
-            {Object.keys(proveedores).map((id) => (
-              <option key={id} value={id}>
-                {proveedores[id]}
-              </option>
-            ))}
-          </select>
+          <div className="listarCompra-proveedor-filter-container">
+            <input
+              type="text"
+              placeholder="Seleccione un proveedor..."
+              value={proveedorSeleccionado ? proveedorSeleccionado.nombre : ""}
+              onClick={() => setMostrarModalProveedores(true)}
+              readOnly
+              className="listarCompra-proveedor-filter-input"
+              style={{ cursor: "pointer" }}
+            />
+            {proveedorSeleccionado && (
+              <button
+                type="button"
+                className="listarCompra-clear-proveedor-button"
+                onClick={limpiarFiltroProveedor}
+                title="Limpiar filtro"
+              >
+                <FaTimes />
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="listarCompra-filter-item">
@@ -374,10 +550,8 @@ function ListarCompras() {
                   <span className={`listarCompra-estado ${getEstadoClass(compra.estado)}`}>{compra.estado}</span>
                 </td>
                 <td className="listarCompra-actions">
-                  {/* Solo mostrar botones de acción si la compra está en estado Pendiente */}
                   {compra.estado === "Pendiente" && (
                     <>
-                      {/* Botón Confirmar */}
                       <button
                         className="listarCompra-action-button confirmar"
                         onClick={() => handleConfirmarCompra(compra.id, compra.estado)}
@@ -386,7 +560,6 @@ function ListarCompras() {
                         <CheckCircle size={18} />
                       </button>
 
-                      {/* Botón Anular */}
                       <button
                         className="listarCompra-action-button anular"
                         onClick={() => handleAnularCompra(compra.id, compra.estado)}
@@ -397,7 +570,6 @@ function ListarCompras() {
                     </>
                   )}
 
-                  {/* Botón Ver Detalle - Siempre visible */}
                   <button
                     className="listarCompra-action-button detail"
                     onClick={() => navigate(`/DetalleCompra/${compra.id}`)}
@@ -406,7 +578,6 @@ function ListarCompras() {
                     <Eye size={18} />
                   </button>
 
-                  {/* Botón Generar PDF - Siempre visible */}
                   <button
                     className="listarCompra-action-button pdf"
                     onClick={() => handleGenerarPDF(compra.id)}
@@ -458,6 +629,17 @@ function ListarCompras() {
           </div>
         )}
       </div>
+
+      {/* Modal de proveedores */}
+      {mostrarModalProveedores && (
+        <ProveedorModal
+          show={mostrarModalProveedores}
+          onClose={() => setMostrarModalProveedores(false)}
+          proveedores={proveedores}
+          onSelect={handleSeleccionarProveedor}
+          proveedorActual={proveedorFiltro}
+        />
+      )}
     </div>
   )
 }

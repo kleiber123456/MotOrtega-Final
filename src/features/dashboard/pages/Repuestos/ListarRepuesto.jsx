@@ -451,6 +451,12 @@ function ListarRepuestos() {
     setPaginaActual(1)
   }, [])
 
+  // Agregar función para calcular el margen de ganancia
+  const calcularMargenGanancia = useCallback((precioCompra, precioVenta) => {
+    if (!precioCompra || precioCompra <= 0 || !precioVenta) return 0
+    return ((precioVenta - precioCompra) / precioCompra) * 100
+  }, [])
+
   if (isLoading) {
     return (
       <div className="listarRepuesto-container">
@@ -546,7 +552,9 @@ function ListarRepuestos() {
               <th>Descripción</th>
               <th>Categoría</th>
               <th>Cantidad</th>
-              <th>Precio Unitario</th>
+              <th>Precio Compra</th>
+              <th>Precio Venta</th>
+              <th>Margen</th>
               <th>Total</th>
               <th>Estado</th>
               <th>Acciones</th>
@@ -578,7 +586,15 @@ function ListarRepuestos() {
                   <span className="listarRepuesto-quantity">{repuesto.cantidad || 0}</span>
                 </td>
                 <td>
+                  <span className="listarRepuesto-price-compra">{formatearPrecio(repuesto.precio_compra)}</span>
+                </td>
+                <td>
                   <span className="listarRepuesto-price">{formatearPrecio(repuesto.preciounitario)}</span>
+                </td>
+                <td>
+                  <span className="listarRepuesto-margin">
+                    {calcularMargenGanancia(repuesto.precio_compra, repuesto.preciounitario).toFixed(2)}%
+                  </span>
                 </td>
                 <td>
                   <span className="listarRepuesto-total">{formatearPrecio(repuesto.total)}</span>
