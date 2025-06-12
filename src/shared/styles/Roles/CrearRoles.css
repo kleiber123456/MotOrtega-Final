@@ -1,0 +1,440 @@
+.crearRol-container {
+  padding: 25px;
+  background-color: #f9fafb;
+  min-height: 100vh;
+  font-family: "Montserrat", sans-serif;
+}
+
+.crearRol-header {
+  margin-bottom: 30px;
+}
+
+.crearRol-page-title {
+  font-size: 28px;
+  color: #1a202c;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.crearRol-title-icon {
+  color: #2563eb;
+  font-size: 24px;
+}
+
+.crearRol-subtitle {
+  color: #6b7280;
+  font-size: 16px;
+  margin: 0;
+}
+
+.crearRol-form {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.crearRol-form-section {
+  padding: 24px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.crearRol-form-section:last-child {
+  border-bottom: none;
+}
+
+.crearRol-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.crearRol-section-icon {
+  color: #2563eb;
+  font-size: 16px;
+}
+
+.crearRol-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.crearRol-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.crearRol-form-group-full {
+  grid-column: 1 / -1;
+}
+
+.crearRol-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.crearRol-label-icon {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.crearRol-form-input,
+.crearRol-form-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  background-color: #f8fafc;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.crearRol-form-input:focus,
+.crearRol-form-textarea:focus {
+  border-color: #3b82f6;
+  background-color: white;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.crearRol-form-input.error,
+.crearRol-form-textarea.error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.crearRol-form-input.error:focus,
+.crearRol-form-textarea.error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.crearRol-form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.crearRol-error-text {
+  font-size: 12px;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 8px 12px;
+  background-color: #fef2f2;
+  border-radius: 6px;
+  border-left: 3px solid #ef4444;
+}
+
+.crearRol-permisos-error {
+  margin-bottom: 16px;
+}
+
+/* Permisos */
+.crearRol-permisos-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.crearRol-categoria-permisos {
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #f8fafc;
+}
+
+.crearRol-categoria-header {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.crearRol-categoria-toggle {
+  width: 100%;
+  padding: 16px 20px;
+  border: none;
+  background: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  color: #374151;
+}
+
+.crearRol-categoria-toggle:hover {
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+.crearRol-categoria-toggle.selected {
+  color: #2563eb;
+}
+
+.crearRol-categoria-toggle.partial {
+  color: #f59e0b;
+}
+
+.crearRol-categoria-check {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: transparent;
+  transition: all 0.2s ease;
+}
+
+.crearRol-categoria-toggle.selected .crearRol-categoria-check {
+  background-color: #2563eb;
+  border-color: #2563eb;
+  color: white;
+}
+
+.crearRol-categoria-toggle.partial .crearRol-categoria-check {
+  background-color: #f59e0b;
+  border-color: #f59e0b;
+  color: white;
+}
+
+.crearRol-categoria-nombre {
+  flex: 1;
+  text-align: left;
+  font-size: 16px;
+}
+
+.crearRol-categoria-count {
+  font-size: 12px;
+  color: #6b7280;
+  background-color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.crearRol-permisos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+  padding: 20px;
+}
+
+.crearRol-permiso-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.crearRol-permiso-item:hover {
+  border-color: #2563eb;
+  background-color: #eff6ff;
+}
+
+.crearRol-permiso-checkbox {
+  display: none;
+}
+
+.crearRol-permiso-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.crearRol-permiso-check {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: transparent;
+  transition: all 0.2s ease;
+}
+
+.crearRol-permiso-checkbox:checked + .crearRol-permiso-content .crearRol-permiso-check {
+  background-color: #2563eb;
+  border-color: #2563eb;
+  color: white;
+}
+
+.crearRol-permiso-nombre {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.crearRol-permiso-checkbox:checked + .crearRol-permiso-content .crearRol-permiso-nombre {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+/* Acciones del formulario */
+.crearRol-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 24px;
+  background-color: #f8fafc;
+}
+
+.crearRol-cancel-button {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.crearRol-cancel-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
+}
+
+.crearRol-cancel-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.2);
+}
+
+.crearRol-submit-button {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.crearRol-submit-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+}
+
+.crearRol-submit-button:disabled {
+  background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.crearRol-button-icon {
+  font-size: 12px;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loading */
+.crearRol-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  text-align: center;
+}
+
+.crearRol-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: #2563eb;
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .crearRol-container {
+    padding: 16px;
+  }
+
+  .crearRol-form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .crearRol-form-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .crearRol-cancel-button,
+  .crearRol-submit-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .crearRol-permisos-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .crearRol-page-title {
+    font-size: 24px;
+  }
+
+  .crearRol-form-section {
+    padding: 16px;
+  }
+
+  .crearRol-form-actions {
+    padding: 16px;
+  }
+}

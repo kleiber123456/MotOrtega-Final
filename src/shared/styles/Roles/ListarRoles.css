@@ -1,11 +1,11 @@
-.listarVenta-container {
+.listarRoles-container {
   padding: 25px;
   background-color: #f9fafb;
   min-height: 100vh;
   font-family: "Montserrat", sans-serif;
 }
 
-.listarVenta-header {
+.listarRoles-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -17,13 +17,13 @@
   border: 1px solid #e2e8f0;
 }
 
-.listarVenta-title-section {
+.listarRoles-title-section {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.listarVenta-page-title {
+.listarRoles-page-title {
   font-size: 28px;
   color: #1a202c;
   font-weight: 600;
@@ -33,18 +33,18 @@
   gap: 12px;
 }
 
-.listarVenta-title-icon {
+.listarRoles-title-icon {
   color: #2563eb;
   font-size: 24px;
 }
 
-.listarVenta-subtitle {
+.listarRoles-subtitle {
   color: #6b7280;
   font-size: 16px;
   margin: 0;
 }
 
-.listarVenta-create-button {
+.listarRoles-create-button {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
   border: none;
@@ -60,17 +60,17 @@
   gap: 8px;
 }
 
-.listarVenta-create-button:hover {
+.listarRoles-create-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
 }
 
-.listarVenta-button-icon {
+.listarRoles-button-icon {
   font-size: 12px;
 }
 
 /* Filtros */
-.listarVenta-filters-container {
+.listarRoles-filters-container {
   display: flex;
   gap: 20px;
   margin-bottom: 20px;
@@ -83,7 +83,7 @@
   border: 1px solid #e2e8f0;
 }
 
-.listarVenta-filter-item {
+.listarRoles-filter-item {
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -91,20 +91,20 @@
   flex: 1;
 }
 
-.listarVenta-filter-label {
+.listarRoles-filter-label {
   font-size: 13px;
   font-weight: 600;
   color: #374151;
   margin-bottom: 3px;
 }
 
-.listarVenta-search-container {
+.listarRoles-search-container {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.listarVenta-search-icon {
+.listarRoles-search-icon {
   position: absolute;
   left: 12px;
   color: #6b7280;
@@ -112,7 +112,7 @@
   z-index: 1;
 }
 
-.listarVenta-search-input {
+.listarRoles-search-input {
   width: 100%;
   padding: 10px 14px 10px 36px;
   font-size: 14px;
@@ -123,14 +123,14 @@
   font-family: inherit;
 }
 
-.listarVenta-search-input:focus {
+.listarRoles-search-input:focus {
   border-color: #3b82f6;
   background-color: white;
   outline: none;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.listarVenta-filter-select {
+.listarRoles-filter-select {
   width: 100%;
   padding: 10px 14px;
   font-size: 14px;
@@ -141,106 +141,15 @@
   font-family: inherit;
 }
 
-.listarVenta-filter-select:focus {
+.listarRoles-filter-select:focus {
   border-color: #3b82f6;
   background-color: white;
   outline: none;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-/* Filtros de fecha */
-.listarVenta-date-filters {
-  background-color: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
-  margin-bottom: 20px;
-}
-
-.listarVenta-date-filter-group {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  align-items: end;
-}
-
-.listarVenta-date-container {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.listarVenta-date-icon {
-  position: absolute;
-  left: 12px;
-  color: #6b7280;
-  font-size: 14px;
-  z-index: 1;
-}
-
-.listarVenta-date-input {
-  width: 100%;
-  padding: 10px 14px 10px 36px;
-  font-size: 14px;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  background-color: #f8fafc;
-  transition: all 0.2s ease;
-  font-family: inherit;
-}
-
-.listarVenta-date-input:focus {
-  border-color: #3b82f6;
-  background-color: white;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.listarVenta-filter-actions {
-  display: flex;
-  gap: 10px;
-  align-items: end;
-}
-
-.listarVenta-filter-button {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-}
-
-.listarVenta-filter-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
-}
-
-.listarVenta-clear-button {
-  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
-}
-
-.listarVenta-clear-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
 }
 
 /* Tabla */
-.listarVenta-table-container {
+.listarRoles-table-container {
   background-color: white;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -248,13 +157,13 @@
   overflow: hidden;
 }
 
-.listarVenta-table {
+.listarRoles-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
 }
 
-.listarVenta-table th {
+.listarRoles-table th {
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   border: none;
   padding: 16px 12px;
@@ -267,7 +176,7 @@
   z-index: 1;
 }
 
-.listarVenta-table td {
+.listarRoles-table td {
   border: none;
   border-bottom: 1px solid #f1f5f9;
   padding: 16px 12px;
@@ -275,65 +184,110 @@
   color: #1a202c;
 }
 
-.listarVenta-table tr:hover {
+.listarRoles-table tr:hover {
   background-color: #f8fafc;
 }
 
-.listarVenta-table tr:last-child td {
+.listarRoles-table tr:last-child td {
   border-bottom: none;
 }
 
-.listarVenta-cliente {
+.listarRoles-role-info {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.listarVenta-cliente-icon {
-  color: #6b7280;
-}
-
-.listarVenta-total {
+.listarRoles-role-name {
   font-weight: 600;
-  color: #2563eb;
+  color: #1a202c;
 }
 
-/* Estados */
-.listarVenta-estado {
+.listarRoles-role-code {
+  font-size: 12px;
+  color: #6b7280;
+  font-family: "Courier New", monospace;
+}
+
+.listarRoles-descripcion {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.listarRoles-tipo-badge {
   display: inline-block;
   padding: 4px 12px;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  color: #2563eb;
   border-radius: 20px;
+  font-size: 12px;
   font-weight: 600;
+  border: 1px solid #bfdbfe;
+}
+
+.listarRoles-permisos,
+.listarRoles-usuarios {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.listarRoles-permisos-icon,
+.listarRoles-usuarios-icon {
+  color: #6b7280;
   font-size: 12px;
 }
 
-.estado-Pagada {
+/* Estado Toggle */
+.listarRoles-estado-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.listarRoles-estado-toggle.activo {
   background-color: #dcfce7;
   color: #166534;
   border: 1px solid #86efac;
 }
 
-.estado-pendiente {
-  background-color: #fef9c3;
-  color: #854d0e;
-  border: 1px solid #fde047;
-}
-
-.estado-cancelada {
+.listarRoles-estado-toggle.inactivo {
   background-color: #fee2e2;
   color: #991b1b;
   border: 1px solid #fca5a5;
 }
 
+.listarRoles-estado-toggle:hover {
+  transform: scale(1.05);
+}
+
+.listarRoles-toggle-icon {
+  font-size: 14px;
+}
+
+.listarRoles-estado-text {
+  font-size: 11px;
+}
+
 /* Acciones */
-.listarVenta-actions {
+.listarRoles-actions {
   display: flex;
   gap: 8px;
   justify-content: center;
   padding: 8px;
 }
 
-.listarVenta-action-button {
+.listarRoles-action-button {
   width: 32px;
   height: 32px;
   border: none;
@@ -347,33 +301,28 @@
   font-size: 14px;
 }
 
-.listarVenta-action-button:hover {
+.listarRoles-action-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-.listarVenta-action-button.confirmar {
-  background-color: #10b981;
-  color: white;
-}
-
-.listarVenta-action-button.anular {
-  background-color: #ef4444;
-  color: white;
-}
-
-.listarVenta-action-button.detail {
+.listarRoles-action-button.edit {
   background-color: #3b82f6;
   color: white;
 }
 
-.listarVenta-action-button.pdf {
-  background-color: #f97316;
+.listarRoles-action-button.delete {
+  background-color: #ef4444;
+  color: white;
+}
+
+.listarRoles-action-button.detail {
+  background-color: #10b981;
   color: white;
 }
 
 /* Sin resultados */
-.listarVenta-no-results {
+.listarRoles-no-results {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -383,68 +332,19 @@
   text-align: center;
 }
 
-.listarVenta-no-results-icon {
+.listarRoles-no-results-icon {
   font-size: 48px;
   margin-bottom: 16px;
   opacity: 0.5;
 }
 
-.listarVenta-no-results p {
+.listarRoles-no-results p {
   margin: 0;
   font-size: 16px;
 }
 
-/* Error */
-.listarVenta-error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 400px;
-  text-align: center;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e2e8f0;
-}
-
-.listarVenta-error-icon {
-  color: #ef4444;
-  margin-bottom: 16px;
-}
-
-.listarVenta-error h2 {
-  font-size: 24px;
-  color: #1a202c;
-  margin: 0 0 8px 0;
-}
-
-.listarVenta-error p {
-  color: #6b7280;
-  margin: 0 0 24px 0;
-  font-size: 16px;
-}
-
-.listarVenta-retry-button {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-}
-
-.listarVenta-retry-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
-}
-
 /* Paginación */
-.listarVenta-pagination {
+.listarRoles-pagination {
   display: flex;
   justify-content: center;
   gap: 8px;
@@ -453,7 +353,7 @@
   border-top: 2px solid #f1f5f9;
 }
 
-.listarVenta-pagination-button {
+.listarRoles-pagination-button {
   padding: 8px 14px;
   border: 2px solid #e2e8f0;
   background-color: white;
@@ -465,27 +365,27 @@
   color: #374151;
 }
 
-.listarVenta-pagination-button:hover:not(:disabled) {
+.listarRoles-pagination-button:hover:not(:disabled) {
   background-color: #f3f4f6;
   border-color: #d1d5db;
   transform: translateY(-1px);
 }
 
-.listarVenta-pagination-button.active {
+.listarRoles-pagination-button.active {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
   border-color: #2563eb;
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
-.listarVenta-pagination-button:disabled {
+.listarRoles-pagination-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
 }
 
 /* Loading */
-.listarVenta-loading {
+.listarRoles-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -494,7 +394,7 @@
   text-align: center;
 }
 
-.listarVenta-spinner {
+.listarRoles-spinner {
   width: 40px;
   height: 40px;
   border: 4px solid rgba(0, 0, 0, 0.1);
@@ -512,57 +412,48 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .listarVenta-container {
+  .listarRoles-container {
     padding: 16px;
   }
 
-  .listarVenta-header {
+  .listarRoles-header {
     flex-direction: column;
     gap: 16px;
     align-items: stretch;
   }
 
-  .listarVenta-filters-container {
+  .listarRoles-filters-container {
     flex-direction: column;
     gap: 15px;
   }
 
-  .listarVenta-date-filter-group {
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .listarVenta-filter-item {
+  .listarRoles-filter-item {
     min-width: auto;
   }
 
-  .listarVenta-table-container {
+  .listarRoles-table-container {
     overflow-x: auto;
   }
 
-  .listarVenta-table {
-    min-width: 800px;
+  .listarRoles-table {
+    min-width: 900px;
   }
 
-  .listarVenta-pagination {
+  .listarRoles-pagination {
     flex-wrap: wrap;
   }
 }
 
 @media (max-width: 480px) {
-  .listarVenta-page-title {
+  .listarRoles-page-title {
     font-size: 24px;
   }
 
-  .listarVenta-header {
+  .listarRoles-header {
     padding: 16px;
   }
 
-  .listarVenta-filters-container {
-    padding: 16px;
-  }
-
-  .listarVenta-date-filters {
+  .listarRoles-filters-container {
     padding: 16px;
   }
 }

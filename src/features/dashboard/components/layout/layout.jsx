@@ -211,7 +211,7 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
               { label: "Usuarios", link: "/listarUsuarios" },
               { label: "Clientes", link: "/ListarClientes" },
               { label: "Mecánicos", link: "/ListarMecanicos" },
-              { label: "Roles", link: "/Roles" },
+              { label: "Roles", link: "/ListarRoles" },
             ]}
             isOpen={activeDropdown === "configuracion"}
             toggleDropdown={toggleDropdown}

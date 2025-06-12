@@ -305,7 +305,7 @@ function DetalleVenta() {
             <button className="detalleVenta-retry-button" onClick={cargarDatos}>
               Reintentar
             </button>
-            <button className="detalleVenta-back-button" onClick={() => navigate("/ventas")}>
+            <button className="detalleVenta-back-button" onClick={() => navigate("/ListarVentas")}>
               Volver a Ventas
             </button>
           </div>
@@ -335,7 +335,7 @@ function DetalleVenta() {
     <div className="detalleVenta-container">
       <div className="detalleVenta-header">
         <div className="detalleVenta-title-section">
-          <button className="detalleVenta-back-button" onClick={() => navigate("/ventas")}>
+          <button className="detalleVenta-back-button" onClick={() => navigate("/ListarVentas")}>
             <ArrowLeft className="detalleVenta-back-icon" />
             Volver
           </button>

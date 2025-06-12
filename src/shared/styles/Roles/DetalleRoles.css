@@ -1,0 +1,552 @@
+.detalleRol-container {
+  padding: 25px;
+  background-color: #f9fafb;
+  min-height: 100vh;
+  font-family: "Montserrat", sans-serif;
+}
+
+.detalleRol-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+}    
+
+.detalleRol-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.detalleRol-btn-back {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.detalleRol-btn-back:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
+}
+
+.detalleRol-title-section {
+  flex: 1;
+}
+
+.detalleRol-page-title {
+  font-size: 28px;
+  color: #1a202c;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.detalleRol-title-icon {
+  color: #2563eb;
+  font-size: 24px;
+}
+
+.detalleRol-subtitle {
+  color: #6b7280;
+  font-size: 16px;
+  margin: 0;
+}
+
+.detalleRol-header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.detalleRol-btn-edit {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.detalleRol-btn-edit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+}
+
+.detalleRol-section {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.detalleRol-section-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #f1f5f9;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.detalleRol-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detalleRol-section-icon {
+  color: #2563eb;
+  font-size: 16px;
+}
+
+.detalleRol-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 24px;
+}
+
+.detalleRol-info-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 24px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.detalleRol-info-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.detalleRol-info-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.15);
+  border-color: #2563eb;
+}
+
+.detalleRol-info-card:hover::before {
+  opacity: 1;
+}
+
+.detalleRol-info-card-full {
+  grid-column: 1 / -1;
+}
+
+.detalleRol-info-icon {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  flex-shrink: 0;
+}
+
+.detalleRol-info-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detalleRol-info-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 4px;
+  transition: color 0.3s ease;
+}
+
+.detalleRol-info-card:hover .detalleRol-info-label {
+  color: #2563eb;
+}
+
+.detalleRol-info-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a202c;
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+.detalleRol-codigo {
+  font-family: "Courier New", monospace;
+  background-color: #f3f4f6;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.detalleRol-estado {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+}
+
+.detalleRol-estado.activo {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.detalleRol-estado.inactivo {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.detalleRol-tipo-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+}
+
+.detalleRol-tipo-badge.administrativo {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.detalleRol-tipo-badge.operativo {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.detalleRol-tipo-badge.supervisor {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.detalleRol-tipo-badge.cliente {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+.detalleRol-tipo-badge.personalizado {
+  background-color: #f3e8ff;
+  color: #7c2d12;
+}
+
+.detalleRol-tipo-badge.default {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+/* Permisos */
+.detalleRol-permisos-container {
+  padding: 24px;
+}
+
+.detalleRol-categoria-permisos {
+  margin-bottom: 24px;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: #ffffff;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.detalleRol-categoria-permisos:hover {
+  border-color: #2563eb;
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.1);
+}
+
+.detalleRol-categoria-header {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.detalleRol-categoria-permisos:hover .detalleRol-categoria-header {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.detalleRol-categoria-titulo {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detalleRol-categoria-icon {
+  color: #2563eb;
+  font-size: 14px;
+}
+
+.detalleRol-categoria-count {
+  font-size: 12px;
+  color: #6b7280;
+  background-color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  margin-left: auto;
+}
+
+.detalleRol-permisos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+  padding: 20px;
+}
+
+.detalleRol-permiso-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background-color: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.detalleRol-permiso-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.detalleRol-permiso-item:hover {
+  border-color: #2563eb;
+  background-color: #f8fafc;
+  transform: translateX(4px);
+}
+
+.detalleRol-permiso-item:hover::before {
+  opacity: 1;
+}
+
+.detalleRol-permiso-check {
+  width: 16px;
+  height: 16px;
+  background-color: #10b981;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: white;
+  flex-shrink: 0;
+}
+
+.detalleRol-permiso-nombre {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.detalleRol-no-permisos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.detalleRol-no-permisos-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.detalleRol-no-permisos p {
+  margin: 0;
+  font-size: 16px;
+}
+
+/* Loading */
+.detalleRol-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  text-align: center;
+}
+
+.detalleRol-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: #2563eb;
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error */
+.detalleRol-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  text-align: center;
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+  padding: 40px;
+}
+
+.detalleRol-error-icon {
+  font-size: 48px;
+  color: #ef4444;
+  margin-bottom: 16px;
+}
+
+.detalleRol-error h2 {
+  font-size: 24px;
+  color: #1a202c;
+  margin-bottom: 8px;
+}
+
+.detalleRol-error p {
+  color: #6b7280;
+  margin-bottom: 24px;
+  font-size: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .detalleRol-container {
+    padding: 16px;
+  }
+
+  .detalleRol-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .detalleRol-header-left {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .detalleRol-header-actions {
+    justify-content: stretch;
+  }
+
+  .detalleRol-btn-edit,
+  .detalleRol-btn-back {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .detalleRol-info-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .detalleRol-info-card {
+    padding: 16px;
+  }
+
+  .detalleRol-section-header {
+    padding: 16px;
+  }
+
+  .detalleRol-permisos-container {
+    padding: 16px;
+  }
+
+  .detalleRol-permisos-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .detalleRol-page-title {
+    font-size: 24px;
+  }
+
+  .detalleRol-info-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .detalleRol-info-icon {
+    align-self: center;
+  }
+}

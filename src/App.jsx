@@ -82,7 +82,13 @@ import EditarHorario from "./features/dashboard/pages/Horarios/EditarHorario"
 
 // ------------------------------CITAS-----------------------------
 import CitasCalendar from "./features/dashboard/pages/Citas/CitasCalendar"
+// --------------------------------ROLES-------------------------------
+import ListarRoles from "./features/dashboard/pages/Roles/ListarRoles"
+import CrearRoles from "./features/dashboard/pages/Roles/CrearRoles"
+import EditarRol from "./features/dashboard/pages/Roles/EditarRol"
+import DetalleRol from "./features/dashboard/pages/Roles/DetalleRol"
 // ----------------------------------------------------------------------
+// --------------------------------roles--------------------------------------
 
 function App() {
   return (
@@ -565,6 +571,47 @@ function App() {
             <PrivateRoute>
               <Layout>
                 <EditarHorario />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        {/* ROLES */}
+        <Route
+          path="/ListarRoles"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <ListarRoles />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/CrearRoles"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <CrearRoles />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/EditarRol/:id"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <EditarRol />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/DetalleRol/:id"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <DetalleRol />
               </Layout>
             </PrivateRoute>
           }
