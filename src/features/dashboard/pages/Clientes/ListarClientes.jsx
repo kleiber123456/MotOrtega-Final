@@ -1,45 +1,108 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
-import { Edit, Trash2, Power, Plus, Users, Eye } from "lucide-react"
+import {
+  FaEdit,
+  FaTrash,
+  FaEye,
+  FaSearch,
+  FaExclamationTriangle,
+  FaPlus,
+  FaToggleOn,
+  FaToggleOff,
+  FaUsers,
+} from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Clientes/ListarClientes.css"
 
-function ListarClientes() {
-  const navigate = useNavigate()
+// URL base de la API
+const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
+
+// Función para obtener token
+const getValidToken = () => {
   const token = localStorage.getItem("token") || sessionStorage.getItem("token")
+  if (!token) {
+    console.error("No hay token disponible")
+    return null
+  }
+  return token
+}
+
+// Hook personalizado para manejo de API
+const useApi = () => {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  const makeRequest = useCallback(async (url, options = {}) => {
+    setLoading(true)
+    setError(null)
+
+    const token = getValidToken()
+    if (!token) {
+      setError("Error de autenticación")
+      setLoading(false)
+      return null
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}${url}`, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+          ...options.headers,
+        },
+      })
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Sesión expirada. Por favor inicie sesión nuevamente.")
+        }
+        throw new Error(`Error ${response.status}: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      return data
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Error desconocido"
+      setError(errorMessage)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  return { makeRequest, loading, error }
+}
+
+const ListarClientes = () => {
+  const navigate = useNavigate()
+  const { makeRequest, loading: apiLoading } = useApi()
+
   const [clientes, setClientes] = useState([])
-  const [cargando, setCargando] = useState(true)
   const [busqueda, setBusqueda] = useState("")
   const [estadoFiltro, setEstadoFiltro] = useState("")
   const [tipoDocumentoFiltro, setTipoDocumentoFiltro] = useState("")
   const [paginaActual, setPaginaActual] = useState(1)
   const [clientesPorPagina] = useState(4)
+  const [cargando, setCargando] = useState(true)
 
   useEffect(() => {
-    document.body.style.backgroundColor = "#2d3748"
+    document.body.style.backgroundColor = "#f9fafb"
     cargarClientes()
     return () => {
       document.body.style.background = ""
     }
-  }, [token])
+  }, [])
 
   const cargarClientes = async () => {
     try {
       setCargando(true)
-
-      const response = await fetch("https://api-final-8rw7.onrender.com/api/clientes", {
-        method: "GET",
-        headers: {
-          Authorization: token,
-        },
-      })
-
-      if (!response.ok) throw new Error("Error al cargar los clientes")
-
-      const data = await response.json()
-      setClientes(data)
+      const data = await makeRequest("/clientes")
+      if (data) {
+        setClientes(data)
+      }
     } catch (error) {
       console.error("Error al cargar clientes:", error)
       Swal.fire("Error", "No se pudieron cargar los clientes", "error")
@@ -48,102 +111,94 @@ function ListarClientes() {
     }
   }
 
-  const handleSearch = (e) => {
-    setBusqueda(e.target.value.toLowerCase())
-    setPaginaActual(1)
-  }
+  const eliminarCliente = useCallback(
+    async (id, nombreCliente) => {
+      if (!id) {
+        Swal.fire("Error", "ID de cliente inválido", "error")
+        return
+      }
 
-  // Función para editar cliente
-  const handleEditarCliente = (clienteId) => {
-    navigate(`/EditarCliente/${clienteId}`)
-  }
-
-  // Función para ver detalle del cliente
-  const handleVerDetalle = (clienteId) => {
-    navigate(`/DetalleCliente/${clienteId}`)
-  }
-
-  // Función para eliminar cliente
-  const handleEliminarCliente = async (clienteId, nombreCliente) => {
-    try {
-      const { isConfirmed } = await Swal.fire({
-        title: "Eliminar Cliente",
-        text: `¿Está seguro de que desea eliminar al cliente "${nombreCliente}"? Esta acción no se puede deshacer.`,
+      const result = await Swal.fire({
+        title: "¿Eliminar cliente?",
+        text: `Esta acción eliminará al cliente "${nombreCliente}" permanentemente y no se puede deshacer.`,
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#ef4444",
-        cancelButtonColor: "#d33",
+        cancelButtonColor: "#6b7280",
         confirmButtonText: "Sí, eliminar",
         cancelButtonText: "Cancelar",
       })
 
-      if (!isConfirmed) return
+      if (!result.isConfirmed) return
 
-      const response = await fetch(`https://api-final-8rw7.onrender.com/api/clientes/${clienteId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: token,
-        },
-      })
+      try {
+        await makeRequest(`/clientes/${id}`, {
+          method: "DELETE",
+        })
 
-      if (!response.ok) {
-        throw new Error("Error al eliminar el cliente")
+        setClientes((prev) => prev.filter((cliente) => cliente.id !== id))
+
+        Swal.fire({
+          icon: "success",
+          title: "Cliente eliminado",
+          text: "El cliente ha sido eliminado correctamente",
+          timer: 2000,
+          showConfirmButton: false,
+        })
+      } catch (error) {
+        console.error("Error al eliminar cliente:", error)
+        Swal.fire("Error", "No se pudo eliminar el cliente", "error")
       }
+    },
+    [makeRequest],
+  )
 
-      // Actualizar la lista de clientes
-      setClientes(clientes.filter((cliente) => cliente.id !== clienteId))
+  const cambiarEstado = useCallback(
+    async (id, estadoActual, nombreCliente) => {
+      try {
+        const nuevoEstado = estadoActual?.toLowerCase() === "activo" ? "Inactivo" : "Activo"
 
-      Swal.fire("¡Éxito!", "El cliente ha sido eliminado exitosamente", "success")
-    } catch (error) {
-      console.error("Error al eliminar cliente:", error)
-      Swal.fire("Error", "No se pudo eliminar el cliente", "error")
-    }
-  }
+        const result = await Swal.fire({
+          title: `¿Cambiar estado a ${nuevoEstado}?`,
+          text: `El cliente "${nombreCliente}" será marcado como ${nuevoEstado.toLowerCase()}`,
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonColor: "#2563eb",
+          cancelButtonColor: "#6b7280",
+          confirmButtonText: "Sí, cambiar",
+          cancelButtonText: "Cancelar",
+        })
 
-  // Función para cambiar estado del cliente
-  const handleCambiarEstado = async (clienteId, estadoActual, nombreCliente) => {
-    try {
-      const nuevoEstado = estadoActual === "Activo" ? "Inactivo" : "Activo"
-      const accion = nuevoEstado === "Activo" ? "activar" : "desactivar"
+        if (!result.isConfirmed) return
 
-      const { isConfirmed } = await Swal.fire({
-        title: `${accion.charAt(0).toUpperCase() + accion.slice(1)} Cliente`,
-        text: `¿Está seguro de que desea ${accion} al cliente "${nombreCliente}"?`,
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonColor: nuevoEstado === "Activo" ? "#10b981" : "#f59e0b",
-        cancelButtonColor: "#d33",
-        confirmButtonText: `Sí, ${accion}`,
-        cancelButtonText: "Cancelar",
-      })
+        await makeRequest(`/clientes/${id}/cambiar-estado`, {
+          method: "PUT",
+          body: JSON.stringify({ estado: nuevoEstado }),
+        })
 
-      if (!isConfirmed) return
+        setClientes((prev) => prev.map((c) => (c.id === id ? { ...c, estado: nuevoEstado } : c)))
 
-      // Usar el endpoint correcto
-      const response = await fetch(`https://api-final-8rw7.onrender.com/api/clientes/${clienteId}/cambiar-estado`, {
-        method: "PUT",
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ estado: nuevoEstado }),
-      })
-
-      if (!response.ok) {
-        throw new Error("Error al cambiar el estado del cliente")
+        Swal.fire({
+          icon: "success",
+          title: "Estado actualizado",
+          text: `El cliente ahora está ${nuevoEstado.toLowerCase()}`,
+          timer: 2000,
+          showConfirmButton: false,
+        })
+      } catch (error) {
+        console.error("Error al cambiar estado:", error)
+        Swal.fire("Error", "No se pudo cambiar el estado del cliente", "error")
       }
+    },
+    [makeRequest],
+  )
 
-      // Actualizar la lista de clientes
-      setClientes(clientes.map((cliente) => (cliente.id === clienteId ? { ...cliente, estado: nuevoEstado } : cliente)))
+  const handleSearch = useCallback((e) => {
+    setBusqueda(e.target.value.toLowerCase())
+    setPaginaActual(1)
+  }, [])
 
-      Swal.fire("¡Éxito!", `El cliente ha sido ${accion}do exitosamente`, "success")
-    } catch (error) {
-      console.error("Error al cambiar estado:", error)
-      Swal.fire("Error", "No se pudo cambiar el estado del cliente", "error")
-    }
-  }
-
-  // Filtrar clientes por búsqueda, estado y tipo de documento
+  // Filtrar clientes
   const clientesFiltrados = clientes.filter((cliente) => {
     const nombreCompleto = `${cliente.nombre || ""} ${cliente.apellido || ""}`.toLowerCase()
     const matchNombre = nombreCompleto.includes(busqueda)
@@ -164,21 +219,12 @@ function ListarClientes() {
   const clientesActuales = clientesFiltrados.slice(indicePrimerCliente, indiceUltimoCliente)
   const totalPaginas = Math.ceil(clientesFiltrados.length / clientesPorPagina)
 
-  // Función para obtener la clase de color según el estado
-  const getEstadoClass = (estado) => {
-    switch (estado) {
-      case "Activo":
-        return "estado-activo"
-      case "Inactivo":
-        return "estado-inactivo"
-      default:
-        return ""
-    }
-  }
+  // Obtener tipos de documento únicos para el filtro
+  const tiposDocumentoUnicos = [...new Set(clientes.map((c) => c.tipo_documento).filter(Boolean))]
 
   if (cargando) {
     return (
-      <div className="listarClientes-contenedor">
+      <div className="listarClientes-container">
         <div className="listarClientes-loading">
           <div className="listarClientes-spinner"></div>
           <p>Cargando clientes...</p>
@@ -188,65 +234,82 @@ function ListarClientes() {
   }
 
   return (
-    <div className="listarClientes-contenedor">
+    <div className="listarClientes-container">
       <div className="listarClientes-header">
-        <h2 className="listarClientes-titulo">
-          <Users className="listarClientes-titulo-icon" />
-          Listado de Clientes
-        </h2>
-        <button className="listarClientes-boton-crear" onClick={() => navigate("/CrearClientes")}>
-          <Plus size={18} />
+        <div className="listarClientes-title-section">
+          <h1 className="listarClientes-page-title">
+            <FaUsers className="listarClientes-title-icon" />
+            Gestión de Clientes
+          </h1>
+          <p className="listarClientes-subtitle">Administra los clientes del sistema</p>
+        </div>
+        <button className="listarClientes-create-button" onClick={() => navigate("/CrearClientes")}>
+          <FaPlus className="listarClientes-button-icon" />
           Crear Cliente
         </button>
       </div>
 
-      {/* Filtros organizados horizontalmente */}
-      <div className="listarClientes-filtros-container-horizontal">
-        <div className="listarClientes-filtro-item">
-          <label className="listarClientes-filtro-label">Buscar:</label>
-          <input
-            type="text"
-            className="listarClientes-input listarClientes-filtro-input"
-            placeholder="Buscar por nombre, documento, correo o teléfono..."
-            value={busqueda}
-            onChange={handleSearch}
-          />
+      {/* Filtros */}
+      <div className="listarClientes-filters-container">
+        <div className="listarClientes-filter-item">
+          <label className="listarClientes-filter-label">Buscar:</label>
+          <div className="listarClientes-search-container">
+            <FaSearch className="listarClientes-search-icon" />
+            <input
+              type="text"
+              className="listarClientes-search-input"
+              placeholder="Buscar por cualquier campo..."
+              value={busqueda}
+              onChange={handleSearch}
+            />
+          </div>
         </div>
 
-        <div className="listarClientes-filtro-item">
-          <label className="listarClientes-filtro-label">Tipo de Documento:</label>
-          <select
-            value={tipoDocumentoFiltro}
-            onChange={(e) => setTipoDocumentoFiltro(e.target.value)}
-            className="listarClientes-input listarClientes-filtro-select"
-          >
-            <option value="">Todos los tipos</option>
-            <option value="Cédula de ciudadanía">Cédula de ciudadanía</option>
-            <option value="Tarjeta de identidad">Tarjeta de identidad</option>
-          </select>
-        </div>
-
-        <div className="listarClientes-filtro-item">
-          <label className="listarClientes-filtro-label">Estado:</label>
+        <div className="listarClientes-filter-item">
+          <label className="listarClientes-filter-label">Estado:</label>
           <select
             value={estadoFiltro}
-            onChange={(e) => setEstadoFiltro(e.target.value)}
-            className="listarClientes-input listarClientes-filtro-select"
+            onChange={(e) => {
+              setEstadoFiltro(e.target.value)
+              setPaginaActual(1)
+            }}
+            className="listarClientes-filter-select"
           >
             <option value="">Todos los estados</option>
             <option value="Activo">Activo</option>
             <option value="Inactivo">Inactivo</option>
           </select>
         </div>
+
+        <div className="listarClientes-filter-item">
+          <label className="listarClientes-filter-label">Tipo de Documento:</label>
+          <select
+            value={tipoDocumentoFiltro}
+            onChange={(e) => {
+              setTipoDocumentoFiltro(e.target.value)
+              setPaginaActual(1)
+            }}
+            className="listarClientes-filter-select"
+          >
+            <option value="">Todos los tipos</option>
+            {tiposDocumentoUnicos.map((tipo) => (
+              <option key={tipo} value={tipo}>
+                {tipo}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      <div className="listarClientes-tabla-container" style={{ overflowX: "auto" }}>
-        <table className="listarClientes-tabla">
+      {/* Tabla */}
+      <div className="listarClientes-table-container">
+        <table className="listarClientes-table">
           <thead>
             <tr>
-              <th>Cliente</th>
+              <th>Nombre Completo</th>
               <th>Documento</th>
-              <th>Contacto</th>
+              <th>Correo</th>
+              <th>Teléfono</th>
               <th>Dirección</th>
               <th>Estado</th>
               <th>Acciones</th>
@@ -256,74 +319,58 @@ function ListarClientes() {
             {clientesActuales.map((cliente) => (
               <tr key={cliente.id}>
                 <td>
-                  <div className="listarClientes-cliente-info">
-                    <span className="listarClientes-cliente-nombre">
+                  <div className="listarClientes-user-info">
+                    <span className="listarClientes-user-name">
                       {`${cliente.nombre || ""} ${cliente.apellido || ""}`.trim() || "Sin nombre"}
                     </span>
-                    <span className="listarClientes-cliente-documento">ID: {cliente.id}</span>
+                    <span className="listarClientes-user-doc-type">{cliente.tipo_documento}</span>
                   </div>
                 </td>
-                <td>
-                  <div className="listarClientes-cliente-info">
-                    <span className="listarClientes-tipo-documento">
-                      {cliente.tipo_documento === "Cédula de ciudadanía" ? "C.C." : "T.I."}
-                    </span>
-                    <span>{cliente.documento || "Sin documento"}</span>
-                  </div>
-                </td>
-                <td>
-                  <div className="listarClientes-contacto">
-                    <span className="listarClientes-contacto-item">📧 {cliente.correo || "Sin correo"}</span>
-                    <span className="listarClientes-contacto-item">📞 {cliente.telefono || "Sin teléfono"}</span>
-                  </div>
-                </td>
+                <td>{cliente.documento || "Sin documento"}</td>
+                <td>{cliente.correo || "Sin correo"}</td>
+                <td>{cliente.telefono || "Sin teléfono"}</td>
                 <td>
                   <div className="listarClientes-direccion" title={cliente.direccion || "Sin dirección"}>
                     {cliente.direccion || "Sin dirección"}
                   </div>
                 </td>
                 <td>
-                  <span className={`listarClientes-estado ${getEstadoClass(cliente.estado)}`}>
-                    {cliente.estado || "Sin estado"}
-                  </span>
-                </td>
-                <td className="listarClientes-acciones">
-                  {/* Botón Ver Detalle */}
                   <button
-                    className="listarClientes-icon-button detalle"
-                    onClick={() => handleVerDetalle(cliente.id)}
-                    title="Ver detalle"
+                    className={`listarClientes-estado-toggle ${
+                      cliente.estado?.toLowerCase() === "activo" ? "activo" : "inactivo"
+                    }`}
+                    onClick={() => cambiarEstado(cliente.id, cliente.estado, `${cliente.nombre} ${cliente.apellido}`)}
+                    title={`Estado: ${cliente.estado} - Click para cambiar`}
                   >
-                    <Eye size={18} />
+                    {cliente.estado?.toLowerCase() === "activo" ? (
+                      <FaToggleOn className="listarClientes-toggle-icon" />
+                    ) : (
+                      <FaToggleOff className="listarClientes-toggle-icon" />
+                    )}
+                    <span className="listarClientes-estado-text">{cliente.estado}</span>
                   </button>
-
-                  {/* Botón Editar */}
+                </td>
+                <td className="listarClientes-actions">
                   <button
-                    className="listarClientes-icon-button editar"
-                    onClick={() => handleEditarCliente(cliente.id)}
+                    className="listarClientes-action-button edit"
+                    onClick={() => navigate(`/EditarCliente/${cliente.id}`)}
                     title="Editar cliente"
                   >
-                    <Edit size={18} />
+                    <FaEdit />
                   </button>
-
-                  {/* Botón Cambiar Estado */}
                   <button
-                    className="listarClientes-icon-button cambiar-estado"
-                    onClick={() =>
-                      handleCambiarEstado(cliente.id, cliente.estado, `${cliente.nombre} ${cliente.apellido}`)
-                    }
-                    title={cliente.estado === "Activo" ? "Desactivar cliente" : "Activar cliente"}
-                  >
-                    <Power size={18} />
-                  </button>
-
-                  {/* Botón Eliminar */}
-                  <button
-                    className="listarClientes-icon-button eliminar"
-                    onClick={() => handleEliminarCliente(cliente.id, `${cliente.nombre} ${cliente.apellido}`)}
+                    className="listarClientes-action-button delete"
+                    onClick={() => eliminarCliente(cliente.id, `${cliente.nombre} ${cliente.apellido}`)}
                     title="Eliminar cliente"
                   >
-                    <Trash2 size={18} />
+                    <FaTrash />
+                  </button>
+                  <button
+                    className="listarClientes-action-button detail"
+                    onClick={() => navigate(`/DetalleCliente/${cliente.id}`)}
+                    title="Ver detalle"
+                  >
+                    <FaEye />
                   </button>
                 </td>
               </tr>
@@ -332,15 +379,19 @@ function ListarClientes() {
         </table>
 
         {clientesFiltrados.length === 0 && (
-          <p className="listarClientes-sin-resultados">No se encontraron clientes con los criterios de búsqueda.</p>
+          <div className="listarClientes-no-results">
+            <FaExclamationTriangle className="listarClientes-no-results-icon" />
+            <p>No se encontraron clientes con los criterios de búsqueda.</p>
+          </div>
         )}
 
+        {/* Paginación */}
         {clientesFiltrados.length > clientesPorPagina && (
-          <div className="listarClientes-paginacion">
+          <div className="listarClientes-pagination">
             <button
-              onClick={() => setPaginaActual((prev) => prev - 1)}
+              onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
               disabled={paginaActual === 1}
-              className="listarClientes-boton-paginacion"
+              className="listarClientes-pagination-button"
             >
               Anterior
             </button>
@@ -349,16 +400,16 @@ function ListarClientes() {
               <button
                 key={i + 1}
                 onClick={() => setPaginaActual(i + 1)}
-                className={`listarClientes-boton-paginacion ${paginaActual === i + 1 ? "active" : ""}`}
+                className={`listarClientes-pagination-button ${paginaActual === i + 1 ? "active" : ""}`}
               >
                 {i + 1}
               </button>
             ))}
 
             <button
-              onClick={() => setPaginaActual((prev) => prev + 1)}
+              onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
               disabled={paginaActual === totalPaginas}
-              className="listarClientes-boton-paginacion"
+              className="listarClientes-pagination-button"
             >
               Siguiente
             </button>

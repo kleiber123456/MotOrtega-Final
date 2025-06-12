@@ -1,7 +1,22 @@
 "use client"
 
-import { useState } from "react"
-import { Save, X, Users, User, Mail, Phone, MapPin, FileText, CreditCard, ToggleLeft } from "lucide-react"
+import { useState, useCallback } from "react"
+import { useNavigate } from "react-router-dom"
+import {
+  FaUser,
+  FaIdCard,
+  FaEnvelope,
+  FaPhone,
+  FaMapMarkerAlt,
+  FaUserTag,
+  FaEye,
+  FaEyeSlash,
+  FaTimes,
+  FaSpinner,
+  FaExclamationTriangle,
+  FaSave,
+  FaUsers,
+} from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Clientes/CrearClientes.css"
 
@@ -18,7 +33,57 @@ const getValidToken = () => {
   return token
 }
 
+// Hook personalizado para manejo de API
+const useApi = () => {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  const makeRequest = useCallback(async (url, options = {}) => {
+    setLoading(true)
+    setError(null)
+
+    const token = getValidToken()
+    if (!token) {
+      setError("Error de autenticación")
+      setLoading(false)
+      return null
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}${url}`, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+          ...options.headers,
+        },
+      })
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Sesión expirada. Por favor inicie sesión nuevamente.")
+        }
+        throw new Error(`Error ${response.status}: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      return data
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Error desconocido"
+      setError(errorMessage)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  return { makeRequest, loading, error }
+}
+
 const CrearCliente = () => {
+  const navigate = useNavigate()
+  const { makeRequest, loading: apiLoading } = useApi()
+
   const [formData, setFormData] = useState({
     nombre: "",
     apellido: "",
@@ -28,186 +93,284 @@ const CrearCliente = () => {
     correo: "",
     telefono: "",
     estado: "Activo",
+    password: "",
   })
-  const [cargando, setCargando] = useState(false)
+
   const [errores, setErrores] = useState({})
+  const [showPassword, setShowPassword] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Validar formulario con validaciones mejoradas
-  const validarFormulario = () => {
-    const nuevosErrores = {}
+  // Validar campo individual
+  const validarCampo = useCallback((name, value) => {
+    let nuevoError = ""
 
-    // Validar nombre - solo letras y espacios
-    if (!formData.nombre.trim()) {
-      nuevosErrores.nombre = "El nombre es obligatorio"
-    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(formData.nombre.trim())) {
-      nuevosErrores.nombre = "El nombre solo puede contener letras y espacios"
+    switch (name) {
+      case "nombre":
+        if (!value.trim()) {
+          nuevoError = "El nombre es obligatorio."
+        } else if (value.trim().length < 3) {
+          nuevoError = "El nombre debe tener al menos 3 caracteres."
+        } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value.trim())) {
+          nuevoError = "El nombre solo puede contener letras y espacios."
+        }
+        break
+      case "apellido":
+        if (!value.trim()) {
+          nuevoError = "El apellido es obligatorio."
+        } else if (value.trim().length < 3) {
+          nuevoError = "El apellido debe tener al menos 3 caracteres."
+        } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value.trim())) {
+          nuevoError = "El apellido solo puede contener letras y espacios."
+        }
+        break
+      case "documento":
+        if (!value.trim()) {
+          nuevoError = "El documento es obligatorio."
+        } else if (!/^\d+$/.test(value.trim())) {
+          nuevoError = "El documento solo puede contener números."
+        }
+        break
+      case "correo":
+        if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          nuevoError = "Ingresa un correo electrónico válido."
+        }
+        break
+      case "telefono":
+        if (value) {
+          const telefonoLimpio = value.replace(/\s/g, "")
+          if (!/^\d+$/.test(telefonoLimpio)) {
+            nuevoError = "El teléfono solo puede contener números."
+          } else if (telefonoLimpio.length < 7 || telefonoLimpio.length > 15) {
+            nuevoError = "El teléfono debe tener entre 7 y 15 dígitos."
+          }
+        }
+        break
+      case "direccion":
+        if (!value.trim()) {
+          nuevoError = "La dirección es obligatoria."
+        } else if (value.trim().length < 5) {
+          nuevoError = "La dirección debe tener al menos 5 caracteres."
+        }
+        break
+      case "password":
+        if (!value) {
+          nuevoError = "La contraseña es obligatoria."
+        } else {
+          const errores = []
+          if (value.length < 8) {
+            errores.push("al menos 8 caracteres")
+          }
+          if (!/[A-Z]/.test(value)) {
+            errores.push("una letra mayúscula")
+          }
+          if (!/[0-9]/.test(value)) {
+            errores.push("un número")
+          }
+
+          if (errores.length > 0) {
+            nuevoError = "La contraseña debe contener: " + errores.join(", ") + "."
+          }
+        }
+        break
     }
 
-    // Validar apellido - solo letras y espacios
-    if (!formData.apellido.trim()) {
-      nuevosErrores.apellido = "El apellido es obligatorio"
-    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(formData.apellido.trim())) {
-      nuevosErrores.apellido = "El apellido solo puede contener letras y espacios"
-    }
-
-    // Validar documento - solo números
-    if (!formData.documento.trim()) {
-      nuevosErrores.documento = "El documento es obligatorio"
-    } else if (!/^\d+$/.test(formData.documento.trim())) {
-      nuevosErrores.documento = "El documento solo puede contener números"
-    }
-
-    // Validar correo si se proporciona
-    if (formData.correo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.correo)) {
-      nuevosErrores.correo = "El formato del correo no es válido"
-    }
-
-    // Validar teléfono - solo números y espacios, entre 7 y 15 dígitos
-    if (formData.telefono) {
-      const telefonoLimpio = formData.telefono.replace(/\s/g, "")
-      if (!/^\d+$/.test(telefonoLimpio)) {
-        nuevosErrores.telefono = "El teléfono solo puede contener números"
-      } else if (telefonoLimpio.length < 7 || telefonoLimpio.length > 15) {
-        nuevosErrores.telefono = "El teléfono debe tener entre 7 y 15 dígitos"
-      }
-    }
-
-    setErrores(nuevosErrores)
-    return Object.keys(nuevosErrores).length === 0
-  }
+    setErrores((prev) => ({ ...prev, [name]: nuevoError }))
+  }, [])
 
   // Manejadores específicos para validación en tiempo real
-  const handleNombreChange = (e) => {
-    const value = e.target.value
-    // Permitir solo letras, espacios y caracteres acentuados
-    const filteredValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")
-    setFormData((prev) => ({ ...prev, nombre: filteredValue }))
+  const handleNombreChange = useCallback(
+    (e) => {
+      const value = e.target.value
+      // Permitir solo letras, espacios y caracteres acentuados
+      const filteredValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")
+      setFormData((prev) => ({ ...prev, nombre: filteredValue }))
+      validarCampo("nombre", filteredValue)
+    },
+    [validarCampo],
+  )
 
-    if (errores.nombre) {
-      setErrores((prev) => ({ ...prev, nombre: "" }))
-    }
-  }
+  const handleApellidoChange = useCallback(
+    (e) => {
+      const value = e.target.value
+      // Permitir solo letras, espacios y caracteres acentuados
+      const filteredValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")
+      setFormData((prev) => ({ ...prev, apellido: filteredValue }))
+      validarCampo("apellido", filteredValue)
+    },
+    [validarCampo],
+  )
 
-  const handleApellidoChange = (e) => {
-    const value = e.target.value
-    // Permitir solo letras, espacios y caracteres acentuados
-    const filteredValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")
-    setFormData((prev) => ({ ...prev, apellido: filteredValue }))
+  const handleDocumentoChange = useCallback(
+    (e) => {
+      const value = e.target.value
+      // Permitir solo números
+      const filteredValue = value.replace(/[^\d]/g, "")
+      setFormData((prev) => ({ ...prev, documento: filteredValue }))
+      validarCampo("documento", filteredValue)
+    },
+    [validarCampo],
+  )
 
-    if (errores.apellido) {
-      setErrores((prev) => ({ ...prev, apellido: "" }))
-    }
-  }
-
-  const handleDocumentoChange = (e) => {
-    const value = e.target.value
-    // Permitir solo números
-    const filteredValue = value.replace(/[^\d]/g, "")
-    setFormData((prev) => ({ ...prev, documento: filteredValue }))
-
-    if (errores.documento) {
-      setErrores((prev) => ({ ...prev, documento: "" }))
-    }
-  }
-
-  const handleTelefonoChange = (e) => {
-    const value = e.target.value
-    // Permitir solo números y espacios
-    const filteredValue = value.replace(/[^\d\s]/g, "")
-    setFormData((prev) => ({ ...prev, telefono: filteredValue }))
-
-    if (errores.telefono) {
-      setErrores((prev) => ({ ...prev, telefono: "" }))
-    }
-  }
+  const handleTelefonoChange = useCallback(
+    (e) => {
+      const value = e.target.value
+      // Permitir solo números y espacios
+      const filteredValue = value.replace(/[^\d\s]/g, "")
+      setFormData((prev) => ({ ...prev, telefono: filteredValue }))
+      validarCampo("telefono", filteredValue)
+    },
+    [validarCampo],
+  )
 
   // Manejador para cambios generales en el formulario
-  const handleInputChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
-
-    // Limpiar error del campo cuando el usuario empiece a escribir
-    if (errores[name]) {
-      setErrores((prev) => ({
+  const handleInputChange = useCallback(
+    (e) => {
+      const { name, value } = e.target
+      setFormData((prev) => ({
         ...prev,
-        [name]: "",
+        [name]: value,
       }))
+
+      validarCampo(name, value)
+    },
+    [validarCampo],
+  )
+
+  // Función para permitir solo números
+  const soloNumeros = useCallback((e) => {
+    e.target.value = e.target.value.replace(/[^0-9]/g, "")
+  }, [])
+
+  // Función para permitir solo letras
+  const soloLetras = useCallback((e) => {
+    e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, "")
+  }, [])
+
+  // Validar formulario completo
+  const validarFormulario = useCallback(() => {
+    let hayErrores = false
+    const nuevosErrores = {}
+
+    // Validar todos los campos requeridos
+    if (!formData.nombre.trim()) {
+      nuevosErrores.nombre = "El nombre es obligatorio."
+      hayErrores = true
     }
-  }
+    if (!formData.apellido.trim()) {
+      nuevosErrores.apellido = "El apellido es obligatorio."
+      hayErrores = true
+    }
+    if (!formData.documento.trim()) {
+      nuevosErrores.documento = "El documento es obligatorio."
+      hayErrores = true
+    }
+    if (!formData.direccion.trim()) {
+      nuevosErrores.direccion = "La dirección es obligatoria."
+      hayErrores = true
+    }
+    if (!formData.password) {
+      nuevosErrores.password = "La contraseña es obligatoria."
+      hayErrores = true
+    }
+
+    // Actualizar errores
+    setErrores(nuevosErrores)
+
+    return !hayErrores
+  }, [formData])
 
   // Manejador para enviar el formulario
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault()
 
-    if (!validarFormulario()) {
-      Swal.fire("Error", "Por favor corrija los errores en el formulario", "error")
-      return
-    }
-
-    // Validar token antes de hacer la petición
-    const token = getValidToken()
-    if (!token) {
-      Swal.fire("Error", "Error de autenticación. Por favor inicie sesión nuevamente.", "error")
-      return
-    }
-
-    try {
-      setCargando(true)
-
-      const clienteData = {
-        nombre: formData.nombre.trim(),
-        apellido: formData.apellido.trim(),
-        direccion: formData.direccion.trim() || null,
-        tipo_documento: formData.tipo_documento,
-        documento: formData.documento.trim(),
-        correo: formData.correo.trim() || null,
-        telefono: formData.telefono.trim() || null,
-        estado: formData.estado,
+      if (!validarFormulario()) {
+        await Swal.fire({
+          icon: "warning",
+          title: "Campos inválidos",
+          text: "Por favor corrige los errores antes de continuar.",
+          confirmButtonColor: "#2563eb",
+        })
+        return
       }
 
-      const response = await fetch(`${API_BASE_URL}/clientes`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-        body: JSON.stringify(clienteData),
-      })
+      setIsSubmitting(true)
 
-      if (response.ok) {
-        const result = await response.json()
-        await Swal.fire("¡Éxito!", "El cliente ha sido creado exitosamente", "success")
+      try {
+        const clienteData = {
+          nombre: formData.nombre.trim(),
+          apellido: formData.apellido.trim(),
+          direccion: formData.direccion.trim() || null,
+          tipo_documento: formData.tipo_documento,
+          documento: formData.documento.trim(),
+          correo: formData.correo.trim() || null,
+          telefono: formData.telefono.trim() || null,
+          estado: formData.estado,
+          password: formData.password,
+        }
+
+        await makeRequest("/clientes", {
+          method: "POST",
+          body: JSON.stringify(clienteData),
+        })
+
+        await Swal.fire({
+          icon: "success",
+          title: "¡Éxito!",
+          text: "El cliente ha sido creado exitosamente",
+          confirmButtonColor: "#10b981",
+          timer: 2000,
+        })
 
         // Redirigir al listado de clientes
-        window.location.href = "/ListarClientes"
-      } else if (response.status === 401) {
-        Swal.fire("Error", "Error de autenticación. Por favor inicie sesión nuevamente.", "error")
-      } else {
-        const error = await response.json()
-        Swal.fire("Error", `Error al crear el cliente: ${error.message || "Error desconocido"}`, "error")
+        navigate("/ListarClientes")
+      } catch (error) {
+        console.error("Error:", error)
+        await Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: error instanceof Error ? error.message : "Error al crear el cliente",
+          confirmButtonColor: "#ef4444",
+        })
+      } finally {
+        setIsSubmitting(false)
       }
-    } catch (error) {
-      console.error("Error:", error)
-      Swal.fire("Error", "Error de conexión al crear el cliente", "error")
-    } finally {
-      setCargando(false)
-    }
-  }
+    },
+    [formData, validarFormulario, makeRequest, navigate],
+  )
 
   // Manejador para cancelar
-  const handleCancel = () => {
-    window.location.href = "/ListarClientes"
-  }
+  const handleCancel = useCallback(async () => {
+    const hasData = Object.values(formData).some(
+      (value) => value !== "" && value !== "Cédula de ciudadanía" && value !== "Activo",
+    )
 
-  if (cargando) {
+    if (hasData) {
+      const result = await Swal.fire({
+        title: "¿Cancelar creación?",
+        text: "Se perderán todos los datos ingresados",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#ef4444",
+        cancelButtonColor: "#6b7280",
+        confirmButtonText: "Sí, cancelar",
+        cancelButtonText: "Continuar editando",
+      })
+
+      if (result.isConfirmed) {
+        navigate("/ListarClientes")
+      }
+    } else {
+      navigate("/ListarClientes")
+    }
+  }, [formData, navigate])
+
+  if (apiLoading) {
     return (
       <div className="crearCliente-container">
         <div className="crearCliente-loading">
           <div className="crearCliente-spinner"></div>
-          <p>Creando cliente...</p>
+          <p>Cargando...</p>
         </div>
       </div>
     )
@@ -217,7 +380,7 @@ const CrearCliente = () => {
     <div className="crearCliente-container">
       <div className="crearCliente-header">
         <h1 className="crearCliente-page-title">
-          <Users className="crearCliente-title-icon" />
+          <FaUsers className="crearCliente-title-icon" />
           Crear Nuevo Cliente
         </h1>
         <p className="crearCliente-subtitle">Registra un nuevo cliente en el sistema</p>
@@ -227,86 +390,77 @@ const CrearCliente = () => {
         {/* Información personal */}
         <div className="crearCliente-form-section">
           <h3 className="crearCliente-section-title">
-            <User className="crearCliente-section-icon" />
+            <FaUser className="crearCliente-section-icon" />
             Información Personal
           </h3>
-
-          <div className="crearCliente-info-card">
-            <h4 className="crearCliente-info-title">
-              <Users size={14} />
-              Información importante
-            </h4>
-            <p className="crearCliente-info-text">
-              Complete la información personal del cliente. Los campos marcados con (*) son obligatorios. Solo se
-              permiten letras en nombres y apellidos, y números en documentos y teléfonos.
-            </p>
-          </div>
 
           <div className="crearCliente-form-grid">
             <div className="crearCliente-form-group">
               <label htmlFor="nombre" className="crearCliente-label">
-                <User className="crearCliente-label-icon" />
+                <FaUser className="crearCliente-label-icon" />
                 Nombre *
               </label>
               <input
                 type="text"
                 id="nombre"
                 name="nombre"
-                className={`crearCliente-form-input ${errores.nombre ? "error" : ""} ${formData.nombre && !errores.nombre ? "valid" : ""}`}
+                className={`crearCliente-form-input ${errores.nombre ? "error" : ""}`}
                 placeholder="Ej: Juan Carlos"
                 value={formData.nombre}
                 onChange={handleNombreChange}
+                onInput={soloLetras}
+                maxLength={30}
+                autoComplete="off"
                 required
               />
-              {errores.nombre && <span className="crearCliente-error-message">{errores.nombre}</span>}
-              {!errores.nombre && <span className="crearCliente-help-text">Solo letras y espacios</span>}
+              {errores.nombre && (
+                <span className="crearCliente-error-text">
+                  <FaExclamationTriangle /> {errores.nombre}
+                </span>
+              )}
             </div>
 
             <div className="crearCliente-form-group">
               <label htmlFor="apellido" className="crearCliente-label">
-                <User className="crearCliente-label-icon" />
+                <FaUser className="crearCliente-label-icon" />
                 Apellido *
               </label>
               <input
                 type="text"
                 id="apellido"
                 name="apellido"
-                className={`crearCliente-form-input ${errores.apellido ? "error" : ""} ${formData.apellido && !errores.apellido ? "valid" : ""}`}
+                className={`crearCliente-form-input ${errores.apellido ? "error" : ""}`}
                 placeholder="Ej: Pérez García"
                 value={formData.apellido}
                 onChange={handleApellidoChange}
+                onInput={soloLetras}
+                maxLength={35}
+                autoComplete="off"
                 required
               />
-              {errores.apellido && <span className="crearCliente-error-message">{errores.apellido}</span>}
-              {!errores.apellido && <span className="crearCliente-help-text">Solo letras y espacios</span>}
+              {errores.apellido && (
+                <span className="crearCliente-error-text">
+                  <FaExclamationTriangle /> {errores.apellido}
+                </span>
+              )}
             </div>
-          </div>
-        </div>
 
-        {/* Información de identificación */}
-        <div className="crearCliente-form-section">
-          <h3 className="crearCliente-section-title">
-            <CreditCard className="crearCliente-section-icon" />
-            Información de Identificación
-          </h3>
-
-          <div className="crearCliente-form-grid">
             <div className="crearCliente-form-group">
               <label htmlFor="tipo_documento" className="crearCliente-label">
-                <FileText className="crearCliente-label-icon" />
+                <FaIdCard className="crearCliente-label-icon" />
                 Tipo de Documento *
               </label>
               <select
                 id="tipo_documento"
                 name="tipo_documento"
-                className="crearCliente-form-select"
+                className="crearCliente-form-input"
                 value={formData.tipo_documento}
                 onChange={handleInputChange}
                 required
               >
                 <option value="Cédula de ciudadanía">Cédula de ciudadanía</option>
                 <option value="Tarjeta de identidad">Tarjeta de identidad</option>
-                 <option value="Cédula de Extranjería">Cédula de Extranjería</option>
+                <option value="Cédula de Extranjería">Cédula de Extranjería</option>
                 <option value="Pasaporte">Pasaporte</option>
                 <option value="Otro">Otro</option>
               </select>
@@ -314,95 +468,109 @@ const CrearCliente = () => {
 
             <div className="crearCliente-form-group">
               <label htmlFor="documento" className="crearCliente-label">
-                <CreditCard className="crearCliente-label-icon" />
+                <FaIdCard className="crearCliente-label-icon" />
                 Número de Documento *
               </label>
               <input
                 type="text"
                 id="documento"
                 name="documento"
-                className={`crearCliente-form-input ${errores.documento ? "error" : ""} ${formData.documento && !errores.documento ? "valid" : ""}`}
+                className={`crearCliente-form-input ${errores.documento ? "error" : ""}`}
                 placeholder="Ej: 1234567890"
                 value={formData.documento}
                 onChange={handleDocumentoChange}
+                onInput={soloNumeros}
+                maxLength={15}
+                autoComplete="off"
                 required
               />
-              {errores.documento && <span className="crearCliente-error-message">{errores.documento}</span>}
-              {!errores.documento && <span className="crearCliente-help-text">Solo números</span>}
+              {errores.documento && (
+                <span className="crearCliente-error-text">
+                  <FaExclamationTriangle /> {errores.documento}
+                </span>
+              )}
             </div>
-          </div>
-        </div>
 
-        {/* Información de contacto */}
-        <div className="crearCliente-form-section">
-          <h3 className="crearCliente-section-title">
-            <Phone className="crearCliente-section-icon" />
-            Información de Contacto
-          </h3>
-
-          <div className="crearCliente-form-grid">
             <div className="crearCliente-form-group">
               <label htmlFor="correo" className="crearCliente-label">
-                <Mail className="crearCliente-label-icon" />
+                <FaEnvelope className="crearCliente-label-icon" />
                 Correo Electrónico
               </label>
               <input
                 type="email"
                 id="correo"
                 name="correo"
-                className={`crearCliente-form-input ${errores.correo ? "error" : ""} ${formData.correo && !errores.correo ? "valid" : ""}`}
+                className={`crearCliente-form-input ${errores.correo ? "error" : ""}`}
                 placeholder="Ej: cliente@email.com"
                 value={formData.correo}
                 onChange={handleInputChange}
+                maxLength={254}
+                autoComplete="off"
               />
-              {errores.correo && <span className="crearCliente-error-message">{errores.correo}</span>}
-              {!errores.correo && <span className="crearCliente-help-text">Formato: usuario@dominio.com</span>}
+              {errores.correo && (
+                <span className="crearCliente-error-text">
+                  <FaExclamationTriangle /> {errores.correo}
+                </span>
+              )}
             </div>
 
             <div className="crearCliente-form-group">
               <label htmlFor="telefono" className="crearCliente-label">
-                <Phone className="crearCliente-label-icon" />
+                <FaPhone className="crearCliente-label-icon" />
                 Teléfono
               </label>
               <input
                 type="tel"
                 id="telefono"
                 name="telefono"
-                className={`crearCliente-form-input ${errores.telefono ? "error" : ""} ${formData.telefono && !errores.telefono ? "valid" : ""}`}
+                className={`crearCliente-form-input ${errores.telefono ? "error" : ""}`}
                 placeholder="Ej: 3001234567"
                 value={formData.telefono}
                 onChange={handleTelefonoChange}
+                onInput={soloNumeros}
+                maxLength={15}
+                autoComplete="off"
               />
-              {errores.telefono && <span className="crearCliente-error-message">{errores.telefono}</span>}
-              {!errores.telefono && <span className="crearCliente-help-text">Solo números, 7-15 dígitos</span>}
+              {errores.telefono && (
+                <span className="crearCliente-error-text">
+                  <FaExclamationTriangle /> {errores.telefono}
+                </span>
+              )}
             </div>
 
-            <div className="crearCliente-form-group full-width">
+            <div className="crearCliente-form-group">
               <label htmlFor="direccion" className="crearCliente-label">
-                <MapPin className="crearCliente-label-icon" />
-                Dirección
+                <FaMapMarkerAlt className="crearCliente-label-icon" />
+                Dirección *
               </label>
               <input
                 type="text"
                 id="direccion"
                 name="direccion"
-                className="crearCliente-form-input"
+                className={`crearCliente-form-input ${errores.direccion ? "error" : ""}`}
                 placeholder="Ej: Calle 123 #45-67, Barrio Centro"
                 value={formData.direccion}
                 onChange={handleInputChange}
+                maxLength={100}
+                autoComplete="off"
+                required
               />
-              <span className="crearCliente-help-text">Dirección completa del cliente</span>
+              {errores.direccion && (
+                <span className="crearCliente-error-text">
+                  <FaExclamationTriangle /> {errores.direccion}
+                </span>
+              )}
             </div>
 
             <div className="crearCliente-form-group">
               <label htmlFor="estado" className="crearCliente-label">
-                <ToggleLeft className="crearCliente-label-icon" />
+                <FaUserTag className="crearCliente-label-icon" />
                 Estado
               </label>
               <select
                 id="estado"
                 name="estado"
-                className="crearCliente-form-select"
+                className="crearCliente-form-input"
                 value={formData.estado}
                 onChange={handleInputChange}
               >
@@ -413,15 +581,66 @@ const CrearCliente = () => {
           </div>
         </div>
 
+        {/* Configuración de cuenta */}
+        <div className="crearCliente-form-section">
+          <h3 className="crearCliente-section-title">
+            <FaUser className="crearCliente-section-icon" />
+            Configuración de Cuenta
+          </h3>
+          <div className="crearCliente-form-grid">
+            <div className="crearCliente-form-group">
+              <label htmlFor="password" className="crearCliente-label">
+                <FaUser className="crearCliente-label-icon" />
+                Contraseña *
+              </label>
+              <div className="crearCliente-password-container">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  maxLength={30}
+                  autoComplete="new-password"
+                  className={`crearCliente-form-input ${errores.password ? "error" : ""}`}
+                  placeholder="Ingrese una contraseña segura"
+                  required
+                />
+                <button
+                  type="button"
+                  className="crearCliente-password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
+              {errores.password && (
+                <span className="crearCliente-error-text">
+                  <FaExclamationTriangle /> {errores.password}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* Acciones del formulario */}
         <div className="crearCliente-form-actions">
-          <button type="button" className="crearCliente-cancel-button" onClick={handleCancel}>
-            <X className="crearCliente-button-icon" />
+          <button type="button" className="crearCliente-cancel-button" onClick={handleCancel} disabled={isSubmitting}>
+            <FaTimes className="crearCliente-button-icon" />
             Cancelar
           </button>
-          <button type="submit" className="crearCliente-submit-button" disabled={cargando}>
-            <Save className="crearCliente-button-icon" />
-            {cargando ? "Guardando..." : "Crear Cliente"}
+          <button type="submit" className="crearCliente-submit-button" disabled={isSubmitting || apiLoading}>
+            {isSubmitting ? (
+              <>
+                <FaSpinner className="crearCliente-button-icon spinning" />
+                Guardando...
+              </>
+            ) : (
+              <>
+                <FaSave className="crearCliente-button-icon" />
+                Crear Cliente
+              </>
+            )}
           </button>
         </div>
       </form>

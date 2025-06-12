@@ -15,6 +15,8 @@ import {
   FaToggleOn,
   FaToggleOff,
   FaTag,
+  FaEnvelope,
+  FaPhone,
 } from "react-icons/fa"
 import axios from "axios"
 import "../../../../shared/styles/Vehiculos/DetalleVehiculo.css"
@@ -77,7 +79,9 @@ const DetalleVehiculo = () => {
   const { makeRequest } = useApi()
 
   const [vehiculo, setVehiculo] = useState(null)
+  const [cliente, setCliente] = useState(null)
   const [cargando, setCargando] = useState(true)
+  const [cargandoCliente, setCargandoCliente] = useState(false)
   const [error, setError] = useState(null)
 
   useEffect(() => {
@@ -89,6 +93,11 @@ const DetalleVehiculo = () => {
         const data = await makeRequest(`/vehiculos/${id}`)
         if (data) {
           setVehiculo(data)
+
+          // Si el vehículo tiene un cliente asignado, cargar sus datos
+          if (data.cliente_id) {
+            await cargarCliente(data.cliente_id)
+          }
         }
       } catch (error) {
         console.error("Error al cargar vehículo:", error)
@@ -102,6 +111,21 @@ const DetalleVehiculo = () => {
       cargarVehiculo()
     }
   }, [id, makeRequest])
+
+  const cargarCliente = async (clienteId) => {
+    try {
+      setCargandoCliente(true)
+      const clienteData = await makeRequest(`/clientes/${clienteId}`)
+      if (clienteData) {
+        setCliente(clienteData)
+      }
+    } catch (error) {
+      console.error("Error al cargar cliente:", error)
+      // No establecemos error general, solo log del error del cliente
+    } finally {
+      setCargandoCliente(false)
+    }
+  }
 
   const getEstadoClass = (estado) => {
     return estado?.toLowerCase() === "activo" ? "activo" : "inactivo"
@@ -243,6 +267,85 @@ const DetalleVehiculo = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Información del Cliente */}
+      <div className="detalleVehiculo-section">
+        <div className="detalleVehiculo-section-header">
+          <h2 className="detalleVehiculo-section-title">
+            <FaUser className="detalleVehiculo-section-icon" />
+            Información del Cliente
+          </h2>
+        </div>
+
+        {cargandoCliente ? (
+          <div className="detalleVehiculo-loading-section">
+            <div className="detalleVehiculo-spinner-small"></div>
+            <p>Cargando información del cliente...</p>
+          </div>
+        ) : cliente ? (
+          <div className="detalleVehiculo-info-grid">
+            <div className="detalleVehiculo-info-card">
+              <div className="detalleVehiculo-info-icon">
+                <FaUser />
+              </div>
+              <div className="detalleVehiculo-info-content">
+                <span className="detalleVehiculo-info-label">Nombre Completo</span>
+                <span className="detalleVehiculo-info-value">{cliente.nombre}</span>
+              </div>
+            </div>
+
+            <div className="detalleVehiculo-info-card">
+              <div className="detalleVehiculo-info-icon">
+                <FaEnvelope />
+              </div>
+              <div className="detalleVehiculo-info-content">
+                <span className="detalleVehiculo-info-label">Correo Electrónico</span>
+                <span className="detalleVehiculo-info-value">{cliente.correo}</span>
+              </div>
+            </div>
+
+            <div className="detalleVehiculo-info-card">
+              <div className="detalleVehiculo-info-icon">
+                <FaPhone />
+              </div>
+              <div className="detalleVehiculo-info-content">
+                <span className="detalleVehiculo-info-label">Teléfono</span>
+                <span className="detalleVehiculo-info-value">{cliente.telefono}</span>
+              </div>
+            </div>
+
+            <div className="detalleVehiculo-info-card">
+              <div className="detalleVehiculo-info-icon">
+                <FaIdCard />
+              </div>
+              <div className="detalleVehiculo-info-content">
+                <span className="detalleVehiculo-info-label">Número de Documento</span>
+                <span className="detalleVehiculo-info-value">{cliente.documento}</span>
+              </div>
+            </div>
+
+            <div className="detalleVehiculo-info-card">
+              <div className="detalleVehiculo-info-icon">
+                {cliente.estado?.toLowerCase() === "activo" ? <FaToggleOn /> : <FaToggleOff />}
+              </div>
+              <div className="detalleVehiculo-info-content">
+                <span className="detalleVehiculo-info-label">Estado del Cliente</span>
+                <span className={`detalleVehiculo-estado ${getEstadoClass(cliente.estado)}`}>{cliente.estado}</span>
+              </div>
+            </div>
+          </div>
+        ) : vehiculo.cliente_id ? (
+          <div className="detalleVehiculo-no-data">
+            <FaExclamationTriangle />
+            <p>No se pudo cargar la información del cliente</p>
+          </div>
+        ) : (
+          <div className="detalleVehiculo-no-data">
+            <FaUser />
+            <p>Este vehículo no tiene un cliente asignado</p>
+          </div>
+        )}
       </div>
 
       {/* Información del Sistema */}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import {
   FaPlus,
@@ -12,6 +12,9 @@ import {
   FaBox,
   FaToggleOn,
   FaToggleOff,
+  FaTimes,
+  FaTag,
+  FaCheckCircle,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Repuestos/ListarRepuesto.css"
@@ -76,6 +79,178 @@ const useApi = () => {
   return { makeRequest, loading, error }
 }
 
+// Componente del modal para categorías
+const CategoriaModal = ({ show, onClose, categorias, onSelect, categoriaActual }) => {
+  const [busquedaCategoria, setBusquedaCategoria] = useState("")
+  const [categoriasPorPagina] = useState(5)
+  const [paginaActualCategorias, setPaginaActualCategorias] = useState(1)
+  const modalRef = useRef(null)
+
+  useEffect(() => {
+    if (show) {
+      setBusquedaCategoria("")
+      setPaginaActualCategorias(1)
+    }
+  }, [show])
+
+  // Cerrar modal al hacer clic afuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        onClose()
+      }
+    }
+
+    if (show) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [show, onClose])
+
+  // Filtrar categorías basado en la búsqueda
+  const categoriasFiltradas = categorias.filter((categoria) =>
+    categoria.nombre.toLowerCase().includes(busquedaCategoria.toLowerCase()),
+  )
+
+  // Calcular índices para la paginación
+  const indiceUltimaCategoria = paginaActualCategorias * categoriasPorPagina
+  const indicePrimeraCategoria = indiceUltimaCategoria - categoriasPorPagina
+  const categoriasActuales = categoriasFiltradas.slice(indicePrimeraCategoria, indiceUltimaCategoria)
+  const totalPaginasCategorias = Math.ceil(categoriasFiltradas.length / categoriasPorPagina)
+
+  // Función para ir a la página anterior
+  const irPaginaAnterior = () => {
+    setPaginaActualCategorias((prev) => Math.max(prev - 1, 1))
+  }
+
+  // Función para ir a la página siguiente
+  const irPaginaSiguiente = () => {
+    setPaginaActualCategorias((prev) => Math.min(prev + 1, totalPaginasCategorias))
+  }
+
+  // Función para manejar el cambio de búsqueda
+  const handleBusquedaChange = (e) => {
+    setBusquedaCategoria(e.target.value)
+    setPaginaActualCategorias(1)
+  }
+
+  if (!show) return null
+
+  return (
+    <div className="listarRepuesto-modal-overlay">
+      <div className="listarRepuesto-categoria-modal" ref={modalRef}>
+        <div className="listarRepuesto-categoria-modal-header">
+          <h2>
+            <FaTag className="listarRepuesto-modal-header-icon" />
+            Seleccionar Categoría
+          </h2>
+          <button type="button" className="listarRepuesto-categoria-close-button" onClick={onClose}>
+            <FaTimes />
+          </button>
+        </div>
+
+        <div className="listarRepuesto-categoria-modal-content">
+          {/* Buscador centrado */}
+          <div className="listarRepuesto-categoria-search-container">
+            <div className="listarRepuesto-categoria-search-wrapper">
+              <FaSearch className="listarRepuesto-categoria-search-icon" />
+              <input
+                type="text"
+                placeholder="Buscar categoría..."
+                value={busquedaCategoria}
+                onChange={handleBusquedaChange}
+                className="listarRepuesto-categoria-search-input"
+                autoFocus
+              />
+            </div>
+          </div>
+
+          {/* Lista de categorías con paginación */}
+          <div className="listarRepuesto-categoria-list">
+            {categoriasActuales.length === 0 ? (
+              <div className="listarRepuesto-categoria-no-results">
+                <FaExclamationTriangle className="listarRepuesto-categoria-no-results-icon" />
+                <p>{busquedaCategoria ? "No se encontraron categorías" : "No hay categorías disponibles"}</p>
+              </div>
+            ) : (
+              <table className="listarRepuesto-categoria-table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {categoriasActuales.map((categoria) => (
+                    <tr key={categoria.id} className="listarRepuesto-categoria-row">
+                      <td>
+                        <div className="listarRepuesto-categoria-name">{categoria.nombre || "N/A"}</div>
+                      </td>
+                      <td>
+                        <span
+                          className={`listarRepuesto-categoria-status ${categoria.estado === "Activo" ? "active" : "inactive"}`}
+                        >
+                          {categoria.estado || "N/A"}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          className="listarRepuesto-categoria-select-button"
+                          onClick={() => onSelect(categoria)}
+                        >
+                          <FaCheckCircle /> Seleccionar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+
+          {/* Controles de paginación */}
+          {totalPaginasCategorias > 1 && (
+            <div className="listarRepuesto-categoria-pagination">
+              <button
+                onClick={irPaginaAnterior}
+                disabled={paginaActualCategorias === 1}
+                className="listarRepuesto-categoria-pagination-button"
+                type="button"
+              >
+                Anterior
+              </button>
+
+              <span className="listarRepuesto-categoria-page-info">
+                Página {paginaActualCategorias} de {totalPaginasCategorias}
+                {categoriasFiltradas.length > 0 && (
+                  <span className="listarRepuesto-categoria-total-info">
+                    {" "}
+                    ({categoriasFiltradas.length} categoría{categoriasFiltradas.length !== 1 ? "s" : ""})
+                  </span>
+                )}
+              </span>
+
+              <button
+                onClick={irPaginaSiguiente}
+                disabled={paginaActualCategorias === totalPaginasCategorias}
+                className="listarRepuesto-categoria-pagination-button"
+                type="button"
+              >
+                Siguiente
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function ListarRepuestos() {
   const navigate = useNavigate()
   const { makeRequest, loading: apiLoading } = useApi()
@@ -93,6 +268,9 @@ function ListarRepuestos() {
   // Estados de paginación
   const [paginaActual, setPaginaActual] = useState(1)
   const [repuestosPorPagina] = useState(4)
+
+  // Estado del modal de categorías
+  const [mostrarModalCategorias, setMostrarModalCategorias] = useState(false)
 
   // Cargar datos iniciales
   useEffect(() => {
@@ -267,10 +445,9 @@ function ListarRepuestos() {
     }).format(precio)
   }, [])
 
-  const limpiarFiltros = useCallback(() => {
-    setBusqueda("")
-    setCategoriaFiltro("")
-    setEstadoFiltro("")
+  const handleSeleccionarCategoriaFiltro = useCallback((categoria) => {
+    setCategoriaFiltro(categoria.id.toString())
+    setMostrarModalCategorias(false)
     setPaginaActual(1)
   }, [])
 
@@ -319,14 +496,35 @@ function ListarRepuestos() {
 
         <div className="listarRepuesto-filter-item">
           <label className="listarRepuesto-filter-label">Categoría:</label>
-          <select value={categoriaFiltro} onChange={handleCategoriaFilter} className="listarRepuesto-filter-select">
-            <option value="">Todas las categorías</option>
-            {listaCategoriasCompleta.map((cat) => (
-              <option key={cat.id} value={cat.id.toString()}>
-                {cat.nombre}
-              </option>
-            ))}
-          </select>
+          <div className="listarRepuesto-categoria-input-container">
+            <input
+              type="text"
+              placeholder="Seleccione una categoría..."
+              value={
+                categoriaFiltro
+                  ? listaCategoriasCompleta.find((cat) => cat.id.toString() === categoriaFiltro)?.nombre || ""
+                  : "Todas las categorías"
+              }
+              onClick={() => setMostrarModalCategorias(true)}
+              readOnly
+              className="listarRepuesto-categoria-input"
+              style={{ cursor: "pointer" }}
+            />
+            {categoriaFiltro && (
+              <button
+                type="button"
+                className="listarRepuesto-clear-categoria"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setCategoriaFiltro("")
+                  setPaginaActual(1)
+                }}
+                title="Limpiar filtro de categoría"
+              >
+                <FaTimes />
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="listarRepuesto-filter-item">
@@ -467,6 +665,17 @@ function ListarRepuestos() {
           </div>
         )}
       </div>
+
+      {/* Modal de categorías */}
+      {mostrarModalCategorias && (
+        <CategoriaModal
+          show={mostrarModalCategorias}
+          onClose={() => setMostrarModalCategorias(false)}
+          categorias={listaCategoriasCompleta}
+          onSelect={handleSeleccionarCategoriaFiltro}
+          categoriaActual={categoriaFiltro}
+        />
+      )}
     </div>
   )
 }

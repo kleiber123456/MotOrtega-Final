@@ -34,7 +34,6 @@ const CrearCategoriaRepuesto = () => {
         error = "El nombre debe tener al menos 3 caracteres."
       }
     }
-
     setErrores((prev) => ({ ...prev, [name]: error }))
   }, [])
 
@@ -92,7 +91,7 @@ const CrearCategoriaRepuesto = () => {
           timer: 2000,
         })
 
-        navigate("/categorias-repuesto")
+        navigate(-1)
       } catch (error) {
         console.error("Error al crear la categoría:", error)
         await Swal.fire({
@@ -124,10 +123,10 @@ const CrearCategoriaRepuesto = () => {
       })
 
       if (result.isConfirmed) {
-        navigate("/categorias-repuesto")
+        navigate("-1")
       }
     } else {
-      navigate("/categorias-repuesto")
+      navigate("-1")
     }
   }, [categoria, navigate])
 

@@ -82,7 +82,7 @@ const useApi = () => {
 // Componente del modal para categorías
 const CategoriaModal = ({ show, onClose, categorias, onSelect, categoriaActual }) => {
   const [busquedaCategoria, setBusquedaCategoria] = useState("")
-  const [categoriasPorPagina] = useState(5)
+  const [categoriasPorPagina] = useState(5) // Ya configurado para 5 categorías por página
   const [paginaActualCategorias, setPaginaActualCategorias] = useState(1)
   const modalRef = useRef(null)
 
@@ -93,6 +93,7 @@ const CategoriaModal = ({ show, onClose, categorias, onSelect, categoriaActual }
     }
   }, [show])
 
+  // Cerrar modal al hacer clic afuera
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
@@ -109,92 +110,138 @@ const CategoriaModal = ({ show, onClose, categorias, onSelect, categoriaActual }
     }
   }, [show, onClose])
 
+  // Filtrar categorías basado en la búsqueda
   const categoriasFiltradas = categorias.filter((categoria) =>
     categoria.nombre.toLowerCase().includes(busquedaCategoria.toLowerCase()),
   )
 
+  // Calcular índices para la paginación
   const indiceUltimaCategoria = paginaActualCategorias * categoriasPorPagina
   const indicePrimeraCategoria = indiceUltimaCategoria - categoriasPorPagina
   const categoriasActuales = categoriasFiltradas.slice(indicePrimeraCategoria, indiceUltimaCategoria)
   const totalPaginasCategorias = Math.ceil(categoriasFiltradas.length / categoriasPorPagina)
 
+  // Función para ir a la página anterior
+  const irPaginaAnterior = () => {
+    setPaginaActualCategorias((prev) => Math.max(prev - 1, 1))
+  }
+
+  // Función para ir a la página siguiente
+  const irPaginaSiguiente = () => {
+    setPaginaActualCategorias((prev) => Math.min(prev + 1, totalPaginasCategorias))
+  }
+
+  // Función para manejar el cambio de búsqueda
+  const handleBusquedaChange = (e) => {
+    setBusquedaCategoria(e.target.value)
+    setPaginaActualCategorias(1) // Resetear a la primera página cuando se busca
+  }
+
   if (!show) return null
 
   return (
     <div className="crearRepuesto-modal-overlay">
-      <div className="crearRepuesto-modal-container" ref={modalRef}>
-        <div className="crearRepuesto-modal-header">
-          <h2 className="crearRepuesto-modal-title">
-            <FaTag className="crearRepuesto-modal-title-icon" />
+      <div className="crearRepuesto-categoria-modal" ref={modalRef}>
+        <div className="crearRepuesto-categoria-modal-header">
+          <h2>
+            <FaTag className="crearRepuesto-modal-header-icon" />
             Seleccionar Categoría
           </h2>
-          <button className="crearRepuesto-modal-close-button" onClick={onClose} aria-label="Cerrar">
+          <button type="button" className="crearRepuesto-categoria-close-button" onClick={onClose}>
             <FaTimes />
           </button>
         </div>
 
-        <div className="crearRepuesto-modal-body">
-          <div className="crearRepuesto-modal-search-container">
-            <div className="crearRepuesto-modal-search-input-wrapper">
-              <FaSearch className="crearRepuesto-modal-search-icon" />
+        <div className="crearRepuesto-categoria-modal-content">
+          {/* Buscador centrado */}
+          <div className="crearRepuesto-categoria-search-container">
+            <div className="crearRepuesto-categoria-search-wrapper">
+              <FaSearch className="crearRepuesto-categoria-search-icon" />
               <input
                 type="text"
                 placeholder="Buscar categoría..."
                 value={busquedaCategoria}
-                onChange={(e) => {
-                  setBusquedaCategoria(e.target.value)
-                  setPaginaActualCategorias(1)
-                }}
-                className="crearRepuesto-modal-search-input"
+                onChange={handleBusquedaChange}
+                className="crearRepuesto-categoria-search-input"
                 autoFocus
               />
             </div>
           </div>
 
-          <div className="crearRepuesto-modal-list-container">
-            {categoriasActuales.length > 0 ? (
-              categoriasActuales.map((categoria) => (
-                <div
-                  key={categoria.id}
-                  className={`crearRepuesto-modal-list-item ${
-                    categoriaActual === categoria.id.toString() ? "crearRepuesto-modal-list-item-selected" : ""
-                  }`}
-                  onClick={() => onSelect(categoria)}
-                >
-                  <span className="crearRepuesto-modal-list-item-text">{categoria.nombre}</span>
-                  <FaCheckCircle className="crearRepuesto-modal-list-item-check" />
-                </div>
-              ))
-            ) : (
-              <div className="crearRepuesto-modal-no-results">
-                <FaExclamationTriangle className="crearRepuesto-modal-no-results-icon" />
-                <span>No se encontraron categorías</span>
+          {/* Lista de categorías con paginación */}
+          <div className="crearRepuesto-categoria-list">
+            {categoriasActuales.length === 0 ? (
+              <div className="crearRepuesto-categoria-no-results">
+                <FaExclamationTriangle className="crearRepuesto-categoria-no-results-icon" />
+                <p>{busquedaCategoria ? "No se encontraron categorías" : "No hay categorías disponibles"}</p>
               </div>
+            ) : (
+              <table className="crearRepuesto-categoria-table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {categoriasActuales.map((categoria) => (
+                    <tr key={categoria.id} className="crearRepuesto-categoria-row">
+                      <td>
+                        <div className="crearRepuesto-categoria-name">{categoria.nombre || "N/A"}</div>
+                      </td>
+                      <td>
+                        <span
+                          className={`crearRepuesto-categoria-status ${categoria.estado === "Activo" ? "active" : "inactive"}`}
+                        >
+                          {categoria.estado || "N/A"}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          className="crearRepuesto-categoria-select-button"
+                          onClick={() => onSelect(categoria)}
+                        >
+                          <FaCheckCircle /> Seleccionar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             )}
           </div>
 
-          {categoriasFiltradas.length > categoriasPorPagina && (
-            <div className="crearRepuesto-modal-pagination">
+          {/* Controles de paginación - Solo se muestran si hay más de una página */}
+          {totalPaginasCategorias > 1 && (
+            <div className="crearRepuesto-categoria-pagination">
               <button
-                onClick={() => setPaginaActualCategorias((prev) => Math.max(prev - 1, 1))}
+                onClick={irPaginaAnterior}
                 disabled={paginaActualCategorias === 1}
-                className="crearRepuesto-modal-pagination-button"
+                className="crearRepuesto-categoria-pagination-button"
+                type="button"
               >
-                <FaArrowLeft className="crearRepuesto-modal-pagination-icon" />
                 Anterior
               </button>
 
-              <div className="crearRepuesto-modal-pagination-info">
+              <span className="crearRepuesto-categoria-page-info">
                 Página {paginaActualCategorias} de {totalPaginasCategorias}
-              </div>
+                {categoriasFiltradas.length > 0 && (
+                  <span className="crearRepuesto-categoria-total-info">
+                    {" "}
+                    ({categoriasFiltradas.length} categoría{categoriasFiltradas.length !== 1 ? "s" : ""})
+                  </span>
+                )}
+              </span>
 
               <button
-                onClick={() => setPaginaActualCategorias((prev) => Math.min(prev + 1, totalPaginasCategorias))}
+                onClick={irPaginaSiguiente}
                 disabled={paginaActualCategorias === totalPaginasCategorias}
-                className="crearRepuesto-modal-pagination-button"
+                className="crearRepuesto-categoria-pagination-button"
+                type="button"
               >
                 Siguiente
-                <FaArrowLeft className="crearRepuesto-modal-pagination-icon crearRepuesto-modal-pagination-icon-right" />
               </button>
             </div>
           )}
@@ -211,8 +258,8 @@ function CrearRepuesto() {
   const [repuesto, setRepuesto] = useState({
     nombre: "",
     descripcion: "",
-    cantidad: 0,
-    preciounitario: 0,
+    cantidad: "",
+    preciounitario: "",
     estado: "Activo",
     categoria_repuesto_id: "",
   })
@@ -370,11 +417,7 @@ function CrearRepuesto() {
 
   const handleCancel = useCallback(async () => {
     const hasData =
-      repuesto.nombre ||
-      repuesto.descripcion ||
-      repuesto.cantidad > 0 ||
-      repuesto.preciounitario > 0 ||
-      categoriaSeleccionada
+      repuesto.nombre || repuesto.descripcion || repuesto.cantidad || repuesto.preciounitario || categoriaSeleccionada
 
     if (hasData) {
       const result = await Swal.fire({
@@ -453,17 +496,27 @@ function CrearRepuesto() {
                 <FaTag className="crearRepuesto-label-icon" />
                 Categoría *
               </label>
-              <input
-                type="text"
-                id="categoria"
-                placeholder="Seleccione una categoría..."
-                value={categoriaSeleccionada ? categoriaSeleccionada.nombre : ""}
-                onClick={() => setMostrarModalCategorias(true)}
-                readOnly
-                className={`crearRepuesto-form-input ${errores.categoria_repuesto_id ? "error" : ""}`}
-                style={{ cursor: "pointer" }}
-                required
-              />
+              <div className="crearRepuesto-input-with-button">
+                <input
+                  type="text"
+                  id="categoria"
+                  placeholder="Seleccione una categoría..."
+                  value={categoriaSeleccionada ? categoriaSeleccionada.nombre : ""}
+                  onClick={() => setMostrarModalCategorias(true)}
+                  readOnly
+                  className={`crearRepuesto-form-input ${errores.categoria_repuesto_id ? "error" : ""}`}
+                  style={{ cursor: "pointer" }}
+                  required
+                />
+                <button
+                  type="button"
+                  className="crearRepuesto-create-category-button"
+                  onClick={() => navigate("/crearCategoriaRepuesto")}
+                >
+                  <FaPlus className="crearRepuesto-button-icon" />
+                  Crear Categoría
+                </button>
+              </div>
               {errores.categoria_repuesto_id && (
                 <span className="crearRepuesto-error-text">
                   <FaExclamationTriangle /> {errores.categoria_repuesto_id}
@@ -509,6 +562,7 @@ function CrearRepuesto() {
                 onChange={handleChange}
                 min="0"
                 className={`crearRepuesto-form-input ${errores.cantidad ? "error" : ""}`}
+                placeholder="Ingrese la cantidad"
                 required
               />
               {errores.cantidad && (
@@ -532,6 +586,7 @@ function CrearRepuesto() {
                 min="0"
                 step="0.01"
                 className={`crearRepuesto-form-input ${errores.preciounitario ? "error" : ""}`}
+                placeholder="Ingrese el precio unitario"
                 required
               />
               {errores.preciounitario && (

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { FaTag, FaArrowLeft, FaEdit, FaCalendarAlt, FaToggleOn, FaToggleOff } from "react-icons/fa"
+import { FaTag, FaArrowLeft, FaEdit, FaToggleOn, FaToggleOff } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Categorias/DetalleCategoriaRepuesto.css"
 
@@ -131,50 +131,6 @@ const DetalleCategoriaRepuesto = () => {
                     {categoria.estado}
                   </span>
                 </div>
-              </div>
-
-              {categoria.created_at && (
-                <div className="detalleCategoriaRepuesto-info-item">
-                  <label className="detalleCategoriaRepuesto-info-label">
-                    <FaCalendarAlt className="detalleCategoriaRepuesto-info-icon" />
-                    Fecha de Creación
-                  </label>
-                  <div className="detalleCategoriaRepuesto-info-value">
-                    {new Date(categoria.created_at).toLocaleDateString("es-ES", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {categoria.updated_at && (
-                <div className="detalleCategoriaRepuesto-info-item">
-                  <label className="detalleCategoriaRepuesto-info-label">
-                    <FaCalendarAlt className="detalleCategoriaRepuesto-info-icon" />
-                    Última Actualización
-                  </label>
-                  <div className="detalleCategoriaRepuesto-info-value">
-                    {new Date(categoria.updated_at).toLocaleDateString("es-ES", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </div>
-                </div>
-              )}
-
-              <div className="detalleCategoriaRepuesto-info-item">
-                <label className="detalleCategoriaRepuesto-info-label">
-                  <FaTag className="detalleCategoriaRepuesto-info-icon" />
-                  ID de la Categoría
-                </label>
-                <div className="detalleCategoriaRepuesto-info-value">#{categoria.id}</div>
               </div>
             </div>
           </div>

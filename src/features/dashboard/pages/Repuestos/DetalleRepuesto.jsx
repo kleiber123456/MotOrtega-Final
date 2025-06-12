@@ -301,26 +301,6 @@ function DetalleRepuesto() {
         <div className="detalleRepuesto-info-grid">
           <div className="detalleRepuesto-info-card">
             <div className="detalleRepuesto-info-icon">
-              <FaCalendar />
-            </div>
-            <div className="detalleRepuesto-info-content">
-              <span className="detalleRepuesto-info-label">Fecha de Creación</span>
-              <span className="detalleRepuesto-info-value">{formatearFecha(repuesto.created_at)}</span>
-            </div>
-          </div>
-
-          <div className="detalleRepuesto-info-card">
-            <div className="detalleRepuesto-info-icon">
-              <FaCalendar />
-            </div>
-            <div className="detalleRepuesto-info-content">
-              <span className="detalleRepuesto-info-label">Última Actualización</span>
-              <span className="detalleRepuesto-info-value">{formatearFecha(repuesto.updated_at)}</span>
-            </div>
-          </div>
-
-          <div className="detalleRepuesto-info-card">
-            <div className="detalleRepuesto-info-icon">
               {repuesto.estado?.toLowerCase() === "activo" ? <FaToggleOn /> : <FaToggleOff />}
             </div>
             <div className="detalleRepuesto-info-content">

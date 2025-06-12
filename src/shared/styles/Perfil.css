@@ -1,206 +1,299 @@
-.perfil__container {
+.crearUsuario-container {
+  padding: 25px;
+  background-color: #f9fafb;
+  min-height: 100vh;
+  font-family: "Montserrat", sans-serif;
+}
+
+.crearUsuario-header {
+  margin-bottom: 30px;
+}
+
+.crearUsuario-page-title {
+  font-size: 28px;
+  color: #1a202c;
+  font-weight: 600;
   display: flex;
-  justify-content: center;
   align-items: center;
-  padding: 20px;
-  background-color: #ffffff;
-  box-sizing: border-box; /* Incluye el padding y el border en el ancho y alto */
-  overflow: hidden; /* Evita el scroll en la pantalla principal */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
-.perfil__form {
-  border-radius: 16px;
-  padding: 30px;
-  display: flex;
-  flex-direction: column; /* Cambiado a flex column para el contenedor principal */
-  width: 100%;
-  max-width: 90%; /* Mayor ancho máximo */
-  box-sizing: border-box; /* Incluye el padding y el border en el ancho y alto */
-  max-height: 95vh; /* Limita la altura máxima del formulario */
-  overflow-y: auto; /* Permite el scroll dentro del formulario si es necesario */
+.crearUsuario-title-icon {
+  color: #2563eb;
+  font-size: 24px;
 }
 
-.perfil__title-container {
-  margin-bottom: 25px;
-  text-align: center; /* Centra el título */
-}
-
-.perfil__title {
-  font-family: Montserrat, sans-serif;
-  font-size: 28px; /* Mayor tamaño de fuente */
-  font-weight: 700;
-  color: #2d3748;
+.crearUsuario-subtitle {
+  color: #6b7280;
+  font-size: 16px;
   margin: 0;
 }
 
-.perfil__grid-container {
+.crearUsuario-form {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.crearUsuario-form-section {
+  padding: 24px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.crearUsuario-form-section:last-child {
+  border-bottom: none;
+}
+
+.crearUsuario-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.crearUsuario-section-icon {
+  color: #2563eb;
+  font-size: 16px;
+}
+
+.crearUsuario-form-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.crearUsuario-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.crearUsuario-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.crearUsuario-label-icon {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.crearUsuario-form-input {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  background-color: #f8fafc;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.crearUsuario-form-input:focus {
+  border-color: #3b82f6;
+  background-color: white;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.crearUsuario-form-input.error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.crearUsuario-form-input.error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.crearUsuario-password-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.crearUsuario-password-toggle {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.crearUsuario-password-toggle:hover {
+  color: #374151;
+  background-color: #f3f4f6;
+}
+
+.crearUsuario-error-text {
+  font-size: 12px;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 8px 12px;
+  background-color: #fef2f2;
+  border-radius: 6px;
+  border-left: 3px solid #ef4444;
+}
+
+.crearUsuario-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 24px;
+  background-color: #f8fafc;
+}
+
+.crearUsuario-cancel-button {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.crearUsuario-cancel-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
+}
+
+.crearUsuario-cancel-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.2);
+}
+
+.crearUsuario-submit-button {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.crearUsuario-submit-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+}
+
+.crearUsuario-submit-button:disabled {
+  background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.crearUsuario-button-icon {
+  font-size: 12px;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Estado de carga */
+.crearUsuario-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   gap: 20px;
 }
 
-.perfil__field {
-  display: flex;
-  flex-direction: column;
+.crearUsuario-loading .spinning {
+  font-size: 40px;
+  color: #2563eb;
 }
 
-.perfil__field label {
-  font-weight: 600;
-  color: #2d3748;
-  margin-bottom: 8px;
-  font-family: Montserrat, sans-serif;
-  font-size: 16px; /* Mayor tamaño de fuente para las etiquetas */
+.crearUsuario-loading span {
+  font-size: 16px;
+  font-weight: 500;
+  color: #4b5563;
 }
 
-.perfil__field input,
-.perfil__field select {
-  font-family: Montserrat, sans-serif;
-  padding: 14px 18px; /* Mayor padding */
-  border: none;
-  border-left:3px solid white;
-  border-bottom: 1px solid black;
-  font-size: 16px; /* Mayor tamaño de fuente para los inputs y selects */
-  transition: border-color 0.3s ease;
-  box-sizing: border-box; /* Incluye el padding y el border en el ancho */
-  transition: 0.7s;
-
-}
-
-.perfil__field textarea,
-.perfil__field select {
-  font-family: Montserrat, sans-serif;
-  padding: 14px 18px; /* Mayor padding */
-  border: none;
-  border-left:3px solid white;
-  border-bottom: 2px solid gray;
-  margin-bottom: 9px;
-  font-size: 16px; /* Mayor tamaño de fuente para los inputs y selects */
-  transition: border-color 0.3s ease;
-  box-sizing: border-box; /* Incluye el padding y el border en el ancho */
-}
-
-.perfil__field textarea:focus,
-.perfil__field select:focus {
-  outline: none;
-  border-left: #0066ff solid 3px;
-
-  border-bottom: 1px solid transparent;
-}
-
-
-
-.perfil__field input:focus,
-.perfil__field select:focus,
-.perfil__field textarea:focus {
-  outline: none;
-  border-left: #0066ff solid 3px;
-  border-bottom: #0066ff solid 2px;
-}
-
-.perfil__field input:hover,
-.perfil__field select:hover,
-.perfil__field textarea:hover {
-  background-color: #0066ff22;
-  border-radius: 2px;
-  transition: 0.7s;
-}
-
-.password-input-wrapper {
-  display: flex;
-  align-items: stretch; /* Estira los elementos hijos a la misma altura */
-}
-.perfil-input{
-  width: 100%;
-}
-.perfil-password-container input {
-  cursor: not-allowed; /* Indica que no se puede editar */
-  background-color: #edf2f7; /* Un fondo gris claro para indicar que está deshabilitado */
-  color: #718096; /* Texto más claro */
-  border-radius: 8px 0 0 8px; /* Bordes redondeados solo a la izquierda */
-  flex-grow: 1; /* Permite que el input crezca para ocupar espacio */
-}
-
-.Perfil__CambiarC{
-  width: 200px;
-}
-.perfil__field.perfil-password-container button:hover {
-  background-color: #4299e1;
-}
-
-/* Botón de guardar */
-.perfil__btn {
-  font-family: Montserrat, sans-serif;
-  width: 100%;
-  padding: 14px; /* Mayor padding */
-  background-color: #0066ff;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 18px; /* Mayor tamaño de fuente */
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  box-sizing: border-box; /* Incluye el padding y el border en el ancho */
-  margin-top: 20px; /* Añade un poco de espacio superior */
-}
-
-.perfil__btn:hover {
-  background-color: #3182ce;
-}
-
-.perfil__btn:disabled {
-  background-color: #a0aec0;
-  cursor: not-allowed;
-}
-
-/* Mensajes */
-.perfil__mensaje {
-  text-align: center;
-  margin-top: 1.5rem;
-  font-size: 16px; /* Mayor tamaño de fuente */
-  font-family: Montserrat, sans-serif;
-  color: #38a169;
-}
-
-.perfil__mensaje.error {
-  color: #e53e3e;
-}
-
-/* Cargando */
-.perfil__loading {
-  text-align: center;
-  padding: 30px;
-  font-size: 1.4rem; /* Mayor tamaño de fuente */
-  font-family: Montserrat, sans-serif;
-  color: #2d3748;
-}
-
-/* Estilos para pantallas más pequeñas (responsive) */
-@media (max-width: 600px) {
-  .perfil__grid-container {
-    grid-template-columns: 1fr; /* Una sola columna en pantallas pequeñas */
+/* Responsive Design */
+@media (max-width: 768px) {
+  .crearUsuario-container {
+    padding: 16px;
   }
 
-  .perfil__field.perfil-password-container{
-    flex-direction: column; /* Apila la etiqueta, el input y el botón */
+  .crearUsuario-form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 
-  .password-input-wrapper {
-    flex-direction: column; /* Apila el input y el botón */
-    align-items: stretch; /* Estira los elementos */
+  .crearUsuario-form-actions {
+    flex-direction: column;
+    gap: 12px;
   }
 
-  .perfil__field.perfil-password-container input {
-    border-radius: 8px 8px 0 0; /* Bordes redondeados arriba */
-    margin-bottom: 10px; /* Espacio entre input y botón */
+  .crearUsuario-cancel-button,
+  .crearUsuario-submit-button {
+    width: 100%;
+    justify-content: center;
   }
-
-
 }
 
-/* Estilo cuando hay error en el input */
-.input-error {
-  border-left: 3px solid #e53e3e !important;
-  border-bottom:2px solid #e53e3e !important ;
+@media (max-width: 480px) {
+  .crearUsuario-page-title {
+    font-size: 24px;
+  }
+
+  .crearUsuario-form-section {
+    padding: 16px;
+  }
+
+  .crearUsuario-form-actions {
+    padding: 16px;
+  }
 }
