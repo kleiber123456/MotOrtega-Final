@@ -1246,3 +1246,31 @@
     padding: 16px;
   }
 }
+
+/* --- NUEVO: Estilos para fila de proveedor con botón a la derecha --- */
+.crearCompra-proveedor-row {
+  flex-direction: column;
+  gap: 8px;
+}
+
+.crearCompra-proveedor-input-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.crearCompra-proveedor-input-btn .crearCompra-form-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.crearCompra-nuevo-proveedor-btn {
+  min-width: 48px;
+  height: 48px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  gap: 6px;
+}

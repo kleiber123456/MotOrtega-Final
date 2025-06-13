@@ -239,8 +239,6 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
             icon={<FaCar />}
             options={[
               { label: "Vehículos", link: "/vehiculos" },
-              { label: "Referencias", link: "/referencias" },
-              { label: "Marcas", link: "/marcas" },
             ]}
             isOpen={activeDropdown === "vehiculos"}
             toggleDropdown={toggleDropdown}
@@ -255,7 +253,6 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
               { label: "Compras", link: "/ListarCompras" },
               { label: "Proveedores", link: "/ListarProveedores" },
               { label: "Ventas", link: "/ListarVentas" },
-              { label: "Pedidos", link: "/pedidos" },
               { label: "Citas", link: "/citas" },
             ]}
             isOpen={activeDropdown === "operaciones"}

@@ -287,7 +287,7 @@ const CrearUsuario = () => {
           timer: 2000,
         })
 
-        navigate("/listarUsuarios")
+        navigate(-1)
       } catch (error) {
         console.error("Error al crear usuario:", error)
         await Swal.fire({
@@ -321,10 +321,10 @@ const CrearUsuario = () => {
       })
 
       if (result.isConfirmed) {
-        navigate("/listarUsuarios")
+        navigate(-1)
       }
     } else {
-      navigate("/listarUsuarios")
+      navigate(-1)
     }
   }, [formulario, navigate])
 

@@ -241,7 +241,7 @@ const CrearProveedor = () => {
           timer: 2000,
         })
 
-        navigate("/ListarProveedores")
+        navigate(-1)
       } catch (error) {
         console.error("Error al crear proveedor:", error)
         await Swal.fire({
@@ -273,10 +273,10 @@ const CrearProveedor = () => {
       })
 
       if (result.isConfirmed) {
-        navigate("/ListarProveedores")
+        navigate(-1)
       }
     } else {
-      navigate("/ListarProveedores")
+      navigate(-1)
     }
   }, [formData, navigate])
 

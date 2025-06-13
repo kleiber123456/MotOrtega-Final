@@ -269,7 +269,7 @@ const CrearVehiculo = () => {
           timer: 2000,
         })
 
-        navigate("/vehiculos")
+        navigate(-1)
       } catch (error) {
         console.error("Error al crear vehículo:", error)
         await Swal.fire({
@@ -301,10 +301,10 @@ const CrearVehiculo = () => {
       })
 
       if (result.isConfirmed) {
-        navigate("/vehiculos")
+        navigate(-1)
       }
     } else {
-      navigate("/vehiculos")
+      navigate(-1)
     }
   }, [formulario, navigate])
 

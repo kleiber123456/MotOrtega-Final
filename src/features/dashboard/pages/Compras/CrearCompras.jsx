@@ -303,29 +303,38 @@ const CrearCompra = () => {
             Información General
           </h3>
           <div className="crearCompra-form-grid">
-            <div className="crearCompra-form-group">
+            <div className="crearCompra-form-group crearCompra-proveedor-row">
               <label htmlFor="supplierName" className="crearCompra-label">
                 <FaUser className="crearCompra-label-icon" />
                 Proveedor *
               </label>
-              <input
-                type="text"
-                id="supplierName"
-                className={`crearCompra-form-input ${formErrors.supplier ? "error" : ""}`}
-                placeholder="Seleccione un proveedor"
-                value={selectedSupplier ? selectedSupplier.nombre : ""}
-                readOnly
-                onClick={openSupplierModal}
-                style={{ cursor: "pointer" }}
-                required
-              />
+              <div className="crearCompra-proveedor-input-btn">
+                <input
+                  type="text"
+                  id="supplierName"
+                  className={`crearCompra-form-input ${formErrors.supplier ? "error" : ""}`}
+                  placeholder="Seleccione un proveedor"
+                  value={selectedSupplier ? selectedSupplier.nombre : ""}
+                  readOnly
+                  onClick={openSupplierModal}
+                  style={{ cursor: "pointer" }}
+                  required
+                />
+                <button
+                  type="button"
+                  className="crearCompra-create-button crearCompra-nuevo-proveedor-btn"
+                  title="Crear nuevo proveedor"
+                  onClick={() => navigate("/CrearProveedor")}
+                >
+                  <FaPlus /> Nuevo
+                </button>
+              </div>
               {formErrors.supplier && (
                 <span className="crearCompra-error-text">
                   <FaExclamationTriangle /> {formErrors.supplier}
                 </span>
               )}
             </div>
-
             <div className="crearCompra-form-group">
               <label htmlFor="fecha" className="crearCompra-label">
                 <FaCalendarAlt className="crearCompra-label-icon" />
@@ -502,7 +511,7 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
         const data = await makeRequest("/repuestos")
         if (data) {
           // Filtrar productos activos y con stock
-          const activeProducts = data.filter((product) => product.cantidad > 0 && product.nombre)
+          const activeProducts = data.filter((product) => product.nombre)
           setProducts(activeProducts)
         }
       } catch (error) {
@@ -684,7 +693,6 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                             type="number"
                             className="crearCompra-quantity-input"
                             min="1"
-                            max={product.cantidad}
                             defaultValue="1"
                             id={`quantity-${product.id}`}
                           />
@@ -712,17 +720,8 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                           const quantity = Number.parseInt(quantityInput.value) || 1
                           const customPrice = Number.parseFloat(priceInput.value) || product.preciounitario || 0
 
-                          if (quantity > product.cantidad) {
-                            Swal.fire({
-                              icon: "warning",
-                              title: "Cantidad excedida",
-                              text: `Solo hay ${product.cantidad} unidades disponibles`,
-                              confirmButtonColor: "#2563eb",
-                            })
-                            return
-                          }
-
                           handleAddToCart(product, quantity, customPrice)
+                          // NO cerrar el modal ni confirmar aquí
                         }}
                       >
                         <FaPlus /> Agregar

@@ -257,15 +257,13 @@ function CrearRepuesto() {
   const navigate = useNavigate()
   const { makeRequest, loading: apiLoading } = useApi()
 
-  // Modificar el estado inicial para incluir el margen
+  // Estado inicial sin cantidad y estado
   const [repuesto, setRepuesto] = useState({
     nombre: "",
     descripcion: "",
-    cantidad: "",
     preciounitario: "",
     precio_compra: "",
     margen: "40", // Valor predeterminado de 40%
-    estado: "Activo",
     categoria_repuesto_id: "",
   })
 
@@ -298,39 +296,35 @@ function CrearRepuesto() {
     cargarCategorias()
   }, [makeRequest])
 
-  // Modificar el handleChange para calcular automáticamente el precio de venta cuando cambie el precio de compra o el margen
+  // Función para calcular automáticamente el precio de venta cuando cambie el precio de compra o el margen
   const handleChange = useCallback(
     (e) => {
       const { name, value } = e.target
+      let nuevoRepuesto = { ...repuesto, [name]: value }
 
-      // Actualizar el estado con el nuevo valor
-      setRepuesto((prev) => {
-        const newState = { ...prev, [name]: value }
-
-        // Si cambia el precio de compra o el margen, calcular el precio de venta
-        if (name === "precio_compra" || name === "margen") {
-          const precioCompra = Number.parseFloat(name === "precio_compra" ? value : prev.precio_compra) || 0
-          const margen = Number.parseFloat(name === "margen" ? value : prev.margen) || 0
-
-          if (precioCompra > 0 && margen >= 0) {
-            // Calcular precio de venta: precio_compra * (1 + (margen / 100))
-            const precioVenta = precioCompra * (1 + margen / 100)
-            newState.preciounitario = precioVenta.toFixed(2)
-          }
+      // Calcular automáticamente el precio de venta
+      if (name === "precio_compra" || name === "margen") {
+        const precioCompra = parseFloat(
+          name === "precio_compra" ? value : nuevoRepuesto.precio_compra
+        )
+        const margen = parseFloat(
+          name === "margen" ? value : nuevoRepuesto.margen
+        )
+        if (!isNaN(precioCompra) && !isNaN(margen)) {
+          const precioVenta = precioCompra + (precioCompra * margen) / 100
+          nuevoRepuesto.preciounitario = precioVenta.toFixed(2)
+        } else {
+          nuevoRepuesto.preciounitario = ""
         }
-
-        return newState
-      })
-
-      // Limpiar error del campo si existe
-      if (errores[name]) {
-        setErrores((prev) => ({ ...prev, [name]: "" }))
       }
+
+      setRepuesto(nuevoRepuesto)
+      setErrores((prev) => ({ ...prev, [name]: undefined }))
     },
-    [errores],
+    [repuesto, errores],
   )
 
-  // Agregar validación para el margen en validateForm
+  // Validación del formulario sin cantidad y estado
   const validateForm = useCallback(() => {
     const errors = {}
 
@@ -344,16 +338,10 @@ function CrearRepuesto() {
       errors.descripcion = "La descripción no puede exceder los 200 caracteres"
     }
 
-    if (repuesto.cantidad === "" || isNaN(repuesto.cantidad)) {
-      errors.cantidad = "La cantidad es obligatoria y debe ser un número"
-    } else if (Number.parseInt(repuesto.cantidad) < 0) {
-      errors.cantidad = "La cantidad debe ser un número positivo"
-    }
-
     if (repuesto.preciounitario === "" || isNaN(repuesto.preciounitario)) {
-      errors.preciounitario = "El precio unitario es obligatorio y debe ser un número"
+      errors.preciounitario = "El precio de venta es obligatorio y debe ser un número"
     } else if (Number.parseFloat(repuesto.preciounitario) < 0) {
-      errors.preciounitario = "El precio unitario debe ser un número positivo"
+      errors.preciounitario = "El precio de venta debe ser un número positivo"
     }
 
     if (repuesto.precio_compra === "" || isNaN(repuesto.precio_compra)) {
@@ -370,10 +358,6 @@ function CrearRepuesto() {
 
     if (!repuesto.categoria_repuesto_id) {
       errors.categoria_repuesto_id = "Debe seleccionar una categoría"
-    }
-
-    if (!repuesto.estado) {
-      errors.estado = "Debe seleccionar un estado"
     }
 
     setErrores(errors)
@@ -397,7 +381,7 @@ function CrearRepuesto() {
     [errores.categoria_repuesto_id],
   )
 
-  // Modificar el handleSubmit para asegurarse de que se envía el precio calculado
+  // Submit del formulario modificado
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault()
@@ -415,18 +399,14 @@ function CrearRepuesto() {
       setIsSubmitting(true)
 
       try {
-        // Asegurarse de que el precio unitario esté calculado correctamente
-        const precioCompra = Number.parseFloat(repuesto.precio_compra)
-        const margen = Number.parseFloat(repuesto.margen)
-        const precioUnitario = precioCompra * (1 + margen / 100)
-
         const datosRepuesto = {
           ...repuesto,
-          cantidad: Number.parseInt(repuesto.cantidad),
-          preciounitario: precioUnitario,
-          precio_compra: precioCompra,
+          preciounitario: Number.parseFloat(repuesto.preciounitario),
+          precio_compra: Number.parseFloat(repuesto.precio_compra),
           categoria_repuesto_id: Number.parseInt(repuesto.categoria_repuesto_id),
-          total: Number.parseInt(repuesto.cantidad) * precioUnitario,
+          // Se pueden agregar valores por defecto para cantidad y estado si son requeridos en el backend
+          cantidad: 0, // Valor por defecto
+          estado: "Activo", // Valor por defecto
         }
 
         await makeRequest("/repuestos", {
@@ -462,7 +442,6 @@ function CrearRepuesto() {
     const hasData =
       repuesto.nombre ||
       repuesto.descripcion ||
-      repuesto.cantidad ||
       repuesto.preciounitario ||
       repuesto.precio_compra ||
       categoriaSeleccionada
@@ -495,11 +474,6 @@ function CrearRepuesto() {
       minimumFractionDigits: 2,
     }).format(precio)
   }, [])
-
-  const totalCalculado = Number.parseFloat(repuesto.cantidad || 0) * Number.parseFloat(repuesto.preciounitario || 0)
-
-  // Reemplazar el cálculo del margen de ganancia
-  const margenGanancia = repuesto.margen ? Number.parseFloat(repuesto.margen) : 0
 
   return (
     <div className="crearRepuesto-container">
@@ -599,55 +573,7 @@ function CrearRepuesto() {
             )}
           </div>
 
-          <div className="crearRepuesto-form-grid">
-            <div className="crearRepuesto-form-group">
-              <label htmlFor="cantidad" className="crearRepuesto-label">
-                <FaBox className="crearRepuesto-label-icon" />
-                Cantidad *
-              </label>
-              <input
-                type="number"
-                id="cantidad"
-                name="cantidad"
-                value={repuesto.cantidad}
-                onChange={handleChange}
-                min="0"
-                className={`crearRepuesto-form-input ${errores.cantidad ? "error" : ""}`}
-                placeholder="Ingrese la cantidad"
-                required
-              />
-              {errores.cantidad && (
-                <span className="crearRepuesto-error-text">
-                  <FaExclamationTriangle /> {errores.cantidad}
-                </span>
-              )}
-            </div>
-
-            <div className="crearRepuesto-form-group">
-              <label htmlFor="estado" className="crearRepuesto-label">
-                <FaCheckCircle className="crearRepuesto-label-icon" />
-                Estado *
-              </label>
-              <select
-                id="estado"
-                name="estado"
-                value={repuesto.estado}
-                onChange={handleChange}
-                className={`crearRepuesto-form-input ${errores.estado ? "error" : ""}`}
-                required
-              >
-                <option value="Activo">Activo</option>
-                <option value="Inactivo">Inactivo</option>
-              </select>
-              {errores.estado && (
-                <span className="crearRepuesto-error-text">
-                  <FaExclamationTriangle /> {errores.estado}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Reemplazar la sección de precios en el formulario con el nuevo campo de margen */}
+          {/* Sección de precios modificada */}
           <div className="crearRepuesto-form-grid">
             <div className="crearRepuesto-form-group">
               <label htmlFor="precio_compra" className="crearRepuesto-label">
@@ -698,37 +624,21 @@ function CrearRepuesto() {
             </div>
           </div>
 
+          {/* Solo vista previa del precio de venta */}
           <div className="crearRepuesto-form-grid">
             <div className="crearRepuesto-form-group">
-              <label htmlFor="preciounitario" className="crearRepuesto-label">
+              <label className="crearRepuesto-label">
                 <FaDollarSign className="crearRepuesto-label-icon" />
-                Precio de Venta (calculado) *
+                Vista Previa del Precio
               </label>
-              <input
-                type="number"
-                id="preciounitario"
-                name="preciounitario"
-                value={repuesto.preciounitario}
-                onChange={handleChange}
-                min="0"
-                step="0.01"
-                className={`crearRepuesto-form-input ${errores.preciounitario ? "error" : ""}`}
-                placeholder="Precio calculado automáticamente"
-                readOnly
-              />
+              <div className="crearRepuesto-total-display">
+                {formatearPrecio(repuesto.preciounitario)}
+              </div>
               {errores.preciounitario && (
                 <span className="crearRepuesto-error-text">
                   <FaExclamationTriangle /> {errores.preciounitario}
                 </span>
               )}
-            </div>
-
-            <div className="crearRepuesto-form-group">
-              <label className="crearRepuesto-label">
-                <FaDollarSign className="crearRepuesto-label-icon" />
-                Total en Inventario
-              </label>
-              <div className="crearRepuesto-total-display">{formatearPrecio(totalCalculado)}</div>
             </div>
           </div>
         </div>
