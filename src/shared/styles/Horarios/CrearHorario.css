@@ -1,107 +1,366 @@
-.crearHorario-container {
-  padding: 25px;
-  background-color: #f9fafb;
+.crearHorarios-container {
+  padding: 20px;
+  background-color: #f8fafc;
   min-height: 100vh;
-  font-family: "Montserrat", sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-.crearHorario-header {
+.crearHorarios-header {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.crearHorarios-headerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.crearHorarios-headerLeft {
   display: flex;
   align-items: center;
-  gap: 20px;
-  margin-bottom: 30px;
+  gap: 12px;
 }
 
-.crearHorario-back-button {
+.crearHorarios-headerIcon {
+  color: #3b82f6;
+  font-size: 24px;
+}
+
+.crearHorarios-headerText h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.2;
+}
+
+.crearHorarios-headerText p {
+  margin: 4px 0 0 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.crearHorarios-btnVolver {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
-  background-color: #f1f5f9;
-  color: #475569;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
+  text-decoration: none;
 }
 
-.crearHorario-back-button:hover {
-  background-color: #e2e8f0;
+.crearHorarios-btnVolver:hover:not(:disabled) {
+  background: #e2e8f0;
+  color: #334155;
 }
 
-.crearHorario-title {
-  font-size: 24px;
-  color: #1a202c;
-  margin: 0;
+.crearHorarios-content {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 24px;
 }
 
-.crearHorario-form {
-  background-color: white;
+.crearHorarios-formCard {
+  background: white;
+  border-radius: 12px;
   padding: 24px;
-  border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
 }
 
-.crearHorario-form-group {
+.crearHorarios-infoCard {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  height: fit-content;
+}
+
+.crearHorarios-infoCard h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 16px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.crearHorarios-horarioNormal {
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.crearHorarios-horarioNormal h4 {
+  margin: 0 0 8px 0;
+  color: #1e293b;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.crearHorarios-horarioNormal p {
+  margin: 4px 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.crearHorarios-formSection {
+  margin-bottom: 32px;
+}
+
+.crearHorarios-formSection:last-child {
+  margin-bottom: 0;
+}
+
+.crearHorarios-sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 20px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.crearHorarios-formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
   margin-bottom: 20px;
 }
 
-.crearHorario-form-group label {
-  display: block;
-  margin-bottom: 8px;
-  color: #475569;
+.crearHorarios-formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.crearHorarios-formGroup:last-child {
+  margin-bottom: 0;
+}
+
+.crearHorarios-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-weight: 500;
-}
-
-.crearHorario-form-group input {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 4px;
+  color: #374151;
   font-size: 14px;
-  transition: all 0.2s;
+  margin-bottom: 6px;
 }
 
-.crearHorario-form-group input:focus {
+.crearHorarios-input,
+.crearHorarios-select,
+.crearHorarios-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background-color: white;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.crearHorarios-input:focus,
+.crearHorarios-select:focus,
+.crearHorarios-textarea:focus {
   border-color: #3b82f6;
   outline: none;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.crearHorario-form-group input.error {
+.crearHorarios-input.error,
+.crearHorarios-select.error,
+.crearHorarios-textarea.error {
   border-color: #ef4444;
+  background-color: #fef2f2;
 }
 
-.error-message {
-  color: #ef4444;
+.crearHorarios-inputReadonly {
+  background-color: #f9fafb !important;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.crearHorarios-errorMessage {
   font-size: 12px;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   margin-top: 4px;
 }
 
-.crearHorario-form-actions {
-  margin-top: 24px;
+.crearHorarios-descriptionText {
+  font-size: 12px;
+  color: #3b82f6;
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 8px 12px;
+  background-color: #eff6ff;
+  border-radius: 6px;
+  border-left: 3px solid #3b82f6;
 }
 
-.crearHorario-submit-button {
+.crearHorarios-formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 24px;
+  border-top: 1px solid #f1f5f9;
+  margin-top: 32px;
+}
+
+.crearHorarios-btnCancelar {
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px;
-  background-color: #2563eb;
+}
+
+.crearHorarios-btnCancelar:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.crearHorarios-btnGuardar {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white;
   border: none;
+  padding: 12px 24px;
   border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.crearHorario-submit-button:hover {
-  background-color: #1d4ed8;
+.crearHorarios-btnGuardar:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
-.crearHorario-submit-button:disabled {
-  background-color: #94a3b8;
+.crearHorarios-btnGuardar:disabled,
+.crearHorarios-btnCancelar:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.crearHorarios-loadingSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .crearHorarios-content {
+    grid-template-columns: 1fr;
+  }
+
+  .crearHorarios-infoCard {
+    order: -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .crearHorarios-container {
+    padding: 16px;
+  }
+
+  .crearHorarios-header {
+    padding: 20px;
+  }
+
+  .crearHorarios-headerContent {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .crearHorarios-headerText h1 {
+    font-size: 20px;
+  }
+
+  .crearHorarios-formCard {
+    padding: 20px;
+  }
+
+  .crearHorarios-formRow {
+    grid-template-columns: 1fr;
+  }
+
+  .crearHorarios-formActions {
+    flex-direction: column;
+  }
+
+  .crearHorarios-btnCancelar,
+  .crearHorarios-btnGuardar {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .crearHorarios-container {
+    padding: 12px;
+  }
+
+  .crearHorarios-header {
+    padding: 16px;
+  }
+
+  .crearHorarios-formCard,
+  .crearHorarios-infoCard {
+    padding: 16px;
+  }
 }

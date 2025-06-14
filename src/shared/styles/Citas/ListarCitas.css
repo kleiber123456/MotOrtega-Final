@@ -1,0 +1,436 @@
+.listarCitas-container {
+  padding: 25px;
+  background-color: #f9fafb;
+  min-height: 100vh;
+  font-family: "Montserrat", sans-serif;
+}
+
+.listarCitas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+}
+
+.listarCitas-header h1 {
+  font-size: 28px;
+  color: #1a202c;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+}
+
+.listarCitas-header p {
+  color: #6b7280;
+  font-size: 16px;
+  margin: 0;
+}
+
+.listarCitas-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.listarCitas-search-input {
+  padding: 10px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  width: 200px;
+  transition: border-color 0.2s;
+}
+
+.listarCitas-search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.listarCitas-btn-refresh {
+  background: #6b7280;
+  color: #fff;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.listarCitas-btn-refresh:hover {
+  background: #4b5563;
+}
+
+.listarCitas-view-toggle {
+  display: flex;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.listarCitas-view-btn {
+  background: #f9fafb;
+  border: none;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+}
+
+.listarCitas-view-btn.active {
+  background: #3b82f6;
+  color: white;
+}
+
+.listarCitas-view-btn:hover:not(.active) {
+  background: #f3f4f6;
+}
+
+.listarCitas-btn-crear {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.listarCitas-btn-crear:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.25);
+}
+
+.listarCitas-calendar-container,
+.listarCitas-table-container {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+}
+
+.listarCitas-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.listarCitas-table th {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: none;
+  padding: 16px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.listarCitas-table td {
+  border: none;
+  border-bottom: 1px solid #f1f5f9;
+  padding: 16px 12px;
+  font-size: 14px;
+  color: #1a202c;
+}
+
+.listarCitas-table tr:hover {
+  background-color: #f8fafc;
+}
+
+.listarCitas-table tr:last-child td {
+  border-bottom: none;
+}
+
+.listarCitas-estado-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.listarCitas-estado-1 {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  border-color: #fbbf24;
+}
+
+.listarCitas-estado-2 {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #065f46;
+  border-color: #10b981;
+}
+
+.listarCitas-estado-3 {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #991b1b;
+  border-color: #ef4444;
+}
+
+.listarCitas-estado-4 {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af;
+  border-color: #3b82f6;
+}
+
+.listarCitas-actions-cell {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding: 8px;
+}
+
+.listarCitas-btn-action {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.listarCitas-btn-action:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.listarCitas-btn-view {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #fff;
+}
+
+.listarCitas-btn-edit {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: #fff;
+}
+
+.listarCitas-btn-delete {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #fff;
+}
+
+.listarCitas-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.listarCitas-page-number {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.listarCitas-page-number:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.listarCitas-page-number.listarCitas-active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.listarCitas-loading-spinner {
+  height: 220px;
+  font-size: 1.2rem;
+  color: #3b82f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.listarCitas-no-data {
+  color: #6b7280;
+  font-size: 1.1rem;
+  padding: 32px 0;
+  text-align: center;
+}
+
+/* Modal */
+.listarCitas-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.listarCitas-modal-content {
+  background: white;
+  border-radius: 12px;
+  max-width: 540px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.12);
+}
+
+.listarCitas-modal-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.listarCitas-modal-header h2 {
+  font-size: 1.3rem;
+  color: #1a202c;
+  margin: 0;
+}
+
+.listarCitas-close-btn {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.listarCitas-modal-body {
+  padding: 24px;
+  font-size: 1rem;
+}
+
+.listarCitas-modal-body p {
+  margin: 8px 0;
+}
+
+.listarCitas-modal-footer {
+  padding: 18px 24px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.listarCitas-btn-edit-modal {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.listarCitas-btn-edit-modal:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+}
+
+.listarCitas-btn-close-modal {
+  background: #6b7280;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.listarCitas-btn-close-modal:hover {
+  background: #4b5563;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .listarCitas-container {
+    padding: 16px;
+  }
+
+  .listarCitas-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+    padding: 16px;
+  }
+
+  .listarCitas-actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .listarCitas-search-input {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .listarCitas-calendar-container,
+  .listarCitas-table-container {
+    padding: 16px;
+  }
+
+  .listarCitas-table th,
+  .listarCitas-table td {
+    padding: 8px 6px;
+  }
+}
+
+@media (max-width: 600px) {
+  .listarCitas-header {
+    padding: 12px;
+  }
+
+  .listarCitas-actions {
+    width: 100%;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .listarCitas-view-toggle,
+  .listarCitas-btn-crear,
+  .listarCitas-btn-refresh {
+    width: 100%;
+  }
+
+  .listarCitas-table-container,
+  .listarCitas-calendar-container {
+    padding: 8px;
+  }
+
+  .listarCitas-table {
+    min-width: 700px;
+  }
+}

@@ -78,10 +78,14 @@ import VerDetalleMecanico from "./features/dashboard/pages/Mecanicos/VerDetalleM
 import ListarHorarios from "./features/dashboard/pages/Horarios/ListarHorarios"
 import CrearHorario from "./features/dashboard/pages/Horarios/CrearHorario"
 import EditarHorario from "./features/dashboard/pages/Horarios/EditarHorario"
+import DetalleHorario from "./features/dashboard/pages/Horarios/DetalleHorario"
 // ----------------------------------------------------------------------
 
 // ------------------------------CITAS-----------------------------
-import CitasCalendar from "./features/dashboard/pages/Citas/CitasCalendar"
+import ListarCitas from "./features/dashboard/pages/Citas/ListarCitas"
+import CrearCita from "./features/dashboard/pages/Citas/CrearCita"
+import EditarCita from "./features/dashboard/pages/Citas/EditarCita"
+import DetalleCita from "./features/dashboard/pages/Citas/DetalleCita"
 // --------------------------------ROLES-------------------------------
 import ListarRoles from "./features/dashboard/pages/Roles/ListarRoles"
 import CrearRoles from "./features/dashboard/pages/Roles/CrearRoles"
@@ -131,7 +135,37 @@ function App() {
           element={
             <PrivateRoute>
               <Layout>
-                <CitasCalendar />
+                <ListarCitas />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route 
+          path="/citas/crear"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <CrearCita />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/citas/editar/:id"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <EditarCita />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/citas/detalle/:id"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <DetalleCita />
               </Layout>
             </PrivateRoute>
           }
@@ -545,7 +579,7 @@ function App() {
         {/* ------------------------------------------------------------------------ */}
         {/* ------------------------------------------------------------------------ */}
         {/* HORARIOS */}
-        <Route
+<Route
           path="/Horarios"
           element={
             <PrivateRoute>
@@ -571,6 +605,16 @@ function App() {
             <PrivateRoute>
               <Layout>
                 <EditarHorario />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/DetalleHorario/:id"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <DetalleHorario />
               </Layout>
             </PrivateRoute>
           }

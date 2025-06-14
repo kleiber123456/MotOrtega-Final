@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { FaClock, FaCalendarAlt, FaArrowLeft, FaSave, FaTimes, FaExclamationTriangle } from "react-icons/fa"
+import { FaClock, FaArrowLeft, FaSave, FaTimes } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../components/layout/layout.jsx"
 import "../../../../shared/styles/Horarios/EditarHorario.css"
@@ -34,7 +34,7 @@ const EditarHorario = () => {
       const config = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `${token}`,
           ...options.headers,
         },
         ...options,
@@ -56,8 +56,19 @@ const EditarHorario = () => {
   const cargarHorario = async () => {
     try {
       setLoading(true)
-      const response = await makeRequest(`/horarios/${id}`)
-      const horarioData = response.data
+      const horarioData = await makeRequest(`/horarios/${id}`)
+
+      if (!horarioData || Object.keys(horarioData).length === 0) {
+        Swal.fire({
+          icon: "error",
+          title: "No encontrado",
+          text: "No se encontró el horario solicitado.",
+          confirmButtonColor: "#dc3545",
+        }).then(() => {
+          navigate("/Horarios")
+        })
+        return
+      }
 
       setHorarioOriginal(horarioData)
       setHorario({
@@ -71,10 +82,10 @@ const EditarHorario = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "No se pudo cargar el horario",
+        text: "No se pudo cargar el horario.",
         confirmButtonColor: "#dc3545",
       }).then(() => {
-        navigate("/dashboard/horarios")
+        navigate("/Horarios")
       })
     } finally {
       setLoading(false)
@@ -176,7 +187,7 @@ const EditarHorario = () => {
         text: "Horario actualizado correctamente",
         confirmButtonColor: "#2d3748",
       }).then(() => {
-        navigate("/dashboard/horarios")
+        navigate("/Horarios")
       })
     } catch (error) {
       console.error("Error al actualizar horario:", error)
@@ -192,7 +203,7 @@ const EditarHorario = () => {
   }
 
   const handleCancel = () => {
-    navigate("/dashboard/horarios")
+    navigate("/Horarios")
   }
 
   const esFechaPasada = (fecha) => {
@@ -226,36 +237,44 @@ const EditarHorario = () => {
   const fechaPasada = horarioOriginal && esFechaPasada(horarioOriginal.fecha)
 
   return (
-    <div className="editar-horario-container">
-      <div className="editar-horario-header">
-        <div className="header-content">
-          <div className="header-title">
-            <FaClock className="header-icon" />
-            <h1>Editar Horario</h1>
+    <div className="editarHorario-container">
+      <div className="editarHorario-header">
+        <div className="editarHorario-header-content">
+          <div className="editarHorario-header-left">
+            <div className="editarHorario-icon-container">
+              <FaClock className="editarHorario-icon" />
+            </div>
+            <div className="editarHorario-title-section">
+              <h2 className="editarHorario-title">Editar Horario</h2>
+              <p className="editarHorario-subtitle">Modifica la información del horario.</p>
+            </div>
           </div>
-          <button className="btn-volver" onClick={handleCancel} disabled={loading}>
+          <button className="editarHorario-btn-volver" onClick={handleCancel} disabled={loading}>
             <FaArrowLeft /> Volver
           </button>
         </div>
       </div>
 
       {fechaPasada && (
-        <div className="alerta-fecha-pasada">
-          <FaExclamationTriangle />
-          <span>Este horario corresponde a una fecha pasada y no puede ser editado</span>
+        <div className="editarHorario-alerta">
+          <strong>¡Atención!</strong>
+          <span> Este horario corresponde a una fecha pasada y no puede ser editado.</span>
         </div>
       )}
 
-      <div className="editar-horario-content">
-        <div className="form-card">
-          <form onSubmit={handleSubmit} className="horario-form">
-            <div className="form-section">
-              <h3>
-                <FaCalendarAlt /> Información del Horario
-              </h3>
+      <div className="editarHorario-content">
+        <div className="editarHorario-form-card">
+          <form onSubmit={handleSubmit} className="editarHorario-form">
+            <div className="editarHorario-form-header">
+              <h3 className="editarHorario-form-title">Información del Horario</h3>
+              <p className="editarHorario-form-description">
+                Aquí puedes modificar la información del horario. Los campos marcados con (*) son obligatorios.
+              </p>
+            </div>
 
+            <div className="editarHorario-form-content">
               {horarioOriginal && (
-                <div className="horario-actual">
+                <div className="editarHorario-current-info">
                   <h4>Horario Actual:</h4>
                   <p>
                     <strong>Fecha:</strong> {formatearFecha(horarioOriginal.fecha)}
@@ -272,86 +291,85 @@ const EditarHorario = () => {
                 </div>
               )}
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="fecha">
-                    <FaCalendarAlt /> Fecha *
+              <div className="editarHorario-form-grid">
+                <div className="editarHorario-form-group">
+                  <label htmlFor="fecha" className="editarHorario-label">
+                    Fecha *
                   </label>
                   <input
                     type="date"
-                    id="fecha"
                     name="fecha"
+                    id="fecha"
                     value={horario.fecha}
                     onChange={handleInputChange}
-                    className={errors.fecha ? "error" : ""}
+                    className={`editarHorario-input ${errors.fecha ? "editarHorario-input-error" : ""}`}
                     disabled={loading || fechaPasada}
                   />
-                  {errors.fecha && <span className="error-text">{errors.fecha}</span>}
+                  {errors.fecha && <p className="editarHorario-error-text">{errors.fecha}</p>}
                 </div>
-              </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="hora_inicio">
-                    <FaClock /> Hora de Inicio *
+                <div className="editarHorario-form-group">
+                  <label htmlFor="hora_inicio" className="editarHorario-label">
+                    Hora de Inicio *
                   </label>
                   <input
                     type="time"
-                    id="hora_inicio"
                     name="hora_inicio"
+                    id="hora_inicio"
                     value={horario.hora_inicio}
                     onChange={handleInputChange}
-                    className={errors.hora_inicio ? "error" : ""}
+                    className={`editarHorario-input ${errors.hora_inicio ? "editarHorario-input-error" : ""}`}
                     disabled={loading || fechaPasada}
                     min="06:00"
                     max="18:00"
                   />
-                  {errors.hora_inicio && <span className="error-text">{errors.hora_inicio}</span>}
+                  {errors.hora_inicio && <p className="editarHorario-error-text">{errors.hora_inicio}</p>}
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="hora_fin">
-                    <FaClock /> Hora de Fin *
+                <div className="editarHorario-form-group">
+                  <label htmlFor="hora_fin" className="editarHorario-label">
+                    Hora de Fin *
                   </label>
                   <input
                     type="time"
-                    id="hora_fin"
                     name="hora_fin"
+                    id="hora_fin"
                     value={horario.hora_fin}
                     onChange={handleInputChange}
-                    className={errors.hora_fin ? "error" : ""}
+                    className={`editarHorario-input ${errors.hora_fin ? "editarHorario-input-error" : ""}`}
                     disabled={loading || fechaPasada}
                     min="06:00"
                     max="18:00"
                   />
-                  {errors.hora_fin && <span className="error-text">{errors.hora_fin}</span>}
+                  {errors.hora_fin && <p className="editarHorario-error-text">{errors.hora_fin}</p>}
                 </div>
-              </div>
 
-              <div className="form-group">
-                <label htmlFor="descripcion">
-                  <FaExclamationTriangle /> Descripción (Opcional)
-                </label>
-                <textarea
-                  id="descripcion"
-                  name="descripcion"
-                  value={horario.descripcion}
-                  onChange={handleInputChange}
-                  placeholder="Descripción del horario (ej: Horario especial, Mantenimiento, etc.)"
-                  rows="3"
-                  disabled={loading || fechaPasada}
-                />
+                <div className="editarHorario-form-group editarHorario-form-group-full">
+                  <label htmlFor="descripcion" className="editarHorario-label">
+                    Descripción (Opcional)
+                  </label>
+                  <textarea
+                    id="descripcion"
+                    name="descripcion"
+                    rows="3"
+                    value={horario.descripcion}
+                    onChange={handleInputChange}
+                    className="editarHorario-textarea"
+                    placeholder="Descripción del horario (ej: Horario especial, Mantenimiento, etc.)"
+                    disabled={loading || fechaPasada}
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="form-actions">
-              <button type="button" className="btn-cancel" onClick={handleCancel} disabled={loading}>
+            <div className="editarHorario-form-actions">
+              <button type="button" className="editarHorario-btn-cancel" onClick={handleCancel} disabled={loading}>
                 <FaTimes /> Cancelar
               </button>
-              <button type="submit" className="btn-submit" disabled={loading || fechaPasada}>
+              <button type="submit" className="editarHorario-btn-submit" disabled={loading || fechaPasada}>
                 {loading ? (
                   <>
-                    <div className="spinner"></div>
+                    <div className="editarHorario-spinner"></div>
                     Actualizando...
                   </>
                 ) : (
@@ -364,11 +382,12 @@ const EditarHorario = () => {
           </form>
         </div>
 
-        <div className="info-card">
-          <h3>
-            <FaExclamationTriangle /> Información Importante
-          </h3>
-          <ul>
+        <div className="editarHorario-info-card">
+          <div className="editarHorario-info-header">
+            <h3 className="editarHorario-info-title">Información Importante</h3>
+            <p className="editarHorario-info-description">Consideraciones al editar un horario.</p>
+          </div>
+          <ul className="editarHorario-info-list">
             <li>Los horarios deben estar entre las 6:00 AM y 6:00 PM</li>
             <li>La hora de fin debe ser mayor que la hora de inicio</li>
             <li>No se pueden editar horarios de fechas pasadas</li>

@@ -1,0 +1,360 @@
+.horarios-container {
+  padding: 20px;
+  background-color: #f8f9fa;
+  min-height: calc(100vh - 60px);
+}
+
+.horarios-header {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.horarios-header h1 {
+  font-size: 24px;
+  color: #343a40;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.horarios-header h1 svg {
+  margin-right: 10px;
+  color: #007bff;
+}
+
+.horarios-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.horarios-form-section,
+.horarios-list-section {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.horarios-form-section h2,
+.horarios-list-section h2 {
+  font-size: 18px;
+  color: #343a40;
+  margin-top: 0;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.horarios-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #495057;
+  display: flex;
+  align-items: center;
+}
+
+.form-group label svg {
+  margin-right: 5px;
+  color: #6c757d;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #80bdff;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.input-error {
+  border-color: #dc3545 !important;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 14px;
+  margin-top: 5px;
+  display: block;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.btn-submit {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.btn-submit svg {
+  margin-right: 5px;
+}
+
+.btn-submit:hover {
+  background-color: #218838;
+}
+
+.btn-submit:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.horarios-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.horarios-table th,
+.horarios-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.horarios-table th {
+  background-color: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+}
+
+.horarios-table tr:hover {
+  background-color: #f8f9fa;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 5px;
+}
+
+.btn-action {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+  font-size: 14px;
+}
+
+.btn-view {
+  color: #17a2b8;
+  background-color: #e3f2fd;
+}
+
+.btn-view:hover {
+  background-color: #d1ecf1;
+}
+
+.btn-delete {
+  color: #dc3545;
+  background-color: #f8d7da;
+}
+
+.btn-delete:hover {
+  background-color: #f5c6cb;
+}
+
+.tipo-novedad {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.tipo-ausencia {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.tipo-llegada-tarde {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.tipo-salida-temprana {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.tipo-horario-especial {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 18px;
+  color: #6c757d;
+}
+
+.no-data {
+  text-align: center;
+  padding: 20px;
+  color: #6c757d;
+}
+
+/* Modal de detalle */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #343a40;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #6c757d;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-body p {
+  margin: 10px 0;
+}
+
+.modal-body strong {
+  font-weight: 600;
+  color: #495057;
+}
+
+.modal-footer {
+  padding: 15px 20px;
+  border-top: 1px solid #dee2e6;
+  display: flex;
+  justify-content: space-between;
+}
+
+.btn-delete-modal {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-delete-modal:hover {
+  background-color: #c82333;
+}
+
+.btn-close-modal {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-close-modal:hover {
+  background-color: #5a6268;
+}
+
+/* Estilos responsivos */
+@media (min-width: 768px) {
+  .horarios-form {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+}
+
+@media (min-width: 992px) {
+  .horarios-content {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .horarios-form-section,
+  .horarios-list-section {
+    padding: 15px;
+  }
+
+  .horarios-table th,
+  .horarios-table td {
+    padding: 8px;
+  }
+
+  .actions-cell {
+    flex-direction: column;
+  }
+
+  .btn-action {
+    margin-bottom: 5px;
+  }
+}

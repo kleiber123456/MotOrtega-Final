@@ -1,104 +1,394 @@
 .editarHorario-container {
-  padding: 2rem;
-  max-width: 800px;
-  margin: 0 auto;
+  padding: 25px;
+  background-color: #f9fafb;
+  min-height: 100vh;
+  font-family: "Montserrat", sans-serif;
 }
 
 .editarHorario-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 2rem;
-  gap: 1rem;
+  background-color: #fff;
+  border-radius: 15px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-.editarHorario-back-button {
+.editarHorario-header-content {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: #f0f0f0;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
-.editarHorario-back-button:hover {
-  background-color: #e0e0e0;
+.editarHorario-header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.editarHorario-icon-container {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4299e1 0%, #2b6cb0 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editarHorario-icon {
+  font-size: 1.75rem;
+  color: white;
+}
+
+.editarHorario-title-section {
+  display: flex;
+  flex-direction: column;
 }
 
 .editarHorario-title {
-  font-size: 1.5rem;
   margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #2d3748;
 }
 
-.editarHorario-form {
-  background-color: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.editarHorario-form-group {
-  margin-bottom: 1.5rem;
-}
-
-.editarHorario-form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-}
-
-.editarHorario-form-group input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+.editarHorario-subtitle {
+  margin: 0;
+  color: #718096;
   font-size: 1rem;
 }
 
-.editarHorario-form-group input.error {
-  border-color: #dc3545;
-}
-
-.error-message {
-  color: #dc3545;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-  display: block;
-}
-
-.editarHorario-form-actions {
-  margin-top: 2rem;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.editarHorario-submit-button {
+.editarHorario-btn-volver {
+  background: #edf2f7;
+  border: 1px solid #cbd5e0;
+  color: #4a5568;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 4px;
+  gap: 8px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.editarHorario-submit-button:hover {
-  background-color: #218838;
+.editarHorario-btn-volver:hover:not(:disabled) {
+  background: #e2e8f0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.editarHorario-submit-button:disabled {
-  background-color: #6c757d;
+.editarHorario-alerta {
+  background: #fed7d7;
+  border: 1px solid #feb2b2;
+  color: #c53030;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.editarHorario-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 25px;
+}
+
+.editarHorario-form-card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+  overflow: hidden;
+}
+
+.editarHorario-form-header {
+  padding: 25px 25px 0 25px;
+}
+
+.editarHorario-form-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0 0 8px 0;
+}
+
+.editarHorario-form-description {
+  color: #718096;
+  margin: 0 0 25px 0;
+}
+
+.editarHorario-form-content {
+  padding: 0 25px 25px 25px;
+}
+
+.editarHorario-current-info {
+  background: #f7fafc;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+  border-left: 4px solid #4299e1;
+}
+
+.editarHorario-current-info h4 {
+  margin: 0 0 10px 0;
+  color: #2d3748;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.editarHorario-current-info p {
+  margin: 5px 0;
+  color: #4a5568;
+}
+
+.editarHorario-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.editarHorario-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.editarHorario-form-group-full {
+  grid-column: 1 / -1;
+}
+
+.editarHorario-label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
+
+.editarHorario-input,
+.editarHorario-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  background-color: #f8fafc;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.editarHorario-input:focus,
+.editarHorario-textarea:focus {
+  border-color: #3b82f6;
+  background-color: white;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.editarHorario-input-error {
+  border-color: #ef4444 !important;
+  background-color: #fef2f2 !important;
+}
+
+.editarHorario-input:disabled,
+.editarHorario-textarea:disabled {
+  background-color: #f1f5f9;
+  color: #6b7280;
   cursor: not-allowed;
 }
 
-.editarHorario-loading {
-  text-align: center;
-  padding: 2rem;
-  font-size: 1.2rem;
-  color: #6c757d;
+.editarHorario-error-text {
+  font-size: 12px;
+  color: #ef4444;
+  margin-top: 4px;
+  padding: 8px 12px;
+  background-color: #fef2f2;
+  border-radius: 6px;
+  border-left: 3px solid #ef4444;
+}
+
+.editarHorario-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px 25px;
+  background-color: #f7fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+.editarHorario-btn-cancel {
+  background: #edf2f7;
+  color: #4a5568;
+  border: 1px solid #cbd5e0;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editarHorario-btn-cancel:hover:not(:disabled) {
+  background: #e2e8f0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.editarHorario-btn-submit {
+  background: linear-gradient(135deg, #4299e1 0%, #2b6cb0 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editarHorario-btn-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(66, 153, 225, 0.4);
+}
+
+.editarHorario-btn-submit:disabled,
+.editarHorario-btn-cancel:disabled {
+  background: #edf2f7;
+  color: #a0aec0;
+  border: 1px solid #cbd5e0;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.editarHorario-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: editarHorarioSpin 1s ease-in-out infinite;
+}
+
+@keyframes editarHorarioSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.editarHorario-info-card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+  height: fit-content;
+}
+
+.editarHorario-info-header {
+  padding: 25px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.editarHorario-info-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0 0 8px 0;
+}
+
+.editarHorario-info-description {
+  color: #718096;
+  margin: 0;
+}
+
+.editarHorario-info-list {
+  padding: 25px;
+  margin: 0;
+  list-style: none;
+}
+
+.editarHorario-info-list li {
+  margin-bottom: 12px;
+  color: #4a5568;
+  position: relative;
+  padding-left: 20px;
+}
+
+.editarHorario-info-list li:before {
+  content: "•";
+  color: #4299e1;
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #4299e1;
+  border-radius: 50%;
+  animation: editarHorarioSpin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .editarHorario-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .editarHorario-container {
+    padding: 15px;
+  }
+
+  .editarHorario-header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .editarHorario-header-left {
+    flex-direction: column;
+  }
+
+  .editarHorario-title {
+    font-size: 1.5rem;
+  }
+
+  .editarHorario-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .editarHorario-form-actions {
+    flex-direction: column;
+  }
+
+  .editarHorario-btn-cancel,
+  .editarHorario-btn-submit {
+    width: 100%;
+    justify-content: center;
+  }
 }

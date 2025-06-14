@@ -1,0 +1,339 @@
+/* Contenedor principal */
+.editarCita-container {
+  padding: 24px;
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+/* Header */
+.editarCita-header {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.editarCita-headerContent {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.editarCita-iconContainer {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editarCita-headerIcon {
+  color: white;
+  font-size: 20px;
+}
+
+.editarCita-headerText h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.editarCita-headerText p {
+  margin: 4px 0 0 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.editarCita-backButton {
+  background: #f3f4f6;
+  color: #374151;
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.editarCita-backButton:hover {
+  background: #e5e7eb;
+  color: #1f2937;
+}
+
+/* Contenido principal */
+.editarCita-content {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 24px;
+}
+
+/* Card principal del formulario */
+.editarCita-mainCard {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.editarCita-form {
+  padding: 24px;
+}
+
+/* Secciones del formulario */
+.editarCita-section {
+  margin-bottom: 32px;
+}
+
+.editarCita-section:last-child {
+  margin-bottom: 0;
+}
+
+.editarCita-sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #f3f4f6;
+}
+
+.editarCita-sectionIcon {
+  color: #3b82f6;
+  font-size: 16px;
+}
+
+/* Campos del formulario */
+.editarCita-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.editarCita-field {
+  margin-bottom: 20px;
+}
+
+.editarCita-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.editarCita-fieldIcon {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.editarCita-input,
+.editarCita-select,
+.editarCita-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s;
+  background: white;
+}
+
+.editarCita-input:focus,
+.editarCita-select:focus,
+.editarCita-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.editarCita-inputError {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.editarCita-error {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+.editarCita-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Botones de acción */
+.editarCita-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.editarCita-cancelButton {
+  background: #f3f4f6;
+  color: #374151;
+  padding: 12px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.editarCita-cancelButton:hover {
+  background: #e5e7eb;
+  color: #1f2937;
+}
+
+.editarCita-submitButton {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.editarCita-submitButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  transform: translateY(-1px);
+}
+
+.editarCita-submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Card de información lateral */
+.editarCita-infoCard {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  height: fit-content;
+}
+
+.editarCita-infoTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 16px;
+}
+
+.editarCita-infoContent {
+  space-y: 16px;
+}
+
+.editarCita-infoItem {
+  margin-bottom: 16px;
+}
+
+.editarCita-infoItem strong {
+  color: #374151;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.editarCita-infoItem p {
+  color: #6b7280;
+  font-size: 14px;
+  margin: 2px 0;
+}
+
+.editarCita-infoNote {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 16px;
+}
+
+.editarCita-infoNote p {
+  color: #1e40af;
+  font-size: 13px;
+  margin: 0;
+}
+
+/* Loading */
+.editarCita-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: #6b7280;
+}
+
+.editarCita-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f4f6;
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .editarCita-content {
+    grid-template-columns: 1fr;
+  }
+
+  .editarCita-infoCard {
+    order: -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .editarCita-container {
+    padding: 16px;
+  }
+
+  .editarCita-header {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+
+  .editarCita-row {
+    grid-template-columns: 1fr;
+  }
+
+  .editarCita-actions {
+    flex-direction: column;
+  }
+
+  .editarCita-cancelButton,
+  .editarCita-submitButton {
+    width: 100%;
+    text-align: center;
+  }
+}
