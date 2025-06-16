@@ -31,6 +31,13 @@ const getValidToken = () => {
   }
   return token
 }
+// ...otros imports...
+
+// Formatear números solo con separador de miles, sin decimales
+const formatNumber = (num) =>
+  Number(num).toLocaleString("es-CO", { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+
+// ...resto del código...
 
 // Hook personalizado para manejo de API
 const useApi = () => {
@@ -192,17 +199,40 @@ const CrearCompra = () => {
   // Función para actualizar cantidad de producto
   const updateProductQuantity = useCallback((productId, newQuantity) => {
     if (newQuantity <= 0) return
-
     setSelectedProducts((prev) =>
       prev.map((item) => (item.id === productId ? { ...item, quantity: newQuantity } : item)),
     )
   }, [])
 
-  // Función para actualizar precio de producto
+  // Actualiza el porcentaje y recalcula el precio venta
+  const updateProductPorcentaje = useCallback((productId, newPorcentaje) => {
+    setSelectedProducts((prev) =>
+      prev.map((item) =>
+        item.id === productId
+          ? {
+              ...item,
+              porcentaje: newPorcentaje,
+              precioVenta: Number(item.price) + (Number(item.price) * Number(newPorcentaje) / 100),
+            }
+          : item
+      )
+    )
+  }, [])
+
+  // Cuando cambias el precio compra, también recalcula el precio venta
   const updateProductPrice = useCallback((productId, newPrice) => {
     if (newPrice < 0) return
-
-    setSelectedProducts((prev) => prev.map((item) => (item.id === productId ? { ...item, price: newPrice } : item)))
+    setSelectedProducts((prev) =>
+      prev.map((item) =>
+        item.id === productId
+          ? {
+              ...item,
+              price: newPrice,
+              precioVenta: Number(newPrice) + (Number(newPrice) * Number(item.porcentaje || 40) / 100),
+            }
+          : item
+      )
+    )
   }, [])
 
   // Manejador mejorado para envío del formulario
@@ -228,7 +258,8 @@ const CrearCompra = () => {
           detalles: selectedProducts.map((product) => ({
             repuesto_id: product.id,
             cantidad: product.quantity,
-            precio_compra: product.price,
+            precio_compra: product.price, // Este es el precio compra de la compra
+            // NO envíes precio_venta aquí, solo se muestra
           })),
           estado: "Pendiente",
         }
@@ -410,33 +441,66 @@ const CrearCompra = () => {
                     <div className="crearCompra-product-card-details">
                       <div className="crearCompra-product-info-grid">
                         <div className="crearCompra-info-item">
-                          <span className="crearCompra-info-label">Precio:</span>
-                          <div className="crearCompra-editable-field">
-                            <input
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              value={product.price}
-                              onChange={(e) => updateProductPrice(product.id, Number.parseFloat(e.target.value) || 0)}
-                              className="crearCompra-inline-input"
-                            />
-                          </div>
-                        </div>
-                        <div className="crearCompra-info-item">
                           <span className="crearCompra-info-label">Cantidad:</span>
                           <div className="crearCompra-editable-field">
                             <input
                               type="number"
                               min="1"
                               value={product.quantity}
-                              onChange={(e) => updateProductQuantity(product.id, Number.parseInt(e.target.value) || 1)}
+                              onChange={(e) => updateProductQuantity(product.id, Number.parseInt(e.target.value) || "")}
                               className="crearCompra-inline-input"
+                              placeholder="Ingrese la cantidad"
+                            />
+                          </div>
+                        </div>
+                        <div className="crearCompra-info-item">
+                          <span className="crearCompra-info-label">Precio Compra:</span>
+                          <div className="crearCompra-editable-field">
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={product.price}
+                              onChange={(e) => updateProductPrice(product.id, Number.parseFloat(e.target.value) || "")}
+                              className="crearCompra-inline-input"
+                              placeholder="Ingrese el precio de compra"
+                            />
+                          </div>
+                        </div>
+                        <div className="crearCompra-info-item">
+                          <span className="crearCompra-info-label">Porcentaje:</span>
+                          <div className="crearCompra-editable-field">
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={product.porcentaje ?? 40}
+                              onChange={(e) => updateProductPorcentaje(product.id, Number.parseFloat(e.target.value) || "")}
+                              className="crearCompra-inline-input"
+                              placeholder="Ingrese el porcentaje"
+                            />
+                          </div>
+                        </div>
+                        <div className="crearCompra-info-item">
+                          <span className="crearCompra-info-label">Precio Venta:</span>
+                          <div className="crearCompra-editable-field">
+                            <input
+                              type="text"
+                              value={formatNumber(
+                                product.precioVenta ??
+                                (Number(product.price) + (Number(product.price) * Number(product.porcentaje ?? 40) / 100))
+                              )}
+                              className="crearCompra-inline-input"
+                              readOnly
+                              tabIndex={-1}
+                              style={{ background: "#f3f4f6", color: "#374151" }}
+                              placeholder="Precio venta"
                             />
                           </div>
                         </div>
                         <div className="crearCompra-info-item crearCompra-subtotal-item">
                           <span className="crearCompra-info-label">Subtotal:</span>
-                          <span className="crearCompra-subtotal">${(product.price * product.quantity).toFixed(2)}</span>
+                          <span className="crearCompra-subtotal">${formatNumber(product.price * product.quantity)}</span>
                         </div>
                       </div>
                     </div>
@@ -447,7 +511,7 @@ const CrearCompra = () => {
               <div className="crearCompra-total-section">
                 <div className="crearCompra-total-card">
                   <span className="crearCompra-total-label">Total de la Compra:</span>
-                  <span className="crearCompra-total-amount">${total.toFixed(2)}</span>
+                  <span className="crearCompra-total-amount">${formatNumber(total)}</span>
                 </div>
               </div>
             </div>
@@ -503,6 +567,10 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
   const [products, setProducts] = useState([])
   const [cartItems, setCartItems] = useState([])
   const [total, setTotal] = useState(0)
+  // Estado para inputs temporales por producto
+  const [inputValues, setInputValues] = useState({})
+  // Agrega este estado para errores de inputs en el modal
+  const [inputErrors, setInputErrors] = useState({})
 
   // Cargar productos desde la API
   useEffect(() => {
@@ -535,30 +603,65 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
     setTotal(newTotal)
   }, [cartItems])
 
-  const handleAddToCart = useCallback(
-    (product, quantity, customPrice) => {
-      const existingItem = cartItems.find((item) => item.id === product.id)
-      const finalPrice = customPrice || product.preciounitario || 0
+  // Manejar cambios en los inputs de cada producto
+  const handleInputChange = (productId, field, value) => {
+    setInputValues((prev) => ({
+      ...prev,
+      [productId]: {
+        ...prev[productId],
+        [field]: value,
+      },
+    }))
+  }
 
-      if (existingItem) {
-        setCartItems((prev) =>
-          prev.map((item) =>
-            item.id === product.id ? { ...item, quantity: item.quantity + quantity, price: finalPrice } : item,
-          ),
-        )
-      } else {
-        setCartItems((prev) => [
-          ...prev,
-          {
-            ...product,
-            quantity,
-            price: finalPrice,
-          },
-        ])
-      }
-    },
-    [cartItems],
-  )
+  // Calcular precio venta
+  const getPrecioVenta = (precioCompra, porcentaje) => {
+    const pc = Number(precioCompra) || 0
+    const por = Number(porcentaje) || 0
+    return pc + (pc * por) / 100
+  }
+
+  // Formatear números solo con separador de miles, sin decimales
+  const formatNumber = (num) =>
+    Number(num).toLocaleString("es-CO", { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+
+  // Validar campos antes de agregar al carrito
+  const validateInputs = (productId, cantidad, precioCompra, porcentaje) => {
+    const errors = {}
+    if (!cantidad || isNaN(cantidad) || cantidad < 1) {
+      errors.cantidad = "Ingrese una cantidad válida (mayor o igual a 1)"
+    }
+    if (!precioCompra || isNaN(precioCompra) || precioCompra <= 0) {
+      errors.precioCompra = "Ingrese el precio de compra (mayor a 0)"
+    }
+    if (porcentaje === "" || porcentaje === null || isNaN(porcentaje) || porcentaje < 0) {
+      errors.porcentaje = "Ingrese el porcentaje (0 o mayor)"
+    }
+    setInputErrors((prev) => ({ ...prev, [productId]: errors }))
+    return Object.keys(errors).length === 0
+  }
+
+  // Función para agregar productos al carrito
+  const handleAddToCart = (product, cantidad, precioCompra, porcentaje) => {
+    if (!validateInputs(product.id, cantidad, precioCompra, porcentaje)) return
+
+    // Calcula el precio venta usando el porcentaje y el precio compra
+    const precioVenta = Number(precioCompra) + (Number(precioCompra) * Number(porcentaje) / 100)
+
+    setCartItems((prev) => [
+      ...prev,
+      {
+        ...product,
+        quantity: cantidad,
+        price: precioCompra,
+        porcentaje: porcentaje,
+        precioVenta: precioVenta,
+      },
+    ])
+    // Limpia errores y valores temporales
+    setInputErrors((prev) => ({ ...prev, [product.id]: {} }))
+    setInputValues((prev) => ({ ...prev, [product.id]: {} }))
+  }
 
   const handleRemoveFromCart = useCallback((productId) => {
     setCartItems((prev) => prev.filter((item) => item.id !== productId))
@@ -673,62 +776,120 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                   <p>{searchTerm ? "No se encontraron productos" : "No hay productos disponibles"}</p>
                 </div>
               ) : (
-                availableProducts.map((product) => (
-                  <div key={product.id} className="crearCompra-product-card">
-                    <div className="crearCompra-product-info">
-                      <div className="crearCompra-product-main-info">
-                        <span className="crearCompra-product-name">{product.nombre}</span>
-                        <span className="crearCompra-product-price">${(product.preciounitario || 0).toFixed(2)}</span>
-                      </div>
-                      <span className="crearCompra-product-stock">Stock: {product.cantidad || 0}</span>
-                      {product.descripcion && (
-                        <span className="crearCompra-product-description">{product.descripcion}</span>
-                      )}
-                    </div>
-                    <div className="crearCompra-product-actions">
-                      <div className="crearCompra-input-group">
-                        <div className="crearCompra-input-item">
-                          <label>Cantidad</label>
-                          <input
-                            type="number"
-                            className="crearCompra-quantity-input"
-                            min="1"
-                            defaultValue="1"
-                            id={`quantity-${product.id}`}
-                          />
-                        </div>
-                        <div className="crearCompra-input-item">
-                          <label>Precio</label>
-                          <input
-                            type="number"
-                            className="crearCompra-quantity-input"
-                            min="0"
-                            step="0.01"
-                            defaultValue={product.preciounitario || 0}
-                            id={`price-${product.id}`}
-                            onFocus={(e) => e.target.select()}
-                            placeholder="0.00"
-                          />
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        className="crearCompra-add-button"
-                        onClick={() => {
-                          const quantityInput = document.getElementById(`quantity-${product.id}`)
-                          const priceInput = document.getElementById(`price-${product.id}`)
-                          const quantity = Number.parseInt(quantityInput.value) || 1
-                          const customPrice = Number.parseFloat(priceInput.value) || product.preciounitario || 0
+                availableProducts.map((product) => {
+                  const values = inputValues[product.id] || {}
+                  const cantidad = values.cantidad ?? 1
+                  const precioCompra = values.precioCompra ?? product.preciounitario ?? 0
+                  const porcentaje = values.porcentaje ?? 40
+                  const precioVenta = getPrecioVenta(precioCompra, porcentaje)
 
-                          handleAddToCart(product, quantity, customPrice)
-                          // NO cerrar el modal ni confirmar aquí
-                        }}
-                      >
-                        <FaPlus /> Agregar
-                      </button>
+                  return (
+                    <div key={product.id} className="crearCompra-product-card">
+                      <div className="crearCompra-product-info">
+                        <div className="crearCompra-product-main-info">
+                          <span className="crearCompra-product-name">{product.nombre}</span>
+                          <span className="crearCompra-product-price">
+                            ${formatNumber(product.preciounitario || 0)}
+                          </span>
+                        </div>
+                        <span className="crearCompra-product-stock">Stock: {product.cantidad || 0}</span>
+                        {product.descripcion && (
+                          <span className="crearCompra-product-description">{product.descripcion}</span>
+                        )}
+                      </div>
+                      <div className="crearCompra-product-actions crearCompra-product-actions-vertical">
+                        <div className="crearCompra-input-group">
+                          <div className="crearCompra-input-item">
+                            <label>Cantidad</label>
+                            <input
+                              type="number"
+                              className="crearCompra-quantity-input"
+                              min="1"
+                              value={cantidad === undefined ? "" : cantidad}
+                              onChange={(e) =>
+                                handleInputChange(product.id, "cantidad", e.target.value === "" ? "" : Number.parseInt(e.target.value))
+                              }
+                              placeholder="Ingrese la cantidad"
+                            />
+                            {inputErrors[product.id]?.cantidad && (
+                              <span className="crearCompra-input-hint" style={{ color: "#ef4444" }}>
+                                {inputErrors[product.id].cantidad}
+                              </span>
+                            )}
+                          </div>
+                          <div className="crearCompra-input-item">
+                            <label>Precio Compra</label>
+                            <input
+                              type="number"
+                              className="crearCompra-quantity-input"
+                              min="0"
+                              step="0.01"
+                              value={precioCompra === undefined ? "" : precioCompra}
+                              onChange={(e) =>
+                                handleInputChange(product.id, "precioCompra", e.target.value === "" ? "" : Number.parseFloat(e.target.value))
+                              }
+                              onFocus={(e) => e.target.select()}
+                              placeholder="Ingrese el precio de compra"
+                            />
+                            {inputErrors[product.id]?.precioCompra && (
+                              <span className="crearCompra-input-hint" style={{ color: "#ef4444" }}>
+                                {inputErrors[product.id].precioCompra}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="crearCompra-input-group">
+                          <div className="crearCompra-input-item">
+                            <label>Porcentaje</label>
+                            <input
+                              type="number"
+                              className="crearCompra-quantity-input"
+                              min="0"
+                              step="0.01"
+                              value={porcentaje === undefined ? "" : porcentaje}
+                              onChange={(e) =>
+                                handleInputChange(product.id, "porcentaje", e.target.value === "" ? "" : Number.parseFloat(e.target.value))
+                              }
+                              placeholder="Ingrese el porcentaje"
+                            />
+                            {inputErrors[product.id]?.porcentaje && (
+                              <span className="crearCompra-input-hint" style={{ color: "#ef4444" }}>
+                                {inputErrors[product.id].porcentaje}
+                              </span>
+                            )}
+                          </div>
+                          <div className="crearCompra-input-item">
+                            <label>Precio Venta</label>
+                            <input
+                              type="text"
+                              className="crearCompra-quantity-input"
+                              value={formatNumber(precioVenta)}
+                              readOnly
+                              tabIndex={-1}
+                              style={{ background: "#f3f4f6", color: "#374151" }}
+                            />
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          className="crearCompra-add-button"
+                          style={{ marginTop: 8 }}
+                          onClick={() => {
+                            handleAddToCart(
+                              product,
+                              cantidad,
+                              precioCompra,
+                              porcentaje,
+                              precioVenta,
+                            )
+                          }}
+                        >
+                          <FaPlus /> Agregar
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  )
+                })
               )}
             </div>
           </div>
@@ -772,7 +933,7 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                           />
                         </div>
                         <div className="crearCompra-control-group">
-                          <label>Precio:</label>
+                          <label>Precio Compra:</label>
                           <input
                             type="number"
                             min="0"
@@ -781,12 +942,23 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                             onChange={(e) => updateCartItemPrice(item.id, Number.parseFloat(e.target.value) || 0)}
                             className="crearCompra-control-input"
                             onFocus={(e) => e.target.select()}
-                            placeholder="0.00"
+                            placeholder="0"
+                          />
+                        </div>
+                        <div className="crearCompra-control-group">
+                          <label>Precio Venta:</label>
+                          <input
+                            type="text"
+                            value={formatNumber(item.precioVenta)}
+                            className="crearCompra-control-input"
+                            readOnly
+                            tabIndex={-1}
+                            style={{ background: "#f3f4f6", color: "#374151" }}
                           />
                         </div>
                       </div>
                       <div className="crearCompra-cart-item-total">
-                        Subtotal: <strong>${(item.price * item.quantity).toFixed(2)}</strong>
+                        Subtotal: <strong>${formatNumber(item.price * item.quantity)}</strong>
                       </div>
                     </div>
                   </div>
@@ -797,7 +969,7 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
             <div className="crearCompra-cart-summary">
               <div className="crearCompra-cart-total">
                 <span>Total:</span>
-                <strong>${total.toFixed(2)}</strong>
+                <strong>${formatNumber(total)}</strong>
               </div>
               <button
                 type="button"

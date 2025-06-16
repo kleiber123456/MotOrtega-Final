@@ -373,6 +373,13 @@ const ListarProveedor = () => {
                   </td>
                   <td className="listarProveedor-actions">
                     <button
+                      className="listarProveedor-action-button detail"
+                      onClick={() => navigate(`/DetalleProveedor/${proveedorId}`)}
+                      title="Ver detalle"
+                    >
+                      <FaEye />
+                    </button>
+                    <button
                       className="listarProveedor-action-button edit"
                       onClick={() => navigate(`/EditarProveedor/${proveedorId}`)}
                       title="Editar proveedor"
@@ -386,13 +393,7 @@ const ListarProveedor = () => {
                     >
                       <FaTrash />
                     </button>
-                    <button
-                      className="listarProveedor-action-button detail"
-                      onClick={() => navigate(`/DetalleProveedor/${proveedorId}`)}
-                      title="Ver detalle"
-                    >
-                      <FaEye />
-                    </button>
+                    
                   </td>
                 </tr>,
                 filasExpandidas.has(proveedorId) && (

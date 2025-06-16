@@ -332,6 +332,13 @@ const ListarVehiculos = () => {
                   </button>
                 </td>
                 <td className="listarVehiculos-actions">
+                   <button
+                    className="listarVehiculos-action-button detail"
+                    onClick={() => navigate(`/vehiculos/detalle/${vehiculo.id}`)}
+                    title="Ver detalle"
+                  >
+                    <FaEye />
+                  </button> 
                   <button
                     className="listarVehiculos-action-button edit"
                     onClick={() => navigate(`/vehiculos/editar/${vehiculo.id}`)}
@@ -346,13 +353,7 @@ const ListarVehiculos = () => {
                   >
                     <FaTrash />
                   </button>
-                  <button
-                    className="listarVehiculos-action-button detail"
-                    onClick={() => navigate(`/vehiculos/detalle/${vehiculo.id}`)}
-                    title="Ver detalle"
-                  >
-                    <FaEye />
-                  </button>
+                 
                 </td>
               </tr>
             ))}

@@ -316,6 +316,13 @@ const ListarMecanicos = () => {
                 </td>
                 <td className="listarUsuarios-actions">
                   <button
+                    className="listarUsuarios-action-button detail"
+                    onClick={() => navigate(`/Mecanicos/detalle/${mecanico.id}`)}
+                    title="Ver detalle"
+                  >
+                    <FaEye />
+                  </button>
+                  <button
                     className="listarUsuarios-action-button edit"
                     onClick={() => navigate(`/Mecanicos/editar/${mecanico.id}`)}
                     title="Editar mecánico"
@@ -329,13 +336,7 @@ const ListarMecanicos = () => {
                   >
                     <FaTrash />
                   </button>
-                  <button
-                    className="listarUsuarios-action-button detail"
-                    onClick={() => navigate(`/Mecanicos/detalle/${mecanico.id}`)}
-                    title="Ver detalle"
-                  >
-                    <FaEye />
-                  </button>
+                  
                 </td>
               </tr>
             ))}

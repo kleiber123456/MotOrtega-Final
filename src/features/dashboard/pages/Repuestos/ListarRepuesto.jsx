@@ -616,6 +616,13 @@ function ListarRepuestos() {
                   </button>
                 </td>
                 <td className="listarRepuesto-actions">
+                   <button
+                    className="listarRepuesto-action-button detail"
+                    onClick={() => navigate(`/DetalleRepuesto/${repuesto.id}`)}
+                    title="Ver detalle"
+                  >
+                    <FaEye />
+                  </button>
                   <button
                     className="listarRepuesto-action-button edit"
                     onClick={() => navigate(`/repuestos/editar/${repuesto.id}`)}
@@ -630,13 +637,7 @@ function ListarRepuestos() {
                   >
                     <FaTrash />
                   </button>
-                  <button
-                    className="listarRepuesto-action-button detail"
-                    onClick={() => navigate(`/DetalleRepuesto/${repuesto.id}`)}
-                    title="Ver detalle"
-                  >
-                    <FaEye />
-                  </button>
+                 
                 </td>
               </tr>
             ))}

@@ -276,6 +276,13 @@ const ListarServicios = () => {
                 </td>
                 <td className="listarServicios-actions">
                   <button
+                    className="listarServicios-action-button detail"
+                    onClick={() => navigate(`/servicios/detalle/${servicio.id}`)}
+                    title="Ver detalle"
+                  >
+                    <FaEye />
+                  </button>
+                  <button
                     className="listarServicios-action-button edit"
                     onClick={() => navigate(`/servicios/editar/${servicio.id}`)}
                     title="Editar servicio"
@@ -289,13 +296,7 @@ const ListarServicios = () => {
                   >
                     <FaTrash />
                   </button>
-                  <button
-                    className="listarServicios-action-button detail"
-                    onClick={() => navigate(`/servicios/detalle/${servicio.id}`)}
-                    title="Ver detalle"
-                  >
-                    <FaEye />
-                  </button>
+                  
                 </td>
               </tr>
             ))}

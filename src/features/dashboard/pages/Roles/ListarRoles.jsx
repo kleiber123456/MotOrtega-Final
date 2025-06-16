@@ -285,6 +285,7 @@ const ListarRoles = () => {
             <tr>
               <th>Nombre del Rol</th>
               <th>Descripción</th>
+              <th>Cantidad</th>
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
@@ -326,6 +327,13 @@ const ListarRoles = () => {
                 </td>
                 <td className="listarRoles-actions">
                   <button
+                    className="listarRoles-action-button detail"
+                    onClick={() => navigate(`/DetalleRol/${rol.id}`)}
+                    title="Ver detalle"
+                  >
+                    <FaEye />
+                  </button>
+                  <button
                     className="listarRoles-action-button edit"
                     onClick={() => navigate(`/EditarRol/${rol.id}`)}
                     title="Editar rol"
@@ -339,13 +347,7 @@ const ListarRoles = () => {
                   >
                     <FaTrash />
                   </button>
-                  <button
-                    className="listarRoles-action-button detail"
-                    onClick={() => navigate(`/DetalleRol/${rol.id}`)}
-                    title="Ver detalle"
-                  >
-                    <FaEye />
-                  </button>
+                  
                 </td>
               </tr>
             ))}

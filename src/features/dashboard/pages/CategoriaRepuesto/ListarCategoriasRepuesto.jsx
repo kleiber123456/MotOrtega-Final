@@ -265,6 +265,13 @@ const ListarCategoriasRepuesto = () => {
                   </button>
                 </td>
                 <td className="listarCategoriaRepuesto-actions">
+                   <button
+                    className="listarCategoriaRepuesto-action-button detail"
+                    onClick={() => navigate(`/categorias-repuesto/detalle/${categoria.id}`)}
+                    title="Ver detalle"
+                  >
+                    <FaEye />
+                  </button>
                   <button
                     className="listarCategoriaRepuesto-action-button edit"
                     onClick={() => navigate(`/categorias-repuesto/editar/${categoria.id}`)}
@@ -278,13 +285,6 @@ const ListarCategoriasRepuesto = () => {
                     title="Eliminar categoría"
                   >
                     <FaTrash />
-                  </button>
-                  <button
-                    className="listarCategoriaRepuesto-action-button detail"
-                    onClick={() => navigate(`/categorias-repuesto/detalle/${categoria.id}`)}
-                    title="Ver detalle"
-                  >
-                    <FaEye />
                   </button>
                 </td>
               </tr>

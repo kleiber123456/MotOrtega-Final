@@ -655,23 +655,14 @@
 
 .crearCompra-input-group {
   display: flex;
+  flex-direction: row;
   gap: 8px;
-  flex: 1;
-  min-width: 200px;
+  width: 100%;
 }
 
 .crearCompra-input-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
   flex: 1;
   min-width: 80px;
-}
-
-.crearCompra-input-item label {
-  font-size: 11px;
-  color: #6b7280;
-  font-weight: 500;
 }
 
 .crearCompra-quantity-input {
@@ -1273,4 +1264,30 @@
   justify-content: center;
   font-size: 14px;
   gap: 6px;
+}
+
+/* Alinear los inputs a la izquierda y en dos filas */
+.crearCompra-product-actions-vertical {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 8px;
+  width: 100%;
+}
+
+.crearCompra-input-group {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  width: 100%;
+}
+
+.crearCompra-input-item {
+  flex: 1;
+  min-width: 80px;
+}
+
+.crearCompra-input-hint {
+  color: #888;
+  font-size: 0.85em;
+  margin-left: 2px;
 }
