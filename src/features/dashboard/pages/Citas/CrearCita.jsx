@@ -255,6 +255,33 @@ const CrearCita = () => {
     })
   }
 
+  // Nueva función para manejar el cambio de fecha, similar a CrearHorario
+  const handleFechaChange = (e) => {
+    const { value } = e.target
+    const fechaObj = new Date(value)
+    let errorMsg = ""
+
+    if (value) {
+      if (fechaObj.getDay() === 0) {
+        errorMsg = "No se pueden programar citas los domingos (día no laborable)"
+      }
+      const hoy = new Date()
+      hoy.setHours(0, 0, 0, 0)
+      if (fechaObj < hoy) {
+        errorMsg = "No se pueden programar citas en fechas pasadas"
+      }
+    }
+
+    setFormData({
+      ...formData,
+      fecha: value,
+    })
+    setErrors({
+      ...errors,
+      fecha: errorMsg,
+    })
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
 
@@ -345,7 +372,7 @@ const CrearCita = () => {
                       type="date"
                       name="fecha"
                       value={formData.fecha}
-                      onChange={handleChange}
+                      onChange={handleFechaChange}
                       min={new Date().toISOString().split("T")[0]}
                       className={`crearCita-input ${errors.fecha ? "crearCita-inputError" : ""}`}
                     />

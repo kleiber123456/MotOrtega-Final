@@ -92,18 +92,75 @@ const CrearHorario = () => {
     return diasSemana[fechaObj.getDay()]
   }
 
+  const validarFecha = (fechaString) => {
+    console.log("=== VALIDANDO FECHA ===")
+    console.log("Fecha recibida:", fechaString)
+
+    if (!fechaString) return ""
+
+    // El input type="date" devuelve formato YYYY-MM-DD
+    const fechaSeleccionada = new Date(fechaString)
+    const hoy = new Date()
+
+    console.log("Fecha seleccionada (objeto):", fechaSeleccionada)
+    console.log("Fecha hoy (objeto):", hoy)
+
+    // Normalizar fechas a medianoche para comparar solo días
+    const fechaSeleccionadaNormalizada = new Date(
+      fechaSeleccionada.getFullYear(),
+      fechaSeleccionada.getMonth(),
+      fechaSeleccionada.getDate(),
+    )
+    const hoyNormalizada = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate())
+
+    console.log("Fecha seleccionada normalizada:", fechaSeleccionadaNormalizada)
+    console.log("Fecha hoy normalizada:", hoyNormalizada)
+
+    // Calcular diferencia en milisegundos y convertir a días
+    const diferenciaMilisegundos = fechaSeleccionadaNormalizada.getTime() - hoyNormalizada.getTime()
+    const diferenciaDias = Math.floor(diferenciaMilisegundos / (1000 * 60 * 60 * 24))
+
+    console.log("Diferencia en milisegundos:", diferenciaMilisegundos)
+    console.log("Diferencia en días:", diferenciaDias)
+
+    // Validar día de la semana
+    const dia = calcularDiaSemana(fechaString)
+    console.log("Día de la semana:", dia)
+
+    if (dia === "Domingo") {
+      console.log("ERROR: Es domingo")
+      return "No se pueden crear novedades para domingos (día no laboral)"
+    }
+
+    if (diferenciaDias < -3) {
+      console.log("ERROR: Más de 3 días en el pasado")
+      return "No se pueden crear novedades para fechas con más de 3 días de antigüedad"
+    }
+
+    if (diferenciaDias < 0) {
+      console.log("ERROR: Fecha en el pasado")
+      return "La fecha no puede ser en el pasado"
+    }
+
+    console.log("Fecha válida")
+    return ""
+  }
+
   const handleInputChange = (e) => {
     const { name, value } = e.target
+    console.log("Input change:", name, value)
 
     const newHorario = { ...horario, [name]: value }
 
-    if (name === "fecha" && value) {
-      const dia = calcularDiaSemana(value)
-      newHorario.dia = dia
+    if (name === "fecha") {
+      if (value) {
+        const dia = calcularDiaSemana(value)
+        newHorario.dia = dia
 
-      if (dia === "Domingo") {
-        setErrors((prev) => ({ ...prev, fecha: "No se pueden crear novedades para domingos (día no laboral)" }))
+        const errorFecha = validarFecha(value)
+        setErrors((prev) => ({ ...prev, fecha: errorFecha }))
       } else {
+        newHorario.dia = ""
         setErrors((prev) => ({ ...prev, fecha: "" }))
       }
     }
@@ -115,7 +172,8 @@ const CrearHorario = () => {
 
     setHorario(newHorario)
 
-    if (errors[name]) {
+    // Limpiar otros errores cuando el usuario modifica el campo
+    if (name !== "fecha" && errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }))
     }
   }
@@ -126,16 +184,9 @@ const CrearHorario = () => {
     if (!horario.fecha) {
       newErrors.fecha = "La fecha es requerida"
     } else {
-      const fechaObj = new Date(horario.fecha + "T12:00:00")
-      const hoy = new Date()
-      hoy.setHours(0, 0, 0, 0)
-
-      if (fechaObj < hoy) {
-        newErrors.fecha = "La fecha no puede ser en el pasado"
-      }
-
-      if (horario.dia === "Domingo") {
-        newErrors.fecha = "No se pueden crear novedades para domingos"
+      const errorFecha = validarFecha(horario.fecha)
+      if (errorFecha) {
+        newErrors.fecha = errorFecha
       }
     }
 
@@ -264,7 +315,28 @@ const CrearHorario = () => {
                     className={`crearHorarios-input ${errors.fecha ? "error" : ""}`}
                     disabled={loading}
                   />
-                  {errors.fecha && <span className="crearHorarios-errorMessage">{errors.fecha}</span>}
+                  {errors.fecha && (
+                    <span
+                      className="crearHorarios-errorMessage"
+                      style={{
+                        display: "block",
+                        color: "#dc3545",
+                        fontSize: "14px",
+                        marginTop: "5px",
+                        fontWeight: "500",
+                        backgroundColor: "#f8d7da",
+                        padding: "8px",
+                        borderRadius: "4px",
+                        border: "1px solid #f5c6cb",
+                      }}
+                    >
+                      ⚠️ {errors.fecha}
+                    </span>
+                  )}
+                  {/* Debug info - remover después */}
+                  <div style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>
+                    Debug: Fecha actual = {horario.fecha}, Día = {horario.dia}
+                  </div>
                 </div>
 
                 <div className="crearHorarios-formGroup">
