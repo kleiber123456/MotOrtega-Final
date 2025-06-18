@@ -192,15 +192,18 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
         </div>
 
         <div className="mo-sidebar__menu">
-          {/* Dashboard como primera opción */}
-          <SimpleLink
-            title="Dashboard"
+          {/* NUEVO: Dropdown de Inicio con Dashboard y Perfil */}
+          <Dropdown
+            id="inicio"
+            title="Inicio"
             icon={<FaTachometerAlt />}
-            link="/dashboard"
+            options={[
+              { label: "Dashboard", link: "/dashboard" },
+              { label: "Perfil", link: "/Perfil" },
+            ]}
+            isOpen={activeDropdown === "inicio"}
+            toggleDropdown={toggleDropdown}
             collapsed={collapsed}
-            onClick={handleLinkClick}
-            isActive={isLinkActive("/dashboard")}
-            isDashboard={true}
           />
 
           <Dropdown
@@ -258,15 +261,6 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
             isOpen={activeDropdown === "operaciones"}
             toggleDropdown={toggleDropdown}
             collapsed={collapsed}
-          />
-
-          <SimpleLink
-            title="Mi Perfil"
-            icon={<FaUser />}
-            link="/Perfil"
-            collapsed={collapsed}
-            onClick={handleLinkClick}
-            isActive={isLinkActive("/Perfil")}
           />
         </div>
 

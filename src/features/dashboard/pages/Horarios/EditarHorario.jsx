@@ -9,6 +9,15 @@ import "../../../../shared/styles/Horarios/EditarHorario.css"
 
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
 
+const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"]
+
+// Devuelve la fecha mínima permitida (hoy - 3 días)
+const getFechaMinima = () => {
+  const hoy = new Date()
+  hoy.setDate(hoy.getDate() - 3)
+  return hoy.toISOString().split("T")[0]
+}
+
 const EditarHorario = () => {
   const navigate = useNavigate()
   const { id } = useParams()
@@ -43,7 +52,8 @@ const EditarHorario = () => {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, config)
 
       if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`)
+        const errorText = await response.text()
+        throw new Error(`Error ${response.status}: ${errorText}`)
       }
 
       return await response.json()
@@ -72,7 +82,7 @@ const EditarHorario = () => {
 
       setHorarioOriginal(horarioData)
       setHorario({
-        fecha: horarioData.fecha,
+        fecha: horarioData.fecha.split("T")[0], // Tomar solo la parte de la fecha YYYY-MM-DD
         hora_inicio: horarioData.hora_inicio,
         hora_fin: horarioData.hora_fin,
         descripcion: horarioData.descripcion || "",
@@ -98,8 +108,37 @@ const EditarHorario = () => {
     }
   }, [id])
 
+  // Validar y limpiar si el usuario selecciona un domingo o fecha fuera de rango
   const handleInputChange = (e) => {
     const { name, value } = e.target
+
+    if (name === "fecha" && value) {
+      const [anio, mes, dia] = value.split("-")
+      const dateObj = new Date(`${anio}-${mes}-${dia}T12:00:00`)
+      const diaSemana = diasSemana[dateObj.getDay()]
+      const fechaMinima = getFechaMinima()
+
+      // Si es domingo
+      if (diaSemana === "Domingo") {
+        setHorario((prev) => ({ ...prev, fecha: "" }))
+        setErrors((prev) => ({
+          ...prev,
+          fecha: "No se pueden editar novedades para domingos (día no laboral)",
+        }))
+        return
+      }
+
+      // Si es menor a la fecha mínima
+      if (value < fechaMinima) {
+        setHorario((prev) => ({ ...prev, fecha: "" }))
+        setErrors((prev) => ({
+          ...prev,
+          fecha: "No se pueden editar novedades para fechas con más de 3 días de antigüedad",
+        }))
+        return
+      }
+    }
+
     setHorario((prev) => ({
       ...prev,
       [name]: value,
@@ -120,15 +159,16 @@ const EditarHorario = () => {
     if (!horario.fecha) {
       newErrors.fecha = "La fecha es requerida"
     } else {
-      // Validar que la fecha no sea en el pasado (solo si se está cambiando)
-      if (horario.fecha !== horarioOriginal?.fecha) {
-        const fechaHorario = new Date(horario.fecha)
-        const hoy = new Date()
-        hoy.setHours(0, 0, 0, 0)
+      const [anio, mes, dia] = horario.fecha.split("-")
+      const dateObj = new Date(`${anio}-${mes}-${dia}T12:00:00`)
+      const diaSemana = diasSemana[dateObj.getDay()]
+      const fechaMinima = getFechaMinima()
 
-        if (fechaHorario < hoy) {
-          newErrors.fecha = "La fecha no puede ser en el pasado"
-        }
+      if (diaSemana === "Domingo") {
+        newErrors.fecha = "No se pueden editar novedades para domingos (día no laboral)"
+      }
+      if (horario.fecha < fechaMinima) {
+        newErrors.fecha = "No se pueden editar novedades para fechas con más de 3 días de antigüedad"
       }
     }
 
@@ -152,15 +192,15 @@ const EditarHorario = () => {
         newErrors.hora_fin = "La hora de fin debe ser mayor que la hora de inicio"
       }
 
-      // Validar horario laboral (6:00 AM - 6:00 PM)
+      // Validar horario laboral (6:00 AM - 8:00 PM)
       if (minutosInicio < 360) {
         // 6:00 AM
         newErrors.hora_inicio = "La hora de inicio no puede ser antes de las 6:00 AM"
       }
 
-      if (minutosFin > 1080) {
-        // 6:00 PM
-        newErrors.hora_fin = "La hora de fin no puede ser después de las 6:00 PM"
+      if (minutosFin > 1200) {
+        // 8:00 PM
+        newErrors.hora_fin = "La hora de fin no puede ser después de las 8:00 PM"
       }
     }
 
@@ -170,15 +210,34 @@ const EditarHorario = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
     if (!validarHorario()) return
 
     try {
       setLoading(true)
+      const [anio, mes, dia] = horario.fecha.split("-")
+      const dateObj = new Date(`${anio}-${mes}-${dia}T12:00:00`)
+      const diaSemana = diasSemana[dateObj.getDay()]
+
+      const horarioPayload = {
+        fecha: horario.fecha,
+        dia: diaSemana,
+        motivo: horario.descripcion || horarioOriginal?.motivo || "",
+        tipo_novedad: horarioOriginal?.tipo_novedad || "",
+        mecanico_id: horarioOriginal?.mecanico_id || "",
+        hora_inicio: normalizarHora(horario.hora_inicio),
+        hora_fin: normalizarHora(horario.hora_fin),
+        descripcion: horario.descripcion,
+      }
+
+      console.log("Payload enviado:", horarioPayload)
 
       await makeRequest(`/horarios/${id}`, {
         method: "PUT",
-        body: JSON.stringify(horario),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("token") || sessionStorage.getItem("token"),
+        },
+        body: JSON.stringify(horarioPayload),
       })
 
       Swal.fire({
@@ -207,20 +266,34 @@ const EditarHorario = () => {
   }
 
   const esFechaPasada = (fecha) => {
-    const fechaHorario = new Date(fecha)
+    const fechaHorario = new Date(fecha + "T12:00:00")
     const hoy = new Date()
     hoy.setHours(0, 0, 0, 0)
     return fechaHorario < hoy
   }
 
+  // Formatear fecha sin desfase de zona horaria y mostrar día de la semana en español
   const formatearFecha = (fecha) => {
-    const date = new Date(fecha)
-    return date.toLocaleDateString("es-ES", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
+    if (!fecha) return ""
+    let fechaStr = fecha
+    if (fechaStr.includes("T")) {
+      fechaStr = fechaStr.split("T")[0]
+    }
+    const [anio, mes, dia] = fechaStr.split("-")
+    // Crear objeto Date a las 12:00 para evitar desfase y obtener el día de la semana
+    const dateObj = new Date(`${anio}-${mes}-${dia}T12:00:00`)
+    const diaSemana = dateObj.toLocaleDateString("es-ES", { weekday: "long" })
+    return `${diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}, ${dia}/${mes}/${anio}`
+  }
+
+  const pad = (n) => n.toString().padStart(2, "0")
+  const normalizarHora = (hora) => {
+    if (!hora) return ""
+    // Si ya tiene segundos, retorna igual
+    if (hora.length === 8) return hora
+    // Si viene como "HH:mm", agrega ":00"
+    if (hora.length === 5) return `${hora}:00`
+    return hora
   }
 
   if (loading && !horarioOriginal) {
@@ -302,6 +375,7 @@ const EditarHorario = () => {
                     id="fecha"
                     value={horario.fecha}
                     onChange={handleInputChange}
+                    min={getFechaMinima()}
                     className={`editarHorario-input ${errors.fecha ? "editarHorario-input-error" : ""}`}
                     disabled={loading || fechaPasada}
                   />
@@ -321,7 +395,7 @@ const EditarHorario = () => {
                     className={`editarHorario-input ${errors.hora_inicio ? "editarHorario-input-error" : ""}`}
                     disabled={loading || fechaPasada}
                     min="06:00"
-                    max="18:00"
+                    max="20:00"
                   />
                   {errors.hora_inicio && <p className="editarHorario-error-text">{errors.hora_inicio}</p>}
                 </div>
@@ -339,7 +413,7 @@ const EditarHorario = () => {
                     className={`editarHorario-input ${errors.hora_fin ? "editarHorario-input-error" : ""}`}
                     disabled={loading || fechaPasada}
                     min="06:00"
-                    max="18:00"
+                    max="20:00"
                   />
                   {errors.hora_fin && <p className="editarHorario-error-text">{errors.hora_fin}</p>}
                 </div>

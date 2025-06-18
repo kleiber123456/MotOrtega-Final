@@ -1,22 +1,679 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
 import { toast } from "react-toastify"
 import "../../../../shared/styles/Citas/CrearCita.css"
-import { FaCalendarAlt, FaClock, FaUser, FaCar, FaTools, FaClipboardList, FaArrowLeft } from "react-icons/fa"
+import {
+  FaCalendarAlt,
+  FaClock,
+  FaUser,
+  FaCar,
+  FaTools,
+  FaClipboardList,
+  FaArrowLeft,
+  FaSearch,
+  FaTimes,
+  FaPlus,
+  FaExclamationTriangle,
+} from "react-icons/fa"
+import { CheckCircle } from "lucide-react"
+import { FaPlusCircle } from "react-icons/fa"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
 
-const CrearCita = () => {
+// Componente del modal para clientes
+const ClienteModal = ({ show, onClose, clientes, onSelect, clienteActual }) => {
+  const [busquedaCliente, setBusquedaCliente] = useState("")
+  const [clientesPorPagina] = useState(5)
+  const [paginaActualClientes, setPaginaActualClientes] = useState(1)
+  const modalRef = useRef(null)
+
+  useEffect(() => {
+    if (show) {
+      setBusquedaCliente("")
+      setPaginaActualClientes(1)
+    }
+  }, [show])
+
+  // Cerrar modal al hacer clic afuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        onClose()
+      }
+    }
+
+    if (show) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [show, onClose])
+
+  // Filtrar clientes basado en la búsqueda
+  const clientesFiltrados = clientes.filter(
+    (cliente) =>
+      cliente.nombre?.toLowerCase().includes(busquedaCliente.toLowerCase()) ||
+      cliente.apellido?.toLowerCase().includes(busquedaCliente.toLowerCase()) ||
+      cliente.documento?.toLowerCase().includes(busquedaCliente.toLowerCase()) ||
+      cliente.correo?.toLowerCase().includes(busquedaCliente.toLowerCase()),
+  )
+
+  // Calcular índices para la paginación
+  const indiceUltimoCliente = paginaActualClientes * clientesPorPagina
+  const indicePrimerCliente = indiceUltimoCliente - clientesPorPagina
+  const clientesActuales = clientesFiltrados.slice(indicePrimerCliente, indiceUltimoCliente)
+  const totalPaginasClientes = Math.ceil(clientesFiltrados.length / clientesPorPagina)
+
+  // Función para ir a la página anterior
+  const irPaginaAnterior = () => {
+    setPaginaActualClientes((prev) => Math.max(prev - 1, 1))
+  }
+
+  // Función para ir a la página siguiente
+  const irPaginaSiguiente = () => {
+    setPaginaActualClientes((prev) => Math.min(prev + 1, totalPaginasClientes))
+  }
+
+  // Función para manejar el cambio de búsqueda
+  const handleBusquedaChange = (e) => {
+    setBusquedaCliente(e.target.value)
+    setPaginaActualClientes(1)
+  }
+
+  if (!show) return null
+
+  return (
+    <div className="listarCompra-modal-overlay">
+      <div className="listarCompra-proveedor-modal" ref={modalRef}>
+        <div className="listarCompra-proveedor-modal-header">
+          <h2>
+            <FaUser className="listarCompra-modal-header-icon" />
+            Seleccionar Cliente
+          </h2>
+          <button type="button" className="listarCompra-proveedor-close-button" onClick={onClose}>
+            <FaTimes />
+          </button>
+        </div>
+
+        <div className="listarCompra-proveedor-modal-content">
+          {/* Buscador centrado */}
+          <div className="listarCompra-proveedor-search-container">
+            <div className="listarCompra-proveedor-search-wrapper">
+              <FaSearch className="listarCompra-proveedor-search-icon" />
+              <input
+                type="text"
+                placeholder="Buscar cliente..."
+                value={busquedaCliente}
+                onChange={handleBusquedaChange}
+                className="listarCompra-proveedor-search-input"
+                autoFocus
+              />
+            </div>
+          </div>
+
+          {/* Lista de clientes con paginación */}
+          <div className="listarCompra-proveedor-list">
+            {clientesActuales.length === 0 ? (
+              <div className="listarCompra-proveedor-no-results">
+                <FaExclamationTriangle className="listarCompra-proveedor-no-results-icon" />
+                <p>{busquedaCliente ? "No se encontraron clientes" : "No hay clientes disponibles"}</p>
+              </div>
+            ) : (
+              <table className="listarCompra-proveedor-table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Documento</th>
+                    <th>Correo</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {clientesActuales.map((cliente) => (
+                    <tr key={cliente.id} className="listarCompra-proveedor-row">
+                      <td>
+                        <div className="listarCompra-proveedor-name">
+                          {cliente.nombre} {cliente.apellido}
+                        </div>
+                      </td>
+                      <td>{cliente.documento || "N/A"}</td>
+                      <td>{cliente.correo || "N/A"}</td>
+                      <td>
+                        <button
+                          type="button"
+                          className="listarCompra-proveedor-select-button"
+                          onClick={() => onSelect(cliente)}
+                        >
+                          <CheckCircle /> Seleccionar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+
+          {/* Controles de paginación */}
+          {totalPaginasClientes > 1 && (
+            <div className="listarCompra-proveedor-pagination">
+              <button
+                onClick={irPaginaAnterior}
+                disabled={paginaActualClientes === 1}
+                className="listarCompra-proveedor-pagination-button"
+                type="button"
+              >
+                Anterior
+              </button>
+
+              <span className="listarCompra-proveedor-page-info">
+                Página {paginaActualClientes} de {totalPaginasClientes}
+                {clientesFiltrados.length > 0 && (
+                  <span className="listarCompra-proveedor-total-info">
+                    {" "}
+                    ({clientesFiltrados.length} cliente{clientesFiltrados.length !== 1 ? "s" : ""})
+                  </span>
+                )}
+              </span>
+
+              <button
+                onClick={irPaginaSiguiente}
+                disabled={paginaActualClientes === totalPaginasClientes}
+                className="listarCompra-proveedor-pagination-button"
+                type="button"
+              >
+                Siguiente
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Componente del modal para mecánicos, filtrando por ausencia
+const MecanicoModal = ({ show, onClose, mecanicos, onSelect, mecanicoActual, fechaSeleccionada, novedades }) => {
+  const [busquedaMecanico, setBusquedaMecanico] = useState("")
+  const [mecanicosPorPagina] = useState(5)
+  const [paginaActualMecanicos, setPaginaActualMecanicos] = useState(1)
+  const modalRef = useRef(null)
+
+  useEffect(() => {
+    if (show) {
+      setBusquedaMecanico("")
+      setPaginaActualMecanicos(1)
+    }
+  }, [show])
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        onClose()
+      }
+    }
+    if (show) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [show, onClose])
+
+  // Filtrar mecánicos basado en la búsqueda y AUSENCIA en la fecha seleccionada
+  const mecanicosFiltrados = mecanicos.filter((mecanico) => {
+    const coincideBusqueda =
+      mecanico.nombre?.toLowerCase().includes(busquedaMecanico.toLowerCase()) ||
+      mecanico.apellido?.toLowerCase().includes(busquedaMecanico.toLowerCase()) ||
+      mecanico.documento?.toLowerCase().includes(busquedaMecanico.toLowerCase()) ||
+      mecanico.correo?.toLowerCase().includes(busquedaMecanico.toLowerCase())
+
+    // Si hay fecha seleccionada y novedades, filtra ausencias
+    if (fechaSeleccionada && novedades && novedades.length > 0) {
+      const tieneAusencia = novedades.some(
+        (n) =>
+          n.mecanico_id === mecanico.id &&
+          n.tipo_novedad === "Ausencia" &&
+          (
+            (n.fecha && n.fecha.split("T")[0]) === fechaSeleccionada // <-- CORRECCIÓN AQUÍ
+          )
+      )
+      return coincideBusqueda && !tieneAusencia
+    }
+    return coincideBusqueda
+  })
+
+  // Paginación
+  const indiceUltimoMecanico = paginaActualMecanicos * mecanicosPorPagina
+  const indicePrimerMecanico = indiceUltimoMecanico - mecanicosPorPagina
+  const mecanicosActuales = mecanicosFiltrados.slice(indicePrimerMecanico, indiceUltimoMecanico)
+  const totalPaginasMecanicos = Math.ceil(mecanicosFiltrados.length / mecanicosPorPagina)
+
+  const irPaginaAnterior = () => setPaginaActualMecanicos((prev) => Math.max(prev - 1, 1))
+  const irPaginaSiguiente = () => setPaginaActualMecanicos((prev) => Math.min(prev + 1, totalPaginasMecanicos))
+  const handleBusquedaChange = (e) => {
+    setBusquedaMecanico(e.target.value)
+    setPaginaActualMecanicos(1)
+  }
+
+  if (!show) return null
+
+  return (
+    <div className="listarCompra-modal-overlay">
+      <div className="listarCompra-proveedor-modal" ref={modalRef}>
+        <div className="listarCompra-proveedor-modal-header">
+          <h2>
+            <FaTools className="listarCompra-modal-header-icon" />
+            Seleccionar Mecánico
+          </h2>
+          <button type="button" className="listarCompra-proveedor-close-button" onClick={onClose}>
+            <FaTimes />
+          </button>
+        </div>
+        <div className="listarCompra-proveedor-modal-content">
+          <div className="listarCompra-proveedor-search-container">
+            <div className="listarCompra-proveedor-search-wrapper">
+              <FaSearch className="listarCompra-proveedor-search-icon" />
+              <input
+                type="text"
+                placeholder="Buscar mecánico..."
+                value={busquedaMecanico}
+                onChange={handleBusquedaChange}
+                className="listarCompra-proveedor-search-input"
+                autoFocus
+              />
+            </div>
+          </div>
+          <div className="listarCompra-proveedor-list">
+            {mecanicosActuales.length === 0 ? (
+              <div className="listarCompra-proveedor-no-results">
+                <FaExclamationTriangle className="listarCompra-proveedor-no-results-icon" />
+                <p>{busquedaMecanico ? "No se encontraron mecánicos" : "No hay mecánicos disponibles"}</p>
+              </div>
+            ) : (
+              <table className="listarCompra-proveedor-table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Documento</th>
+                    <th>Correo</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {mecanicosActuales.map((mecanico) => (
+                    <tr key={mecanico.id} className="listarCompra-proveedor-row">
+                      <td>
+                        <div className="listarCompra-proveedor-name">
+                          {mecanico.nombre} {mecanico.apellido}
+                        </div>
+                      </td>
+                      <td>{mecanico.documento || "N/A"}</td>
+                      <td>{mecanico.correo || "N/A"}</td>
+                      <td>
+                        <button
+                          type="button"
+                          className="listarCompra-proveedor-select-button"
+                          onClick={() => onSelect(mecanico)}
+                        >
+                          <CheckCircle /> Seleccionar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+          {totalPaginasMecanicos > 1 && (
+            <div className="listarCompra-proveedor-pagination">
+              <button
+                onClick={irPaginaAnterior}
+                disabled={paginaActualMecanicos === 1}
+                className="listarCompra-proveedor-pagination-button"
+                type="button"
+              >
+                Anterior
+              </button>
+              <span className="listarCompra-proveedor-page-info">
+                Página {paginaActualMecanicos} de {totalPaginasMecanicos}
+                {mecanicosFiltrados.length > 0 && (
+                  <span className="listarCompra-proveedor-total-info">
+                    {" "}
+                    ({mecanicosFiltrados.length} mecánico{mecanicosFiltrados.length !== 1 ? "s" : ""})
+                  </span>
+                )}
+              </span>
+              <button
+                onClick={irPaginaSiguiente}
+                disabled={paginaActualMecanicos === totalPaginasMecanicos}
+                className="listarCompra-proveedor-pagination-button"
+                type="button"
+              >
+                Siguiente
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Componente del modal para vehículos
+const VehiculoModal = ({ show, onClose, vehiculos, onSelect, vehiculoActual }) => {
+  const [busquedaVehiculo, setBusquedaVehiculo] = useState("")
+  const [vehiculosPorPagina] = useState(5)
+  const [paginaActualVehiculos, setPaginaActualVehiculos] = useState(1)
+  const modalRef = useRef(null)
+
+  useEffect(() => {
+    if (show) {
+      setBusquedaVehiculo("")
+      setPaginaActualVehiculos(1)
+    }
+  }, [show])
+
+  // Cerrar modal al hacer clic afuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        onClose()
+      }
+    }
+
+    if (show) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [show, onClose])
+
+  // Filtrar vehículos basado en la búsqueda
+  const vehiculosFiltrados = vehiculos.filter(
+    (vehiculo) =>
+      vehiculo.placa?.toLowerCase().includes(busquedaVehiculo.toLowerCase()) ||
+      vehiculo.color?.toLowerCase().includes(busquedaVehiculo.toLowerCase()) ||
+      vehiculo.tipo_vehiculo?.toLowerCase().includes(busquedaVehiculo.toLowerCase()) ||
+      vehiculo.referencia?.nombre?.toLowerCase().includes(busquedaVehiculo.toLowerCase()) ||
+      vehiculo.referencia?.marca?.nombre?.toLowerCase().includes(busquedaVehiculo.toLowerCase()),
+  )
+
+  // Calcular índices para la paginación
+  const indiceUltimoVehiculo = paginaActualVehiculos * vehiculosPorPagina
+  const indicePrimerVehiculo = indiceUltimoVehiculo - vehiculosPorPagina
+  const vehiculosActuales = vehiculosFiltrados.slice(indicePrimerVehiculo, indiceUltimoVehiculo)
+  const totalPaginasVehiculos = Math.ceil(vehiculosFiltrados.length / vehiculosPorPagina)
+
+  // Función para ir a la página anterior
+  const irPaginaAnterior = () => {
+    setPaginaActualVehiculos((prev) => Math.max(prev - 1, 1))
+  }
+
+  // Función para ir a la página siguiente
+  const irPaginaSiguiente = () => {
+    setPaginaActualVehiculos((prev) => Math.min(prev + 1, totalPaginasVehiculos))
+  }
+
+  // Función para manejar el cambio de búsqueda
+  const handleBusquedaChange = (e) => {
+    setBusquedaVehiculo(e.target.value)
+    setPaginaActualVehiculos(1)
+  }
+
+  if (!show) return null
+
+  return (
+    <div className="listarCompra-modal-overlay">
+      <div className="listarCompra-proveedor-modal" ref={modalRef}>
+        <div className="listarCompra-proveedor-modal-header">
+          <h2>
+            <FaCar className="listarCompra-modal-header-icon" />
+            Seleccionar Vehículo
+          </h2>
+          <button type="button" className="listarCompra-proveedor-close-button" onClick={onClose}>
+            <FaTimes />
+          </button>
+        </div>
+
+        <div className="listarCompra-proveedor-modal-content">
+          {/* Buscador centrado */}
+          <div className="listarCompra-proveedor-search-container">
+            <div className="listarCompra-proveedor-search-wrapper">
+              <FaSearch className="listarCompra-proveedor-search-icon" />
+              <input
+                type="text"
+                placeholder="Buscar vehículo..."
+                value={busquedaVehiculo}
+                onChange={handleBusquedaChange}
+                className="listarCompra-proveedor-search-input"
+                autoFocus
+              />
+            </div>
+          </div>
+
+          {/* Lista de vehículos con paginación */}
+          <div className="listarCompra-proveedor-list">
+            {vehiculosActuales.length === 0 ? (
+              <div className="listarCompra-proveedor-no-results">
+                <FaExclamationTriangle className="listarCompra-proveedor-no-results-icon" />
+                <p>{busquedaVehiculo ? "No se encontraron vehículos" : "No hay vehículos disponibles"}</p>
+              </div>
+            ) : (
+              <table className="listarCompra-proveedor-table">
+                <thead>
+                  <tr>
+                    <th>Placa</th>
+                    <th>Marca/Modelo</th>
+                    <th>Color</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {vehiculosActuales.map((vehiculo) => (
+                    <tr key={vehiculo.id} className="listarCompra-proveedor-row">
+                      <td>
+                        <div className="listarCompra-proveedor-name">{vehiculo.placa || "N/A"}</div>
+                      </td>
+                      <td>
+                        {vehiculo.referencia?.marca?.nombre || ""} {vehiculo.referencia?.nombre || "N/A"}
+                      </td>
+                      <td>{vehiculo.color || "N/A"}</td>
+                      <td>
+                        <button
+                          type="button"
+                          className="listarCompra-proveedor-select-button"
+                          onClick={() => onSelect(vehiculo)}
+                        >
+                          <CheckCircle /> Seleccionar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+
+          {/* Controles de paginación */}
+          {totalPaginasVehiculos > 1 && (
+            <div className="listarCompra-proveedor-pagination">
+              <button
+                onClick={irPaginaAnterior}
+                disabled={paginaActualVehiculos === 1}
+                className="listarCompra-proveedor-pagination-button"
+                type="button"
+              >
+                Anterior
+              </button>
+
+              <span className="listarCompra-proveedor-page-info">
+                Página {paginaActualVehiculos} de {totalPaginasVehiculos}
+                {vehiculosFiltrados.length > 0 && (
+                  <span className="listarCompra-proveedor-total-info">
+                    {" "}
+                    ({vehiculosFiltrados.length} vehículo{vehiculosFiltrados.length !== 1 ? "s" : ""})
+                  </span>
+                )}
+              </span>
+
+              <button
+                onClick={irPaginaSiguiente}
+                disabled={paginaActualVehiculos === totalPaginasVehiculos}
+                className="listarCompra-proveedor-pagination-button"
+                type="button"
+              >
+                Siguiente
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Componente del modal para horas con filtrado correcto por mecánico y fecha
+const HoraModal = ({
+  show,
+  onClose,
+  onSelect,
+  horaActual,
+  horariosMecanico = [],
+  citasMecanico = [],
+  formData = {},
+}) => {
+  const modalRef = useRef(null)
+  useEffect(() => {
+    if (show) document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+    function handleClickOutside(event) {
+      if (modalRef.current && !modalRef.current.contains(event.target)) onClose()
+    }
+  }, [show, onClose])
+
+  // Generar horas disponibles
+  const generarHoras = () => {
+    const horas = []
+    for (let i = 8; i < 18; i++) {
+      const hora = `${i.toString().padStart(2, "0")}:00`
+      horas.push({
+        id: hora,
+        hora: hora,
+        descripcion: `${hora} - ${(i + 1).toString().padStart(2, "0")}:00`,
+      })
+    }
+    return horas
+  }
+
+  // Filtrar solo novedades del mecánico y la fecha seleccionada
+  const fechaSeleccionada = formData?.fecha
+  const mecanicoId = Number(formData?.mecanico_id)
+  const novedadesFiltradas = horariosMecanico.filter(
+    n =>
+      n.mecanico_id === mecanicoId &&
+      n.fecha &&
+      n.fecha.split("T")[0] === fechaSeleccionada
+  )
+
+  // Si hay una novedad de tipo Ausencia, no mostrar horas
+  const tieneAusencia = novedadesFiltradas.some(n => n.tipo_novedad === "Ausencia")
+
+  // Filtrar horas según novedades (horarios) y citas
+  const todasLasHoras = generarHoras()
+  const horasBloqueadas = []
+  novedadesFiltradas.forEach((novedad) => {
+    if (novedad.tipo_novedad === "Ausencia") {
+      todasLasHoras.forEach((h) => horasBloqueadas.push(h.hora))
+      console.log(
+        `[NOVEDAD] Ausencia - Fecha: ${novedad.fecha} | Mecánico: ${novedad.mecanico_id} | Bloquea todas las horas`
+      )
+    } else if (novedad.hora_inicio && novedad.hora_fin) {
+      const inicio = parseInt(novedad.hora_inicio.split(":")[0])
+      const fin = parseInt(novedad.hora_fin.split(":")[0])
+      for (let h = inicio; h < fin; h++) {
+        horasBloqueadas.push(`${h.toString().padStart(2, "0")}:00`)
+        console.log(
+          `[NOVEDAD] ${novedad.tipo_novedad} - Fecha: ${novedad.fecha} | Mecánico: ${novedad.mecanico_id} | Bloquea: ${h.toString().padStart(2, "0")}:00`
+        )
+      }
+    }
+  })
+  const horasOcupadas = citasMecanico.map((cita) => cita.hora)
+  const horasNoDisponibles = Array.from(new Set([...horasBloqueadas, ...horasOcupadas]))
+  const horasFiltradas = todasLasHoras.filter(
+    (hora) => !horasNoDisponibles.includes(hora.hora)
+  )
+
+  // Logs para depuración
+  console.log("Todas las horas:", todasLasHoras.map(h => h.hora))
+  console.log("Horas bloqueadas por novedades:", horasBloqueadas)
+  console.log("Horas ocupadas por citas:", horasOcupadas)
+  console.log("Horas filtradas (disponibles):", horasFiltradas.map(h => h.hora))
+
+  if (!show) return null
+
+  return (
+    <div className="crearCita-modal-overlay">
+      <div className="crearCita-hora-modal" ref={modalRef}>
+        <div className="crearCita-modal-header">
+          <h2>
+            <FaClock className="crearCita-modal-header-icon" />
+            Seleccionar Hora
+          </h2>
+          <button type="button" className="crearCita-modal-close-button" onClick={onClose}>
+            <FaTimes />
+          </button>
+        </div>
+        <div className="crearCita-modal-content">
+          <div className="crearCita-horas-grid">
+            {tieneAusencia ? (
+              <div className="crearCita-no-results">
+                <FaExclamationTriangle className="crearCita-no-results-icon" />
+                <p>El mecánico no está disponible este día por ausencia.</p>
+              </div>
+            ) : horasFiltradas.length === 0 ? (
+              <div className="crearCita-no-results">
+                <FaExclamationTriangle className="crearCita-no-results-icon" />
+                <p>No hay horas disponibles</p>
+              </div>
+            ) : (
+              horasFiltradas.map((hora) => (
+                <div
+                  key={hora.id}
+                  className={`crearCita-hora-card ${horaActual === hora.hora ? "selected" : ""}`}
+                  onClick={() => onSelect(hora)}
+                >
+                  <div className="crearCita-hora-time">
+                    <FaClock className="crearCita-hora-icon" />
+                    {hora.hora}
+                  </div>
+                  <div className="crearCita-hora-description">{hora.descripcion}</div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function CrearCita() {
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
     fecha: "",
     hora: "",
     observaciones: "",
-    estado_cita_id: 1, // Por defecto: Pendiente
+    estado_cita_id: 1,
     vehiculo_id: "",
     mecanico_id: "",
   })
@@ -29,7 +686,21 @@ const CrearCita = () => {
   const [vehiculosFiltrados, setVehiculosFiltrados] = useState([])
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
-  const [horasDisponibles, setHorasDisponibles] = useState([])
+
+  // Estados para modales
+  const [mostrarModalClientes, setMostrarModalClientes] = useState(false)
+  const [mostrarModalMecanicos, setMostrarModalMecanicos] = useState(false)
+  const [mostrarModalVehiculos, setMostrarModalVehiculos] = useState(false)
+  const [mostrarModalHoras, setMostrarModalHoras] = useState(false)
+
+  // Estados para selecciones
+  const [clienteSeleccionado, setClienteSeleccionado] = useState(null)
+  const [mecanicoSeleccionado, setMecanicoSeleccionado] = useState(null)
+  const [vehiculoSeleccionado, setVehiculoSeleccionado] = useState(null)
+  const [horaSeleccionada, setHoraSeleccionada] = useState(null)
+  const [novedadesDia, setNovedadesDia] = useState([]) // Nuevo estado
+  const [horariosMecanico, setHorariosMecanico] = useState([]) // Novedades del mecánico
+  const [citasMecanico, setCitasMecanico] = useState([]) // Citas del mecánico
 
   // Función para realizar peticiones a la API con el token de autenticación
   const makeRequest = async (endpoint, options = {}) => {
@@ -69,11 +740,45 @@ const CrearCita = () => {
     }
   }, [selectedCliente])
 
+  // Consultar horarios (novedades) y citas cuando cambia fecha o mecánico
   useEffect(() => {
-    if (formData.fecha && formData.mecanico_id) {
-      verificarDisponibilidad()
+    const fetchHorariosYCitas = async () => {
+      if (formData.fecha && formData.mecanico_id) {
+        try {
+          // Solo citas del mecánico y fecha seleccionados
+          const horariosRes = await makeRequest(`/horarios?fecha=${formData.fecha}&mecanico_id=${formData.mecanico_id}`)
+          setHorariosMecanico(Array.isArray(horariosRes.data) ? horariosRes.data : horariosRes.data?.data || [])
+
+          const citasRes = await makeRequest(`/citas?fecha=${formData.fecha}&mecanico_id=${formData.mecanico_id}`)
+          setCitasMecanico(Array.isArray(citasRes.data) ? citasRes.data : citasRes.data?.data || [])
+        } catch {
+          setHorariosMecanico([])
+          setCitasMecanico([])
+        }
+      } else {
+        setHorariosMecanico([])
+        setCitasMecanico([])
+      }
     }
+    fetchHorariosYCitas()
   }, [formData.fecha, formData.mecanico_id])
+
+  // Nueva función para obtener novedades del día
+  useEffect(() => {
+    const fetchNovedadesDia = async () => {
+      if (formData.fecha) {
+        try {
+          const res = await makeRequest(`/horarios?fecha=${formData.fecha}`)
+          setNovedadesDia(Array.isArray(res.data) ? res.data : res.data?.data || [])
+        } catch {
+          setNovedadesDia([])
+        }
+      } else {
+        setNovedadesDia([])
+      }
+    }
+    fetchNovedadesDia()
+  }, [formData.fecha])
 
   const fetchData = async () => {
     try {
@@ -154,70 +859,53 @@ const CrearCita = () => {
     }
   }
 
-  const verificarDisponibilidad = async () => {
-    try {
-      console.log("Verificando disponibilidad para:", formData.fecha, formData.mecanico_id)
-      const response = await makeRequest(`/citas/disponibilidad/mecanicos`, {
-        params: {
-          fecha: formData.fecha,
-          hora: formData.hora || "08:00",
-        },
-      })
+  // Nueva función para manejar el cambio de fecha SIN restricción de fecha mínima
+  const handleFechaChange = (e) => {
+    const { value } = e.target
+    let errorMsg = ""
 
-      console.log("Respuesta de disponibilidad:", response.data)
+    if (value) {
+      const fechaSeleccionada = new Date(value + "T12:00:00")
+      const hoy = new Date()
+      hoy.setHours(0, 0, 0, 0) // Reset time to start of day
 
-      if (response.data) {
-        if (Array.isArray(response.data)) {
-          const mecanico = response.data.find((m) => m.id === Number.parseInt(formData.mecanico_id))
-          if (mecanico && Array.isArray(mecanico.horasDisponibles)) {
-            setHorasDisponibles(mecanico.horasDisponibles)
-          } else {
-            setHorasDisponibles([])
-          }
-        } else if (response.data.data && Array.isArray(response.data.data)) {
-          const mecanico = response.data.data.find((m) => m.id === Number.parseInt(formData.mecanico_id))
-          if (mecanico && Array.isArray(mecanico.horasDisponibles)) {
-            setHorasDisponibles(mecanico.horasDisponibles)
-          } else {
-            setHorasDisponibles([])
-          }
-        } else {
-          console.error("La respuesta de disponibilidad no tiene el formato esperado:", response.data)
-          setHorasDisponibles([])
-        }
-      } else {
-        setHorasDisponibles([])
+      if (fechaSeleccionada <= hoy) {
+        errorMsg = "Solo se pueden programar citas para fechas futuras"
+      } else if (fechaSeleccionada.getDay() === 0) {
+        errorMsg = "No se pueden programar citas los domingos (día no laborable)"
       }
-    } catch (error) {
-      console.error("Error al verificar disponibilidad:", error)
-      setHorasDisponibles([])
     }
+
+    setFormData({
+      ...formData,
+      fecha: value,
+    })
+    setErrors({
+      ...errors,
+      fecha: errorMsg,
+    })
   }
 
+  // También actualizar la función validateForm
   const validateForm = () => {
     const newErrors = {}
 
     if (!formData.fecha) {
       newErrors.fecha = "La fecha es requerida"
     } else {
-      const fechaObj = new Date(formData.fecha)
-      if (fechaObj.getDay() === 0) {
-        newErrors.fecha = "No se pueden programar citas los domingos"
-      }
+      const fechaSeleccionada = new Date(formData.fecha + "T12:00:00")
       const hoy = new Date()
       hoy.setHours(0, 0, 0, 0)
-      if (fechaObj < hoy) {
-        newErrors.fecha = "No se pueden programar citas en fechas pasadas"
+
+      if (fechaSeleccionada <= hoy) {
+        newErrors.fecha = "Solo se pueden programar citas para fechas futuras"
+      } else if (fechaSeleccionada.getDay() === 0) {
+        newErrors.fecha = "No se pueden programar citas los domingos"
       }
     }
 
     if (!formData.hora) {
       newErrors.hora = "La hora es requerida"
-    } else {
-      const hora = Number.parseInt(formData.hora.split(":")[0])
-      if (hora < 8 || hora >= 18) {
-        newErrors.hora = "Las citas solo pueden programarse entre 8:00 AM y 6:00 PM"
-      }
     }
 
     if (!formData.vehiculo_id) {
@@ -247,41 +935,6 @@ const CrearCita = () => {
     }
   }
 
-  const handleClienteChange = (e) => {
-    setSelectedCliente(e.target.value)
-    setFormData({
-      ...formData,
-      vehiculo_id: "",
-    })
-  }
-
-  // Nueva función para manejar el cambio de fecha, similar a CrearHorario
-  const handleFechaChange = (e) => {
-    const { value } = e.target
-    const fechaObj = new Date(value)
-    let errorMsg = ""
-
-    if (value) {
-      if (fechaObj.getDay() === 0) {
-        errorMsg = "No se pueden programar citas los domingos (día no laborable)"
-      }
-      const hoy = new Date()
-      hoy.setHours(0, 0, 0, 0)
-      if (fechaObj < hoy) {
-        errorMsg = "No se pueden programar citas en fechas pasadas"
-      }
-    }
-
-    setFormData({
-      ...formData,
-      fecha: value,
-    })
-    setErrors({
-      ...errors,
-      fecha: errorMsg,
-    })
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
 
@@ -292,11 +945,21 @@ const CrearCita = () => {
 
     try {
       setLoading(true)
-      console.log("Enviando datos de cita:", formData)
+      // Corrección: construye el payload asegurando que los ids sean números
+      const datosCita = {
+        fecha: formData.fecha,
+        hora: formData.hora,
+        observaciones: formData.observaciones,
+        estado_cita_id: Number(formData.estado_cita_id),
+        vehiculo_id: Number(formData.vehiculo_id),
+        mecanico_id: Number(formData.mecanico_id),
+      }
+
+      console.log("Enviando datos de cita:", datosCita)
 
       const response = await makeRequest("/citas", {
         method: "POST",
-        data: formData,
+        data: datosCita,
       })
 
       console.log("Respuesta de creación de cita:", response.data)
@@ -319,13 +982,77 @@ const CrearCita = () => {
     }
   }
 
-  const generarHorasSelect = () => {
-    const horas = []
-    for (let i = 8; i < 18; i++) {
-      const hora = `${i.toString().padStart(2, "0")}:00`
-      horas.push(hora)
-    }
-    return horas
+  // Funciones para manejar selecciones de modales
+  const handleSeleccionarCliente = (cliente) => {
+    setClienteSeleccionado(cliente)
+    setSelectedCliente(cliente.id)
+    setMostrarModalClientes(false)
+    setVehiculoSeleccionado(null)
+    setFormData({
+      ...formData,
+      vehiculo_id: "",
+    })
+  }
+
+  const handleSeleccionarMecanico = (mecanico) => {
+    setMecanicoSeleccionado(mecanico)
+    setFormData({
+      ...formData,
+      mecanico_id: mecanico.id, // <-- asegúrate que sea el id, no el objeto
+    })
+    setMostrarModalMecanicos(false)
+  }
+
+  const handleSeleccionarVehiculo = (vehiculo) => {
+    setVehiculoSeleccionado(vehiculo)
+    setFormData({
+      ...formData,
+      vehiculo_id: vehiculo.id,
+    })
+    setMostrarModalVehiculos(false)
+  }
+
+  const handleSeleccionarHora = (hora) => {
+    setHoraSeleccionada(hora)
+    setFormData({
+      ...formData,
+      hora: hora.hora,
+    })
+    setMostrarModalHoras(false)
+  }
+
+  const limpiarCliente = () => {
+    setClienteSeleccionado(null)
+    setSelectedCliente("")
+    setVehiculoSeleccionado(null)
+    setFormData({
+      ...formData,
+      vehiculo_id: "",
+    })
+  }
+
+  const limpiarMecanico = () => {
+    setMecanicoSeleccionado(null)
+    setFormData({
+      ...formData,
+      mecanico_id: "",
+    })
+  }
+
+  const limpiarVehiculo = () => {
+    setVehiculoSeleccionado(null)
+    setFormData({
+      ...formData,
+      vehiculo_id: "",
+    })
+  }
+
+  const limpiarHora = () => {
+    setHoraSeleccionada(null)
+    setFormData({
+      ...formData,
+      hora: "",
+    })
   }
 
   return (
@@ -357,190 +1084,268 @@ const CrearCita = () => {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="crearCita-form">
-              {/* Información de la Cita */}
-              <div className="crearCita-section">
-                <h2 className="crearCita-sectionTitle">
-                  <FaCalendarAlt /> Información de la Cita
+              {/* Primera parte: Fecha, Mecánico, Hora */}
+              <div className="crearCita-form-section">
+                <h2 className="crearCita-section-title">
+                  <FaCalendarAlt className="crearCita-section-icon" />
+                  Información de la Cita
                 </h2>
 
-                <div className="crearCita-row">
-                  <div className="crearCita-field">
+                <div className="crearCita-form-grid">
+                  <div className="crearCita-form-group">
                     <label className="crearCita-label">
-                      <FaCalendarAlt /> Fecha *
+                      <FaCalendarAlt className="crearCita-label-icon" />
+                      Fecha *
                     </label>
                     <input
                       type="date"
                       name="fecha"
                       value={formData.fecha}
                       onChange={handleFechaChange}
-                      min={new Date().toISOString().split("T")[0]}
-                      className={`crearCita-input ${errors.fecha ? "crearCita-inputError" : ""}`}
+                      min={new Date(Date.now() + 86400000).toISOString().split("T")[0]} // Tomorrow's date
+                      className={`crearCita-form-input ${errors.fecha ? "error" : ""}`}
                     />
-                    {errors.fecha && <span className="crearCita-error">{errors.fecha}</span>}
+                    {errors.fecha && (
+                      <span className="crearCita-error-text">
+                        <FaExclamationTriangle />
+                        {errors.fecha}
+                      </span>
+                    )}
                   </div>
 
-                  <div className="crearCita-field">
+                  <div className="crearCita-form-group">
                     <label className="crearCita-label">
-                      <FaClock /> Hora *
+                      <FaTools className="crearCita-label-icon" />
+                      Mecánico *
                     </label>
-                    <select
-                      name="hora"
-                      value={formData.hora}
-                      onChange={handleChange}
-                      className={`crearCita-input ${errors.hora ? "crearCita-inputError" : ""}`}
-                      disabled={!formData.fecha || !formData.mecanico_id}
-                    >
-                      <option value="">Seleccione una hora</option>
-                      {horasDisponibles.length > 0
-                        ? horasDisponibles.map((hora) => (
-                            <option key={hora} value={hora}>
-                              {hora}
-                            </option>
-                          ))
-                        : generarHorasSelect().map((hora) => (
-                            <option key={hora} value={hora}>
-                              {hora}
-                            </option>
-                          ))}
-                    </select>
-                    {errors.hora && <span className="crearCita-error">{errors.hora}</span>}
-                    {formData.fecha && formData.mecanico_id && horasDisponibles.length === 0 && (
-                      <span className="crearCita-info">
-                        No hay horas disponibles para este mecánico en la fecha seleccionada
+                    <div className="crearCita-form-group">
+                      <div className="crearCita-input-container">
+                        <input
+                          type="text"
+                          placeholder="Seleccione un mecánico..."
+                          value={
+                            mecanicoSeleccionado ? `${mecanicoSeleccionado.nombre} ${mecanicoSeleccionado.apellido}` : ""
+                          }
+                          onClick={() => setMostrarModalMecanicos(true)}
+                          readOnly
+                          className={`crearCita-form-input ${errors.mecanico_id ? "error" : ""}`}
+                          style={{ cursor: "pointer" }}
+                        />
+                        {mecanicoSeleccionado && (
+                          <button
+                            type="button"
+                            className="crearCita-clear-button"
+                            onClick={limpiarMecanico}
+                            title="Limpiar selección"
+                          >
+                            <FaTimes />
+                          </button>
+                        )}
+                        {/* Botón de crear mecánico SOLO si no hay selección */}
+                        {!mecanicoSeleccionado && (
+                          <button
+                            type="button"
+                            onClick={() => navigate("/CrearMecanicos")}
+                            className="crearCita-link-button"
+                            style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", padding: 0 }}
+                            title="Registrar nuevo mecánico"
+                          >
+                            <FaPlusCircle size={20} color="#2563eb" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="crearCita-form-group">
+                    <label className="crearCita-label">
+                      <FaClock className="crearCita-label-icon" />
+                      Hora *
+                    </label>
+                    <div className="crearCita-input-container">
+                      <input
+                        type="text"
+                        placeholder="Seleccione una hora..."
+                        value={horaSeleccionada ? horaSeleccionada.hora : ""}
+                        onClick={() => mecanicoSeleccionado && setMostrarModalHoras(true)}
+                        readOnly
+                        disabled={!mecanicoSeleccionado}
+                        className={`crearCita-form-input ${errors.hora ? "error" : ""} ${!mecanicoSeleccionado ? "disabled" : ""}`}
+                        style={{ cursor: mecanicoSeleccionado ? "pointer" : "not-allowed" }}
+                      />
+                      {horaSeleccionada && (
+                        <button
+                          type="button"
+                          className="crearCita-clear-button"
+                          onClick={limpiarHora}
+                          title="Limpiar selección"
+                        >
+                          <FaTimes />
+                        </button>
+                      )}
+                    </div>
+                    {!mecanicoSeleccionado && (
+                      <span className="crearCita-info-text">Primero debe seleccionar un mecánico</span>
+                    )}
+                    {errors.hora && (
+                      <span className="crearCita-error-text">
+                        <FaExclamationTriangle />
+                        {errors.hora}
                       </span>
                     )}
                   </div>
                 </div>
+              </div>
 
-                <div className="crearCita-field">
-                  <label className="crearCita-label">
-                    <FaClipboardList /> Estado
-                  </label>
-                  <select
-                    name="estado_cita_id"
-                    value={formData.estado_cita_id}
-                    onChange={handleChange}
-                    className="crearCita-input"
-                  >
-                    {Array.isArray(estados) ? (
-                      estados.map((estado) => (
-                        <option key={estado.id} value={estado.id}>
-                          {estado.nombre}
-                        </option>
-                      ))
-                    ) : (
-                      <option value="1">Pendiente</option>
+              {/* Segunda parte: Cliente y Vehículo */}
+              <div className="crearCita-form-section">
+                <h2 className="crearCita-section-title">
+                  <FaUser className="crearCita-section-icon" />
+                  Cliente y Vehículo
+                </h2>
+                <div className="crearCita-form-grid">
+                  <div className="crearCita-form-group">
+                    <label className="crearCita-label">
+                      <FaUser className="crearCita-label-icon" />
+                      Cliente *
+                    </label>
+                    <div className="crearCita-input-container">
+                      <input
+                        type="text"
+                        placeholder="Seleccione un cliente..."
+                        value={
+                          clienteSeleccionado ? `${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}` : ""
+                        }
+                        onClick={() => setMostrarModalClientes(true)}
+                        readOnly
+                        className="crearCita-form-input"
+                        style={{ cursor: "pointer" }}
+                      />
+                      {clienteSeleccionado && (
+                        <button
+                          type="button"
+                          className="crearCita-clear-button"
+                          onClick={limpiarCliente}
+                          title="Limpiar selección"
+                        >
+                          <FaTimes />
+                        </button>
+                      )}
+                      {/* Botón de crear cliente SOLO si no hay selección */}
+                      {!clienteSeleccionado && (
+                        <button
+                          type="button"
+                          onClick={() => navigate("/CrearClientes")}
+                          className="crearCita-link-button"
+                          style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", padding: 0 }}
+                          title="Registrar nuevo cliente"
+                        >
+                          <FaPlusCircle size={20} color="#2563eb" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="crearCita-form-group">
+                    <label className="crearCita-label">
+                      <FaCar className="crearCita-label-icon" />
+                      Vehículo *
+                    </label>
+                    <div className="crearCita-input-container">
+                      <input
+                        type="text"
+                        placeholder="Seleccione un vehículo..."
+                        value={
+                          vehiculoSeleccionado
+                            ? `${vehiculoSeleccionado.placa} - ${vehiculoSeleccionado.referencia?.marca?.nombre || ""} ${vehiculoSeleccionado.referencia?.nombre || ""}`
+                            : ""
+                        }
+                        onClick={() => selectedCliente && setMostrarModalVehiculos(true)}
+                        readOnly
+                        disabled={!selectedCliente}
+                        className={`crearCita-form-input ${errors.vehiculo_id ? "error" : ""} ${!selectedCliente ? "disabled" : ""}`}
+                        style={{ cursor: selectedCliente ? "pointer" : "not-allowed" }}
+                      />
+                      {vehiculoSeleccionado && (
+                        <button
+                          type="button"
+                          className="crearCita-clear-button"
+                          onClick={limpiarVehiculo}
+                          title="Limpiar selección"
+                        >
+                          <FaTimes />
+                        </button>
+                      )}
+                      {/* Botón de crear vehículo SOLO si no hay selección */}
+                      {!vehiculoSeleccionado && (
+                        <button
+                          type="button"
+                          onClick={() => navigate("/vehiculos/crear")}
+                          className="crearCita-link-button"
+                          style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", padding: 0 }}
+                          title="Registrar nuevo vehículo"
+                        >
+                          <FaPlusCircle size={20} color="#2563eb" />
+                        </button>
+                      )}
+                    </div>
+                    {errors.vehiculo_id && (
+                      <span className="crearCita-error-text">
+                        <FaExclamationTriangle />
+                        {errors.vehiculo_id}
+                      </span>
                     )}
-                  </select>
+                    {!selectedCliente && (
+                      <span className="crearCita-info-text">Primero debe seleccionar un cliente</span>
+                    )}
+                    {selectedCliente && vehiculosFiltrados.length === 0 && (
+                      <span className="crearCita-info-text">Este cliente no tiene vehículos registrados</span>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              {/* Cliente y Vehículo */}
-              <div className="crearCita-section">
-                <h2 className="crearCita-sectionTitle">
-                  <FaUser /> Cliente y Vehículo
+              {/* Tercera parte: Observaciones */}
+              <div className="crearCita-form-section">
+                <h2 className="crearCita-section-title">
+                  <FaClipboardList className="crearCita-section-icon" />
+                  Observaciones
                 </h2>
 
-                <div className="crearCita-field">
+                <div className="crearCita-form-group">
                   <label className="crearCita-label">
-                    <FaUser /> Cliente *
+                    <FaClipboardList className="crearCita-label-icon" />
+                    Observaciones
                   </label>
-                  <select
-                    name="cliente"
-                    value={selectedCliente}
-                    onChange={handleClienteChange}
-                    className="crearCita-input"
-                  >
-                    <option value="">Seleccione un cliente</option>
-                    {Array.isArray(clientes) &&
-                      clientes.map((cliente) => (
-                        <option key={cliente.id} value={cliente.id}>
-                          {cliente.nombre} {cliente.apellido} - {cliente.documento}
-                        </option>
-                      ))}
-                  </select>
-                  <button type="button" onClick={() => navigate("/CrearClientes")} className="crearCita-linkButton">
-                    Registrar nuevo cliente
-                  </button>
-                </div>
-
-                <div className="crearCita-field">
-                  <label className="crearCita-label">
-                    <FaCar /> Vehículo *
-                  </label>
-                  <select
-                    name="vehiculo_id"
-                    value={formData.vehiculo_id}
-                    onChange={handleChange}
-                    className={`crearCita-input ${errors.vehiculo_id ? "crearCita-inputError" : ""}`}
-                    disabled={!selectedCliente}
-                  >
-                    <option value="">Seleccione un vehículo</option>
-                    {Array.isArray(vehiculosFiltrados) &&
-                      vehiculosFiltrados.map((vehiculo) => (
-                        <option key={vehiculo.id} value={vehiculo.id}>
-                          {vehiculo.placa} - {vehiculo.referencia?.marca?.nombre || ""}{" "}
-                          {vehiculo.referencia?.nombre || ""}
-                        </option>
-                      ))}
-                  </select>
-                  <button type="button" onClick={() => navigate("/vehiculos/crear")} className="crearCita-linkButton">
-                    Registrar nuevo vehículo
-                  </button>
-                  {errors.vehiculo_id && <span className="crearCita-error">{errors.vehiculo_id}</span>}
-                  {selectedCliente && (!Array.isArray(vehiculosFiltrados) || vehiculosFiltrados.length === 0) && (
-                    <span className="crearCita-info">Este cliente no tiene vehículos registrados</span>
-                  )}
-                </div>
-              </div>
-
-              {/* Mecánico y Observaciones */}
-              <div className="crearCita-section">
-                <h2 className="crearCita-sectionTitle">
-                  <FaTools /> Mecánico y Observaciones
-                </h2>
-
-                <div className="crearCita-field">
-                  <label className="crearCita-label">
-                    <FaTools /> Mecánico *
-                  </label>
-                  <select
-                    name="mecanico_id"
-                    value={formData.mecanico_id}
-                    onChange={handleChange}
-                    className={`crearCita-input ${errors.mecanico_id ? "crearCita-inputError" : ""}`}
-                  >
-                    <option value="">Seleccione un mecánico</option>
-                    {Array.isArray(mecanicos) &&
-                      mecanicos.map((mecanico) => (
-                        <option key={mecanico.id} value={mecanico.id}>
-                          {mecanico.nombre} {mecanico.apellido}
-                        </option>
-                      ))}
-                  </select>
-                  {errors.mecanico_id && <span className="crearCita-error">{errors.mecanico_id}</span>}
-                </div>
-
-                <div className="crearCita-field">
-                  <label className="crearCita-label">Observaciones</label>
                   <textarea
                     name="observaciones"
                     value={formData.observaciones}
                     onChange={handleChange}
                     rows="4"
                     placeholder="Ingrese observaciones o detalles adicionales sobre la cita"
-                    className="crearCita-textarea"
+                    className="crearCita-form-input crearCita-textarea"
                   />
                 </div>
               </div>
 
               {/* Botones de acción */}
-              <div className="crearCita-actions">
-                <button type="button" onClick={() => navigate("/citas")} className="crearCita-cancelButton">
+              <div className="crearCita-form-actions">
+                <button type="button" onClick={() => navigate("/citas")} className="crearCita-cancel-button">
+                  <FaArrowLeft className="crearCita-button-icon" />
                   Cancelar
                 </button>
-                <button type="submit" className="crearCita-submitButton" disabled={loading}>
-                  {loading ? "Guardando..." : "Crear Cita"}
+                <button type="submit" className="crearCita-submit-button" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <div className="crearCita-spinner spinning"></div>
+                      Guardando...
+                    </>
+                  ) : (
+                    <>
+                      <FaCalendarAlt className="crearCita-button-icon" />
+                      Crear Cita
+                    </>
+                  )}
                 </button>
               </div>
             </form>
@@ -573,6 +1378,54 @@ const CrearCita = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de clientes */}
+      {mostrarModalClientes && (
+        <ClienteModal
+          show={mostrarModalClientes}
+          onClose={() => setMostrarModalClientes(false)}
+          clientes={clientes}
+          onSelect={handleSeleccionarCliente}
+          clienteActual={selectedCliente}
+        />
+      )}
+
+      {/* Modal de mecánicos con filtrado por ausencia */}
+      {mostrarModalMecanicos && (
+        <MecanicoModal
+          show={mostrarModalMecanicos}
+          onClose={() => setMostrarModalMecanicos(false)}
+          mecanicos={mecanicos}
+          onSelect={handleSeleccionarMecanico}
+          mecanicoActual={formData.mecanico_id}
+          fechaSeleccionada={formData.fecha}
+          novedades={novedadesDia}
+        />
+      )}
+
+      {/* Modal de vehículos */}
+      {mostrarModalVehiculos && (
+        <VehiculoModal
+          show={mostrarModalVehiculos}
+          onClose={() => setMostrarModalVehiculos(false)}
+          vehiculos={vehiculosFiltrados}
+          onSelect={handleSeleccionarVehiculo}
+          vehiculoActual={formData.vehiculo_id}
+        />
+      )}
+
+      {/* Modal de horas */}
+      {mostrarModalHoras && (
+        <HoraModal
+          show={mostrarModalHoras}
+          onClose={() => setMostrarModalHoras(false)}
+          onSelect={handleSeleccionarHora}
+          horaActual={formData.hora}
+          horariosMecanico={horariosMecanico}
+          citasMecanico={citasMecanico}
+          formData={formData} // <-- pasa formData aquí
+        />
+      )}
     </div>
   )
 }

@@ -64,7 +64,17 @@ const ListarHorarios = () => {
     if (!fechaStr) return ""
 
     try {
-      const fecha = new Date(fechaStr)
+      // Si la fecha ya tiene formato ISO completo, usarla directamente
+      // Si solo tiene fecha (YYYY-MM-DD), agregar hora del mediodía
+      let fecha
+      if (fechaStr.includes("T")) {
+        // Fecha completa ISO, crear directamente
+        fecha = new Date(fechaStr)
+      } else {
+        // Solo fecha, agregar hora del mediodía
+        fecha = new Date(fechaStr + "T12:00:00")
+      }
+
       if (isNaN(fecha.getTime())) {
         console.error("Fecha inválida:", fechaStr)
         return ""
@@ -302,7 +312,18 @@ const ListarHorarios = () => {
                   <td>
                     <div className="listarHorarios-fecha-info">
                       <FaCalendarAlt />
-                      {new Date(horario.fecha).toLocaleDateString("es-ES")}
+                      {(() => {
+                        try {
+                          let fechaStr = horario.fecha
+                          if (fechaStr.includes("T")) {
+                            fechaStr = fechaStr.split("T")[0]
+                          }
+                          const [anio, mes, dia] = fechaStr.split("-")
+                          return `${dia}/${mes}/${anio}`
+                        } catch (error) {
+                          return "Fecha inválida"
+                        }
+                      })()}
                     </div>
                   </td>
                   <td>

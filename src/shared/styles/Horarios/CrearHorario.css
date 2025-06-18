@@ -364,3 +364,356 @@
     padding: 16px;
   }
 }
+
+/* Estilos del Modal de Mecánicos */
+.crearHorario-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.crearHorario-mecanico-modal {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 700px;
+  max-height: 80vh;
+  overflow: hidden;
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.crearHorario-mecanico-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.crearHorario-mecanico-modal-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.crearHorario-modal-header-icon {
+  color: #3b82f6;
+  font-size: 16px;
+}
+
+.crearHorario-mecanico-close-button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #64748b;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.crearHorario-mecanico-close-button:hover {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+.crearHorario-mecanico-modal-content {
+  padding: 20px 24px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.crearHorario-mecanico-search-container {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.crearHorario-mecanico-search-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+}
+
+.crearHorario-mecanico-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.crearHorario-mecanico-search-input {
+  width: 100%;
+  padding: 12px 16px 12px 40px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  background-color: #f8fafc;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.crearHorario-mecanico-search-input:focus {
+  border-color: #3b82f6;
+  background-color: white;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.crearHorario-mecanico-list {
+  margin-bottom: 20px;
+}
+
+.crearHorario-mecanico-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.crearHorario-mecanico-table th {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  font-size: 13px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.crearHorario-mecanico-table td {
+  padding: 12px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1a202c;
+}
+
+.crearHorario-mecanico-row:hover {
+  background-color: #f8fafc;
+}
+
+.crearHorario-mecanico-row:last-child td {
+  border-bottom: none;
+}
+
+.crearHorario-mecanico-name {
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.crearHorario-mecanico-estado {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.crearHorario-mecanico-estado.activo {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.crearHorario-mecanico-estado.inactivo {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.crearHorario-mecanico-select-button {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.crearHorario-mecanico-select-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+.crearHorario-mecanico-no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.crearHorario-mecanico-no-results-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.crearHorario-mecanico-no-results p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.crearHorario-mecanico-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.crearHorario-mecanico-pagination-button {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  background-color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.crearHorario-mecanico-pagination-button:hover:not(:disabled) {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.crearHorario-mecanico-pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.crearHorario-mecanico-page-info {
+  font-size: 13px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.crearHorario-mecanico-total-info {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+/* Estilos para el campo de mecánico */
+.crearHorarios-mecanico-filter-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.crearHorarios-mecanico-filter-input {
+  width: 100%;
+  padding: 12px 40px 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background-color: white;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  font-size: 14px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.crearHorarios-mecanico-filter-input:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.crearHorarios-mecanico-filter-input.error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.crearHorarios-clear-mecanico-button {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.crearHorarios-clear-mecanico-button:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+/* Responsive para el modal */
+@media (max-width: 768px) {
+  .crearHorario-mecanico-modal {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .crearHorario-mecanico-modal-header {
+    padding: 16px 20px;
+  }
+
+  .crearHorario-mecanico-modal-content {
+    padding: 16px 20px;
+  }
+
+  .crearHorario-mecanico-table {
+    font-size: 13px;
+  }
+
+  .crearHorario-mecanico-table th,
+  .crearHorario-mecanico-table td {
+    padding: 8px;
+  }
+
+  .crearHorario-mecanico-pagination {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .crearHorario-mecanico-pagination-button {
+    width: 100%;
+  }
+}

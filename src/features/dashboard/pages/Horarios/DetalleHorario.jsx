@@ -93,13 +93,18 @@ const DetalleHorario = () => {
     cargarDatos()
   }, [id])
 
+  // Formatear fecha sin desfase de zona horaria y mostrar día de la semana en español
   const formatearFecha = (fecha) => {
-    return new Date(fecha).toLocaleDateString("es-ES", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
+    if (!fecha) return ""
+    let fechaStr = fecha
+    if (fechaStr.includes("T")) {
+      fechaStr = fechaStr.split("T")[0]
+    }
+    const [anio, mes, dia] = fechaStr.split("-")
+    // Crear objeto Date a las 12:00 para evitar desfase y obtener el día de la semana
+    const dateObj = new Date(`${anio}-${mes}-${dia}T12:00:00`)
+    const diaSemana = dateObj.toLocaleDateString("es-ES", { weekday: "long" })
+    return `${diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}, ${dia}/${mes}/${anio}`
   }
 
   const formatearHora = (hora) => {
@@ -123,7 +128,13 @@ const DetalleHorario = () => {
   }
 
   const esFechaPasada = (fecha) => {
-    const fechaHorario = new Date(fecha)
+    if (!fecha) return false
+    let fechaStr = fecha
+    if (fechaStr.includes("T")) {
+      fechaStr = fechaStr.split("T")[0]
+    }
+    const [anio, mes, dia] = fechaStr.split("-")
+    const fechaHorario = new Date(`${anio}-${mes}-${dia}T12:00:00`)
     const hoy = new Date()
     hoy.setHours(0, 0, 0, 0)
     return fechaHorario < hoy
@@ -217,7 +228,9 @@ const DetalleHorario = () => {
               </div>
               <div className="detalleHorario-field">
                 <label className="detalleHorario-label">Día de la semana:</label>
-                <span className="detalleHorario-value">{horario.dia}</span>
+                <span className="detalleHorario-value">
+                  {formatearFecha(horario.fecha).split(",")[0]}
+                </span>
               </div>
               {horario.tipo_novedad !== "Ausencia" && (
                 <>

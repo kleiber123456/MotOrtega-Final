@@ -25,7 +25,7 @@ const ListarCitas = () => {
   const [selectedCita, setSelectedCita] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage] = useState(10)
+  const [itemsPerPage] = useState(5)
   const [searchTerm, setSearchTerm] = useState("")
 
   useEffect(() => {
@@ -117,27 +117,7 @@ const ListarCitas = () => {
     setSelectedCita(null)
   }
 
-  // 2. MAPEO DE EVENTOS PARA EL CALENDARIO
-  const calendarEvents = Array.isArray(citas)
-    ? citas
-        .map((cita) => {
-          if (!cita.fecha) return null
-          const start = new Date(cita.fecha)
-          if (isNaN(start.getTime())) {
-            return null
-          }
-          const end = new Date(start)
-          end.setHours(end.getHours() + 1)
-          return {
-            id: cita.id,
-            title: cita.vehiculo?.placa || "Cita",
-            start,
-            end,
-            resource: cita,
-          }
-        })
-        .filter((event) => event !== null)
-    : []
+  
 
   // Personalizar los eventos del calendario
   const eventStyleGetter = (event) => {
@@ -275,43 +255,74 @@ const ListarCitas = () => {
                 </thead>
                 <tbody>
                   {currentCitas.length > 0 ? (
-                    currentCitas.map((cita) => (
-                      <tr key={cita.id}>
-                        <td>{cita.fecha ? moment(cita.fecha).format("DD/MM/YYYY") : "N/A"}</td>
-                        <td>{cita.hora ? moment(cita.hora, "HH:mm:ss").format("HH:mm") : "N/A"}</td>
-                        <td>{cita.vehiculo?.placa || "N/A"}</td>
-                        <td>
-                          {cita.vehiculo?.cliente?.nombre
-                            ? `${cita.vehiculo.cliente.nombre} ${cita.vehiculo.cliente.apellido || ""}`
-                            : "N/A"}
-                        </td>
-                        <td>
-                          {cita.mecanico?.nombre ? `${cita.mecanico.nombre} ${cita.mecanico.apellido || ""}` : "N/A"}
-                        </td>
-                        <td>
-                          <span className={`listarCitas-estado-badge listarCitas-estado-${cita.estado_cita_id}`}>
-                            {cita.estado_cita?.nombre || "Pendiente"}
-                          </span>
-                        </td>
-                        <td className="listarCitas-actions-cell">
-                          <Link
-                            to={`/citas/detalle/${cita.id}`}
-                            className="listarCitas-btn-action listarCitas-btn-view"
-                          >
-                            <FaEye />
-                          </Link>
-                          <Link to={`/citas/editar/${cita.id}`} className="listarCitas-btn-action listarCitas-btn-edit">
-                            <FaEdit />
-                          </Link>
-                          <button
-                            className="listarCitas-btn-action listarCitas-btn-delete"
-                            onClick={() => handleDeleteCita(cita.id)}
-                          >
-                            <FaTrash />
-                          </button>
-                        </td>
-                      </tr>
-                    ))
+                    currentCitas.map((cita) => {
+                      // --- Construcción local de la fecha igual que en el calendario ---
+                      const fechaStr = cita.fecha
+                      const horaStr = cita.hora ? cita.hora.slice(0, 5) : "08:00"
+                      let fechaBase = fechaStr
+                      if (fechaStr && fechaStr.includes("T")) {
+                        fechaBase = fechaStr.split("T")[0]
+                      }
+                      let fechaLocal = null
+                      if (fechaBase) {
+                        const [year, month, day] = fechaBase.split("-")
+                        const [hour, minute] = horaStr.split(":")
+                        fechaLocal = new Date(
+                          Number(year),
+                          Number(month) - 1,
+                          Number(day),
+                          Number(hour),
+                          Number(minute)
+                        )
+                      }
+                      // ---------------------------------------------------------------
+
+                      return (
+                        <tr key={cita.id}>
+                          <td>
+                            {fechaLocal
+                              ? fechaLocal.toLocaleDateString("es-CO", { day: "2-digit", month: "2-digit", year: "numeric" })
+                              : "N/A"}
+                          </td>
+                          <td>
+                            {fechaLocal
+                              ? fechaLocal.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit", hour12: false })
+                              : "N/A"}
+                          </td>
+                          <td>{cita.vehiculo?.placa || "N/A"}</td>
+                          <td>
+                            {cita.vehiculo?.cliente?.nombre
+                              ? `${cita.vehiculo.cliente.nombre} ${cita.vehiculo.cliente.apellido || ""}`
+                              : "N/A"}
+                          </td>
+                          <td>
+                            {cita.mecanico?.nombre ? `${cita.mecanico.nombre} ${cita.mecanico.apellido || ""}` : "N/A"}
+                          </td>
+                          <td>
+                            <span className={`listarCitas-estado-badge listarCitas-estado-${cita.estado_cita_id}`}>
+                              {cita.estado_cita?.nombre || "Pendiente"}
+                            </span>
+                          </td>
+                          <td className="listarCitas-actions-cell">
+                            <Link
+                              to={`/citas/detalle/${cita.id}`}
+                              className="listarCitas-btn-action listarCitas-btn-view"
+                            >
+                              <FaEye />
+                            </Link>
+                            <Link to={`/citas/editar/${cita.id}`} className="listarCitas-btn-action listarCitas-btn-edit">
+                              <FaEdit />
+                            </Link>
+                            <button
+                              className="listarCitas-btn-action listarCitas-btn-delete"
+                              onClick={() => handleDeleteCita(cita.id)}
+                            >
+                              <FaTrash />
+                            </button>
+                          </td>
+                        </tr>
+                      )
+                    })
                   ) : (
                     <tr>
                       <td colSpan="7" className="listarCitas-no-data">
