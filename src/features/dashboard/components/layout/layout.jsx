@@ -206,20 +206,21 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
             collapsed={collapsed}
           />
 
-          <Dropdown
+      <Dropdown
             id="configuracion"
             title="Configuración"
             icon={<FaUserCog />}
             options={[
+              { label: "Roles", link: "/ListarRoles" },
               { label: "Usuarios", link: "/listarUsuarios" },
               { label: "Clientes", link: "/ListarClientes" },
               { label: "Mecánicos", link: "/ListarMecanicos" },
-              { label: "Roles", link: "/ListarRoles" },
+              
             ]}
             isOpen={activeDropdown === "configuracion"}
             toggleDropdown={toggleDropdown}
             collapsed={collapsed}
-          />
+           />
 
           <Dropdown
             id="servicios"

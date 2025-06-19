@@ -154,12 +154,16 @@ const ListarMecanicos = () => {
 
   const cambiarEstado = useCallback(
     async (id, estadoActual) => {
+      // Buscar el mecánico por id para obtener su nombre
+      const mecanico = mecanicos.find((m) => m.id === id)
+      const nombreCompleto = mecanico ? `${mecanico.nombre} ${mecanico.apellido}` : "el mecánico"
+
       try {
         const nuevoEstado = estadoActual?.toLowerCase() === "activo" ? "Inactivo" : "Activo"
 
         const result = await Swal.fire({
           title: `¿Cambiar estado a ${nuevoEstado}?`,
-          text: `El mecánico será marcado como ${nuevoEstado.toLowerCase()}`,
+          text: `El mecánico ${nombreCompleto} será marcado como ${nuevoEstado.toLowerCase()}`,
           icon: "question",
           showCancelButton: true,
           confirmButtonColor: "#2563eb",
@@ -179,7 +183,7 @@ const ListarMecanicos = () => {
         Swal.fire({
           icon: "success",
           title: "Estado actualizado",
-          text: `El mecánico ahora está ${nuevoEstado.toLowerCase()}`,
+          text: `El mecánico ${nombreCompleto} ahora está ${nuevoEstado.toLowerCase()}`,
           timer: 2000,
           showConfirmButton: false,
         })
@@ -188,7 +192,7 @@ const ListarMecanicos = () => {
         Swal.fire("Error", "No se pudo cambiar el estado del mecánico", "error")
       }
     },
-    [makeRequest],
+    [makeRequest, mecanicos],
   )
 
   const handleSearch = useCallback((e) => {

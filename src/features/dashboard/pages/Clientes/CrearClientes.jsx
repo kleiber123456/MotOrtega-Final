@@ -16,6 +16,7 @@ import {
   FaExclamationTriangle,
   FaSave,
   FaUsers,
+  FaArrowLeft, // <-- Agrega este icono
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Clientes/CrearClientes.css"
@@ -378,12 +379,24 @@ const CrearCliente = () => {
 
   return (
     <div className="crearCliente-container">
-      <div className="crearCliente-header">
-        <h1 className="crearCliente-page-title">
-          <FaUsers className="crearCliente-title-icon" />
-          Crear Nuevo Cliente
-        </h1>
-        <p className="crearCliente-subtitle">Registra un nuevo cliente en el sistema</p>
+      <div className="editarUsuario-header">
+        <div className="editarUsuario-header-left">
+          <button
+            className="editarUsuario-btn-back"
+            onClick={() => navigate(-1)}
+            type="button"
+          >
+            <FaArrowLeft />
+            Volver
+          </button>
+          <div className="editarUsuario-title-section">
+            <h1 className="crearCliente-page-title">
+              <FaUsers className="crearCliente-title-icon" />
+              Crear Nuevo Cliente
+            </h1>
+            <p className="crearCliente-subtitle">Registra un nuevo cliente en el sistema</p>
+          </div>
+        </div>
       </div>
 
       <form className="crearCliente-form" onSubmit={handleSubmit}>
@@ -395,6 +408,7 @@ const CrearCliente = () => {
           </h3>
 
           <div className="crearCliente-form-grid">
+            {/* Nombre */}
             <div className="crearCliente-form-group">
               <label htmlFor="nombre" className="crearCliente-label">
                 <FaUser className="crearCliente-label-icon" />
@@ -419,7 +433,7 @@ const CrearCliente = () => {
                 </span>
               )}
             </div>
-
+            {/* Apellido */}
             <div className="crearCliente-form-group">
               <label htmlFor="apellido" className="crearCliente-label">
                 <FaUser className="crearCliente-label-icon" />
@@ -444,7 +458,7 @@ const CrearCliente = () => {
                 </span>
               )}
             </div>
-
+            {/* Tipo de Documento */}
             <div className="crearCliente-form-group">
               <label htmlFor="tipo_documento" className="crearCliente-label">
                 <FaIdCard className="crearCliente-label-icon" />
@@ -465,7 +479,7 @@ const CrearCliente = () => {
                 <option value="Otro">Otro</option>
               </select>
             </div>
-
+            {/* Documento */}
             <div className="crearCliente-form-group">
               <label htmlFor="documento" className="crearCliente-label">
                 <FaIdCard className="crearCliente-label-icon" />
@@ -490,7 +504,7 @@ const CrearCliente = () => {
                 </span>
               )}
             </div>
-
+            {/* Correo */}
             <div className="crearCliente-form-group">
               <label htmlFor="correo" className="crearCliente-label">
                 <FaEnvelope className="crearCliente-label-icon" />
@@ -513,7 +527,7 @@ const CrearCliente = () => {
                 </span>
               )}
             </div>
-
+            {/* Teléfono */}
             <div className="crearCliente-form-group">
               <label htmlFor="telefono" className="crearCliente-label">
                 <FaPhone className="crearCliente-label-icon" />
@@ -537,7 +551,7 @@ const CrearCliente = () => {
                 </span>
               )}
             </div>
-
+            {/* Dirección */}
             <div className="crearCliente-form-group">
               <label htmlFor="direccion" className="crearCliente-label">
                 <FaMapMarkerAlt className="crearCliente-label-icon" />
@@ -561,7 +575,7 @@ const CrearCliente = () => {
                 </span>
               )}
             </div>
-
+            {/* Estado */}
             <div className="crearCliente-form-group">
               <label htmlFor="estado" className="crearCliente-label">
                 <FaUserTag className="crearCliente-label-icon" />
@@ -578,16 +592,7 @@ const CrearCliente = () => {
                 <option value="Inactivo">Inactivo</option>
               </select>
             </div>
-          </div>
-        </div>
-
-        {/* Configuración de cuenta */}
-        <div className="crearCliente-form-section">
-          <h3 className="crearCliente-section-title">
-            <FaUser className="crearCliente-section-icon" />
-            Configuración de Cuenta
-          </h3>
-          <div className="crearCliente-form-grid">
+            {/* Contraseña (subida al lado de Estado) */}
             <div className="crearCliente-form-group">
               <label htmlFor="password" className="crearCliente-label">
                 <FaUser className="crearCliente-label-icon" />

@@ -550,6 +550,22 @@ function ListarCompras() {
                   <span className={`listarCompra-estado ${getEstadoClass(compra.estado)}`}>{compra.estado}</span>
                 </td>
                 <td className="listarCompra-actions">
+                  <button
+                    className="listarCompra-action-button detail"
+                    onClick={() => navigate(`/DetalleCompra/${compra.id}`)}
+                    title="Ver detalle"
+                  >
+                    <Eye size={18} />
+                  </button>
+
+                  <button
+                    className="listarCompra-action-button pdf"
+                    onClick={() => handleGenerarPDF(compra.id)}
+                    title="Generar PDF"
+                  >
+                    <FileText size={18} />
+                  </button>
+
                   {compra.estado === "Pendiente" && (
                     <>
                       <button
@@ -569,22 +585,6 @@ function ListarCompras() {
                       </button>
                     </>
                   )}
-
-                  <button
-                    className="listarCompra-action-button detail"
-                    onClick={() => navigate(`/DetalleCompra/${compra.id}`)}
-                    title="Ver detalle"
-                  >
-                    <Eye size={18} />
-                  </button>
-
-                  <button
-                    className="listarCompra-action-button pdf"
-                    onClick={() => handleGenerarPDF(compra.id)}
-                    title="Generar PDF"
-                  >
-                    <FileText size={18} />
-                  </button>
                 </td>
               </tr>
             ))}

@@ -246,6 +246,7 @@ const DetalleCliente = () => {
       </div>
 
       {/* Información del Sistema */}
+      {/* 
       <div className="detalleCliente-section">
         <div className="detalleCliente-section-header">
           <h2 className="detalleCliente-section-title">
@@ -267,6 +268,7 @@ const DetalleCliente = () => {
           </div>
         </div>
       </div>
+      */}
     </div>
   )
 }

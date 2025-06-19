@@ -169,20 +169,23 @@ const DetalleHorario = () => {
 
   return (
     <div className="detalleHorario-container">
-      <div className="detalleHorario-header">
-        <div className="detalleHorario-headerContent">
-          <div className="detalleHorario-headerLeft">
-            <div className="detalleHorario-iconContainer">
-              <FaClock className="detalleHorario-headerIcon" />
-            </div>
-            <div className="detalleHorario-headerText">
-              <h1 className="detalleHorario-title">Detalle de Novedad de Horario</h1>
-              <p className="detalleHorario-subtitle">Información completa de la novedad</p>
-            </div>
-          </div>
-          <button className="detalleHorario-btnVolver" onClick={() => navigate("/Horarios")}>
-            <FaArrowLeft /> Volver
+      <div className="editarUsuario-header">
+        <div className="editarUsuario-header-left">
+          <button
+            className="editarUsuario-btn-back"
+            onClick={() => navigate("/Horarios")}
+            type="button"
+          >
+            <FaArrowLeft />
+            Volver
           </button>
+          <div className="editarUsuario-title-section">
+            <h1 className="editarUsuario-page-title">
+              <FaClock className="editarUsuario-title-icon" />
+              Detalle de Novedad de Horario
+            </h1>
+            <p className="editarUsuario-subtitle">Información completa de la novedad</p>
+          </div>
         </div>
       </div>
 

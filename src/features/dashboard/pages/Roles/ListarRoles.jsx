@@ -336,10 +336,14 @@ const ListarRoles = () => {
                     </td>
                     <td>
                       <button
+                        type="button" // <-- Asegura que no sea submit
                         className={`listarRoles-estado-toggle ${
                           rol.estado?.toLowerCase() === "activo" ? "activo" : "inactivo"
                         }`}
-                        onClick={() => cambiarEstado(rol.id, rol.estado, rol.nombre)}
+                        onClick={e => {
+                          e.preventDefault() // <-- Previene comportamiento por defecto
+                          cambiarEstado(rol.id, rol.estado, rol.nombre)
+                        }}
                         title={`Estado: ${rol.estado} - Click para cambiar`}
                       >
                         {rol.estado?.toLowerCase() === "activo" ? (

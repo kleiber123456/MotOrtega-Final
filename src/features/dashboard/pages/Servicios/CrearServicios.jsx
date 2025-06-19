@@ -11,6 +11,7 @@ import {
   FaSpinner,
   FaExclamationTriangle,
   FaSave,
+  FaArrowLeft, // <-- Agrega este icono
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Servicios/CrearServicios.css"
@@ -209,12 +210,24 @@ const CrearServicio = () => {
 
   return (
     <div className="crearServicio-container">
-      <div className="crearServicio-header">
-        <h1 className="crearServicio-page-title">
-          <FaCog className="crearServicio-title-icon" />
-          Crear Servicio
-        </h1>
-        <p className="crearServicio-subtitle">Registra un nuevo servicio en el sistema</p>
+      <div className="editarUsuario-header">
+        <div className="editarUsuario-header-left">
+          <button
+            className="editarUsuario-btn-back"
+            onClick={() => navigate("/listarServicios")}
+            type="button"
+          >
+            <FaArrowLeft />
+            Volver
+          </button>
+          <div className="editarUsuario-title-section">
+            <h1 className="crearServicio-page-title">
+              <FaCog className="crearServicio-title-icon" />
+              Crear Servicio
+            </h1>
+            <p className="crearServicio-subtitle">Registra un nuevo servicio en el sistema</p>
+          </div>
+        </div>
       </div>
 
       <form className="crearServicio-form" onSubmit={handleSubmit}>

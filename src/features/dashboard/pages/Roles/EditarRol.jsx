@@ -5,13 +5,12 @@ import { useParams, useNavigate } from "react-router-dom"
 import {
   FaUserShield,
   FaIdCard,
-  FaTag,
+  FaLock,
   FaTimes,
   FaSpinner,
   FaExclamationTriangle,
   FaSave,
   FaArrowLeft,
-  FaLock,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Roles/EditarRol.css"
@@ -95,9 +94,7 @@ const EditarRol = () => {
     const cargarDatos = async () => {
       try {
         setCargando(true)
-
         const rolData = await makeRequest(`/roles/${id}`)
-
         if (rolData) {
           setRol({
             nombre: rolData.nombre || "",
@@ -126,7 +123,6 @@ const EditarRol = () => {
 
   const validarCampo = useCallback((name, value) => {
     let nuevoError = ""
-
     switch (name) {
       case "nombre":
         if (!value.trim()) {
@@ -143,11 +139,10 @@ const EditarRol = () => {
         }
         break
     }
-
     setErrores((prev) => ({ ...prev, [name]: nuevoError }))
   }, [])
 
-  // Manejadores específicos para validación en tiempo real
+  // Validación en tiempo real solo para nombre
   const handleNombreChange = useCallback(
     (e) => {
       const value = e.target.value
@@ -158,35 +153,17 @@ const EditarRol = () => {
     [validarCampo],
   )
 
-  const handleCodigoChange = useCallback(
-    (e) => {
-      const value = e.target.value.toUpperCase()
-      const filteredValue = value.replace(/[^A-Z0-9_]/g, "")
-      setRol((prev) => ({ ...prev, codigo: filteredValue }))
-      validarCampo("codigo", filteredValue)
-    },
-    [validarCampo],
-  )
-
   const validarFormulario = useCallback(() => {
     const nuevosErrores = {}
-
-    // Validar todos los campos
-    Object.keys(rol).forEach((key) => {
-      if (key !== "permisos") {
-        validarCampo(key, rol[key])
-      }
-    })
-
+    validarCampo("nombre", rol.nombre)
+    validarCampo("descripcion", rol.descripcion)
     setErrores((prev) => ({ ...prev, ...nuevosErrores }))
-
-    return Object.keys(errores).every((key) => !errores[key])
+    return Object.values(errores).every((error) => !error)
   }, [rol, errores, validarCampo])
 
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault()
-
       if (!validarFormulario()) {
         await Swal.fire({
           icon: "warning",
@@ -196,21 +173,17 @@ const EditarRol = () => {
         })
         return
       }
-
       setIsSubmitting(true)
-
       try {
         const rolData = {
           nombre: rol.nombre.trim(),
           descripcion: rol.descripcion.trim(),
           estado: rol.estado,
         }
-
         await makeRequest(`/roles/${id}`, {
           method: "PUT",
           body: JSON.stringify(rolData),
         })
-
         await Swal.fire({
           icon: "success",
           title: "¡Éxito!",
@@ -218,7 +191,6 @@ const EditarRol = () => {
           confirmButtonColor: "#10b981",
           timer: 2000,
         })
-
         navigate("/ListarRoles")
       } catch (error) {
         console.error("Error al actualizar rol:", error)
@@ -246,7 +218,6 @@ const EditarRol = () => {
       confirmButtonText: "Sí, cancelar",
       cancelButtonText: "Continuar editando",
     })
-
     if (result.isConfirmed) {
       navigate("/ListarRoles")
     }
@@ -315,30 +286,6 @@ const EditarRol = () => {
             </div>
 
             <div className="editarRol-form-group">
-              <label htmlFor="codigo" className="editarRol-label">
-                <FaTag className="editarRol-label-icon" />
-                
-              </label>
-              <input
-                type="text"
-                id="codigo"
-                name="codigo"
-                className={`editarRol-form-input ${errores.codigo ? "error" : ""}`}
-                placeholder="Ej: ADMIN_VENTAS"
-                value={rol.codigo}
-                onChange={handleCodigoChange}
-                maxLength={20}
-                autoComplete="off"
-                required
-              />
-              {errores.codigo && (
-                <span className="editarRol-error-text">
-                  <FaExclamationTriangle /> {errores.codigo}
-                </span>
-              )}
-            </div>
-
-            <div className="editarRol-form-group">
               <label htmlFor="estado" className="editarRol-label">
                 <FaLock className="editarRol-label-icon" />
                 Estado
@@ -357,7 +304,6 @@ const EditarRol = () => {
 
             <div className="editarRol-form-group editarRol-form-group-full">
               <label htmlFor="descripcion" className="editarRol-label">
-                
                 Descripción *
               </label>
               <textarea

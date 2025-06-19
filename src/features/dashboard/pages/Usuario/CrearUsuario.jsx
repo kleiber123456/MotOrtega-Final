@@ -15,6 +15,7 @@ import {
   FaSpinner,
   FaExclamationTriangle,
   FaSave,
+  FaArrowLeft, // <-- Agrega este icono
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Usuarios/CrearUsuarios.css"
@@ -330,12 +331,24 @@ const CrearUsuario = () => {
 
   return (
     <div className="crearUsuario-container">
-      <div className="crearUsuario-header">
-        <h1 className="crearUsuario-page-title">
-          <FaUser className="crearUsuario-title-icon" />
-          Crear Usuario
-        </h1>
-        <p className="crearUsuario-subtitle">Registra un nuevo usuario en el sistema</p>
+      <div className="editarUsuario-header">
+        <div className="editarUsuario-header-left">
+          <button
+            className="editarUsuario-btn-back"
+            onClick={() => navigate(-1)}
+            type="button"
+          >
+            <FaArrowLeft />
+            Volver
+          </button>
+          <div className="editarUsuario-title-section">
+            <h1 className="crearUsuario-page-title">
+              <FaUser className="crearUsuario-title-icon" />
+              Crear Usuario
+            </h1>
+            <p className="crearUsuario-subtitle">Registra un nuevo usuario en el sistema</p>
+          </div>
+        </div>
       </div>
 
       <form className="crearUsuario-form" onSubmit={handleSubmit}>
@@ -539,15 +552,6 @@ const CrearUsuario = () => {
                 </span>
               )}
             </div>
-          </div>
-        </div>
-
-        <div className="crearUsuario-form-section">
-          <h3 className="crearUsuario-section-title">
-            <FaUser className="crearUsuario-section-icon" />
-            Configuración de Cuenta
-          </h3>
-          <div className="crearUsuario-form-grid">
             <div className="crearUsuario-form-group">
               <label htmlFor="estado" className="crearUsuario-label">
                 <FaUserTag className="crearUsuario-label-icon" />
@@ -564,7 +568,15 @@ const CrearUsuario = () => {
                 <option value="Inactivo">Inactivo</option>
               </select>
             </div>
+          </div>
+        </div>
 
+        <div className="crearUsuario-form-section">
+          <h3 className="crearUsuario-section-title">
+            <FaUser className="crearUsuario-section-icon" />
+            Configuración de Cuenta
+          </h3>
+          <div className="crearUsuario-form-grid">
             <div className="crearUsuario-form-group">
               <label htmlFor="password" className="crearUsuario-label">
                 <FaUser className="crearUsuario-label-icon" />

@@ -357,7 +357,7 @@ const EditarCliente = () => {
             <div className="editarCliente-form-group">
               <label htmlFor="tipo_documento" className="editarCliente-label">
                 <FaIdCard className="editarCliente-label-icon" />
-                Tipo Documento *
+                Tipo de Documento *
               </label>
               <select
                 id="tipo_documento"
@@ -366,13 +366,11 @@ const EditarCliente = () => {
                 onChange={handleChange}
                 className={`editarCliente-form-input ${errores.tipo_documento ? "error" : ""}`}
                 required
+                disabled
               >
                 <option value="">Seleccionar tipo</option>
                 <option value="Cédula de ciudadanía">Cédula de Ciudadanía</option>
-                <option value="Tarjeta de identidad">Tarjeta de Identidad</option>
-                <option value="Cédula de Extranjería">Cédula de Extranjería</option>
-                <option value="Pasaporte">Pasaporte</option>
-                <option value="Otro">Otro</option>
+                <option value="Tarjeta de Identidad">Tarjeta de Identidad</option>
               </select>
               {errores.tipo_documento && (
                 <span className="editarCliente-error-text">
@@ -392,11 +390,11 @@ const EditarCliente = () => {
                 name="documento"
                 value={cliente.documento}
                 onChange={handleChange}
-                onInput={soloNumeros}
                 maxLength={15}
                 autoComplete="off"
                 className={`editarCliente-form-input ${errores.documento ? "error" : ""}`}
                 required
+                disabled
               />
               {errores.documento && (
                 <span className="editarCliente-error-text">

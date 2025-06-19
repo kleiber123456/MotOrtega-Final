@@ -13,6 +13,7 @@ import {
   FaExclamationTriangle,
   FaSave,
   FaSearch,
+  FaArrowLeft,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import axios from "axios"
@@ -310,12 +311,24 @@ const CrearVehiculo = () => {
 
   return (
     <div className="crearVehiculo-container">
-      <div className="crearVehiculo-header">
-        <h1 className="crearVehiculo-page-title">
-          <FaCar className="crearVehiculo-title-icon" />
-          Crear Vehículo
-        </h1>
-        <p className="crearVehiculo-subtitle">Registra un nuevo vehículo en el sistema</p>
+      <div className="editarUsuario-header">
+        <div className="editarUsuario-header-left">
+          <button
+            className="editarUsuario-btn-back"
+            onClick={() => navigate(-1)}
+            type="button"
+          >
+            <FaArrowLeft />
+            Volver
+          </button>
+          <div className="editarUsuario-title-section">
+            <h1 className="crearVehiculo-page-title">
+              <FaCar className="crearVehiculo-title-icon" />
+              Crear Vehículo
+            </h1>
+            <p className="crearVehiculo-subtitle">Registra un nuevo vehículo en el sistema</p>
+          </div>
+        </div>
       </div>
 
       <form className="crearVehiculo-form" onSubmit={handleSubmit}>

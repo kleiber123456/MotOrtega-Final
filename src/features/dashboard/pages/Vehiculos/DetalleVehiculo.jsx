@@ -269,7 +269,7 @@ const DetalleVehiculo = () => {
         </div>
       </div>
 
-      {/* Información del Cliente */}
+      {/* Información del Cliente y Estado del Vehículo */}
       <div className="detalleVehiculo-section">
         <div className="detalleVehiculo-section-header">
           <h2 className="detalleVehiculo-section-title">
@@ -325,6 +325,7 @@ const DetalleVehiculo = () => {
               </div>
             </div>
 
+            {/* Estado del Cliente */}
             <div className="detalleVehiculo-info-card">
               <div className="detalleVehiculo-info-icon">
                 {cliente.estado?.toLowerCase() === "activo" ? <FaToggleOn /> : <FaToggleOff />}
@@ -332,6 +333,19 @@ const DetalleVehiculo = () => {
               <div className="detalleVehiculo-info-content">
                 <span className="detalleVehiculo-info-label">Estado del Cliente</span>
                 <span className={`detalleVehiculo-estado ${getEstadoClass(cliente.estado)}`}>{cliente.estado}</span>
+              </div>
+            </div>
+
+            {/* Estado del Vehículo al lado del estado del cliente */}
+            <div className="detalleVehiculo-info-card">
+              <div className="detalleVehiculo-info-icon">
+                {vehiculo.estado?.toLowerCase() === "activo" ? <FaToggleOn /> : <FaToggleOff />}
+              </div>
+              <div className="detalleVehiculo-info-content">
+                <span className="detalleVehiculo-info-label">Estado del Vehículo</span>
+                <span className={`detalleVehiculo-estado ${getEstadoClass(vehiculo.estado)}`}>
+                  {vehiculo.estado || "No especificado"}
+                </span>
               </div>
             </div>
           </div>
@@ -349,26 +363,10 @@ const DetalleVehiculo = () => {
       </div>
 
       {/* Información del Sistema */}
+      {/* Puedes eliminar el estado del vehículo de la sección de sistema si ya lo muestras arriba */}
       <div className="detalleVehiculo-section">
-        <div className="detalleVehiculo-section-header">
-          <h2 className="detalleVehiculo-section-title">
-            <FaCogs className="detalleVehiculo-section-icon" />
-            Información del Sistema
-          </h2>
-        </div>
         <div className="detalleVehiculo-info-grid">
-          <div className="detalleVehiculo-info-card">
-            <div className="detalleVehiculo-info-icon">
-              {vehiculo.estado?.toLowerCase() === "activo" ? <FaToggleOn /> : <FaToggleOff />}
-            </div>
-            <div className="detalleVehiculo-info-content">
-              <span className="detalleVehiculo-info-label">Estado</span>
-              <span className={`detalleVehiculo-estado ${getEstadoClass(vehiculo.estado)}`}>
-                {vehiculo.estado || "No especificado"}
-              </span>
-            </div>
-          </div>
-
+          {/* Elimina el estado del vehículo de aquí si ya lo mostraste arriba */}
           {vehiculo.fecha_creacion && (
             <div className="detalleVehiculo-info-card">
               <div className="detalleVehiculo-info-icon">

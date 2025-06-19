@@ -148,12 +148,15 @@ const ListarVehiculos = () => {
 
   const cambiarEstado = useCallback(
     async (id, estadoActual) => {
+      // Buscar el vehículo por id para obtener su placa
+      const vehiculo = vehiculos.find((v) => v.id === id)
+      const nombreVehiculo = vehiculo ? vehiculo.placa : "el vehículo"
       try {
         const nuevoEstado = estadoActual?.toLowerCase() === "activo" ? "Inactivo" : "Activo"
 
         const result = await Swal.fire({
           title: `¿Cambiar estado a ${nuevoEstado}?`,
-          text: `El vehículo será marcado como ${nuevoEstado.toLowerCase()}`,
+          text: `El vehículo "${nombreVehiculo}" será marcado como ${nuevoEstado.toLowerCase()}`,
           icon: "question",
           showCancelButton: true,
           confirmButtonColor: "#2563eb",
@@ -173,7 +176,7 @@ const ListarVehiculos = () => {
         Swal.fire({
           icon: "success",
           title: "Estado actualizado",
-          text: `El vehículo ahora está ${nuevoEstado.toLowerCase()}`,
+          text: `El vehículo "${nombreVehiculo}" ahora está ${nuevoEstado.toLowerCase()}`,
           timer: 2000,
           showConfirmButton: false,
         })
@@ -182,7 +185,7 @@ const ListarVehiculos = () => {
         Swal.fire("Error", "No se pudo cambiar el estado del vehículo", "error")
       }
     },
-    [makeRequest],
+    [makeRequest, vehiculos],
   )
 
   const handleSearch = useCallback((e) => {

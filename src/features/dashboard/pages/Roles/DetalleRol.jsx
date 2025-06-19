@@ -168,7 +168,7 @@ const DetalleRol = () => {
         </div>
       </div>
 
-      {/* Información Básica */}
+      {/* Información Básica y Estado */}
       <div className="detalleRol-section">
         <div className="detalleRol-section-header">
           <h2 className="detalleRol-section-title">
@@ -177,6 +177,7 @@ const DetalleRol = () => {
           </h2>
         </div>
         <div className="detalleRol-info-grid">
+          {/* Nombre del Rol */}
           <div className="detalleRol-info-card">
             <div className="detalleRol-info-icon">
               <FaUserShield />
@@ -186,29 +187,17 @@ const DetalleRol = () => {
               <span className="detalleRol-info-value">{rol.nombre}</span>
             </div>
           </div>
-
-        
-          <div className="detalleRol-info-card detalleRol-info-card-full">
+          {/* Descripción */}
+          <div className="detalleRol-info-card">
             <div className="detalleRol-info-icon">
-              
+              <FaLock />
             </div>
             <div className="detalleRol-info-content">
               <span className="detalleRol-info-label">Descripción</span>
               <span className="detalleRol-info-value">{rol.descripcion || "No especificada"}</span>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Estado del Sistema */}
-      <div className="detalleRol-section">
-        <div className="detalleRol-section-header">
-          <h2 className="detalleRol-section-title">
-            <FaLock className="detalleRol-section-icon" />
-            Estado del Sistema
-          </h2>
-        </div>
-        <div className="detalleRol-info-grid">
+          {/* Estado */}
           <div className="detalleRol-info-card">
             <div className="detalleRol-info-icon">
               {rol.estado?.toLowerCase() === "activo" ? <FaToggleOn /> : <FaToggleOff />}

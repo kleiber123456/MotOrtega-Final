@@ -262,26 +262,23 @@ const DetalleCompra = () => {
 
   return (
     <div className="detalleCompra-container">
-      {/* Header */}
-      <div className="detalleCompra-header">
-        <div className="detalleCompra-header-left">
-          <button className="detalleCompra-btn-back" onClick={() => navigate("/compras")}>
+      <div className="editarUsuario-header">
+        <div className="editarUsuario-header-left">
+          <button
+            className="editarUsuario-btn-back"
+            onClick={() => navigate("/ListarCompras")}
+            type="button"
+          >
             <FaArrowLeft />
             Volver
           </button>
-          <div className="detalleCompra-title-section">
+          <div className="editarUsuario-title-section">
             <h1 className="detalleCompra-page-title">
               <FaShoppingCart className="detalleCompra-title-icon" />
-              Detalle de Compra #{compra.id}
+              Detalle de Compra
             </h1>
             <p className="detalleCompra-subtitle">Información completa de la compra</p>
           </div>
-        </div>
-        <div className="detalleCompra-header-actions">
-          <button className="detalleCompra-btn-pdf" onClick={handleGenerarPDF}>
-            <FaDownload />
-            Descargar PDF
-          </button>
         </div>
       </div>
 

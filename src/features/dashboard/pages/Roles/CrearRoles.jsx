@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
-import { FaUserShield, FaIdCard, FaTimes, FaSpinner, FaExclamationTriangle, FaSave, FaLock } from "react-icons/fa"
+import { FaArrowLeft, FaUserShield, FaIdCard, FaTimes, FaSpinner, FaExclamationTriangle, FaSave, FaLock } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Roles/CrearRoles.css"
 
@@ -335,12 +335,24 @@ const CrearRol = () => {
 
   return (
     <div className="crearRol-container">
-      <div className="crearRol-header">
-        <h1 className="crearRol-page-title">
-          <FaUserShield className="crearRol-title-icon" />
-          Crear Nuevo Rol
-        </h1>
-        <p className="crearRol-subtitle">Define un nuevo rol con sus permisos correspondientes</p>
+      <div className="editarUsuario-header">
+        <div className="editarUsuario-header-left">
+          <button
+            className="editarUsuario-btn-back"
+            onClick={() => navigate(-1)}
+            type="button"
+          >
+            <FaArrowLeft />
+            Volver
+          </button>
+          <div className="editarUsuario-title-section">
+            <h1 className="crearRol-page-title">
+              <FaUserShield className="crearRol-title-icon" />
+              Crear Nuevo Rol
+            </h1>
+            <p className="crearRol-subtitle">Define un nuevo rol con sus permisos correspondientes</p>
+          </div>
+        </div>
       </div>
 
       <form className="crearRol-form" onSubmit={handleSubmit}>

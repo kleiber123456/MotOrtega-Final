@@ -131,6 +131,10 @@
   gap: 8px;
 }
 
+.editarRol-form-group-full {
+  grid-column: 1 / -1;
+}
+
 .editarRol-label {
   font-size: 14px;
   font-weight: 600;
@@ -184,6 +188,44 @@
 }
 
 .editarRol-form-input.error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.editarRol-form-textarea {
+  width: 100%;
+  padding: 14px 18px;
+  font-size: 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  background-color: #f8fafc;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  min-height: 100px;
+  resize: vertical;
+  box-sizing: border-box;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.editarRol-form-textarea:hover {
+  border-color: #94a3b8;
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.editarRol-form-textarea:focus {
+  border-color: #3b82f6;
+  background-color: white;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.editarRol-form-textarea.error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.editarRol-form-textarea.error:focus {
   border-color: #ef4444;
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }

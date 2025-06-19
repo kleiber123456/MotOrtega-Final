@@ -501,20 +501,24 @@ const CrearHorario = () => {
 
   return (
     <div className="crearHorarios-container">
-      <div className="crearHorarios-header">
-        <div className="crearHorarios-headerContent">
-          <div className="crearHorarios-headerLeft">
-            <div className="crearHorarios-headerIcon">
-              <FaClock />
-            </div>
-            <div className="crearHorarios-headerText">
-              <h1>Crear Novedad de Horario</h1>
-              <p>Registrar excepciones al horario laboral normal</p>
-            </div>
-          </div>
-          <button className="crearHorarios-btnVolver" onClick={handleCancel} disabled={loading}>
-            <FaArrowLeft /> Volver
+      <div className="editarUsuario-header">
+        <div className="editarUsuario-header-left">
+          <button
+            className="editarUsuario-btn-back"
+            onClick={handleCancel}
+            type="button"
+            disabled={loading}
+          >
+            <FaArrowLeft />
+            Volver
           </button>
+          <div className="editarUsuario-title-section">
+            <h1 className="editarUsuario-page-title">
+              <FaClock className="editarUsuario-title-icon" />
+              Crear Novedad de Horario
+            </h1>
+            <p className="editarUsuario-subtitle">Registrar excepciones al horario laboral normal</p>
+          </div>
         </div>
       </div>
 

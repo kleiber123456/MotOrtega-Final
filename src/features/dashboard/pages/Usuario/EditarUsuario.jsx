@@ -383,6 +383,7 @@ const EditarUsuario = () => {
                 onChange={handleChange}
                 className={`editarUsuario-form-input ${errores.tipo_documento ? "error" : ""}`}
                 required
+                disabled // <-- Campo deshabilitado
               >
                 <option value="">Seleccionar tipo</option>
                 <option value="Cedula de Ciudadania">Cédula de Ciudadanía</option>
@@ -411,6 +412,7 @@ const EditarUsuario = () => {
                 autoComplete="off"
                 className={`editarUsuario-form-input ${errores.documento ? "error" : ""}`}
                 required
+                disabled // <-- Campo deshabilitado
               />
               {errores.documento && (
                 <span className="editarUsuario-error-text">

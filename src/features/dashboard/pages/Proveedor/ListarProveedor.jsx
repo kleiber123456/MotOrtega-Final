@@ -22,10 +22,8 @@ import {
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Proveedores/ListarProveedor.css"
 
-// URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
 
-// Función para obtener token
 const getValidToken = () => {
   const token = localStorage.getItem("token") || sessionStorage.getItem("token")
   if (!token) {
@@ -55,14 +53,12 @@ const ListarProveedor = () => {
     }
   }, [])
 
-  // Efecto para cerrar filas expandidas al hacer clic afuera
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (tableRef.current && !tableRef.current.contains(event.target)) {
         setFilasExpandidas(new Set())
       }
     }
-
     document.addEventListener("mousedown", handleClickOutside)
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
@@ -91,7 +87,6 @@ const ListarProveedor = () => {
       }
 
       const data = await response.json()
-      console.log("Datos de proveedores recibidos:", data) // Debug
       setProveedores(data)
     } catch (error) {
       console.error("Error al obtener proveedores:", error)
@@ -158,11 +153,18 @@ const ListarProveedor = () => {
   const cambiarEstado = useCallback(
     async (id, estadoActual) => {
       try {
+        // Busca el proveedor para mostrar el nombre en la alerta
+        const proveedor = proveedores.find((p) => p._id === id)
+        // Usa el nombre o un fallback claro
+        const nombreProveedor = proveedor && proveedor.nombre
+          ? proveedor.nombre
+          : "Proveedor sin nombre"
+
         const nuevoEstado = estadoActual?.toLowerCase() === "activo" ? "inactivo" : "activo"
 
         const result = await Swal.fire({
           title: `¿Cambiar estado a ${nuevoEstado}?`,
-          text: `El proveedor será marcado como ${nuevoEstado}`,
+          html: `El proveedor <b style="color:#2563eb">${nombreProveedor}</b> será marcado como <b>${nuevoEstado}</b>.`,
           icon: "question",
           showCancelButton: true,
           confirmButtonColor: "#2563eb",
@@ -179,40 +181,29 @@ const ListarProveedor = () => {
           return
         }
 
-        // Obtener el proveedor actual
-        const proveedorActual = proveedores.find((p) => p._id === id)
-        if (!proveedorActual) {
-          Swal.fire("Error", "Proveedor no encontrado", "error")
-          return
-        }
-
-        // Actualizar el proveedor con el nuevo estado
-        const proveedorActualizado = {
-          ...proveedorActual,
-          estado: nuevoEstado,
-        }
-
-        const response = await fetch(`${API_BASE_URL}/proveedores/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/proveedores/${id}/cambiar-estado`, {
           method: "PUT",
           headers: {
             Authorization: token,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(proveedorActualizado),
+          body: JSON.stringify({ estado: nuevoEstado }),
         })
 
         if (!response.ok) {
           throw new Error("Error al cambiar el estado")
         }
 
-        setProveedores((prev) => prev.map((p) => (p._id === id ? { ...p, estado: nuevoEstado } : p)))
+        const proveedorActualizado = await response.json()
 
         Swal.fire({
           icon: "success",
           title: "Estado actualizado",
-          text: `El proveedor ahora está ${nuevoEstado}`,
+          html: `El proveedor <b style="color:#2563eb">${nombreProveedor}</b> ahora está <b>${proveedorActualizado.estado ?? nuevoEstado}</b>.`,
           timer: 2000,
           showConfirmButton: false,
+        }).then(() => {
+          window.location.reload()
         })
       } catch (error) {
         console.error("Error al cambiar estado:", error)
@@ -225,8 +216,6 @@ const ListarProveedor = () => {
   const toggleFilaExpandida = useCallback((id) => {
     setFilasExpandidas((prev) => {
       const nuevasFilas = new Set()
-      // Si la fila clickeada ya está expandida, la cerramos (set vacío)
-      // Si no está expandida, la abrimos (solo esa fila en el set)
       if (!prev.has(id)) {
         nuevasFilas.add(id)
       }
@@ -239,20 +228,16 @@ const ListarProveedor = () => {
     setPaginaActual(1)
   }, [])
 
-  // Función para obtener el ID del proveedor de manera segura
-  const getProveedorId = (proveedor) => {
-    return proveedor._id || proveedor.id || null
-  }
+  const getProveedorId = (proveedor) => proveedor._id || proveedor.id || null
 
-  // Filtrar proveedores
   const proveedoresFiltrados = proveedores.filter((proveedor) => {
-    const matchBusqueda = Object.values(proveedor).some((val) => String(val).toLowerCase().includes(busqueda))
+    const matchBusqueda = Object.values(proveedor).some((val) =>
+      String(val).toLowerCase().includes(busqueda),
+    )
     const matchEstado = estadoFiltro === "" || proveedor.estado === estadoFiltro
-
     return matchBusqueda && matchEstado
   })
 
-  // Paginación
   const indiceUltimoProveedor = paginaActual * proveedoresPorPagina
   const indicePrimerProveedor = indiceUltimoProveedor - proveedoresPorPagina
   const proveedoresActuales = proveedoresFiltrados.slice(indicePrimerProveedor, indiceUltimoProveedor)
@@ -323,7 +308,6 @@ const ListarProveedor = () => {
         <table className="listarProveedor-table">
           <thead>
             <tr>
-              <th>Expandir</th>
               <th>Nombre</th>
               <th>Empresa</th>
               <th>Teléfono</th>
@@ -332,34 +316,17 @@ const ListarProveedor = () => {
             </tr>
           </thead>
           <tbody>
-            {proveedoresActuales.map((proveedor, index) => {
+            {proveedoresActuales.map((proveedor) => {
               const proveedorId = getProveedorId(proveedor)
-              console.log(`Proveedor ${index}:`, { proveedor, proveedorId }) // Debug
-
-              if (!proveedorId) {
-                console.warn("Proveedor sin ID válido:", proveedor)
-                return null
-              }
-
+              if (!proveedorId) return null
               return [
                 <tr key={`proveedor-${proveedorId}`}>
-                  <td>
-                    <button className="listarProveedor-expand-button" onClick={() => toggleFilaExpandida(proveedorId)}>
-                      {filasExpandidas.has(proveedorId) ? <FaChevronUp /> : <FaChevronDown />}
-                    </button>
-                  </td>
-                  <td>
-                    <div className="listarProveedor-proveedor-info">
-                      <span className="listarProveedor-proveedor-name">{proveedor.nombre || "Sin nombre"}</span>
-                    </div>
-                  </td>
+                  <td>{proveedor.nombre || "Sin nombre"}</td>
                   <td>{proveedor.nombre_empresa || "Sin empresa"}</td>
                   <td>{proveedor.telefono || "Sin teléfono"}</td>
                   <td>
                     <button
-                      className={`listarProveedor-estado-toggle ${
-                        proveedor.estado?.toLowerCase() === "activo" ? "activo" : "inactivo"
-                      }`}
+                      className={`listarProveedor-estado-toggle ${proveedor.estado?.toLowerCase() === "activo" ? "activo" : "inactivo"}`}
                       onClick={() => cambiarEstado(proveedorId, proveedor.estado)}
                       title={`Estado: ${proveedor.estado} - Click para cambiar`}
                     >
@@ -372,28 +339,15 @@ const ListarProveedor = () => {
                     </button>
                   </td>
                   <td className="listarProveedor-actions">
-                    <button
-                      className="listarProveedor-action-button detail"
-                      onClick={() => navigate(`/DetalleProveedor/${proveedorId}`)}
-                      title="Ver detalle"
-                    >
+                    <button className="listarProveedor-action-button detail" onClick={() => navigate(`/DetalleProveedor/${proveedorId}`)} title="Ver detalle">
                       <FaEye />
                     </button>
-                    <button
-                      className="listarProveedor-action-button edit"
-                      onClick={() => navigate(`/EditarProveedor/${proveedorId}`)}
-                      title="Editar proveedor"
-                    >
+                    <button className="listarProveedor-action-button edit" onClick={() => navigate(`/EditarProveedor/${proveedorId}`)} title="Editar proveedor">
                       <FaEdit />
                     </button>
-                    <button
-                      className="listarProveedor-action-button delete"
-                      onClick={() => eliminarProveedor(proveedorId)}
-                      title="Eliminar proveedor"
-                    >
+                    <button className="listarProveedor-action-button delete" onClick={() => eliminarProveedor(proveedorId)} title="Eliminar proveedor">
                       <FaTrash />
                     </button>
-                    
                   </td>
                 </tr>,
                 filasExpandidas.has(proveedorId) && (
@@ -405,9 +359,7 @@ const ListarProveedor = () => {
                             <FaPhone className="listarProveedor-expanded-icon" />
                             <div>
                               <span className="listarProveedor-expanded-label">Teléfono Empresa:</span>
-                              <span className="listarProveedor-expanded-value">
-                                {proveedor.telefono_empresa || "No disponible"}
-                              </span>
+                              <span className="listarProveedor-expanded-value">{proveedor.telefono_empresa || "No disponible"}</span>
                             </div>
                           </div>
                           <div className="listarProveedor-expanded-item">
@@ -421,18 +373,14 @@ const ListarProveedor = () => {
                             <FaMapMarkerAlt className="listarProveedor-expanded-icon" />
                             <div>
                               <span className="listarProveedor-expanded-label">Dirección:</span>
-                              <span className="listarProveedor-expanded-value">
-                                {proveedor.direccion || "No disponible"}
-                              </span>
+                              <span className="listarProveedor-expanded-value">{proveedor.direccion || "No disponible"}</span>
                             </div>
                           </div>
                           <div className="listarProveedor-expanded-item">
                             <FaEnvelope className="listarProveedor-expanded-icon" />
                             <div>
                               <span className="listarProveedor-expanded-label">Correo:</span>
-                              <span className="listarProveedor-expanded-value">
-                                {proveedor.correo || "No disponible"}
-                              </span>
+                              <span className="listarProveedor-expanded-value">{proveedor.correo || "No disponible"}</span>
                             </div>
                           </div>
                         </div>
@@ -452,7 +400,6 @@ const ListarProveedor = () => {
           </div>
         )}
 
-        {/* Paginación */}
         {proveedoresFiltrados.length > proveedoresPorPagina && (
           <div className="listarProveedor-pagination">
             <button
@@ -462,7 +409,6 @@ const ListarProveedor = () => {
             >
               Anterior
             </button>
-
             {Array.from({ length: totalPaginas }, (_, i) => (
               <button
                 key={i + 1}
@@ -472,7 +418,6 @@ const ListarProveedor = () => {
                 {i + 1}
               </button>
             ))}
-
             <button
               onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
               disabled={paginaActual === totalPaginas}

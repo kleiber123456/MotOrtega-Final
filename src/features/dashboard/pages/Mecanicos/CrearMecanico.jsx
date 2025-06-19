@@ -14,6 +14,7 @@ import {
   FaExclamationTriangle,
   FaSave,
   FaClock,
+  FaArrowLeft, // <-- Agrega este icono
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Usuarios/CrearUsuarios.css"
@@ -276,12 +277,24 @@ const CrearMecanico = () => {
 
   return (
     <div className="crearUsuario-container">
-      <div className="crearUsuario-header">
-        <h1 className="crearUsuario-page-title">
-          <FaTools className="crearUsuario-title-icon" />
-          Crear Mecánico
-        </h1>
-        <p className="crearUsuario-subtitle">Registra un nuevo mecánico en el sistema</p>
+      <div className="editarUsuario-header">
+        <div className="editarUsuario-header-left">
+          <button
+            className="editarUsuario-btn-back"
+            onClick={() => navigate(-1)}
+            type="button"
+          >
+            <FaArrowLeft />
+            Volver
+          </button>
+          <div className="editarUsuario-title-section">
+            <h1 className="crearUsuario-page-title">
+              <FaTools className="crearUsuario-title-icon" />
+              Crear Mecánico
+            </h1>
+            <p className="crearUsuario-subtitle">Registra un nuevo mecánico en el sistema</p>
+          </div>
+        </div>
       </div>
 
       <form className="crearUsuario-form" onSubmit={handleSubmit}>

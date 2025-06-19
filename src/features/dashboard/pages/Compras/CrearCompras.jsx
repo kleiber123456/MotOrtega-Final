@@ -15,6 +15,7 @@ import {
   FaSearch,
   FaTrash,
   FaSave,
+  FaArrowLeft, // <-- Agrega este icono
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Compras/CrearCompras.css"
@@ -317,13 +318,23 @@ const CrearCompra = () => {
 
   return (
     <div className="crearCompra-container">
-      <div className="crearCompra-header">
-        <div className="crearCompra-title-section">
-          <h1 className="crearCompra-page-title">
-            <FaShoppingCart className="crearCompra-title-icon" />
-            Crear Compra
-          </h1>
-          <p className="crearCompra-subtitle">Registra una nueva compra de productos</p>
+      <div className="editarUsuario-header">
+        <div className="editarUsuario-header-left">
+          <button
+            className="editarUsuario-btn-back"
+            onClick={() => navigate("/ListarCompras")}
+            type="button"
+          >
+            <FaArrowLeft />
+            Volver
+          </button>
+          <div className="editarUsuario-title-section">
+            <h1 className="crearCompra-page-title">
+              <FaShoppingCart className="crearCompra-title-icon" />
+              Crear Compra
+            </h1>
+            <p className="crearCompra-subtitle">Registra una nueva compra de productos</p>
+          </div>
         </div>
       </div>
 
@@ -498,17 +509,20 @@ const CrearCompra = () => {
                             />
                           </div>
                         </div>
-                        <div className="crearCompra-info-item crearCompra-subtotal-item">
-                          <span className="crearCompra-info-label">Subtotal:</span>
-                          <span className="crearCompra-subtotal">${formatNumber(product.price * product.quantity)}</span>
-                        </div>
+                      </div>
+                      {/* Subtotal alineado a la derecha */}
+                      <div className="crearCompra-product-subtotal" style={{ textAlign: "right", marginTop: 8 }}>
+                        <span className="crearCompra-info-label">Subtotal:</span>
+                        <span className="crearCompra-subtotal" style={{ fontWeight: 600, marginLeft: 8 }}>
+                          ${formatNumber(product.price * product.quantity)}
+                        </span>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="crearCompra-total-section">
+              <div className="crearCompra-total-section" style={{ display: "flex", justifyContent: "flex-end" }}>
                 <div className="crearCompra-total-card">
                   <span className="crearCompra-total-label">Total de la Compra:</span>
                   <span className="crearCompra-total-amount">${formatNumber(total)}</span>

@@ -14,6 +14,7 @@ import {
   FaSpinner,
   FaExclamationTriangle,
   FaSave,
+  FaArrowLeft, // <-- Agrega este icono
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Proveedores/CrearProveedor.css"
@@ -282,12 +283,24 @@ const CrearProveedor = () => {
 
   return (
     <div className="crearProveedor-container">
-      <div className="crearProveedor-header">
-        <h1 className="crearProveedor-page-title">
-          <FaBuilding className="crearProveedor-title-icon" />
-          Crear Proveedor
-        </h1>
-        <p className="crearProveedor-subtitle">Registra un nuevo proveedor en el sistema</p>
+      <div className="editarUsuario-header">
+        <div className="editarUsuario-header-left">
+          <button
+            className="editarUsuario-btn-back"
+            onClick={() => navigate(-1)}
+            type="button"
+          >
+            <FaArrowLeft />
+            Volver
+          </button>
+          <div className="editarUsuario-title-section">
+            <h1 className="crearProveedor-page-title">
+              <FaBuilding className="crearProveedor-title-icon" />
+              Crear Proveedor
+            </h1>
+            <p className="crearProveedor-subtitle">Registra un nuevo proveedor en el sistema</p>
+          </div>
+        </div>
       </div>
 
       <form className="crearProveedor-form" onSubmit={handleSubmit}>

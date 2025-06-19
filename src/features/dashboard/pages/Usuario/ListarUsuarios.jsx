@@ -155,12 +155,16 @@ const ListarUsuarios = () => {
 
   const cambiarEstado = useCallback(
     async (id, estadoActual) => {
+      // Buscar el usuario por id para obtener su nombre
+      const usuario = usuarios.find((u) => u.id === id)
+      const nombreCompleto = usuario ? `${usuario.nombre} ${usuario.apellido}` : "el usuario"
+
       try {
         const nuevoEstado = estadoActual?.toLowerCase() === "activo" ? "Inactivo" : "Activo"
 
         const result = await Swal.fire({
           title: `¿Cambiar estado a ${nuevoEstado}?`,
-          text: `El usuario será marcado como ${nuevoEstado.toLowerCase()}`,
+          text: `El usuario ${nombreCompleto} será marcado como ${nuevoEstado.toLowerCase()}`,
           icon: "question",
           showCancelButton: true,
           confirmButtonColor: "#2563eb",
@@ -180,7 +184,7 @@ const ListarUsuarios = () => {
         Swal.fire({
           icon: "success",
           title: "Estado actualizado",
-          text: `El usuario ahora está ${nuevoEstado.toLowerCase()}`,
+          text: `El usuario ${nombreCompleto} ahora está ${nuevoEstado.toLowerCase()}`,
           timer: 2000,
           showConfirmButton: false,
         })
@@ -189,7 +193,7 @@ const ListarUsuarios = () => {
         Swal.fire("Error", "No se pudo cambiar el estado del usuario", "error")
       }
     },
-    [makeRequest],
+    [makeRequest, usuarios],
   )
 
   const handleSearch = useCallback((e) => {

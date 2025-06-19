@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
-import { FaTag, FaTimes, FaSpinner, FaExclamationTriangle, FaSave } from "react-icons/fa"
+import { FaTag, FaTimes, FaSpinner, FaExclamationTriangle, FaSave, FaArrowLeft } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Categorias/CrearCategoriaRepuesto.css"
 
@@ -108,8 +108,7 @@ const CrearCategoriaRepuesto = () => {
   )
 
   const handleCancel = useCallback(async () => {
-    const hasData = Object.values(categoria).some((value) => value !== "" && value !== "Activo")
-
+    const hasData = categoria.nombre
     if (hasData) {
       const result = await Swal.fire({
         title: "¿Cancelar creación?",
@@ -121,23 +120,34 @@ const CrearCategoriaRepuesto = () => {
         confirmButtonText: "Sí, cancelar",
         cancelButtonText: "Continuar editando",
       })
-
       if (result.isConfirmed) {
-        navigate("-1")
+        navigate("/categorias-repuesto") // Redirige siempre al listado
       }
     } else {
-      navigate("-1")
+      navigate("/categorias-repuesto") // Redirige siempre al listado
     }
   }, [categoria, navigate])
 
   return (
     <div className="crearCategoriaRepuesto-container">
-      <div className="crearCategoriaRepuesto-header">
-        <h1 className="crearCategoriaRepuesto-page-title">
-          <FaTag className="crearCategoriaRepuesto-title-icon" />
-          Crear Categoría de Repuesto
-        </h1>
-        <p className="crearCategoriaRepuesto-subtitle">Registra una nueva categoría de repuesto en el sistema</p>
+      <div className="editarUsuario-header">
+        <div className="editarUsuario-header-left">
+          <button
+            className="editarUsuario-btn-back"
+            onClick={() => navigate(-1)}
+            type="button"
+          >
+            <FaArrowLeft />
+            Volver
+          </button>
+          <div className="editarUsuario-title-section">
+            <h1 className="crearCategoriaRepuesto-page-title">
+              <FaTag className="crearCategoriaRepuesto-title-icon" />
+              Crear Categoría de Repuesto
+            </h1>
+            <p className="crearCategoriaRepuesto-subtitle">Registra una nueva categoría de repuesto en el sistema</p>
+          </div>
+        </div>
       </div>
 
       <form className="crearCategoriaRepuesto-form" onSubmit={handleSubmit}>

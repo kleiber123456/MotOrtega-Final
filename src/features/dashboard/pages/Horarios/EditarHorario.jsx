@@ -311,20 +311,24 @@ const EditarHorario = () => {
 
   return (
     <div className="editarHorario-container">
-      <div className="editarHorario-header">
-        <div className="editarHorario-header-content">
-          <div className="editarHorario-header-left">
-            <div className="editarHorario-icon-container">
-              <FaClock className="editarHorario-icon" />
-            </div>
-            <div className="editarHorario-title-section">
-              <h2 className="editarHorario-title">Editar Horario</h2>
-              <p className="editarHorario-subtitle">Modifica la información del horario.</p>
-            </div>
-          </div>
-          <button className="editarHorario-btn-volver" onClick={handleCancel} disabled={loading}>
-            <FaArrowLeft /> Volver
+      <div className="editarUsuario-header">
+        <div className="editarUsuario-header-left">
+          <button
+            className="editarUsuario-btn-back"
+            onClick={handleCancel}
+            type="button"
+            disabled={loading}
+          >
+            <FaArrowLeft />
+            Volver
           </button>
+          <div className="editarUsuario-title-section">
+            <h1 className="editarUsuario-page-title">
+              <FaClock className="editarUsuario-title-icon" />
+              Editar Horario
+            </h1>
+            <p className="editarUsuario-subtitle">Modifica la información del horario.</p>
+          </div>
         </div>
       </div>
 

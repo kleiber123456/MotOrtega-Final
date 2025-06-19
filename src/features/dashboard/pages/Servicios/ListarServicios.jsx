@@ -111,12 +111,16 @@ const ListarServicios = () => {
 
   const cambiarEstado = useCallback(
     async (id, estadoActual) => {
+      // Buscar el servicio por id para obtener su nombre
+      const servicio = servicios.find((s) => s.id === id)
+      const nombreServicio = servicio ? servicio.nombre : "el servicio"
+
       try {
         const nuevoEstado = estadoActual?.toLowerCase() === "activo" ? "Inactivo" : "Activo"
 
         const result = await Swal.fire({
           title: `¿Cambiar estado a ${nuevoEstado}?`,
-          text: `El servicio será marcado como ${nuevoEstado.toLowerCase()}`,
+          text: `El servicio "${nombreServicio}" será marcado como ${nuevoEstado.toLowerCase()}`,
           icon: "question",
           showCancelButton: true,
           confirmButtonColor: "#2563eb",
@@ -144,7 +148,7 @@ const ListarServicios = () => {
         Swal.fire({
           icon: "success",
           title: "Estado actualizado",
-          text: `El servicio ahora está ${nuevoEstado.toLowerCase()}`,
+          text: `El servicio "${nombreServicio}" ahora está ${nuevoEstado.toLowerCase()}`,
           timer: 2000,
           showConfirmButton: false,
         })
@@ -153,7 +157,7 @@ const ListarServicios = () => {
         Swal.fire("Error", "No se pudo cambiar el estado del servicio", "error")
       }
     },
-    [token],
+    [token, servicios],
   )
 
   const handleSearch = useCallback((e) => {

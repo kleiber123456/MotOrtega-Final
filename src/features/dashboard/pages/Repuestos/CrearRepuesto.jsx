@@ -477,12 +477,24 @@ function CrearRepuesto() {
 
   return (
     <div className="crearRepuesto-container">
-      <div className="crearRepuesto-header">
-        <h1 className="crearRepuesto-page-title">
-          <FaPlus className="crearRepuesto-title-icon" />
-          Crear Repuesto
-        </h1>
-        <p className="crearRepuesto-subtitle">Registra un nuevo repuesto en el inventario</p>
+      <div className="editarUsuario-header">
+        <div className="editarUsuario-header-left">
+          <button
+            className="editarUsuario-btn-back"
+            onClick={() => navigate("/repuestos")}
+            type="button"
+          >
+            <FaArrowLeft />
+            Volver
+          </button>
+          <div className="editarUsuario-title-section">
+            <h1 className="crearRepuesto-page-title">
+              <FaPlus className="crearRepuesto-title-icon" />
+              Crear Repuesto
+            </h1>
+            <p className="crearRepuesto-subtitle">Registra un nuevo repuesto en el inventario</p>
+          </div>
+        </div>
       </div>
 
       <form className="crearRepuesto-form" onSubmit={handleSubmit}>
@@ -536,7 +548,7 @@ function CrearRepuesto() {
                 <button
                   type="button"
                   className="crearRepuesto-create-category-button"
-                  onClick={() => navigate("/crearCategoriaRepuesto")}
+                  onClick={() => navigate("/categorias-repuesto")}
                 >
                   <FaPlus className="crearRepuesto-button-icon" />
                   Crear Categoría

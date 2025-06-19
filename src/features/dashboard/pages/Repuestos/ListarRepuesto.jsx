@@ -350,12 +350,15 @@ function ListarRepuestos() {
 
   const handleCambiarEstado = useCallback(
     async (id, estadoActual) => {
+      // Buscar el repuesto por id para obtener su nombre
+      const repuesto = repuestos.find((r) => r.id === id)
+      const nombreRepuesto = repuesto ? repuesto.nombre : "el repuesto"
       const nuevoEstado = estadoActual === "Activo" ? "Inactivo" : "Activo"
 
       try {
         const result = await Swal.fire({
           title: `¿Cambiar estado a ${nuevoEstado}?`,
-          text: `El repuesto será marcado como ${nuevoEstado.toLowerCase()}`,
+          text: `El repuesto "${nombreRepuesto}" será marcado como ${nuevoEstado.toLowerCase()}`,
           icon: "question",
           showCancelButton: true,
           confirmButtonColor: "#2563eb",
@@ -366,7 +369,7 @@ function ListarRepuestos() {
 
         if (!result.isConfirmed) return
 
-        await makeRequest(`/repuestos/estado/${id}`, {
+        await makeRequest(`/repuestos/${id}/cambiar-estado`, {
           method: "PUT",
           body: JSON.stringify({ estado: nuevoEstado }),
         })
@@ -376,7 +379,7 @@ function ListarRepuestos() {
 
         await Swal.fire({
           title: "Estado actualizado",
-          text: `El repuesto ahora está ${nuevoEstado.toLowerCase()}`,
+          text: `El repuesto "${nombreRepuesto}" ahora está ${nuevoEstado.toLowerCase()}`,
           icon: "success",
           timer: 2000,
           showConfirmButton: false,
@@ -391,7 +394,7 @@ function ListarRepuestos() {
         })
       }
     },
-    [makeRequest],
+    [makeRequest, repuestos],
   )
 
   const handleEliminar = useCallback(

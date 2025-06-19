@@ -60,12 +60,15 @@ const ListarCategoriasRepuesto = () => {
 
   const cambiarEstadoCategoria = useCallback(
     async (id, estadoActual) => {
+      // Buscar la categoría por id para obtener su nombre
+      const categoria = categorias.find((c) => c.id === id)
+      const nombreCategoria = categoria ? categoria.nombre : "la categoría"
       try {
         const nuevoEstado = estadoActual?.toLowerCase() === "activo" ? "Inactivo" : "Activo"
 
         const result = await Swal.fire({
           title: `¿Cambiar estado a ${nuevoEstado}?`,
-          text: `La categoría será marcada como ${nuevoEstado.toLowerCase()}`,
+          text: `La categoría "${nombreCategoria}" será marcada como ${nuevoEstado.toLowerCase()}`,
           icon: "question",
           showCancelButton: true,
           confirmButtonColor: "#2563eb",
@@ -91,7 +94,7 @@ const ListarCategoriasRepuesto = () => {
         Swal.fire({
           icon: "success",
           title: "Estado actualizado",
-          text: `La categoría ahora está ${nuevoEstado.toLowerCase()}`,
+          text: `La categoría "${nombreCategoria}" ahora está ${nuevoEstado.toLowerCase()}`,
           timer: 2000,
           showConfirmButton: false,
         })
@@ -100,7 +103,7 @@ const ListarCategoriasRepuesto = () => {
         Swal.fire("Error", "No se pudo cambiar el estado de la categoría", "error")
       }
     },
-    [token],
+    [token, categorias],
   )
 
   const eliminarCategoria = useCallback(
