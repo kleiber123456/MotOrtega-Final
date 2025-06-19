@@ -229,7 +229,7 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
               { label: "Servicios", link: "/ListarServicios" },
               { label: "Repuestos", link: "/Repuestos" },
               { label: "Categorías", link: "/categorias-repuesto" },
-              { label: "Horarios", link: "/Horarios" },
+              { label: "Novedades", link: "/Horarios" },
             ]}
             isOpen={activeDropdown === "servicios"}
             toggleDropdown={toggleDropdown}
