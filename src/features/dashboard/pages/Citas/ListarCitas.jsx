@@ -9,7 +9,7 @@ import { Link } from "react-router-dom"
 import axios from "axios"
 import { toast } from "react-toastify"
 import "../../../../shared/styles/Citas/ListarCitas.css"
-import { FaPlus, FaEye, FaEdit, FaTrash, FaSync, FaCalendarAlt, FaList } from "react-icons/fa"
+import { FaPlus, FaEye, FaTrash, FaSync, FaCalendarAlt, FaList } from "react-icons/fa"
 
 // Configurar localización en español
 moment.locale("es")
@@ -80,7 +80,17 @@ const ListarCitas = () => {
   }
 
   const handleDeleteCita = async (id) => {
-    if (window.confirm("¿Está seguro que desea eliminar esta cita?")) {
+    // Encontrar la cita para mostrar información en la confirmación
+    const cita = citas.find((c) => c.id === id)
+    const citaInfo = cita
+      ? `${cita.vehiculo?.placa || "N/A"} - ${cita.vehiculo?.cliente?.nombre || "N/A"} ${cita.vehiculo?.cliente?.apellido || ""}`
+      : "esta cita"
+
+    if (
+      window.confirm(
+        `⚠️ CONFIRMAR ELIMINACIÓN\n\n¿Está seguro que desea eliminar la cita de:\n${citaInfo}?\n\nEsta acción no se puede deshacer.`,
+      )
+    ) {
       try {
         const token = localStorage.getItem("token") || sessionStorage.getItem("token")
 
@@ -117,22 +127,46 @@ const ListarCitas = () => {
     setSelectedCita(null)
   }
 
-  
+  // Definir calendarEvents aquí
+  const calendarEvents = Array.isArray(citas)
+    ? citas
+        .map((cita) => {
+          if (!cita.fecha) return null
+          const fechaStr = cita.fecha
+          const horaStr = cita.hora ? cita.hora.slice(0, 5) : "08:00"
+          let fechaBase = fechaStr
+          if (fechaStr && fechaStr.includes("T")) {
+            fechaBase = fechaStr.split("T")[0]
+          }
+          const [year, month, day] = fechaBase.split("-")
+          const [hour, minute] = horaStr.split(":")
+          const start = new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute))
+          const end = new Date(start)
+          end.setHours(end.getHours() + 1)
+          if (isNaN(start.getTime())) return null
+          return {
+            id: cita.id,
+            title: cita.vehiculo?.placa || "Cita",
+            start,
+            end,
+            resource: cita,
+          }
+        })
+        .filter((event) => event !== null)
+    : []
 
   // Personalizar los eventos del calendario
   const eventStyleGetter = (event) => {
     let backgroundColor = "#3b82f6"
-
     if (event.resource.estado_cita_id === 1) {
-      backgroundColor = "#f59e0b"
+      backgroundColor = "#f59e0b" // Pendiente
     } else if (event.resource.estado_cita_id === 2) {
-      backgroundColor = "#10b981"
+      backgroundColor = "#10b981" // Confirmada
     } else if (event.resource.estado_cita_id === 3) {
-      backgroundColor = "#ef4444"
+      backgroundColor = "#ef4444" // Cancelada
     } else if (event.resource.estado_cita_id === 4) {
-      backgroundColor = "#3b82f6"
+      backgroundColor = "#3b82f6" // Finalizada
     }
-
     return {
       style: {
         backgroundColor,
@@ -238,6 +272,125 @@ const ListarCitas = () => {
                 eventPropGetter={eventStyleGetter}
                 onSelectEvent={handleSelectEvent}
               />
+              <style jsx>{`
+                .rbc-calendar {
+                  background: white;
+                  border-radius: 12px;
+                  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                  overflow: hidden;
+                  border: 1px solid #e5e7eb;
+                }
+                
+                .rbc-header {
+                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                  color: white;
+                  font-weight: 600;
+                  padding: 12px 8px;
+                  border-bottom: none;
+                  text-transform: uppercase;
+                  font-size: 0.875rem;
+                  letter-spacing: 0.05em;
+                }
+                
+                .rbc-month-view {
+                  border: none;
+                }
+                
+                .rbc-date-cell {
+                  padding: 8px;
+                  border-right: 1px solid #f3f4f6;
+                }
+                
+                .rbc-date-cell > a {
+                  color: #374151;
+                  font-weight: 500;
+                  text-decoration: none;
+                }
+                
+                .rbc-today {
+                  background-color: #fef3c7 !important;
+                }
+                
+                .rbc-off-range-bg {
+                  background-color: #f9fafb;
+                }
+                
+                .rbc-event {
+                  border-radius: 6px;
+                  border: none;
+                  padding: 2px 6px;
+                  font-size: 0.75rem;
+                  font-weight: 500;
+                  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+                  transition: all 0.2s ease;
+                }
+                
+                .rbc-event:hover {
+                  transform: translateY(-1px);
+                  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                }
+                
+                .rbc-toolbar {
+                  background: white;
+                  padding: 16px 20px;
+                  border-bottom: 1px solid #e5e7eb;
+                  margin-bottom: 0;
+                }
+                
+                .rbc-toolbar button {
+                  background: #f8fafc;
+                  border: 1px solid #e2e8f0;
+                  color: #475569;
+                  padding: 8px 16px;
+                  border-radius: 6px;
+                  font-weight: 500;
+                  transition: all 0.2s ease;
+                }
+                
+                .rbc-toolbar button:hover {
+                  background: #e2e8f0;
+                  border-color: #cbd5e1;
+                }
+                
+                .rbc-toolbar button.rbc-active {
+                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                  color: white;
+                  border-color: #667eea;
+                }
+                
+                .rbc-toolbar-label {
+                  font-size: 1.25rem;
+                  font-weight: 700;
+                  color: #1f2937;
+                  text-transform: capitalize;
+                }
+                
+                .rbc-day-bg + .rbc-day-bg {
+                  border-left: 1px solid #f3f4f6;
+                }
+                
+                .rbc-month-row + .rbc-month-row {
+                  border-top: 1px solid #f3f4f6;
+                }
+                
+                .rbc-day-slot .rbc-time-slot {
+                  border-top: 1px solid #f3f4f6;
+                }
+                
+                .rbc-time-view .rbc-time-gutter {
+                  background: #f8fafc;
+                  border-right: 1px solid #e5e7eb;
+                }
+                
+                .rbc-time-view .rbc-time-content {
+                  border-left: none;
+                }
+                
+                .rbc-current-time-indicator {
+                  background-color: #ef4444;
+                  height: 2px;
+                }
+              `}</style>
             </div>
           ) : (
             <div className="listarCitas-table-container">
@@ -272,7 +425,7 @@ const ListarCitas = () => {
                           Number(month) - 1,
                           Number(day),
                           Number(hour),
-                          Number(minute)
+                          Number(minute),
                         )
                       }
                       // ---------------------------------------------------------------
@@ -281,12 +434,20 @@ const ListarCitas = () => {
                         <tr key={cita.id}>
                           <td>
                             {fechaLocal
-                              ? fechaLocal.toLocaleDateString("es-CO", { day: "2-digit", month: "2-digit", year: "numeric" })
+                              ? fechaLocal.toLocaleDateString("es-CO", {
+                                  day: "2-digit",
+                                  month: "2-digit",
+                                  year: "numeric",
+                                })
                               : "N/A"}
                           </td>
                           <td>
                             {fechaLocal
-                              ? fechaLocal.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit", hour12: false })
+                              ? fechaLocal.toLocaleTimeString("es-CO", {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  hour12: false,
+                                })
                               : "N/A"}
                           </td>
                           <td>{cita.vehiculo?.placa || "N/A"}</td>
@@ -309,9 +470,6 @@ const ListarCitas = () => {
                               className="listarCitas-btn-action listarCitas-btn-view"
                             >
                               <FaEye />
-                            </Link>
-                            <Link to={`/citas/editar/${cita.id}`} className="listarCitas-btn-action listarCitas-btn-edit">
-                              <FaEdit />
                             </Link>
                             <button
                               className="listarCitas-btn-action listarCitas-btn-delete"
@@ -392,9 +550,6 @@ const ListarCitas = () => {
               </p>
             </div>
             <div className="listarCitas-modal-footer">
-              <Link to={`/citas/editar/${selectedCita.resource.id}`} className="listarCitas-btn-edit-modal">
-                Editar
-              </Link>
               <button className="listarCitas-btn-close-modal" onClick={closeModal}>
                 Cerrar
               </button>

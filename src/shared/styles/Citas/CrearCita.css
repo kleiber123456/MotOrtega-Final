@@ -900,3 +900,92 @@
     padding: 12px;
   }
 }
+
+/* Estilos para botones de crear similares a crear compras */
+.crearCita-cliente-input-btn,
+.crearCita-mecanico-input-btn,
+.crearCita-vehiculo-input-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+
+.crearCita-cliente-input-btn .crearCita-form-input,
+.crearCita-mecanico-input-btn .crearCita-form-input,
+.crearCita-vehiculo-input-btn .crearCita-form-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.crearCita-create-button {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 80px;
+  height: 48px;
+  justify-content: center;
+}
+
+.crearCita-nuevo-cliente-btn,
+.crearCita-nuevo-mecanico-btn,
+.crearCita-nuevo-vehiculo-btn {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 80px;
+  height: 48px;
+  justify-content: center;
+}
+
+.crearCita-create-button:hover:not(:disabled),
+.crearCita-nuevo-cliente-btn:hover:not(:disabled),
+.crearCita-nuevo-mecanico-btn:hover:not(:disabled),
+.crearCita-nuevo-vehiculo-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+}
+
+.crearCita-nuevo-vehiculo-btn:disabled {
+  background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Responsive para botones de crear */
+@media (max-width: 768px) {
+  .crearCita-cliente-input-btn,
+  .crearCita-mecanico-input-btn,
+  .crearCita-vehiculo-input-btn {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .crearCita-nuevo-cliente-btn,
+  .crearCita-nuevo-mecanico-btn,
+  .crearCita-nuevo-vehiculo-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

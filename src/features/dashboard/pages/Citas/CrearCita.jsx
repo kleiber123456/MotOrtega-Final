@@ -15,11 +15,10 @@ import {
   FaArrowLeft,
   FaSearch,
   FaTimes,
-  FaPlus,
   FaExclamationTriangle,
 } from "react-icons/fa"
 import { CheckCircle } from "lucide-react"
-import { FaPlusCircle } from "react-icons/fa"
+import { FaPlus } from "react-icons/fa"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
@@ -130,7 +129,6 @@ const ClienteModal = ({ show, onClose, clientes, onSelect, clienteActual }) => {
                   <tr>
                     <th>Nombre</th>
                     <th>Documento</th>
-                    <th>Correo</th>
                     <th>Acción</th>
                   </tr>
                 </thead>
@@ -143,7 +141,6 @@ const ClienteModal = ({ show, onClose, clientes, onSelect, clienteActual }) => {
                         </div>
                       </td>
                       <td>{cliente.documento || "N/A"}</td>
-                      <td>{cliente.correo || "N/A"}</td>
                       <td>
                         <button
                           type="button"
@@ -240,9 +237,7 @@ const MecanicoModal = ({ show, onClose, mecanicos, onSelect, mecanicoActual, fec
         (n) =>
           n.mecanico_id === mecanico.id &&
           n.tipo_novedad === "Ausencia" &&
-          (
-            (n.fecha && n.fecha.split("T")[0]) === fechaSeleccionada // <-- CORRECCIÓN AQUÍ
-          )
+          (n.fecha && n.fecha.split("T")[0]) === fechaSeleccionada, // <-- CORRECCIÓN AQUÍ
       )
       return coincideBusqueda && !tieneAusencia
     }
@@ -404,7 +399,9 @@ const VehiculoModal = ({ show, onClose, vehiculos, onSelect, vehiculoActual }) =
       vehiculo.color?.toLowerCase().includes(busquedaVehiculo.toLowerCase()) ||
       vehiculo.tipo_vehiculo?.toLowerCase().includes(busquedaVehiculo.toLowerCase()) ||
       vehiculo.referencia?.nombre?.toLowerCase().includes(busquedaVehiculo.toLowerCase()) ||
-      vehiculo.referencia?.marca?.nombre?.toLowerCase().includes(busquedaVehiculo.toLowerCase()),
+      vehiculo.referencia?.marca?.nombre?.toLowerCase().includes(busquedaVehiculo.toLowerCase()) ||
+      vehiculo.marca_nombre?.toLowerCase().includes(busquedaVehiculo.toLowerCase()) ||
+      vehiculo.referencia_nombre?.toLowerCase().includes(busquedaVehiculo.toLowerCase()),
   )
 
   // Calcular índices para la paginación
@@ -484,7 +481,8 @@ const VehiculoModal = ({ show, onClose, vehiculos, onSelect, vehiculoActual }) =
                         <div className="listarCompra-proveedor-name">{vehiculo.placa || "N/A"}</div>
                       </td>
                       <td>
-                        {vehiculo.referencia?.marca?.nombre || ""} {vehiculo.referencia?.nombre || "N/A"}
+                        {vehiculo.referencia?.marca?.nombre || vehiculo.marca_nombre || ""}{" "}
+                        {vehiculo.referencia?.nombre || vehiculo.referencia_nombre || "N/A"}
                       </td>
                       <td>{vehiculo.color || "N/A"}</td>
                       <td>
@@ -578,14 +576,11 @@ const HoraModal = ({
   const fechaSeleccionada = formData?.fecha
   const mecanicoId = Number(formData?.mecanico_id)
   const novedadesFiltradas = horariosMecanico.filter(
-    n =>
-      n.mecanico_id === mecanicoId &&
-      n.fecha &&
-      n.fecha.split("T")[0] === fechaSeleccionada
+    (n) => n.mecanico_id === mecanicoId && n.fecha && n.fecha.split("T")[0] === fechaSeleccionada,
   )
 
   // Si hay una novedad de tipo Ausencia, no mostrar horas
-  const tieneAusencia = novedadesFiltradas.some(n => n.tipo_novedad === "Ausencia")
+  const tieneAusencia = novedadesFiltradas.some((n) => n.tipo_novedad === "Ausencia")
 
   // Filtrar horas según novedades (horarios) y citas
   const todasLasHoras = generarHoras()
@@ -594,30 +589,50 @@ const HoraModal = ({
     if (novedad.tipo_novedad === "Ausencia") {
       todasLasHoras.forEach((h) => horasBloqueadas.push(h.hora))
       console.log(
-        `[NOVEDAD] Ausencia - Fecha: ${novedad.fecha} | Mecánico: ${novedad.mecanico_id} | Bloquea todas las horas`
+        `[NOVEDAD] Ausencia - Fecha: ${novedad.fecha} | Mecánico: ${novedad.mecanico_id} | Bloquea todas las horas`,
       )
     } else if (novedad.hora_inicio && novedad.hora_fin) {
-      const inicio = parseInt(novedad.hora_inicio.split(":")[0])
-      const fin = parseInt(novedad.hora_fin.split(":")[0])
+      const inicio = Number.parseInt(novedad.hora_inicio.split(":")[0])
+      const fin = Number.parseInt(novedad.hora_fin.split(":")[0])
       for (let h = inicio; h < fin; h++) {
         horasBloqueadas.push(`${h.toString().padStart(2, "0")}:00`)
         console.log(
-          `[NOVEDAD] ${novedad.tipo_novedad} - Fecha: ${novedad.fecha} | Mecánico: ${novedad.mecanico_id} | Bloquea: ${h.toString().padStart(2, "0")}:00`
+          `[NOVEDAD] ${novedad.tipo_novedad} - Fecha: ${novedad.fecha} | Mecánico: ${novedad.mecanico_id} | Bloquea: ${h.toString().padStart(2, "0")}:00`,
         )
       }
     }
   })
-  const horasOcupadas = citasMecanico.map((cita) => cita.hora)
+  // Normaliza las horas ocupadas por citas SOLO si la fecha y el mecánico coinciden
+  const horasOcupadas = citasMecanico
+    .filter((cita) => {
+      // Normaliza la fecha de la cita a formato YYYY-MM-DD
+      if (!cita.fecha) return false
+      const fechaCita = cita.fecha.includes("T") ? cita.fecha.split("T")[0] : cita.fecha
+      // Solo bloquea si el mecánico y la fecha coinciden
+      return fechaCita === fechaSeleccionada && Number(cita.mecanico_id) === mecanicoId
+    })
+    .map((cita) => {
+      // Normaliza la hora a "HH:MM"
+      if (typeof cita.hora === "string" && cita.hora.length >= 5) {
+        return cita.hora.slice(0, 5)
+      }
+      return cita.hora
+    })
+
   const horasNoDisponibles = Array.from(new Set([...horasBloqueadas, ...horasOcupadas]))
-  const horasFiltradas = todasLasHoras.filter(
-    (hora) => !horasNoDisponibles.includes(hora.hora)
-  )
+  const horasFiltradas = todasLasHoras.filter((hora) => !horasNoDisponibles.includes(hora.hora))
 
   // Logs para depuración
-  console.log("Todas las horas:", todasLasHoras.map(h => h.hora))
+  console.log(
+    "Todas las horas:",
+    todasLasHoras.map((h) => h.hora),
+  )
   console.log("Horas bloqueadas por novedades:", horasBloqueadas)
   console.log("Horas ocupadas por citas:", horasOcupadas)
-  console.log("Horas filtradas (disponibles):", horasFiltradas.map(h => h.hora))
+  console.log(
+    "Horas filtradas (disponibles):",
+    horasFiltradas.map((h) => h.hora),
+  )
 
   if (!show) return null
 
@@ -784,34 +799,34 @@ function CrearCita() {
     try {
       setLoading(true)
 
-      // Obtener clientes
+      // Obtener clientes activos solamente
       const clientesRes = await makeRequest("/clientes")
       if (clientesRes.data && Array.isArray(clientesRes.data)) {
-        setClientes(clientesRes.data)
+        setClientes(clientesRes.data.filter((cliente) => cliente.estado?.toLowerCase() === "activo"))
       } else if (clientesRes.data && Array.isArray(clientesRes.data.data)) {
-        setClientes(clientesRes.data.data)
+        setClientes(clientesRes.data.data.filter((cliente) => cliente.estado?.toLowerCase() === "activo"))
       } else {
         console.error("La respuesta de clientes no es un array:", clientesRes.data)
         setClientes([])
       }
 
-      // Obtener vehículos
+      // Obtener vehículos activos solamente
       const vehiculosRes = await makeRequest("/vehiculos")
       if (vehiculosRes.data && Array.isArray(vehiculosRes.data)) {
-        setVehiculos(vehiculosRes.data)
+        setVehiculos(vehiculosRes.data.filter((vehiculo) => vehiculo.estado?.toLowerCase() === "activo"))
       } else if (vehiculosRes.data && Array.isArray(vehiculosRes.data.data)) {
-        setVehiculos(vehiculosRes.data.data)
+        setVehiculos(vehiculosRes.data.data.filter((vehiculo) => vehiculo.estado?.toLowerCase() === "activo"))
       } else {
         console.error("La respuesta de vehículos no es un array:", vehiculosRes.data)
         setVehiculos([])
       }
 
-      // Obtener mecánicos
+      // Obtener mecánicos activos solamente
       const mecanicosRes = await makeRequest("/mecanicos")
       if (mecanicosRes.data && Array.isArray(mecanicosRes.data)) {
-        setMecanicos(mecanicosRes.data)
+        setMecanicos(mecanicosRes.data.filter((mecanico) => mecanico.estado?.toLowerCase() === "activo"))
       } else if (mecanicosRes.data && Array.isArray(mecanicosRes.data.data)) {
-        setMecanicos(mecanicosRes.data.data)
+        setMecanicos(mecanicosRes.data.data.filter((mecanico) => mecanico.estado?.toLowerCase() === "activo"))
       } else {
         console.error("La respuesta de mecánicos no es un array:", mecanicosRes.data)
         setMecanicos([])
@@ -844,9 +859,9 @@ function CrearCita() {
     try {
       const response = await makeRequest(`/vehiculos/cliente/${clienteId}`)
       if (response.data && Array.isArray(response.data)) {
-        setVehiculosFiltrados(response.data)
+        setVehiculosFiltrados(response.data.filter((vehiculo) => vehiculo.estado?.toLowerCase() === "activo"))
       } else if (response.data && Array.isArray(response.data.data)) {
-        setVehiculosFiltrados(response.data.data)
+        setVehiculosFiltrados(response.data.data.filter((vehiculo) => vehiculo.estado?.toLowerCase() === "activo"))
       } else {
         console.error("La respuesta de vehículos por cliente no es un array:", response.data)
         setVehiculosFiltrados([])
@@ -876,9 +891,15 @@ function CrearCita() {
       }
     }
 
+    // Limpiar mecánico y hora cuando cambia la fecha
+    setMecanicoSeleccionado(null)
+    setHoraSeleccionada(null)
+
     setFormData({
       ...formData,
       fecha: value,
+      mecanico_id: "",
+      hora: "",
     })
     setErrors({
       ...errors,
@@ -996,9 +1017,11 @@ function CrearCita() {
 
   const handleSeleccionarMecanico = (mecanico) => {
     setMecanicoSeleccionado(mecanico)
+    setHoraSeleccionada(null) // Limpiar hora cuando cambia mecánico
     setFormData({
       ...formData,
-      mecanico_id: mecanico.id, // <-- asegúrate que sea el id, no el objeto
+      mecanico_id: mecanico.id,
+      hora: "", // Limpiar hora
     })
     setMostrarModalMecanicos(false)
   }
@@ -1113,87 +1136,89 @@ function CrearCita() {
                     )}
                   </div>
 
-                  <div className="crearCita-form-group">
-                    <label className="crearCita-label">
-                      <FaTools className="crearCita-label-icon" />
-                      Mecánico *
-                    </label>
+                  {formData.fecha && (
                     <div className="crearCita-form-group">
-                      <div className="crearCita-input-container">
-                        <input
-                          type="text"
-                          placeholder="Seleccione un mecánico..."
-                          value={
-                            mecanicoSeleccionado ? `${mecanicoSeleccionado.nombre} ${mecanicoSeleccionado.apellido}` : ""
-                          }
-                          onClick={() => setMostrarModalMecanicos(true)}
-                          readOnly
-                          className={`crearCita-form-input ${errors.mecanico_id ? "error" : ""}`}
-                          style={{ cursor: "pointer" }}
-                        />
+                      <label className="crearCita-label">
+                        <FaTools className="crearCita-label-icon" />
+                        Mecánico *
+                      </label>
+                      <div className="crearCita-form-group">
+                        <div className="crearCita-mecanico-input-btn">
+                          <input
+                            type="text"
+                            placeholder="Seleccione un mecánico..."
+                            value={
+                              mecanicoSeleccionado
+                                ? `${mecanicoSeleccionado.nombre} ${mecanicoSeleccionado.apellido}`
+                                : ""
+                            }
+                            onClick={() => setMostrarModalMecanicos(true)}
+                            readOnly
+                            className={`crearCita-form-input ${errors.mecanico_id ? "error" : ""}`}
+                            style={{ cursor: "pointer" }}
+                          />
+                          <button
+                            type="button"
+                            className="crearCita-create-button crearCita-nuevo-mecanico-btn"
+                            title="Crear nuevo mecánico"
+                            onClick={() => navigate("/CrearMecanicos")}
+                          >
+                            <FaPlus /> Nuevo
+                          </button>
+                        </div>
                         {mecanicoSeleccionado && (
                           <button
                             type="button"
                             className="crearCita-clear-button"
                             onClick={limpiarMecanico}
                             title="Limpiar selección"
+                            style={{ position: "absolute", right: "80px", top: "50%", transform: "translateY(-50%)" }}
                           >
                             <FaTimes />
                           </button>
                         )}
-                        {/* Botón de crear mecánico SOLO si no hay selección */}
-                        {!mecanicoSeleccionado && (
+                      </div>
+                      {!formData.fecha && (
+                        <span className="crearCita-info-text">Primero debe seleccionar una fecha</span>
+                      )}
+                    </div>
+                  )}
+
+                  {mecanicoSeleccionado && (
+                    <div className="crearCita-form-group">
+                      <label className="crearCita-label">
+                        <FaClock className="crearCita-label-icon" />
+                        Hora *
+                      </label>
+                      <div className="crearCita-input-container">
+                        <input
+                          type="text"
+                          placeholder="Seleccione una hora..."
+                          value={horaSeleccionada ? horaSeleccionada.hora : ""}
+                          onClick={() => mecanicoSeleccionado && setMostrarModalHoras(true)}
+                          readOnly
+                          className={`crearCita-form-input ${errors.hora ? "error" : ""}`}
+                          style={{ cursor: "pointer" }}
+                        />
+                        {horaSeleccionada && (
                           <button
                             type="button"
-                            onClick={() => navigate("/CrearMecanicos")}
-                            className="crearCita-link-button"
-                            style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", padding: 0 }}
-                            title="Registrar nuevo mecánico"
+                            className="crearCita-clear-button"
+                            onClick={limpiarHora}
+                            title="Limpiar selección"
                           >
-                            <FaPlusCircle size={20} color="#2563eb" />
+                            <FaTimes />
                           </button>
                         )}
                       </div>
-                    </div>
-                  </div>
-
-                  <div className="crearCita-form-group">
-                    <label className="crearCita-label">
-                      <FaClock className="crearCita-label-icon" />
-                      Hora *
-                    </label>
-                    <div className="crearCita-input-container">
-                      <input
-                        type="text"
-                        placeholder="Seleccione una hora..."
-                        value={horaSeleccionada ? horaSeleccionada.hora : ""}
-                        onClick={() => mecanicoSeleccionado && setMostrarModalHoras(true)}
-                        readOnly
-                        disabled={!mecanicoSeleccionado}
-                        className={`crearCita-form-input ${errors.hora ? "error" : ""} ${!mecanicoSeleccionado ? "disabled" : ""}`}
-                        style={{ cursor: mecanicoSeleccionado ? "pointer" : "not-allowed" }}
-                      />
-                      {horaSeleccionada && (
-                        <button
-                          type="button"
-                          className="crearCita-clear-button"
-                          onClick={limpiarHora}
-                          title="Limpiar selección"
-                        >
-                          <FaTimes />
-                        </button>
+                      {errors.hora && (
+                        <span className="crearCita-error-text">
+                          <FaExclamationTriangle />
+                          {errors.hora}
+                        </span>
                       )}
                     </div>
-                    {!mecanicoSeleccionado && (
-                      <span className="crearCita-info-text">Primero debe seleccionar un mecánico</span>
-                    )}
-                    {errors.hora && (
-                      <span className="crearCita-error-text">
-                        <FaExclamationTriangle />
-                        {errors.hora}
-                      </span>
-                    )}
-                  </div>
+                  )}
                 </div>
               </div>
 
@@ -1209,7 +1234,7 @@ function CrearCita() {
                       <FaUser className="crearCita-label-icon" />
                       Cliente *
                     </label>
-                    <div className="crearCita-input-container">
+                    <div className="crearCita-cliente-input-btn">
                       <input
                         type="text"
                         placeholder="Seleccione un cliente..."
@@ -1221,29 +1246,26 @@ function CrearCita() {
                         className="crearCita-form-input"
                         style={{ cursor: "pointer" }}
                       />
-                      {clienteSeleccionado && (
-                        <button
-                          type="button"
-                          className="crearCita-clear-button"
-                          onClick={limpiarCliente}
-                          title="Limpiar selección"
-                        >
-                          <FaTimes />
-                        </button>
-                      )}
-                      {/* Botón de crear cliente SOLO si no hay selección */}
-                      {!clienteSeleccionado && (
-                        <button
-                          type="button"
-                          onClick={() => navigate("/CrearClientes")}
-                          className="crearCita-link-button"
-                          style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", padding: 0 }}
-                          title="Registrar nuevo cliente"
-                        >
-                          <FaPlusCircle size={20} color="#2563eb" />
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        className="crearCita-create-button crearCita-nuevo-cliente-btn"
+                        title="Crear nuevo cliente"
+                        onClick={() => navigate("/CrearClientes")}
+                      >
+                        <FaPlus /> Nuevo
+                      </button>
                     </div>
+                    {clienteSeleccionado && (
+                      <button
+                        type="button"
+                        className="crearCita-clear-button"
+                        onClick={limpiarCliente}
+                        title="Limpiar selección"
+                        style={{ position: "absolute", right: "80px", top: "50%", transform: "translateY(-50%)" }}
+                      >
+                        <FaTimes />
+                      </button>
+                    )}
                   </div>
 
                   <div className="crearCita-form-group">
@@ -1251,13 +1273,13 @@ function CrearCita() {
                       <FaCar className="crearCita-label-icon" />
                       Vehículo *
                     </label>
-                    <div className="crearCita-input-container">
+                    <div className="crearCita-vehiculo-input-btn">
                       <input
                         type="text"
                         placeholder="Seleccione un vehículo..."
                         value={
                           vehiculoSeleccionado
-                            ? `${vehiculoSeleccionado.placa} - ${vehiculoSeleccionado.referencia?.marca?.nombre || ""} ${vehiculoSeleccionado.referencia?.nombre || ""}`
+                            ? `${vehiculoSeleccionado.placa} - ${vehiculoSeleccionado.referencia?.marca?.nombre || vehiculoSeleccionado.marca_nombre || ""} ${vehiculoSeleccionado.referencia?.nombre || vehiculoSeleccionado.referencia_nombre || ""}`
                             : ""
                         }
                         onClick={() => selectedCliente && setMostrarModalVehiculos(true)}
@@ -1266,40 +1288,26 @@ function CrearCita() {
                         className={`crearCita-form-input ${errors.vehiculo_id ? "error" : ""} ${!selectedCliente ? "disabled" : ""}`}
                         style={{ cursor: selectedCliente ? "pointer" : "not-allowed" }}
                       />
-                      {vehiculoSeleccionado && (
-                        <button
-                          type="button"
-                          className="crearCita-clear-button"
-                          onClick={limpiarVehiculo}
-                          title="Limpiar selección"
-                        >
-                          <FaTimes />
-                        </button>
-                      )}
-                      {/* Botón de crear vehículo SOLO si no hay selección */}
-                      {!vehiculoSeleccionado && (
-                        <button
-                          type="button"
-                          onClick={() => navigate("/vehiculos/crear")}
-                          className="crearCita-link-button"
-                          style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", padding: 0 }}
-                          title="Registrar nuevo vehículo"
-                        >
-                          <FaPlusCircle size={20} color="#2563eb" />
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        className="crearCita-create-button crearCita-nuevo-vehiculo-btn"
+                        title="Crear nuevo vehículo"
+                        onClick={() => navigate("/vehiculos/crear")}
+                        disabled={!selectedCliente}
+                      >
+                        <FaPlus /> Nuevo
+                      </button>
                     </div>
-                    {errors.vehiculo_id && (
-                      <span className="crearCita-error-text">
-                        <FaExclamationTriangle />
-                        {errors.vehiculo_id}
-                      </span>
-                    )}
-                    {!selectedCliente && (
-                      <span className="crearCita-info-text">Primero debe seleccionar un cliente</span>
-                    )}
-                    {selectedCliente && vehiculosFiltrados.length === 0 && (
-                      <span className="crearCita-info-text">Este cliente no tiene vehículos registrados</span>
+                    {vehiculoSeleccionado && (
+                      <button
+                        type="button"
+                        className="crearCita-clear-button"
+                        onClick={limpiarVehiculo}
+                        title="Limpiar selección"
+                        style={{ position: "absolute", right: "80px", top: "50%", transform: "translateY(-50%)" }}
+                      >
+                        <FaTimes />
+                      </button>
                     )}
                   </div>
                 </div>
@@ -1423,7 +1431,7 @@ function CrearCita() {
           horaActual={formData.hora}
           horariosMecanico={horariosMecanico}
           citasMecanico={citasMecanico}
-          formData={formData} // <-- pasa formData aquí
+          formData={formData}
         />
       )}
     </div>
