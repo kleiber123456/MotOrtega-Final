@@ -91,7 +91,6 @@ const CrearMecanico = () => {
     correo: "",
     telefono: "",
     telefono_emergencia: "",
-    horario_id: "",
     estado: "Activo",
   })
 
@@ -176,11 +175,6 @@ const CrearMecanico = () => {
           nuevoError = "El teléfono de emergencia es obligatorio."
         } else if (value.trim().length < 10) {
           nuevoError = "El teléfono de emergencia debe tener al menos 10 números."
-        }
-        break
-      case "horario_id":
-        if (!value) {
-          nuevoError = "Selecciona un horario."
         }
         break
     }
@@ -485,33 +479,6 @@ const CrearMecanico = () => {
               {errores.telefono_emergencia && (
                 <span className="crearUsuario-error-text">
                   <FaExclamationTriangle /> {errores.telefono_emergencia}
-                </span>
-              )}
-            </div>
-
-            <div className="crearUsuario-form-group">
-              <label htmlFor="horario_id" className="crearUsuario-label">
-                <FaClock className="crearUsuario-label-icon" />
-                Horario *
-              </label>
-              <select
-                id="horario_id"
-                name="horario_id"
-                value={formulario.horario_id}
-                onChange={handleChange}
-                className={`crearUsuario-form-input ${errores.horario_id ? "error" : ""}`}
-                required
-              >
-                <option value="">Seleccione un horario...</option>
-                {horarios.map((horario) => (
-                  <option key={horario.id} value={horario.id}>
-                    {horario.dia} - {horario.hora_inicio} a {horario.hora_fin}
-                  </option>
-                ))}
-              </select>
-              {errores.horario_id && (
-                <span className="crearUsuario-error-text">
-                  <FaExclamationTriangle /> {errores.horario_id}
                 </span>
               )}
             </div>

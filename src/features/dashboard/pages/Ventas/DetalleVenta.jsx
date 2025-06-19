@@ -105,24 +105,22 @@ function DetalleVenta() {
   const getEstadoClass = (estadoId) => {
     const nombreEstado = getNombreEstado(estadoId)
     switch (nombreEstado) {
-      case "Completado":
-        return "estado-completado"
+      case "Pagada":
+        return "estado-Pagada"
       case "Pendiente":
         return "estado-pendiente"
-      case "Cancelado":
-        return "estado-cancelado"
+      case "Cancelada":
+        return "estado-cancelada"
       default:
         return ""
     }
   }
 
-  // Función para confirmar una venta (cambiar a Completado)
   const handleConfirmarVenta = async () => {
     try {
-      // Buscar el ID del estado "Completado"
-      const estadoCompletado = estadosVenta.find((estado) => estado.nombre === "Completado")
-      if (!estadoCompletado) {
-        Swal.fire("Error", "No se encontró el estado 'Completado'", "error")
+      const estadoPagada = estadosVenta.find((estado) => estado.nombre === "Pagada")
+      if (!estadoPagada) {
+        Swal.fire("Error", "No se encontró el estado 'Pagada'", "error")
         return
       }
 
@@ -154,7 +152,7 @@ function DetalleVenta() {
           Authorization: token,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ estado_venta_id: estadoCompletado.id }),
+        body: JSON.stringify({ estado_venta_id: estadoPagada.id }),
       })
 
       if (!response.ok) {
@@ -162,7 +160,7 @@ function DetalleVenta() {
       }
 
       // Actualizar la venta local
-      setVenta((prev) => ({ ...prev, estado_venta_id: estadoCompletado.id }))
+      setVenta((prev) => ({ ...prev, estado_venta_id: estadoPagada.id }))
 
       Swal.fire("¡Éxito!", "La venta ha sido confirmada exitosamente", "success")
     } catch (error) {
@@ -175,8 +173,8 @@ function DetalleVenta() {
   const handleAnularVenta = async () => {
     try {
       // Buscar el ID del estado "Cancelado"
-      const estadoCancelado = estadosVenta.find((estado) => estado.nombre === "Cancelado")
-      if (!estadoCancelado) {
+      const estadoCancelada = estadosVenta.find((estado) => estado.nombre === "Cancelada")
+      if (!estadoCancelada) {
         Swal.fire("Error", "No se encontró el estado 'Cancelado'", "error")
         return
       }
@@ -219,7 +217,7 @@ function DetalleVenta() {
           Authorization: token,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ estado_venta_id: estadoCancelado.id }),
+        body: JSON.stringify({ estado_venta_id: estadoCancelada.id }),
       })
 
       if (!response.ok) {
@@ -227,7 +225,7 @@ function DetalleVenta() {
       }
 
       // Actualizar la venta local
-      setVenta((prev) => ({ ...prev, estado_venta_id: estadoCancelado.id }))
+      setVenta((prev) => ({ ...prev, estado_venta_id: estadoCancelada.id }))
 
       // Cerrar loading y mostrar éxito
       Swal.close()
@@ -423,7 +421,7 @@ function DetalleVenta() {
               </div>
               <div className="detalleVenta-info-item">
                 <span className="detalleVenta-info-label">Email:</span>
-                <span className="detalleVenta-info-value">{cliente.email}</span>
+                <span className="detalleVenta-info-value">{cliente.correo}</span>
               </div>
               <div className="detalleVenta-info-item">
                 <span className="detalleVenta-info-label">Teléfono:</span>
@@ -450,7 +448,7 @@ function DetalleVenta() {
               {venta.repuestos.map((repuesto, index) => (
                 <div key={index} className="detalleVenta-item-card">
                   <div className="detalleVenta-item-header">
-                    <h4 className="detalleVenta-item-name">{repuesto.nombre}</h4>
+                    <h4 className="detalleVenta-item-name">{repuesto.repuesto_nombre}</h4>
                     <span className="detalleVenta-item-subtotal">{formatearPrecio(repuesto.subtotal)}</span>
                   </div>
                   <div className="detalleVenta-item-details">
@@ -460,14 +458,12 @@ function DetalleVenta() {
                     </div>
                     <div className="detalleVenta-item-info">
                       <span className="detalleVenta-item-label">Precio unitario:</span>
-                      <span className="detalleVenta-item-value">
-                        {formatearPrecio(repuesto.subtotal / repuesto.cantidad)}
-                      </span>
+                      <span className="detalleVenta-item-value">{formatearPrecio(repuesto.repuesto_precio)}</span>
                     </div>
-                    {repuesto.descripcion && (
+                    {repuesto.repuesto_descripcion && (
                       <div className="detalleVenta-item-info full-width">
                         <span className="detalleVenta-item-label">Descripción:</span>
-                        <span className="detalleVenta-item-value">{repuesto.descripcion}</span>
+                        <span className="detalleVenta-item-value">{repuesto.repuesto_descripcion}</span>
                       </div>
                     )}
                   </div>

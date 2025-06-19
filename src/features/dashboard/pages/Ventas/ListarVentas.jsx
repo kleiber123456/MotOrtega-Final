@@ -313,8 +313,7 @@ function ListarVentas() {
   const ventasFiltradas = ventas.filter((venta) => {
     // Filtro por texto (busca en fecha o ID)
     const fechaFormateada = new Date(venta.fecha).toLocaleDateString("es-CO").toLowerCase()
-    const idVenta = venta.id.toString().toLowerCase()
-    const matchBusqueda = fechaFormateada.includes(busqueda) || idVenta.includes(busqueda)
+    const matchBusqueda = fechaFormateada.includes(busqueda)
 
     // Filtro por cliente
     const matchCliente = clienteFiltro === "" || venta.cliente_id.toString() === clienteFiltro
@@ -347,7 +346,7 @@ function ListarVentas() {
     return new Intl.NumberFormat("es-CO", {
       style: "currency",
       currency: "COP",
-      minimumFractionDigits: 2,
+      minimumFractionDigits: 0,
     }).format(precio)
   }
 
@@ -423,7 +422,7 @@ function ListarVentas() {
             <input
               type="text"
               className="listarVenta-search-input"
-              placeholder="Buscar por ID o fecha..."
+              placeholder="Buscar por fecha."
               value={busqueda}
               onChange={handleSearch}
             />
@@ -525,7 +524,7 @@ function ListarVentas() {
           <tbody>
             {ventasActuales.map((venta) => (
               <tr key={venta.id}>
-                <td>#{venta.id}</td>
+                <td className="listarVenta-id">#{venta.id}</td>
                 <td>{new Date(venta.fecha).toLocaleDateString("es-CO")}</td>
                 <td>
                   <div className="listarVenta-cliente">
@@ -541,6 +540,25 @@ function ListarVentas() {
                 </td>
                 <td className="listarVenta-actions">
                   {/* Solo mostrar botones de acción si la venta está en estado Pendiente */}
+                  
+
+                  {/* Botón Ver Detalle - Siempre visible */}
+                  <button
+                    className="listarVenta-action-button detail"
+                    onClick={() => navigate(`/DetalleVenta/${venta.id}`)}
+                    title="Ver detalle"
+                  >
+                    <Eye size={18} />
+                  </button>
+
+                  {/* Botón Generar PDF - Siempre visible */}
+                  <button
+                    className="listarVenta-action-button pdf"
+                    onClick={() => handleGenerarPDF(venta.id)}
+                    title="Generar PDF"
+                  >
+                    <FileText size={18} />
+                  </button>
                   {getNombreEstado(venta.estado_venta_id) === "Pendiente" && (
                     <>
                       {/* Botón Confirmar */}
@@ -562,24 +580,6 @@ function ListarVentas() {
                       </button>
                     </>
                   )}
-
-                  {/* Botón Ver Detalle - Siempre visible */}
-                  <button
-                    className="listarVenta-action-button detail"
-                    onClick={() => navigate(`/DetalleVenta/${venta.id}`)}
-                    title="Ver detalle"
-                  >
-                    <Eye size={18} />
-                  </button>
-
-                  {/* Botón Generar PDF - Siempre visible */}
-                  <button
-                    className="listarVenta-action-button pdf"
-                    onClick={() => handleGenerarPDF(venta.id)}
-                    title="Generar PDF"
-                  >
-                    <FileText size={18} />
-                  </button>
                 </td>
               </tr>
             ))}

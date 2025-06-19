@@ -312,7 +312,7 @@ function ListarCompras() {
     }
   }
 
-  // Función para anular una compra (cambiar a Cancelado)
+
   const handleAnularCompra = async (compraId, estadoActual) => {
     try {
       if (estadoActual !== "Pendiente") {
@@ -348,7 +348,7 @@ function ListarCompras() {
           Authorization: token,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ estado: "Cancelado" }),
+        body: JSON.stringify({ estado: "Cancelada" }),
       })
 
       if (!response1.ok) {
@@ -361,14 +361,14 @@ function ListarCompras() {
           Authorization: token,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ estado: "Cancelado" }),
+        body: JSON.stringify({ estado: "Cancelada" }),
       })
 
       if (!response2.ok) {
         throw new Error("Error en la segunda petición para anular la compra")
       }
 
-      setCompras(compras.map((compra) => (compra.id === compraId ? { ...compra, estado: "Cancelado" } : compra)))
+      setCompras(compras.map((compra) => (compra.id === compraId ? { ...compra, estado: "Cancelada" } : compra)))
 
       Swal.close()
       Swal.fire("¡Éxito!", "La compra ha sido anulada exitosamente", "success")
@@ -431,12 +431,12 @@ function ListarCompras() {
   // Función para obtener la clase de color según el estado
   const getEstadoClass = (estado) => {
     switch (estado) {
-      case "Completado":
-        return "estado-completado"
+      case "Completada":
+        return "estado-completad"
       case "Pendiente":
         return "estado-pendiente"
-      case "Cancelado":
-        return "estado-cancelado"
+      case "Cancelada":
+        return "estado-cancelada"
       default:
         return ""
     }
@@ -521,9 +521,9 @@ function ListarCompras() {
             className="listarCompra-filter-select"
           >
             <option value="">Todos los estados</option>
-            <option value="Completado">Completado</option>
+            <option value="Completada">Completado</option>
             <option value="Pendiente">Pendiente</option>
-            <option value="Cancelado">Cancelado</option>
+            <option value="Cancelada">Cancelado</option>
           </select>
         </div>
       </div>

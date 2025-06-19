@@ -470,7 +470,7 @@
 
 .crearVenta-item-info-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
 
@@ -517,16 +517,25 @@
 }
 
 .crearVenta-subtotal-item {
-  grid-column: span 3;
+  grid-column: span 2;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
   border-top: 1px solid #e2e8f0;
   padding-top: 12px;
   margin-top: 8px;
+}
+
+.crearVenta-subtotal-item .crearVenta-info-label {
+  margin-bottom: 0;
 }
 
 .crearVenta-subtotal {
   font-size: 16px;
   color: #2563eb;
   font-weight: 700;
+  text-align: right;
 }
 
 .crearVenta-stock-info {
@@ -1368,6 +1377,120 @@
   }
 }
 
+/* Estilos para funcionalidad de deselección */
+.crearVenta-input-with-actions {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.crearVenta-input-with-actions .crearVenta-form-input {
+  flex: 1;
+  padding-right: 45px;
+}
+
+.crearVenta-deselect-button {
+  position: absolute;
+  right: 8px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 2;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+
+.crearVenta-deselect-button:hover {
+  background: #dc2626;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+}
+
+/* Layout corregido para cards de modales */
+.crearVenta-client-name-line,
+.crearVenta-vehiculo-name-line,
+.crearVenta-mecanico-name-line {
+  font-weight: 600;
+  font-size: 16px;
+  color: #1f2937;
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+
+.crearVenta-client-document-line,
+.crearVenta-vehiculo-document-line,
+.crearVenta-mecanico-document-line {
+  font-weight: 500;
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.crearVenta-client-contact-line,
+.crearVenta-vehiculo-contact-line,
+.crearVenta-mecanico-contact-line {
+  font-size: 13px;
+  color: #9ca3af;
+  line-height: 1.2;
+}
+
+/* Actualizar estilos de cards existentes */
+.crearVenta-client-card,
+.crearVenta-vehiculo-card,
+.crearVenta-mecanico-card {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+}
+
+.crearVenta-client-card:hover,
+.crearVenta-vehiculo-card:hover,
+.crearVenta-mecanico-card:hover {
+  border-color: #3b82f6;
+  background-color: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.crearVenta-client-info,
+.crearVenta-vehiculo-info,
+.crearVenta-mecanico-info {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Listas de modales */
+.crearVenta-vehiculo-list,
+.crearVenta-mecanico-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 8px;
+  max-height: 400px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  background-color: #f8fafc;
+}
+
+/* Acciones de modales */
+.crearVenta-modal-actions {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
 /* Añadir un nuevo estilo para ocultar el botón al lado del selector de mecánico */
 
 .crearVenta-form-group .reload-button,
@@ -1600,96 +1723,197 @@
   font-weight: 500;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .crearVenta-container {
-    padding: 16px;
-  }
-
-  .crearVenta-form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .crearVenta-add-items-section {
-    flex-direction: column;
-  }
-
-  .crearVenta-modal-content {
-    flex-direction: column;
-    padding: 16px;
-  }
-
-  .crearVenta-left-pane,
-  .crearVenta-right-pane {
-    width: 100%;
-  }
-
-  .crearVenta-right-pane {
-    border-left: none;
-    border-top: 2px solid #f1f5f9;
-    padding-left: 0;
-    padding-top: 24px;
-  }
-
-  .crearVenta-item-info-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .crearVenta-subtotal-item {
-    grid-column: span 2;
-  }
-
-  .crearVenta-form-actions {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .crearVenta-cancel-button,
-  .crearVenta-submit-button {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .crearVenta-input-group {
-    flex-direction: column;
-    min-width: auto;
-  }
-
-  .crearVenta-cart-controls {
-    flex-direction: column;
-  }
+/* Estilos para funcionalidad de deselección */
+.crearVenta-input-with-actions {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
+.crearVenta-input-with-actions .crearVenta-form-input {
+  flex: 1;
+  padding-right: 45px;
+}
+
+.crearVenta-deselect-button {
+  position: absolute;
+  right: 8px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 2;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+
+.crearVenta-deselect-button:hover {
+  background: #dc2626;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+}
+
+/* Layout corregido para cards de modales */
+.crearVenta-client-name-line,
+.crearVenta-vehiculo-name-line,
+.crearVenta-mecanico-name-line {
+  font-weight: 600;
+  font-size: 16px;
+  color: #1f2937;
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+
+.crearVenta-client-document-line,
+.crearVenta-vehiculo-document-line,
+.crearVenta-mecanico-document-line {
+  font-weight: 500;
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.crearVenta-client-contact-line,
+.crearVenta-vehiculo-contact-line,
+.crearVenta-mecanico-contact-line {
+  font-size: 13px;
+  color: #9ca3af;
+  line-height: 1.2;
+}
+
+/* Actualizar estilos de cards existentes */
+.crearVenta-client-card,
+.crearVenta-vehiculo-card,
+.crearVenta-mecanico-card {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+}
+
+.crearVenta-client-card:hover,
+.crearVenta-vehiculo-card:hover,
+.crearVenta-mecanico-card:hover {
+  border-color: #3b82f6;
+  background-color: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.crearVenta-client-info,
+.crearVenta-vehiculo-info,
+.crearVenta-mecanico-info {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Listas de modales */
+.crearVenta-vehiculo-list,
+.crearVenta-mecanico-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 8px;
+  max-height: 400px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  background-color: #f8fafc;
+}
+
+/* Acciones de modales */
+.crearVenta-modal-actions {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Añadir un nuevo estilo para ocultar el botón al lado del selector de mecánico */
+
+.crearVenta-form-group .reload-button,
+.crearVenta-form-group button[type="button"]:not(.crearVenta-link-button) {
+  display: none;
+}
+
+/* Controles de cantidad mejorados */
+.crearVenta-quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 120px;
+}
+
+.crearVenta-quantity-btn {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.crearVenta-quantity-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  transform: scale(1.05);
+}
+
+.crearVenta-quantity-btn:disabled {
+  background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.crearVenta-quantity-input-main {
+  width: 60px;
+  padding: 6px 8px;
+  font-size: 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: white;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  text-align: center;
+  font-weight: 600;
+}
+
+.crearVenta-quantity-input-main:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Responsive para controles de cantidad */
 @media (max-width: 480px) {
-  .crearVenta-page-title {
-    font-size: 24px;
+  .crearVenta-quantity-controls {
+    max-width: 100px;
   }
 
-  .crearVenta-header {
-    padding: 16px;
+  .crearVenta-quantity-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
   }
 
-  .crearVenta-form-section {
-    padding: 16px;
-  }
-
-  .crearVenta-form-actions {
-    padding: 16px;
-  }
-
-  .crearVenta-modal-header {
-    padding: 16px;
-  }
-
-  .crearVenta-modal-content {
-    padding: 16px;
-  }
-
-  .crearVenta-item-info-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .crearVenta-subtotal-item {
-    grid-column: span 1;
+  .crearVenta-quantity-input-main {
+    width: 50px;
+    padding: 4px 6px;
+    font-size: 12px;
   }
 }

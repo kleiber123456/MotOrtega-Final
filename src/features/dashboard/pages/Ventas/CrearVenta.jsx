@@ -6,7 +6,6 @@ import {
   Plus,
   X,
   User,
-  Calendar,
   Package,
   ShoppingBag,
   Loader,
@@ -16,12 +15,24 @@ import {
   Trash,
   Save,
   Wrench,
+  Car,
 } from "lucide-react"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Ventas/CrearVenta.css"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
+
+// Add this utility function at the top of the file, after the API_BASE_URL constant
+const formatCurrency = (amount) => {
+  const number = Number.parseFloat(amount) || 0
+  // If the number has no decimal part or the decimal part is .00, show without decimals
+  if (number % 1 === 0) {
+    return `$${number.toLocaleString("es-CO")}`
+  }
+  // Otherwise, show with 2 decimal places
+  return `$${number.toLocaleString("es-CO", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+}
 
 // Función mejorada para obtener token
 const getValidToken = () => {
@@ -146,18 +157,40 @@ const CrearVenta = () => {
   const [showProductModal, setShowProductModal] = useState(false)
   const [showServiceModal, setShowServiceModal] = useState(false)
   const [showClientModal, setShowClientModal] = useState(false)
+  const [showVehiculoClienteModal, setShowVehiculoClienteModal] = useState(false)
+  const [showMecanicoModal, setShowMecanicoModal] = useState(false)
   const [selectedProducts, setSelectedProducts] = useState([])
   const [selectedServices, setSelectedServices] = useState([])
   const [selectedClient, setSelectedClient] = useState(null)
+  const [selectedVehiculo, setSelectedVehiculo] = useState(null)
+  const [selectedMecanico, setSelectedMecanico] = useState(null)
   const [total, setTotal] = useState(0)
   const [formData, setFormData] = useState({
     fecha: new Date().toISOString().substr(0, 10),
     mecanico_id: "",
+    vehiculo_id: "",
   })
   const [formErrors, setFormErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [estadosVenta, setEstadosVenta] = useState([])
   const [vehiculosCliente, setVehiculosCliente] = useState([])
+  const [clientes, setClientes] = useState([])
+
+  // Cargar clientes al iniciar
+  useEffect(() => {
+    const cargarClientes = async () => {
+      try {
+        const data = await makeRequest("/usuarios")
+        if (data && Array.isArray(data)) {
+          setClientes(data.filter((cliente) => cliente.estado === "Activo"))
+        }
+      } catch (error) {
+        console.error("Error al cargar clientes:", error)
+      }
+    }
+
+    cargarClientes()
+  }, [makeRequest])
 
   // Cargar estados de venta al iniciar
   useEffect(() => {
@@ -198,7 +231,7 @@ const CrearVenta = () => {
       errors.fecha = "La fecha es obligatoria"
     }
 
-    if (!formData.mecanico_id) {
+    if (!selectedMecanico && !formData.mecanico_id) {
       errors.mecanico = "Debe seleccionar un mecánico"
     }
 
@@ -217,7 +250,7 @@ const CrearVenta = () => {
 
     setFormErrors(errors)
     return Object.keys(errors).length === 0
-  }, [selectedClient, selectedProducts, selectedServices, formData])
+  }, [selectedClient, selectedProducts, selectedServices, formData, selectedMecanico])
 
   // Manejadores para modales
   const openProductModal = useCallback(() => setShowProductModal(true), [])
@@ -226,6 +259,10 @@ const CrearVenta = () => {
   const closeServiceModal = useCallback(() => setShowServiceModal(false), [])
   const openClientModal = useCallback(() => setShowClientModal(true), [])
   const closeClientModal = useCallback(() => setShowClientModal(false), [])
+  const openVehiculoClienteModal = useCallback(() => setShowVehiculoClienteModal(true), [])
+  const closeVehiculoClienteModal = useCallback(() => setShowVehiculoClienteModal(false), [])
+  const openMecanicoModal = useCallback(() => setShowMecanicoModal(true), [])
+  const closeMecanicoModal = useCallback(() => setShowMecanicoModal(false), [])
 
   // Manejador para eliminar productos
   const removeProduct = useCallback(async (id) => {
@@ -303,6 +340,27 @@ const CrearVenta = () => {
     [formErrors.client, closeClientModal, makeRequest],
   )
 
+  // Manejador para seleccionar vehículo
+  const selectVehiculo = useCallback((vehiculo) => {
+    setSelectedVehiculo(vehiculo)
+    setFormData((prev) => ({ ...prev, vehiculo_id: vehiculo.id }))
+    closeVehiculoClienteModal()
+  }, [])
+
+  // Manejador para seleccionar mecánico
+  const selectMecanico = useCallback(
+    (mecanico) => {
+      setSelectedMecanico(mecanico)
+      setFormData((prev) => ({ ...prev, mecanico_id: mecanico.id }))
+      closeMecanicoModal()
+
+      if (formErrors.mecanico) {
+        setFormErrors((prev) => ({ ...prev, mecanico: "" }))
+      }
+    },
+    [formErrors.mecanico],
+  )
+
   // Manejador para cambios en el formulario
   const handleInputChange = useCallback(
     (e) => {
@@ -318,7 +376,16 @@ const CrearVenta = () => {
 
   // CORREGIDO: Función para actualizar cantidad de producto con validación simple
   const updateProductQuantity = useCallback((productId, newQuantity) => {
-    if (newQuantity <= 0) return
+    // No permitir cantidades menores o iguales a 0
+    if (newQuantity <= 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "Cantidad inválida",
+        text: "La cantidad debe ser mayor a 0",
+        confirmButtonColor: "#2563eb",
+      })
+      return
+    }
 
     setSelectedProducts((prev) =>
       prev.map((item) => {
@@ -399,6 +466,97 @@ const CrearVenta = () => {
     }
   }, [makeRequest, setLoading, setError, setMecanicos])
 
+  // Función para guardar estado del formulario antes de navegar
+  const saveFormState = useCallback(() => {
+    const formState = {
+      selectedClient,
+      selectedVehiculo,
+      selectedMecanico,
+      selectedProducts,
+      selectedServices,
+      formData,
+      total,
+    }
+    sessionStorage.setItem("crearVentaFormState", JSON.stringify(formState))
+  }, [selectedClient, selectedVehiculo, selectedMecanico, selectedProducts, selectedServices, formData, total])
+
+  // Función para restaurar estado del formulario
+  const restoreFormState = useCallback(() => {
+    // Solo restaurar si viene de una navegación interna (crear cliente, vehículo, etc.)
+    const urlParams = new URLSearchParams(window.location.search)
+    const fromNavigation = urlParams.get("from") || (window.history.state && window.history.state.from)
+
+    if (!fromNavigation) {
+      // Si no viene de navegación interna, limpiar cualquier estado guardado y empezar en blanco
+      sessionStorage.removeItem("crearVentaFormState")
+      return
+    }
+
+    const savedState = sessionStorage.getItem("crearVentaFormState")
+    if (savedState) {
+      try {
+        const formState = JSON.parse(savedState)
+        setSelectedClient(formState.selectedClient || null)
+        setSelectedVehiculo(formState.selectedVehiculo || null)
+        setSelectedMecanico(formState.selectedMecanico || null)
+        setSelectedProducts(formState.selectedProducts || [])
+        setSelectedServices(formState.selectedServices || [])
+        setFormData(
+          formState.formData || { fecha: new Date().toISOString().substr(0, 10), mecanico_id: "", vehiculo_id: "" },
+        )
+        setTotal(formState.total || 0)
+      } catch (error) {
+        console.error("Error al restaurar estado del formulario:", error)
+      }
+    }
+  }, [])
+
+  // Manejadores de navegación con preservación de estado
+  const handleNavigateToCreateService = useCallback(() => {
+    saveFormState()
+    navigate("/crearservicio", { state: { from: "/crearventa" } })
+  }, [saveFormState, navigate])
+
+  const handleNavigateToCreateClient = useCallback(() => {
+    saveFormState()
+    navigate("/crearclientes", { state: { from: "/crearventa" } })
+  }, [saveFormState, navigate])
+
+  const handleNavigateToCreateVehiculo = useCallback(() => {
+    saveFormState()
+    navigate("/vehiculos/crear", {
+      state: {
+        from: "/crearventa",
+        clienteId: selectedClient?.id,
+      },
+    })
+  }, [saveFormState, navigate, selectedClient])
+
+  const handleNavigateToCreateMecanico = useCallback(() => {
+    saveFormState()
+    navigate("/crearmecanico", { state: { from: "/crearventa" } })
+  }, [saveFormState, navigate])
+
+  // Restaurar estado al cargar el componente
+  useEffect(() => {
+    restoreFormState()
+  }, [restoreFormState])
+
+  // Limpiar estado al desmontar el componente si no es navegación interna
+  useEffect(() => {
+    return () => {
+      // Solo limpiar si no estamos navegando a crear algo
+      const isNavigatingToCreate =
+        window.location.pathname.includes("/crear") || window.location.pathname.includes("/vehiculos/crear")
+
+      if (!isNavigatingToCreate) {
+        sessionStorage.removeItem("crearVentaFormState")
+      }
+    }
+  }, [])
+
+  // Manejadores de navegación con preservación de estado
+
   // Manejador para envío del formulario
   const handleSubmit = useCallback(
     async (e) => {
@@ -425,7 +583,8 @@ const CrearVenta = () => {
         const ventaData = {
           cliente_id: selectedClient.id,
           estado_venta_id: estadoPendiente.id,
-          mecanico_id: formData.mecanico_id || null,
+          mecanico_id: selectedMecanico?.id || formData.mecanico_id || null,
+          vehiculo_id: selectedVehiculo?.id || formData.vehiculo_id || null,
           servicios: selectedServices.map((service) => ({
             servicio_id: service.id,
           })),
@@ -441,6 +600,9 @@ const CrearVenta = () => {
           method: "POST",
           body: JSON.stringify(ventaData),
         })
+
+        // Limpiar estado guardado después de envío exitoso
+        sessionStorage.removeItem("crearVentaFormState")
 
         await Swal.fire({
           icon: "success",
@@ -464,7 +626,18 @@ const CrearVenta = () => {
         setIsSubmitting(false)
       }
     },
-    [validateForm, selectedClient, selectedProducts, selectedServices, makeRequest, navigate, estadosVenta, formData],
+    [
+      validateForm,
+      selectedClient,
+      selectedProducts,
+      selectedServices,
+      selectedMecanico,
+      selectedVehiculo,
+      makeRequest,
+      navigate,
+      estadosVenta,
+      formData,
+    ],
   )
 
   // Manejador para cancelar
@@ -482,12 +655,38 @@ const CrearVenta = () => {
       })
 
       if (result.isConfirmed) {
+        // Siempre limpiar el estado al cancelar
+        sessionStorage.removeItem("crearVentaFormState")
         navigate("/ListarVentas")
       }
     } else {
+      // Siempre limpiar el estado al cancelar
+      sessionStorage.removeItem("crearVentaFormState")
       navigate("/ListarVentas")
     }
   }, [selectedProducts.length, selectedServices.length, selectedClient, navigate])
+
+  // In the main component, add deselection functions after the selection functions:
+
+  // Manejador para deseleccionar cliente
+  const deselectClient = useCallback(() => {
+    setSelectedClient(null)
+    setVehiculosCliente([])
+    setSelectedVehiculo(null)
+    setFormData((prev) => ({ ...prev, vehiculo_id: "" }))
+  }, [])
+
+  // Manejador para deseleccionar vehículo
+  const deselectVehiculo = useCallback(() => {
+    setSelectedVehiculo(null)
+    setFormData((prev) => ({ ...prev, vehiculo_id: "" }))
+  }, [])
+
+  // Manejador para deseleccionar mecánico
+  const deselectMecanico = useCallback(() => {
+    setSelectedMecanico(null)
+    setFormData((prev) => ({ ...prev, mecanico_id: "" }))
+  }, [])
 
   return (
     <div className="crearVenta-container">
@@ -517,161 +716,105 @@ const CrearVenta = () => {
             Información General
           </h3>
           <div className="crearVenta-form-grid">
+            {/* Update the client input section to include a deselect button: */}
             <div className="crearVenta-form-group">
-              <label htmlFor="clientName" className="crearVenta-label">
-                <User className="crearVenta-label-icon" />
-                Cliente *
+              <label className="crearVenta-label">
+                <i className="icon-user" /> Cliente 
               </label>
-              <input
-                type="text"
-                id="clientName"
-                className={`crearVenta-form-input ${formErrors.client ? "error" : ""}`}
-                placeholder="Seleccione un cliente"
-                value={selectedClient ? `${selectedClient.nombre} ${selectedClient.apellido}` : ""}
-                readOnly
-                onClick={openClientModal}
-                style={{ cursor: "pointer" }}
-                required
-              />
-              {selectedClient && (
-                <div className="crearVenta-client-details">
-                  <p>
-                    <strong>Correo:</strong> {selectedClient.correo || selectedClient.email}
-                  </p>
-                  <p>
-                    <strong>Teléfono:</strong> {selectedClient.telefono}
-                  </p>
-                </div>
-              )}
-              <button
-                type="button"
-                className="crearVenta-link-button"
-                onClick={() => navigate("/crearclientes", { state: { from: "/crearventa" } })}
-              >
-                Registrar nuevo cliente
-              </button>
-
-              {selectedClient && vehiculosCliente.length === 0 && (
-                <button
-                  type="button"
-                  className="crearVenta-link-button"
-                  onClick={() =>
-                    navigate("/vehiculos/crear", {
-                      state: {
-                        from: "/crearventa",
-                        clienteId: selectedClient.id,
-                      },
-                    })
-                  }
-                >
-                  Registrar vehículo para este cliente
-                </button>
-              )}
-
-              {vehiculosCliente.length > 0 && (
-                <div className="crearVenta-form-group">
-                  <label htmlFor="vehiculoCliente" className="crearVenta-label">
-                    <Package className="crearVenta-label-icon" />
-                    Vehículo del Cliente
-                  </label>
-                  <select
-                    id="vehiculoCliente"
-                    className="crearVenta-form-input"
-                    value={formData.vehiculo_id || ""}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        vehiculo_id: e.target.value,
-                      }))
-                    }
-                  >
-                    <option value="">Seleccione un vehículo</option>
-                    {vehiculosCliente.map((vehiculo) => (
-                      <option key={vehiculo.id} value={vehiculo.id}>
-                        {vehiculo.placa} - {vehiculo.marca} {vehiculo.modelo}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-              <div className="crearVenta-form-group">
-                <label htmlFor="mecanico_id" className="crearVenta-label">
-                  <Wrench className="crearVenta-label-icon" />
-                  Mecánico Asignado *
-                </label>
-                <div className="crearVenta-input-with-button">
-                  <select
-                    id="mecanico_id"
-                    name="mecanico_id"
-                    className={`crearVenta-form-input ${formErrors.mecanico ? "error" : ""}`}
-                    value={formData.mecanico_id || ""}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        mecanico_id: e.target.value,
-                      }))
-                    }
-                    required
-                  >
-                    <option value="">Seleccione un mecánico</option>
-                    {mecanicos.map((mecanico) => (
-                      <option key={mecanico.id} value={mecanico.id}>
-                        {mecanico.nombre} {mecanico.apellido}
-                      </option>
-                    ))}
-                  </select>
+              <div className="crearVenta-input-with-actions">
+                <input
+                  type="text"
+                  className="crearVenta-form-input"
+                  value={selectedClient ? `${selectedClient.nombre} ${selectedClient.apellido}` : ""}
+                  readOnly
+                  onClick={openClientModal}
+                  placeholder="Seleccione un cliente"
+                  required
+                />
+                {selectedClient && (
                   <button
                     type="button"
-                    className="crearVenta-reload-button"
-                    onClick={recargarMecanicos}
-                    title="Recargar mecánicos"
-                    disabled={apiLoading}
+                    className="crearVenta-deselect-button"
+                    onClick={deselectClient}
+                    title="Deseleccionar cliente"
                   >
-                    <Loader size={16} className={apiLoading ? "spinning" : ""} />
+                    <X size={16} />
                   </button>
-                </div>
-                {formErrors.mecanico && (
-                  <span className="crearVenta-error-text">
-                    <AlertTriangle size={16} /> {formErrors.mecanico}
-                  </span>
-                )}
-                {mecanicos.length === 0 && !apiLoading && (
-                  <div className="crearVenta-warning-message">
-                    <AlertTriangle size={16} />
-                    <span>
-                      No se encontraron mecánicos. Verifique la conexión con el servidor o contacte al administrador.
-                    </span>
-                  </div>
                 )}
               </div>
-
-              {formErrors.client && (
-                <span className="crearVenta-error-text">
-                  <AlertTriangle size={16} /> {formErrors.client}
-                </span>
+              {selectedClient && (
+                <div className="crearVenta-client-info">
+                  <div>
+                    <b>Correo:</b> {selectedClient.correo}
+                  </div>
+                  <div>
+                    <b>Documento:</b> {selectedClient.documento}
+                  </div>
+                  <div>
+                    <b>Teléfono:</b> {selectedClient.telefono}
+                  </div>
+                </div>
               )}
             </div>
 
+            {/* Vehículo del cliente */}
+            {selectedClient && (
+              <div className="crearVenta-form-group">
+                <label className="crearVenta-label">
+                  <i className="icon-car" /> Vehículo del Cliente
+                </label>
+                <div className="crearVenta-input-with-actions">
+                  <input
+                    type="text"
+                    className="crearVenta-form-input"
+                    value={
+                      selectedVehiculo
+                        ? `${selectedVehiculo.placa} `
+                        : ""
+                    }
+                    readOnly
+                    onClick={openVehiculoClienteModal}
+                    placeholder="Seleccione un vehículo"
+                  />
+                  {selectedVehiculo && (
+                    <button
+                      type="button"
+                      className="crearVenta-deselect-button"
+                      onClick={deselectVehiculo}
+                      title="Deseleccionar vehículo"
+                    >
+                      <X size={16} />
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Mecánico */}
             <div className="crearVenta-form-group">
-              <label htmlFor="fecha" className="crearVenta-label">
-                <Calendar className="crearVenta-label-icon" />
-                Fecha *
+              <label className="crearVenta-label">
+                <i className="icon-wrench" /> Mecánico
               </label>
-              <input
-                type="date"
-                id="fecha"
-                name="fecha"
-                className={`crearVenta-form-input ${formErrors.fecha ? "error" : ""}`}
-                value={formData.fecha}
-                onChange={handleInputChange}
-                max={new Date().toISOString().substr(0, 10)}
-                required
-              />
-              {formErrors.fecha && (
-                <span className="crearVenta-error-text">
-                  <AlertTriangle size={16} /> {formErrors.fecha}
-                </span>
-              )}
+              <div className="crearVenta-input-with-actions">
+                <input
+                  type="text"
+                  className="crearVenta-form-input"
+                  value={selectedMecanico ? `${selectedMecanico.nombre} ${selectedMecanico.apellido}` : ""}
+                  readOnly
+                  onClick={openMecanicoModal}
+                  placeholder="Seleccione un mecánico"
+                />
+                {selectedMecanico && (
+                  <button
+                    type="button"
+                    className="crearVenta-deselect-button"
+                    onClick={deselectMecanico}
+                    title="Deseleccionar mecánico"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -699,6 +842,15 @@ const CrearVenta = () => {
             >
               <Plus className="crearVenta-button-icon" />
               Añadir Servicios
+            </button>
+            <button
+              type="button"
+              className="crearVenta-create-button"
+              onClick={handleNavigateToCreateService}
+              disabled={isSubmitting}
+            >
+              <Plus className="crearVenta-button-icon" />
+              Crear Nuevo Servicio
             </button>
           </div>
 
@@ -753,20 +905,62 @@ const CrearVenta = () => {
                         </div>
                         <div className="crearVenta-info-item">
                           <span className="crearVenta-info-label">Cantidad:</span>
-                          <div className="crearVenta-editable-field">
+                          <div className="crearVenta-quantity-controls">
+                            <button
+                              type="button"
+                              className="crearVenta-quantity-btn"
+                              onClick={() => updateProductQuantity(product.id, Math.max(1, product.quantity - 1))}
+                              disabled={product.quantity <= 1}
+                            >
+                              -
+                            </button>
                             <input
                               type="number"
                               min="1"
                               max={product.stockOriginal}
                               value={product.quantity}
-                              onChange={(e) => updateProductQuantity(product.id, Number.parseInt(e.target.value) || 1)}
-                              className="crearVenta-inline-input"
+                              onChange={(e) => {
+                                const newValue = e.target.value
+
+                                // Permitir campo vacío temporalmente
+                                if (newValue === "") {
+                                  return
+                                }
+
+                                const numValue = Number.parseInt(newValue) || 1
+
+                                // No permitir números negativos o cero
+                                if (numValue <= 0) {
+                                  return
+                                }
+
+                                updateProductQuantity(product.id, numValue)
+                              }}
+                              onBlur={(e) => {
+                                // Si el campo está vacío al perder el foco, establecer 1
+                                if (e.target.value === "" || Number.parseInt(e.target.value) <= 0) {
+                                  updateProductQuantity(product.id, 1)
+                                }
+                              }}
+                              className="crearVenta-quantity-input-main"
                             />
+                            <button
+                              type="button"
+                              className="crearVenta-quantity-btn"
+                              onClick={() =>
+                                updateProductQuantity(product.id, Math.min(product.stockOriginal, product.quantity + 1))
+                              }
+                              disabled={product.quantity >= product.stockOriginal}
+                            >
+                              +
+                            </button>
                           </div>
                         </div>
                         <div className="crearVenta-info-item crearVenta-subtotal-item">
                           <span className="crearVenta-info-label">Subtotal:</span>
-                          <span className="crearVenta-subtotal">${(product.price * product.quantity).toFixed(2)}</span>
+                          <span className="crearVenta-subtotal">
+                            {formatCurrency(product.price * product.quantity)}
+                          </span>
                         </div>
                       </div>
                       <div className="crearVenta-stock-info">
@@ -815,7 +1009,7 @@ const CrearVenta = () => {
                         </div>
                         <div className="crearVenta-info-item crearVenta-subtotal-item">
                           <span className="crearVenta-info-label">Precio:</span>
-                          <span className="crearVenta-subtotal">${service.precio.toFixed(2)}</span>
+                          <span className="crearVenta-subtotal">{formatCurrency(service.precio)}</span>
                         </div>
                       </div>
                     </div>
@@ -830,7 +1024,7 @@ const CrearVenta = () => {
             <div className="crearVenta-total-section">
               <div className="crearVenta-total-card">
                 <span className="crearVenta-total-label">Total de la Venta:</span>
-                <span className="crearVenta-total-amount">${total.toFixed(2)}</span>
+                <span className="crearVenta-total-amount">{formatCurrency(total)}</span>
               </div>
             </div>
           )}
@@ -887,7 +1081,33 @@ const CrearVenta = () => {
         />
       )}
 
-      {showClientModal && <ClientModal closeModal={closeClientModal} selectClient={selectClient} />}
+      {showClientModal && (
+        <ClientModal
+          closeModal={closeClientModal}
+          selectClient={selectClient}
+          navigate={handleNavigateToCreateClient}
+          clientes={clientes}
+        />
+      )}
+
+      {showVehiculoClienteModal && selectedClient && (
+        <VehiculoClienteModal
+          closeModal={closeVehiculoClienteModal}
+          clienteId={selectedClient.id}
+          selectVehiculo={selectVehiculo}
+          navigate={handleNavigateToCreateVehiculo}
+          vehiculosCliente={vehiculosCliente}
+        />
+      )}
+
+      {showMecanicoModal && (
+        <MecanicoModal
+          closeModal={closeMecanicoModal}
+          selectMecanico={selectMecanico}
+          navigate={handleNavigateToCreateMecanico}
+          mecanicos={mecanicos}
+        />
+      )}
     </div>
   )
 }
@@ -1114,7 +1334,7 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                     <div className="crearVenta-product-info">
                       <div className="crearVenta-product-main-info">
                         <span className="crearVenta-product-name">{product.nombre}</span>
-                        <span className="crearVenta-product-price">${(product.preciounitario || 0).toFixed(2)}</span>
+                        <span className="crearVenta-product-price">{formatCurrency(product.preciounitario || 0)}</span>
                       </div>
                       <span className="crearVenta-product-stock">Stock: {product.cantidad}</span>
                       {product.descripcion && (
@@ -1128,14 +1348,40 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                           <input
                             type="number"
                             className="crearVenta-quantity-input"
-                            min="1"
+                            min="0"
                             max={product.cantidad}
-                            defaultValue="1"
+                            defaultValue=""
+                            placeholder="0"
                             id={`quantity-${product.id}`}
                             onInput={(e) => {
-                              const value = Number.parseInt(e.target.value) || 1
-                              if (value > product.cantidad) {
+                              const value = e.target.value
+
+                              // Permitir campo vacío para que se pueda borrar
+                              if (value === "") {
+                                return
+                              }
+
+                              // Convertir a número y validar
+                              const numValue = Number.parseInt(value) || 0
+
+                              // No permitir números negativos
+                              if (numValue < 0) {
+                                e.target.value = 0
+                                return
+                              }
+
+                              // No permitir exceder el stock
+                              if (numValue > product.cantidad) {
                                 e.target.value = product.cantidad
+                                return
+                              }
+
+                              e.target.value = numValue
+                            }}
+                            onBlur={(e) => {
+                              // Si el campo está vacío al perder el foco, establecer 0
+                              if (e.target.value === "") {
+                                e.target.value = "0"
                               }
                             }}
                           />
@@ -1147,7 +1393,19 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                         disabled={product.cantidad === 0}
                         onClick={() => {
                           const quantityInput = document.getElementById(`quantity-${product.id}`)
-                          const quantity = Number.parseInt(quantityInput.value) || 1
+                          const quantity = Number.parseInt(quantityInput.value) || 0
+
+                          // Validar que la cantidad sea mayor a 0
+                          if (quantity <= 0) {
+                            Swal.fire({
+                              icon: "warning",
+                              title: "Cantidad inválida",
+                              text: "La cantidad debe ser mayor a 0",
+                              confirmButtonColor: "#2563eb",
+                            })
+                            quantityInput.focus()
+                            return
+                          }
 
                           if (quantity > product.cantidad) {
                             Swal.fire({
@@ -1204,27 +1462,47 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                           <label>Cantidad:</label>
                           <input
                             type="number"
-                            min="1"
+                            min="0"
                             max={item.stockOriginal}
                             value={item.quantity}
                             onChange={(e) => {
-                              const newValue = Number.parseInt(e.target.value) || 1
-                              if (newValue > item.stockOriginal) {
+                              const newValue = e.target.value
+
+                              // Permitir campo vacío temporalmente
+                              if (newValue === "") {
+                                return
+                              }
+
+                              const numValue = Number.parseInt(newValue) || 0
+
+                              // No permitir números negativos
+                              if (numValue < 0) {
+                                return
+                              }
+
+                              if (numValue > item.stockOriginal) {
                                 e.target.value = item.stockOriginal
                                 return
                               }
-                              updateCartItemQuantity(item.id, newValue)
+
+                              updateCartItemQuantity(item.id, numValue)
+                            }}
+                            onBlur={(e) => {
+                              // Si el campo está vacío al perder el foco, establecer 1 como mínimo
+                              if (e.target.value === "" || Number.parseInt(e.target.value) === 0) {
+                                updateCartItemQuantity(item.id, 1)
+                              }
                             }}
                             className="crearVenta-control-input"
                           />
                         </div>
                         <div className="crearVenta-control-group">
                           <label>Precio:</label>
-                          <span className="crearVenta-control-value">${item.price.toFixed(2)}</span>
+                          <span className="crearVenta-control-value">{formatCurrency(item.price)}</span>
                         </div>
                       </div>
                       <div className="crearVenta-cart-item-total">
-                        Subtotal: <strong>${(item.price * item.quantity).toFixed(2)}</strong>
+                        Subtotal: <strong>{formatCurrency(item.price * item.quantity)}</strong>
                       </div>
                       <div className="crearVenta-cart-stock-info">
                         <small className="text-gray-600">Stock disponible: {item.stockOriginal} unidades</small>
@@ -1238,7 +1516,7 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
             <div className="crearVenta-cart-summary">
               <div className="crearVenta-cart-total">
                 <span>Total:</span>
-                <strong>${total.toFixed(2)}</strong>
+                <strong>{formatCurrency(total)}</strong>
               </div>
               <button
                 type="button"
@@ -1375,7 +1653,7 @@ const ServiceModal = ({ closeModal, addService, existingServices }) => {
                     <div className="crearVenta-service-info">
                       <div className="crearVenta-service-main-info">
                         <span className="crearVenta-service-name">{service.nombre}</span>
-                        <span className="crearVenta-service-price">${(service.precio || 0).toFixed(2)}</span>
+                        <span className="crearVenta-service-price">{formatCurrency(service.precio || 0)}</span>
                       </div>
                       {service.descripcion && (
                         <span className="crearVenta-service-description">{service.descripcion}</span>
@@ -1425,7 +1703,7 @@ const ServiceModal = ({ closeModal, addService, existingServices }) => {
                       <div className="crearVenta-service-details">
                         {service.descripcion && <p className="crearVenta-service-description">{service.descripcion}</p>}
                         <div className="crearVenta-service-price-display">
-                          <strong>${service.precio.toFixed(2)}</strong>
+                          <strong>{formatCurrency(service.precio)}</strong>
                         </div>
                       </div>
                     </div>
@@ -1437,7 +1715,7 @@ const ServiceModal = ({ closeModal, addService, existingServices }) => {
             <div className="crearVenta-cart-summary">
               <div className="crearVenta-cart-total">
                 <span>Total:</span>
-                <strong>${selectedServices.reduce((sum, service) => sum + service.precio, 0).toFixed(2)}</strong>
+                <strong>{formatCurrency(selectedServices.reduce((sum, service) => sum + service.precio, 0))}</strong>
               </div>
               <button
                 type="button"
@@ -1456,54 +1734,10 @@ const ServiceModal = ({ closeModal, addService, existingServices }) => {
   )
 }
 
-// Componente Modal de Clientes (sin cambios)
-const ClientModal = ({ closeModal, selectClient }) => {
-  const { makeRequest, loading, error } = useApi()
-  const [searchTerm, setSearchTerm] = useState("")
-  const [clients, setClients] = useState([])
-
-  useEffect(() => {
-    const fetchClients = async () => {
-      try {
-        const data = await makeRequest("/clientes")
-        if (data && Array.isArray(data)) {
-          setClients(data)
-        } else {
-          setClients([])
-        }
-      } catch (error) {
-        console.error("Error al cargar clientes:", error)
-        setClients([])
-      }
-    }
-
-    fetchClients()
-  }, [makeRequest])
-
-  const filteredClients = clients.filter(
-    (client) =>
-      client.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (client.email && client.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (client.correo && client.correo.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (client.telefono && client.telefono.includes(searchTerm)),
-  )
-
-  if (loading) {
-    return (
-      <div className="crearVenta-modal-overlay">
-        <div className="crearVenta-modal">
-          <div className="crearVenta-modal-header">
-            <h2>
-              <Loader className="spinning" /> Cargando clientes...
-            </h2>
-            <button type="button" className="crearVenta-close-modal-button" onClick={closeModal}>
-              <X />
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
+// Modal para seleccionar cliente (usuario)
+// Update the ClientModal component to fix the layout:
+const ClientModal = ({ closeModal, selectClient, navigate, clientes }) => {
+  const [search, setSearch] = useState("")
 
   return (
     <div className="crearVenta-modal-overlay">
@@ -1517,47 +1751,180 @@ const ClientModal = ({ closeModal, selectClient }) => {
             <X />
           </button>
         </div>
-
         <div className="crearVenta-modal-content">
+          <div className="crearVenta-modal-actions">
+            <button type="button" className="crearVenta-create-button" onClick={navigate}>
+              <Plus className="crearVenta-button-icon" />
+              Registrar nuevo cliente
+            </button>
+          </div>
           <div className="crearVenta-search-section">
             <div className="crearVenta-search-container">
               <Search className="crearVenta-search-icon" />
               <input
                 type="text"
-                placeholder="Buscar por nombre, email o teléfono..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
                 className="crearVenta-search-input"
+                placeholder="Buscar por nombre, documento..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
               />
             </div>
           </div>
-
           <div className="crearVenta-client-list">
-            {filteredClients.length === 0 ? (
-              <div className="crearVenta-no-results">
-                <AlertTriangle className="crearVenta-no-results-icon" />
-                <p>{searchTerm ? "No se encontraron clientes" : "No hay clientes disponibles"}</p>
-              </div>
-            ) : (
-              filteredClients.map((client) => (
+            {clientes
+              .filter(
+                (c) =>
+                  c.nombre.toLowerCase().includes(search.toLowerCase()) ||
+                  c.apellido.toLowerCase().includes(search.toLowerCase()) ||
+                  c.documento?.toString().includes(search.toLowerCase()),
+                
+              )
+              .map((cliente) => (
                 <div
-                  key={client.id}
+                  key={cliente.id}
                   className="crearVenta-client-card"
-                  onClick={() => selectClient(client)}
+                  onClick={() => selectClient(cliente)}
                   style={{ cursor: "pointer" }}
                 >
                   <div className="crearVenta-client-info">
-                    <div className="crearVenta-client-main-info">
-                      <span className="crearVenta-client-name">
-                        {client.nombre} {client.apellido}
-                      </span>
-                      <span className="crearVenta-client-email">{client.email || client.correo}</span>
+                    <div className="crearVenta-client-name-line">
+                      {cliente.nombre} {cliente.apellido}
                     </div>
-                    <span className="crearVenta-client-phone">{client.telefono}</span>
+                    <div className="crearVenta-client-document-line">{cliente.documento || "Sin documento"}</div>
+                    <div className="crearVenta-client-contact-line">{cliente.telefono}</div>
                   </div>
                 </div>
-              ))
-            )}
+              ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Modal para seleccionar vehículo del cliente
+// Update the VehiculoClienteModal component:
+const VehiculoClienteModal = ({ closeModal, clienteId, selectVehiculo, navigate, vehiculosCliente }) => {
+  const [search, setSearch] = useState("")
+
+  return (
+    <div className="crearVenta-modal-overlay">
+      <div className="crearVenta-modal">
+        <div className="crearVenta-modal-header">
+          <h2>
+            <Car className="crearVenta-modal-icon" />
+            Seleccionar Vehículo
+          </h2>
+          <button type="button" className="crearVenta-close-modal-button" onClick={closeModal}>
+            <X />
+          </button>
+        </div>
+        <div className="crearVenta-modal-content">
+          <div className="crearVenta-modal-actions">
+            <button type="button" className="crearVenta-create-button" onClick={navigate}>
+              <Plus className="crearVenta-button-icon" />
+              Registrar nuevo vehículo
+            </button>
+          </div>
+          <div className="crearVenta-search-section">
+            <div className="crearVenta-search-container">
+              <Search className="crearVenta-search-icon" />
+              <input
+                type="text"
+                className="crearVenta-search-input"
+                placeholder="Buscar por placa, marca, modelo..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="crearVenta-vehiculo-list">
+            {vehiculosCliente
+              .filter(
+                (v) =>
+                  v.placa.toLowerCase().includes(search.toLowerCase())
+              )
+              .map((vehiculo) => (
+                <div
+                  key={vehiculo.id}
+                  className="crearVenta-vehiculo-card"
+                  onClick={() => selectVehiculo(vehiculo)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="crearVenta-vehiculo-info">
+                    
+                    <div className="crearVenta-vehiculo-document-line">{vehiculo.placa}</div>
+                  
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Modal para seleccionar mecánico
+// Update the MecanicoModal component:
+const MecanicoModal = ({ closeModal, selectMecanico, navigate, mecanicos }) => {
+  const [search, setSearch] = useState("")
+
+  return (
+    <div className="crearVenta-modal-overlay">
+      <div className="crearVenta-modal">
+        <div className="crearVenta-modal-header">
+          <h2>
+            <Wrench className="crearVenta-modal-icon" />
+            Seleccionar Mecánico
+          </h2>
+          <button type="button" className="crearVenta-close-modal-button" onClick={closeModal}>
+            <X />
+          </button>
+        </div>
+        <div className="crearVenta-modal-content">
+          <div className="crearVenta-modal-actions">
+            <button type="button" className="crearVenta-create-button" onClick={navigate}>
+              <Plus className="crearVenta-button-icon" />
+              Registrar nuevo mecánico
+            </button>
+          </div>
+          <div className="crearVenta-search-section">
+            <div className="crearVenta-search-container">
+              <Search className="crearVenta-search-icon" />
+              <input
+                type="text"
+                className="crearVenta-search-input"
+                placeholder="Buscar por nombre, documento..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="crearVenta-mecanico-list">
+            {mecanicos
+              .filter(
+                (m) =>
+                  m.nombre.toLowerCase().includes(search.toLowerCase()) ||
+                  m.apellido.toLowerCase().includes(search.toLowerCase()) ||
+                  m.documento?.toString().includes(search.toLowerCase()),
+              )
+              .map((mecanico) => (
+                <div
+                  key={mecanico.id}
+                  className="crearVenta-mecanico-card"
+                  onClick={() => selectMecanico(mecanico)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="crearVenta-mecanico-info">
+                    <div className="crearVenta-mecanico-name-line">
+                      {mecanico.nombre} {mecanico.apellido}
+                    </div>
+                    <div className="crearVenta-mecanico-document-line">{mecanico.documento || "Sin documento"}</div>
+                    <div className="crearVenta-mecanico-contact-line">{mecanico.telefono}</div>
+                  </div>
+                </div>
+              ))}
           </div>
         </div>
       </div>

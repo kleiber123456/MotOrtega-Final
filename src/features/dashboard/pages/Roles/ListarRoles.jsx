@@ -1,18 +1,20 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import {
+  FaUserShield,
+  FaPlus,
   FaEdit,
   FaTrash,
   FaEye,
   FaSearch,
-  FaExclamationTriangle,
-  FaPlus,
+  FaChevronLeft,
+  FaChevronRight,
+  FaAngleDoubleLeft,
+  FaAngleDoubleRight,
   FaToggleOn,
   FaToggleOff,
-  FaUserShield,
-  FaUsers,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Roles/ListarRoles.css"
@@ -81,142 +83,159 @@ const ListarRoles = () => {
   const navigate = useNavigate()
   const { makeRequest, loading: apiLoading } = useApi()
 
+  // Estados principales
   const [roles, setRoles] = useState([])
-  const [busqueda, setBusqueda] = useState("")
-  const [estadoFiltro, setEstadoFiltro] = useState("")
-  const [paginaActual, setPaginaActual] = useState(1)
-  const [rolesPorPagina] = useState(6)
   const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState(null)
 
-  useEffect(() => {
-    document.body.style.backgroundColor = "#f9fafb"
-    cargarRoles()
-    return () => {
-      document.body.style.background = ""
-    }
-  }, [])
+  // Estados para filtros y búsqueda
+  const [busqueda, setBusqueda] = useState("")
+  const [filtroEstado, setFiltroEstado] = useState("Todos")
 
-  const cargarRoles = async () => {
+  // Estados para paginación - CAMBIÉ A 3 PARA QUE SE VEA LA PAGINACIÓN
+  const [paginaActual, setPaginaActual] = useState(1)
+  const [elementosPorPagina] = useState(5)
+
+  // Cargar roles
+  const cargarRoles = useCallback(async () => {
     try {
       setCargando(true)
+      setError(null)
+      console.log("Cargando roles...")
+
       const data = await makeRequest("/roles")
-      if (data) {
+
+      if (data && Array.isArray(data)) {
+        console.log(`${data.length} roles cargados`)
         setRoles(data)
+      } else {
+        console.warn("La respuesta no contiene un array de roles")
+        setRoles([])
       }
     } catch (error) {
       console.error("Error al cargar roles:", error)
-      Swal.fire("Error", "No se pudieron cargar los roles", "error")
+      setError(error.message || "Error al cargar los roles")
+
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudieron cargar los roles. Por favor intenta nuevamente.",
+        confirmButtonColor: "#ef4444",
+      })
     } finally {
       setCargando(false)
     }
-  }
+  }, [makeRequest])
 
-  const eliminarRol = useCallback(
-    async (id, nombreRol) => {
-      if (!id) {
-        Swal.fire("Error", "ID de rol inválido", "error")
-        return
+  // Cargar roles al montar el componente
+  useEffect(() => {
+    cargarRoles()
+  }, [cargarRoles])
+
+  // Filtrar roles según búsqueda y estado
+  const rolesFiltrados = useMemo(() => {
+    return roles.filter((rol) => {
+      const coincideBusqueda =
+        rol.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
+        rol.descripcion?.toLowerCase().includes(busqueda.toLowerCase())
+
+      const coincideEstado = filtroEstado === "Todos" || rol.estado === filtroEstado
+
+      return coincideBusqueda && coincideEstado
+    })
+  }, [roles, busqueda, filtroEstado])
+
+  // Calcular paginación
+  const totalElementos = rolesFiltrados.length
+  const totalPaginas = Math.ceil(totalElementos / elementosPorPagina)
+  const indiceInicio = (paginaActual - 1) * elementosPorPagina
+  const indiceFin = indiceInicio + elementosPorPagina
+  const rolesEnPagina = rolesFiltrados.slice(indiceInicio, indiceFin)
+
+  // Resetear página cuando cambian los filtros
+  useEffect(() => {
+    setPaginaActual(1)
+  }, [busqueda, filtroEstado])
+
+  // Funciones de paginación
+  const irAPagina = useCallback(
+    (pagina) => {
+      if (pagina >= 1 && pagina <= totalPaginas) {
+        setPaginaActual(pagina)
       }
+    },
+    [totalPaginas],
+  )
 
-      const result = await Swal.fire({
-        title: "¿Eliminar rol?",
-        text: `Esta acción eliminará el rol "${nombreRol}" permanentemente y no se puede deshacer.`,
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#ef4444",
-        cancelButtonColor: "#6b7280",
-        confirmButtonText: "Sí, eliminar",
-        cancelButtonText: "Cancelar",
-      })
+  // Manejar búsqueda
+  const handleBusquedaChange = useCallback((e) => {
+    setBusqueda(e.target.value)
+  }, [])
 
-      if (!result.isConfirmed) return
+  // Manejar filtro de estado
+  const handleFiltroEstadoChange = useCallback((e) => {
+    setFiltroEstado(e.target.value)
+  }, [])
 
+  // Navegar a crear rol
+  const handleCrearRol = useCallback(() => {
+    navigate("/CrearRoles")
+  }, [navigate])
+
+  // Eliminar rol
+  const eliminarRol = async (id, nombre) => {
+    const result = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: `¿Deseas eliminar el rol ${nombre}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    })
+
+    if (result.isConfirmed) {
       try {
         await makeRequest(`/roles/${id}`, {
           method: "DELETE",
         })
-
-        setRoles((prev) => prev.filter((rol) => rol.id !== id))
-
-        Swal.fire({
-          icon: "success",
-          title: "Rol eliminado",
-          text: "El rol ha sido eliminado correctamente",
-          timer: 2000,
-          showConfirmButton: false,
-        })
+        Swal.fire("Eliminado!", "El rol ha sido eliminado.", "success")
+        cargarRoles()
       } catch (error) {
-        console.error("Error al eliminar rol:", error)
-        Swal.fire("Error", "No se pudo eliminar el rol", "error")
+        console.error("Error al eliminar el rol:", error)
+        Swal.fire("Error!", "No se pudo eliminar el rol.", "error")
       }
-    },
-    [makeRequest],
-  )
+    }
+  }
 
-  const cambiarEstado = useCallback(
-    async (id, estadoActual, nombreRol) => {
+  // Cambiar estado
+  const cambiarEstado = async (id, estado, nombre) => {
+    const nuevoEstado = estado === "Activo" ? "Inactivo" : "Activo"
+    const result = await Swal.fire({
+      title: "¿Cambiar estado?",
+      text: `¿Deseas cambiar el estado del rol ${nombre} a ${nuevoEstado}?`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, cambiar",
+      cancelButtonText: "Cancelar",
+    })
+
+    if (result.isConfirmed) {
       try {
-        const nuevoEstado = estadoActual?.toLowerCase() === "activo" ? "Inactivo" : "Activo"
-
-        const result = await Swal.fire({
-          title: `¿Cambiar estado a ${nuevoEstado}?`,
-          text: `El rol "${nombreRol}" será marcado como ${nuevoEstado.toLowerCase()}`,
-          icon: "question",
-          showCancelButton: true,
-          confirmButtonColor: "#2563eb",
-          cancelButtonColor: "#6b7280",
-          confirmButtonText: "Sí, cambiar",
-          cancelButtonText: "Cancelar",
-        })
-
-        if (!result.isConfirmed) return
-
         await makeRequest(`/roles/${id}/cambiar-estado`, {
           method: "PUT",
-          body: JSON.stringify({ estado: nuevoEstado }),
         })
-
-        setRoles((prev) => prev.map((r) => (r.id === id ? { ...r, estado: nuevoEstado } : r)))
-
-        Swal.fire({
-          icon: "success",
-          title: "Estado actualizado",
-          text: `El rol ahora está ${nuevoEstado.toLowerCase()}`,
-          timer: 2000,
-          showConfirmButton: false,
-        })
+        Swal.fire("Actualizado!", `El rol ha cambiado a ${nuevoEstado}.`, "success")
+        cargarRoles()
       } catch (error) {
-        console.error("Error al cambiar estado:", error)
-        Swal.fire("Error", "No se pudo cambiar el estado del rol", "error")
+        console.error("Error al cambiar el estado del rol:", error)
+        Swal.fire("Error!", "No se pudo cambiar el estado del rol.", "error")
       }
-    },
-    [makeRequest],
-  )
-
-  const handleSearch = useCallback((e) => {
-    setBusqueda(e.target.value.toLowerCase())
-    setPaginaActual(1)
-  }, [])
-
-  // Filtrar roles
-  const rolesFiltrados = roles.filter((rol) => {
-    const matchNombre = rol.nombre && rol.nombre.toLowerCase().includes(busqueda)
-    const matchDescripcion = rol.descripcion && rol.descripcion.toLowerCase().includes(busqueda)
-
-    const matchBusqueda = matchNombre || matchDescripcion
-    const matchEstado = estadoFiltro === "" || rol.estado === estadoFiltro
-
-    return matchBusqueda && matchEstado
-  })
-
-  // Paginación
-  const indiceUltimoRol = paginaActual * rolesPorPagina
-  const indicePrimerRol = indiceUltimoRol - rolesPorPagina
-  const rolesActuales = rolesFiltrados.slice(indicePrimerRol, indiceUltimoRol)
-  const totalPaginas = Math.ceil(rolesFiltrados.length / rolesPorPagina)
-
-  // Obtener tipos únicos para el filtro
-  const tiposUnicos = [...new Set(roles.map((r) => r.tipo).filter(Boolean))]
+    }
+  }
 
   if (cargando) {
     return (
@@ -231,6 +250,7 @@ const ListarRoles = () => {
 
   return (
     <div className="listarRoles-container">
+      {/* Header */}
       <div className="listarRoles-header">
         <div className="listarRoles-title-section">
           <h1 className="listarRoles-page-title">
@@ -239,7 +259,7 @@ const ListarRoles = () => {
           </h1>
           <p className="listarRoles-subtitle">Administra los roles y permisos del sistema</p>
         </div>
-        <button className="listarRoles-create-button" onClick={() => navigate("/CrearRoles")}>
+        <button className="listarRoles-create-button" onClick={handleCrearRol}>
           <FaPlus className="listarRoles-button-icon" />
           Crear Rol
         </button>
@@ -248,150 +268,182 @@ const ListarRoles = () => {
       {/* Filtros */}
       <div className="listarRoles-filters-container">
         <div className="listarRoles-filter-item">
-          <label className="listarRoles-filter-label">Buscar:</label>
+          <label className="listarRoles-filter-label">Buscar</label>
           <div className="listarRoles-search-container">
             <FaSearch className="listarRoles-search-icon" />
             <input
               type="text"
-              className="listarRoles-search-input"
-              placeholder="Buscar por nombre, descripción o tipo..."
+              placeholder="Buscar por nombre o descripción..."
               value={busqueda}
-              onChange={handleSearch}
+              onChange={handleBusquedaChange}
+              className="listarRoles-search-input"
             />
           </div>
         </div>
 
         <div className="listarRoles-filter-item">
-          <label className="listarRoles-filter-label">Estado:</label>
-          <select
-            value={estadoFiltro}
-            onChange={(e) => {
-              setEstadoFiltro(e.target.value)
-              setPaginaActual(1)
-            }}
-            className="listarRoles-filter-select"
-          >
-            <option value="">Todos los estados</option>
-            <option value="Activo">Activo</option>
-            <option value="Inactivo">Inactivo</option>
+          <label className="listarRoles-filter-label">Estado</label>
+          <select value={filtroEstado} onChange={handleFiltroEstadoChange} className="listarRoles-filter-select">
+            <option value="Todos">Todos los estados</option>
+            <option value="Activo">Activos</option>
+            <option value="Inactivo">Inactivos</option>
           </select>
         </div>
       </div>
 
-      {/* Tabla */}
-      <div className="listarRoles-table-container">
-        <table className="listarRoles-table">
-          <thead>
-            <tr>
-              <th>Nombre del Rol</th>
-              <th>Descripción</th>
-              <th>Cantidad</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rolesActuales.map((rol) => (
-              <tr key={rol.id}>
-                <td>
-                  <div className="listarRoles-role-info">
-                    <span className="listarRoles-role-name">{rol.nombre || "Sin nombre"}</span>
-                  </div>
-                </td>
-                <td>
-                  <div className="listarRoles-descripcion" title={rol.descripcion || "Sin descripción"}>
-                    {rol.descripcion || "Sin descripción"}
-                  </div>
-                </td>
-                <td>
-                  <div className="listarRoles-usuarios">
-                    <FaUsers className="listarRoles-usuarios-icon" />
-                    <span>{rol.usuarios_asignados || 0} usuarios</span>
-                  </div>
-                </td>
-                <td>
-                  <button
-                    className={`listarRoles-estado-toggle ${
-                      rol.estado?.toLowerCase() === "activo" ? "activo" : "inactivo"
-                    }`}
-                    onClick={() => cambiarEstado(rol.id, rol.estado, rol.nombre)}
-                    title={`Estado: ${rol.estado} - Click para cambiar`}
-                  >
-                    {rol.estado?.toLowerCase() === "activo" ? (
-                      <FaToggleOn className="listarRoles-toggle-icon" />
-                    ) : (
-                      <FaToggleOff className="listarRoles-toggle-icon" />
-                    )}
-                    <span className="listarRoles-estado-text">{rol.estado}</span>
-                  </button>
-                </td>
-                <td className="listarRoles-actions">
-                  <button
-                    className="listarRoles-action-button detail"
-                    onClick={() => navigate(`/DetalleRol/${rol.id}`)}
-                    title="Ver detalle"
-                  >
-                    <FaEye />
-                  </button>
-                  <button
-                    className="listarRoles-action-button edit"
-                    onClick={() => navigate(`/EditarRol/${rol.id}`)}
-                    title="Editar rol"
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    className="listarRoles-action-button delete"
-                    onClick={() => eliminarRol(rol.id, rol.nombre)}
-                    title="Eliminar rol"
-                  >
-                    <FaTrash />
-                  </button>
-                  
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {rolesFiltrados.length === 0 && (
-          <div className="listarRoles-no-results">
-            <FaExclamationTriangle className="listarRoles-no-results-icon" />
-            <p>No se encontraron roles con los criterios de búsqueda.</p>
-          </div>
-        )}
-
-        {/* Paginación */}
-        {rolesFiltrados.length > rolesPorPagina && (
-          <div className="listarRoles-pagination">
-            <button
-              onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
-              disabled={paginaActual === 1}
-              className="listarRoles-pagination-button"
-            >
-              Anterior
-            </button>
-
-            {Array.from({ length: totalPaginas }, (_, i) => (
-              <button
-                key={i + 1}
-                onClick={() => setPaginaActual(i + 1)}
-                className={`listarRoles-pagination-button ${paginaActual === i + 1 ? "active" : ""}`}
-              >
-                {i + 1}
-              </button>
-            ))}
-
-            <button
-              onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
-              disabled={paginaActual === totalPaginas}
-              className="listarRoles-pagination-button"
-            >
-              Siguiente
-            </button>
-          </div>
-        )}
+      {/* Información de paginación */}
+      <div style={{ padding: "10px 20px", backgroundColor: "white", borderRadius: "8px", marginBottom: "10px" }}>
+        <p style={{ margin: 0, fontSize: "14px", color: "#666" }}>
+          Mostrando {rolesEnPagina.length} de {totalElementos} roles - Página {paginaActual} de {totalPaginas}
+        </p>
       </div>
+
+      {/* Tabla */}
+      {rolesEnPagina.length === 0 ? (
+        <div className="listarRoles-no-results">
+          <FaUserShield className="listarRoles-no-results-icon" />
+          <p>
+            {busqueda || filtroEstado !== "Todos"
+              ? "No se encontraron roles que coincidan con los filtros aplicados."
+              : "Aún no hay roles creados en el sistema."}
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="listarRoles-table-container">
+            <table className="listarRoles-table">
+              <thead>
+                <tr>
+                  
+                  <th>Nombre del Rol</th>
+                  <th>Descripción</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rolesEnPagina.map((rol) => (
+                  <tr key={rol.id}>
+                    <td>
+                      <div className="listarRoles-role-info">
+                        <span className="listarRoles-role-name">{rol.nombre || "Sin nombre"}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="listarRoles-descripcion" title={rol.descripcion || "Sin descripción"}>
+                        {rol.descripcion || "Sin descripción"}
+                      </div>
+                    </td>
+                    <td>
+                      <button
+                        className={`listarRoles-estado-toggle ${
+                          rol.estado?.toLowerCase() === "activo" ? "activo" : "inactivo"
+                        }`}
+                        onClick={() => cambiarEstado(rol.id, rol.estado, rol.nombre)}
+                        title={`Estado: ${rol.estado} - Click para cambiar`}
+                      >
+                        {rol.estado?.toLowerCase() === "activo" ? (
+                          <FaToggleOn className="listarRoles-toggle-icon" />
+                        ) : (
+                          <FaToggleOff className="listarRoles-toggle-icon" />
+                        )}
+                        <span className="listarRoles-estado-text">{rol.estado}</span>
+                      </button>
+                    </td>
+                    <td className="listarRoles-actions">
+                      <button
+                        className="listarRoles-action-button detail"
+                        onClick={() => navigate(`/DetalleRol/${rol.id}`)}
+                        title="Ver detalle"
+                      >
+                        <FaEye />
+                      </button>
+                      <button
+                        className="listarRoles-action-button edit"
+                        onClick={() => navigate(`/EditarRol/${rol.id}`)}
+                        title="Editar rol"
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        className="listarRoles-action-button delete"
+                        onClick={() => eliminarRol(rol.id, rol.nombre)}
+                        title="Eliminar rol"
+                      >
+                        <FaTrash />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Paginación - SIEMPRE SE MUESTRA SI HAY MÁS DE 1 PÁGINA */}
+          {totalPaginas > 1 && (
+            <div className="listarRoles-pagination">
+              <button
+                onClick={() => irAPagina(1)}
+                disabled={paginaActual === 1}
+                className="listarRoles-pagination-button"
+                title="Primera página"
+              >
+                <FaAngleDoubleLeft />
+              </button>
+
+              <button
+                onClick={() => irAPagina(paginaActual - 1)}
+                disabled={paginaActual === 1}
+                className="listarRoles-pagination-button"
+                title="Página anterior"
+              >
+                <FaChevronLeft />
+              </button>
+
+              {Array.from({ length: Math.min(5, totalPaginas) }, (_, i) => {
+                let pageNumber
+                if (totalPaginas <= 5) {
+                  pageNumber = i + 1
+                } else if (paginaActual <= 5) {
+                  pageNumber = i + 1
+                } else if (paginaActual >= totalPaginas - 5) {
+                  pageNumber = totalPaginas - 4 + i
+                } else {
+                  pageNumber = paginaActual - 2 + i
+                }
+
+                return (
+                  <button
+                    key={pageNumber}
+                    onClick={() => irAPagina(pageNumber)}
+                    className={`listarRoles-pagination-button ${pageNumber === paginaActual ? "active" : ""}`}
+                  >
+                    {pageNumber}
+                  </button>
+                )
+              })}
+
+              <button
+                onClick={() => irAPagina(paginaActual + 1)}
+                disabled={paginaActual === totalPaginas}
+                className="listarRoles-pagination-button"
+                title="Página siguiente"
+              >
+                <FaChevronRight />
+              </button>
+
+              <button
+                onClick={() => irAPagina(totalPaginas)}
+                disabled={paginaActual === totalPaginas}
+                className="listarRoles-pagination-button"
+                title="Última página"
+              >
+                <FaAngleDoubleRight />
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   )
 }

@@ -2,15 +2,7 @@
 
 import { useState, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
-import {
-  FaUserShield,
-  FaIdCard,
-  FaTimes,
-  FaSpinner,
-  FaExclamationTriangle,
-  FaSave,
-  FaLock,
-} from "react-icons/fa"
+import { FaUserShield, FaIdCard, FaTimes, FaSpinner, FaExclamationTriangle, FaSave, FaLock } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Roles/CrearRoles.css"
 
@@ -86,6 +78,30 @@ const CrearRol = () => {
 
   const [errores, setErrores] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false)
+
+  // Función para verificar si el rol ya existe
+  const verificarRolExistente = useCallback(
+    async (nombre) => {
+      if (!nombre.trim()) return false
+
+      try {
+        setIsCheckingDuplicate(true)
+        const roles = await makeRequest("/roles")
+
+        if (roles && Array.isArray(roles)) {
+          return roles.some((rol) => rol.nombre.toLowerCase().trim() === nombre.toLowerCase().trim())
+        }
+        return false
+      } catch (error) {
+        console.error("Error al verificar rol existente:", error)
+        return false
+      } finally {
+        setIsCheckingDuplicate(false)
+      }
+    },
+    [makeRequest],
+  )
 
   // Validar campo individual
   const validarCampo = useCallback((name, value) => {
@@ -97,6 +113,8 @@ const CrearRol = () => {
           nuevoError = "El nombre del rol es obligatorio."
         } else if (value.trim().length < 3) {
           nuevoError = "El nombre debe tener al menos 3 caracteres."
+        } else if (value.trim().length > 50) {
+          nuevoError = "El nombre no puede exceder 50 caracteres."
         } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value.trim())) {
           nuevoError = "El nombre solo puede contener letras y espacios."
         }
@@ -106,11 +124,14 @@ const CrearRol = () => {
           nuevoError = "La descripción es obligatoria."
         } else if (value.trim().length < 10) {
           nuevoError = "La descripción debe tener al menos 10 caracteres."
+        } else if (value.trim().length > 500) {
+          nuevoError = "La descripción no puede exceder 500 caracteres."
         }
         break
     }
 
     setErrores((prev) => ({ ...prev, [name]: nuevoError }))
+    return nuevoError === ""
   }, [])
 
   // Manejadores específicos para validación en tiempo real
@@ -122,6 +143,23 @@ const CrearRol = () => {
       validarCampo("nombre", filteredValue)
     },
     [validarCampo],
+  )
+
+  // Validación cuando el usuario termina de escribir el nombre (onBlur)
+  const handleNombreBlur = useCallback(
+    async (e) => {
+      const nombre = e.target.value.trim()
+      if (nombre && validarCampo("nombre", nombre)) {
+        const existe = await verificarRolExistente(nombre)
+        if (existe) {
+          setErrores((prev) => ({
+            ...prev,
+            nombre: "Ya existe un rol con este nombre. Por favor elige otro nombre.",
+          }))
+        }
+      }
+    },
+    [validarCampo, verificarRolExistente],
   )
 
   // Manejador para cambios generales en el formulario
@@ -147,17 +185,28 @@ const CrearRol = () => {
     if (!formData.nombre.trim()) {
       nuevosErrores.nombre = "El nombre del rol es obligatorio."
       hayErrores = true
+    } else if (!validarCampo("nombre", formData.nombre)) {
+      hayErrores = true
     }
+
     if (!formData.descripcion.trim()) {
       nuevosErrores.descripcion = "La descripción es obligatoria."
+      hayErrores = true
+    } else if (!validarCampo("descripcion", formData.descripcion)) {
+      hayErrores = true
+    }
+
+    // Verificar si hay errores existentes
+    const tieneErroresExistentes = Object.values(errores).some((error) => error !== "")
+    if (tieneErroresExistentes) {
       hayErrores = true
     }
 
     // Actualizar errores
-    setErrores(nuevosErrores)
+    setErrores((prev) => ({ ...prev, ...nuevosErrores }))
 
     return !hayErrores
-  }, [formData])
+  }, [formData, errores, validarCampo])
 
   // Manejador para enviar el formulario
   const handleSubmit = useCallback(
@@ -177,11 +226,30 @@ const CrearRol = () => {
       setIsSubmitting(true)
 
       try {
+        // Verificar una vez más si el rol existe antes de crear
+        const existe = await verificarRolExistente(formData.nombre)
+        if (existe) {
+          setErrores((prev) => ({
+            ...prev,
+            nombre: "Ya existe un rol con este nombre. Por favor elige otro nombre.",
+          }))
+
+          await Swal.fire({
+            icon: "error",
+            title: "Rol duplicado",
+            text: "Ya existe un rol con este nombre. Por favor elige otro nombre.",
+            confirmButtonColor: "#ef4444",
+          })
+          return
+        }
+
         const rolData = {
           nombre: formData.nombre.trim(),
           descripcion: formData.descripcion.trim(),
           estado: formData.estado,
         }
+
+        console.log("Creando rol:", rolData)
 
         await makeRequest("/roles", {
           method: "POST",
@@ -194,23 +262,36 @@ const CrearRol = () => {
           text: "El rol ha sido creado exitosamente",
           confirmButtonColor: "#10b981",
           timer: 2000,
+          showConfirmButton: false,
         })
 
         // Redirigir al listado de roles
         navigate("/ListarRoles")
       } catch (error) {
         console.error("Error:", error)
+
+        let errorMessage = "Error al crear el rol"
+        if (error.message?.includes("duplicate") || error.message?.includes("duplicado")) {
+          errorMessage = "Ya existe un rol con este nombre"
+          setErrores((prev) => ({
+            ...prev,
+            nombre: "Ya existe un rol con este nombre. Por favor elige otro nombre.",
+          }))
+        } else if (error.message) {
+          errorMessage = error.message
+        }
+
         await Swal.fire({
           icon: "error",
           title: "Error",
-          text: error instanceof Error ? error.message : "Error al crear el rol",
+          text: errorMessage,
           confirmButtonColor: "#ef4444",
         })
       } finally {
         setIsSubmitting(false)
       }
     },
-    [formData, validarFormulario, makeRequest, navigate],
+    [formData, validarFormulario, makeRequest, navigate, verificarRolExistente, errores],
   )
 
   // Manejador para cancelar
@@ -274,7 +355,7 @@ const CrearRol = () => {
             <div className="crearRol-form-group">
               <label htmlFor="nombre" className="crearRol-label">
                 <FaUserShield className="crearRol-label-icon" />
-                Nombre del Rol *
+                Nombre del Rol *{isCheckingDuplicate && <FaSpinner className="crearRol-checking-icon spinning" />}
               </label>
               <input
                 type="text"
@@ -284,8 +365,10 @@ const CrearRol = () => {
                 placeholder="Ej: Administrador de Ventas"
                 value={formData.nombre}
                 onChange={handleNombreChange}
+                onBlur={handleNombreBlur}
                 maxLength={50}
                 autoComplete="off"
+                disabled={isCheckingDuplicate}
                 required
               />
               {errores.nombre && (
@@ -314,7 +397,6 @@ const CrearRol = () => {
 
             <div className="crearRol-form-group crearRol-form-group-full">
               <label htmlFor="descripcion" className="crearRol-label">
-                
                 Descripción *
               </label>
               <textarea
@@ -333,6 +415,7 @@ const CrearRol = () => {
                   <FaExclamationTriangle /> {errores.descripcion}
                 </span>
               )}
+              <small className="crearRol-char-count">{formData.descripcion.length}/500 caracteres</small>
             </div>
           </div>
         </div>
@@ -343,7 +426,11 @@ const CrearRol = () => {
             <FaTimes className="crearRol-button-icon" />
             Cancelar
           </button>
-          <button type="submit" className="crearRol-submit-button" disabled={isSubmitting || apiLoading}>
+          <button
+            type="submit"
+            className="crearRol-submit-button"
+            disabled={isSubmitting || apiLoading || isCheckingDuplicate}
+          >
             {isSubmitting ? (
               <>
                 <FaSpinner className="crearRol-button-icon spinning" />

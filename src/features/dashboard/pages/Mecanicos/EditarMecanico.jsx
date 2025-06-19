@@ -5,7 +5,6 @@ import { useNavigate, useParams } from "react-router-dom"
 import {
   FaUser,
   FaIdCard,
-  FaEnvelope,
   FaPhone,
   FaMapMarkerAlt,
   FaTools,
@@ -13,7 +12,6 @@ import {
   FaSpinner,
   FaExclamationTriangle,
   FaSave,
-  FaClock,
   FaArrowLeft,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
@@ -90,61 +88,84 @@ const EditarMecanico = () => {
     tipo_documento: "Cédula de ciudadanía",
     documento: "",
     direccion: "",
-    correo: "",
     telefono: "",
     telefono_emergencia: "",
-    horario_id: "",
     estado: "Activo",
   })
 
-  const [horarios, setHorarios] = useState([])
   const [errores, setErrores] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [cargando, setCargando] = useState(true)
 
-  // Cargar datos del mecánico
+  // Cargar datos del mecánico (SIN horarios)
   useEffect(() => {
     const cargarMecanico = async () => {
+      if (!id) {
+        console.error("ID de mecánico no proporcionado")
+        navigate("/ListarMecanicos")
+        return
+      }
+
       try {
+        setCargando(true)
+        console.log(`Cargando mecánico con ID: ${id}`)
+
+        // Solo cargar datos básicos del mecánico, NO horarios
         const data = await makeRequest(`/mecanicos/${id}`)
+
         if (data) {
-          setFormulario(data)
+          console.log("Datos del mecánico cargados:", data)
+
+          // Mapear solo los campos que existen en la base de datos
+          setFormulario({
+            nombre: data.nombre || "",
+            apellido: data.apellido || "",
+            tipo_documento: data.tipo_documento || "Cédula de ciudadanía",
+            documento: data.documento || "",
+            direccion: data.direccion || "",
+            telefono: data.telefono || "",
+            telefono_emergencia: data.telefono_emergencia || "",
+            estado: data.estado || "Activo",
+          })
+        } else {
+          throw new Error("No se encontraron datos del mecánico")
         }
       } catch (error) {
         console.error("Error al cargar mecánico:", error)
-        Swal.fire("Error", "No se pudo cargar la información del mecánico", "error")
+
+        // Mostrar error específico sin mencionar horarios
+        const errorMessage = error.message?.includes("horario")
+          ? "No se pudo cargar la información del mecánico"
+          : error.message || "Error al cargar los datos"
+
+        await Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: errorMessage,
+          confirmButtonColor: "#ef4444",
+        })
+
         navigate("/ListarMecanicos")
+      } finally {
+        setCargando(false)
       }
     }
 
     cargarMecanico()
   }, [id, makeRequest, navigate])
 
-  // Cargar horarios
-  useEffect(() => {
-    const cargarHorarios = async () => {
-      try {
-        setCargando(true)
-        const data = await makeRequest("/horarios")
-        if (data) {
-          setHorarios(data)
-        }
-      } catch (error) {
-        console.error("Error al cargar horarios:", error)
-        Swal.fire("Error", "No se pudieron cargar los horarios", "error")
-      } finally {
-        setCargando(false)
+  const handleChange = useCallback(
+    (e) => {
+      const { name, value } = e.target
+      setFormulario((prev) => ({ ...prev, [name]: value }))
+
+      // Limpiar error del campo cuando el usuario empiece a escribir
+      if (errores[name]) {
+        setErrores((prev) => ({ ...prev, [name]: "" }))
       }
-    }
-
-    cargarHorarios()
-  }, [makeRequest])
-
-  const handleChange = useCallback((e) => {
-    const { name, value } = e.target
-    setFormulario((prev) => ({ ...prev, [name]: value }))
-    validarCampo(name, value)
-  }, [])
+    },
+    [errores],
+  )
 
   const validarCampo = useCallback((name, value) => {
     let nuevoError = ""
@@ -153,20 +174,28 @@ const EditarMecanico = () => {
       case "nombre":
         if (!value.trim()) {
           nuevoError = "El nombre es obligatorio."
-        } else if (value.trim().length < 3) {
-          nuevoError = "El nombre debe tener al menos 3 caracteres."
+        } else if (value.trim().length < 2) {
+          nuevoError = "El nombre debe tener al menos 2 caracteres."
+        } else if (value.trim().length > 45) {
+          nuevoError = "El nombre no puede exceder 45 caracteres."
         }
         break
       case "apellido":
         if (!value.trim()) {
           nuevoError = "El apellido es obligatorio."
-        } else if (value.trim().length < 3) {
-          nuevoError = "El apellido debe tener al menos 3 caracteres."
+        } else if (value.trim().length < 2) {
+          nuevoError = "El apellido debe tener al menos 2 caracteres."
+        } else if (value.trim().length > 45) {
+          nuevoError = "El apellido no puede exceder 45 caracteres."
         }
         break
       case "documento":
         if (!value.trim()) {
           nuevoError = "El documento es obligatorio."
+        } else if (value.trim().length < 6) {
+          nuevoError = "El documento debe tener al menos 6 caracteres."
+        } else if (value.trim().length > 45) {
+          nuevoError = "El documento no puede exceder 45 caracteres."
         }
         break
       case "tipo_documento":
@@ -179,48 +208,58 @@ const EditarMecanico = () => {
           nuevoError = "La dirección es obligatoria."
         } else if (value.trim().length < 5) {
           nuevoError = "La dirección debe tener al menos 5 caracteres."
-        }
-        break
-      case "correo":
-        if (!value.trim()) {
-          nuevoError = "El correo es obligatorio."
-        } else if (!/\S+@\S+\.\S+/.test(value)) {
-          nuevoError = "Ingresa un correo electrónico válido."
+        } else if (value.trim().length > 100) {
+          nuevoError = "La dirección no puede exceder 100 caracteres."
         }
         break
       case "telefono":
         if (!value.trim()) {
           nuevoError = "El teléfono es obligatorio."
-        } else if (value.trim().length < 10) {
-          nuevoError = "El teléfono debe tener al menos 10 números."
+        } else if (value.trim().length < 7) {
+          nuevoError = "El teléfono debe tener al menos 7 números."
+        } else if (value.trim().length > 45) {
+          nuevoError = "El teléfono no puede exceder 45 caracteres."
         }
         break
       case "telefono_emergencia":
         if (!value.trim()) {
           nuevoError = "El teléfono de emergencia es obligatorio."
-        } else if (value.trim().length < 10) {
-          nuevoError = "El teléfono de emergencia debe tener al menos 10 números."
-        }
-        break
-      case "horario_id":
-        if (!value) {
-          nuevoError = "Selecciona un horario."
+        } else if (value.trim().length < 7) {
+          nuevoError = "El teléfono de emergencia debe tener al menos 7 números."
+        } else if (value.trim().length > 45) {
+          nuevoError = "El teléfono de emergencia no puede exceder 45 caracteres."
         }
         break
     }
 
     setErrores((prev) => ({ ...prev, [name]: nuevoError }))
+    return nuevoError === ""
   }, [])
 
   const validarFormulario = useCallback(() => {
+    const camposRequeridos = [
+      "nombre",
+      "apellido",
+      "documento",
+      "tipo_documento",
+      "direccion",
+      "telefono",
+      "telefono_emergencia",
+    ]
+
+    let formularioValido = true
     const nuevosErrores = {}
 
-    Object.keys(formulario).forEach((key) => {
-      validarCampo(key, formulario[key])
+    // Validar cada campo requerido
+    camposRequeridos.forEach((campo) => {
+      const esValido = validarCampo(campo, formulario[campo])
+      if (!esValido) {
+        formularioValido = false
+      }
     })
 
-    return Object.keys(errores).every((key) => !errores[key]) && Object.keys(nuevosErrores).length === 0
-  }, [formulario, errores, validarCampo])
+    return formularioValido
+  }, [formulario, validarCampo])
 
   const soloNumeros = useCallback((e) => {
     e.target.value = e.target.value.replace(/[^0-9]/g, "")
@@ -247,9 +286,23 @@ const EditarMecanico = () => {
       setIsSubmitting(true)
 
       try {
+        console.log("Enviando datos del mecánico:", formulario)
+
+        // Enviar solo los datos que corresponden a la estructura de la BD
+        const datosParaEnviar = {
+          nombre: formulario.nombre.trim(),
+          apellido: formulario.apellido.trim(),
+          tipo_documento: formulario.tipo_documento,
+          documento: formulario.documento.trim(),
+          direccion: formulario.direccion.trim(),
+          telefono: formulario.telefono.trim(),
+          telefono_emergencia: formulario.telefono_emergencia.trim(),
+          estado: formulario.estado,
+        }
+
         await makeRequest(`/mecanicos/${id}`, {
           method: "PUT",
-          body: JSON.stringify(formulario),
+          body: JSON.stringify(datosParaEnviar),
         })
 
         await Swal.fire({
@@ -258,15 +311,24 @@ const EditarMecanico = () => {
           text: "Mecánico actualizado correctamente",
           confirmButtonColor: "#10b981",
           timer: 2000,
+          showConfirmButton: false,
         })
 
         navigate("/ListarMecanicos")
       } catch (error) {
         console.error("Error al actualizar mecánico:", error)
+
+        let errorMessage = "No se pudo actualizar el mecánico"
+        if (error.message?.includes("duplicate") || error.message?.includes("duplicado")) {
+          errorMessage = "Ya existe un mecánico con este documento"
+        } else if (error.message) {
+          errorMessage = error.message
+        }
+
         await Swal.fire({
           icon: "error",
           title: "Error",
-          text: error instanceof Error ? error.message : "No se pudo actualizar el mecánico",
+          text: errorMessage,
           confirmButtonColor: "#ef4444",
         })
       } finally {
@@ -341,7 +403,7 @@ const EditarMecanico = () => {
                 value={formulario.nombre}
                 onChange={handleChange}
                 onInput={soloLetras}
-                maxLength={30}
+                maxLength={45}
                 autoComplete="off"
                 className={`editarUsuario-form-input ${errores.nombre ? "error" : ""}`}
                 required
@@ -365,7 +427,7 @@ const EditarMecanico = () => {
                 value={formulario.apellido}
                 onChange={handleChange}
                 onInput={soloLetras}
-                maxLength={35}
+                maxLength={45}
                 autoComplete="off"
                 className={`editarUsuario-form-input ${errores.apellido ? "error" : ""}`}
                 required
@@ -392,9 +454,6 @@ const EditarMecanico = () => {
               >
                 <option value="Cédula de ciudadanía">Cédula de ciudadanía</option>
                 <option value="Tarjeta de identidad">Tarjeta de identidad</option>
-                <option value="Cédula de Extranjería">Cédula de Extranjería</option>
-                <option value="Pasaporte">Pasaporte</option>
-                <option value="Otro">Otro</option>
               </select>
               {errores.tipo_documento && (
                 <span className="editarUsuario-error-text">
@@ -415,7 +474,7 @@ const EditarMecanico = () => {
                 value={formulario.documento}
                 onChange={handleChange}
                 onInput={soloNumeros}
-                maxLength={15}
+                maxLength={45}
                 autoComplete="off"
                 className={`editarUsuario-form-input ${errores.documento ? "error" : ""}`}
                 required
@@ -423,53 +482,6 @@ const EditarMecanico = () => {
               {errores.documento && (
                 <span className="editarUsuario-error-text">
                   <FaExclamationTriangle /> {errores.documento}
-                </span>
-              )}
-            </div>
-
-            <div className="editarUsuario-form-group">
-              <label htmlFor="correo" className="editarUsuario-label">
-                <FaEnvelope className="editarUsuario-label-icon" />
-                Correo Electrónico *
-              </label>
-              <input
-                type="email"
-                id="correo"
-                name="correo"
-                value={formulario.correo}
-                onChange={handleChange}
-                maxLength={254}
-                autoComplete="off"
-                className={`editarUsuario-form-input ${errores.correo ? "error" : ""}`}
-                required
-              />
-              {errores.correo && (
-                <span className="editarUsuario-error-text">
-                  <FaExclamationTriangle /> {errores.correo}
-                </span>
-              )}
-            </div>
-
-            <div className="editarUsuario-form-group">
-              <label htmlFor="telefono" className="editarUsuario-label">
-                <FaPhone className="editarUsuario-label-icon" />
-                Teléfono *
-              </label>
-              <input
-                type="text"
-                id="telefono"
-                name="telefono"
-                value={formulario.telefono}
-                onChange={handleChange}
-                onInput={soloNumeros}
-                maxLength={15}
-                autoComplete="off"
-                className={`editarUsuario-form-input ${errores.telefono ? "error" : ""}`}
-                required
-              />
-              {errores.telefono && (
-                <span className="editarUsuario-error-text">
-                  <FaExclamationTriangle /> {errores.telefono}
                 </span>
               )}
             </div>
@@ -498,6 +510,30 @@ const EditarMecanico = () => {
             </div>
 
             <div className="editarUsuario-form-group">
+              <label htmlFor="telefono" className="editarUsuario-label">
+                <FaPhone className="editarUsuario-label-icon" />
+                Teléfono *
+              </label>
+              <input
+                type="text"
+                id="telefono"
+                name="telefono"
+                value={formulario.telefono}
+                onChange={handleChange}
+                onInput={soloNumeros}
+                maxLength={45}
+                autoComplete="off"
+                className={`editarUsuario-form-input ${errores.telefono ? "error" : ""}`}
+                required
+              />
+              {errores.telefono && (
+                <span className="editarUsuario-error-text">
+                  <FaExclamationTriangle /> {errores.telefono}
+                </span>
+              )}
+            </div>
+
+            <div className="editarUsuario-form-group">
               <label htmlFor="telefono_emergencia" className="editarUsuario-label">
                 <FaPhone className="editarUsuario-label-icon" />
                 Teléfono de Emergencia *
@@ -509,7 +545,7 @@ const EditarMecanico = () => {
                 value={formulario.telefono_emergencia}
                 onChange={handleChange}
                 onInput={soloNumeros}
-                maxLength={15}
+                maxLength={45}
                 autoComplete="off"
                 className={`editarUsuario-form-input ${errores.telefono_emergencia ? "error" : ""}`}
                 required
@@ -517,33 +553,6 @@ const EditarMecanico = () => {
               {errores.telefono_emergencia && (
                 <span className="editarUsuario-error-text">
                   <FaExclamationTriangle /> {errores.telefono_emergencia}
-                </span>
-              )}
-            </div>
-
-            <div className="editarUsuario-form-group">
-              <label htmlFor="horario_id" className="editarUsuario-label">
-                <FaClock className="editarUsuario-label-icon" />
-                Horario *
-              </label>
-              <select
-                id="horario_id"
-                name="horario_id"
-                value={formulario.horario_id}
-                onChange={handleChange}
-                className={`editarUsuario-form-input ${errores.horario_id ? "error" : ""}`}
-                required
-              >
-                <option value="">Seleccione un horario...</option>
-                {horarios.map((horario) => (
-                  <option key={horario.id} value={horario.id}>
-                    {horario.dia} - {horario.hora_inicio} a {horario.hora_fin}
-                  </option>
-                ))}
-              </select>
-              {errores.horario_id && (
-                <span className="editarUsuario-error-text">
-                  <FaExclamationTriangle /> {errores.horario_id}
                 </span>
               )}
             </div>
