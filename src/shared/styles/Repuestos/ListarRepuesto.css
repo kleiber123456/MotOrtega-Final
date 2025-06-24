@@ -407,18 +407,25 @@
 /* Responsive */
 @media (max-width: 768px) {
   .listarRepuesto-container {
-    padding: 16px;
+    max-width: 50vh;
+    width: 100%;
+    padding: 0px;
+    box-sizing: border-box;
   }
 
   .listarRepuesto-header {
+    width: 100%;
     flex-direction: column;
-    gap: 16px;
-    align-items: stretch;
+  }
+
+  .listarRepuesto-header button {
+    margin-top: 20px;
   }
 
   .listarRepuesto-filters-container {
     flex-direction: column;
     gap: 15px;
+
   }
 
   .listarRepuesto-filter-item {

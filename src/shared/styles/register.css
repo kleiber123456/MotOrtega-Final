@@ -1,4 +1,3 @@
-
 /* Estilos principales del contenedor de login/registro */
 .register-bodyLogin {
   height: 100vh;
@@ -12,7 +11,6 @@
   right: 0;
   bottom: 0;
   font-family: Montserrat;
-
 }
 
 .register-login-contendor {
@@ -126,7 +124,7 @@
 
 /* Línea de fondo para todos los pasos */
 .register-progress-container::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 14px;
   left: 15px;
@@ -138,7 +136,7 @@
 
 /* Línea de progreso activa */
 .register-progress-container::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 14px;
   left: 15px;
@@ -274,42 +272,63 @@
 
 /* Estilos de inputs */
 .register-input {
-  background-color: #ffffff;
-  border: 0;
-  font-family: Montserrat;
-  outline: 0;
-  height: 42px;
-  width: 100%;
-  border-bottom: 1px solid gray;  
-  font-size: 0.9rem;
-  padding: 8px 15px;
+  width: 90%;
+  padding: 14px 16px;
+  font-size: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  background-color: #f8fafc;
+  transition: all 0.3s ease;
+  font-family: inherit;
   box-sizing: border-box;
-  transition: all 0.2s ease;
   color: #2d3748;
+  outline: none;
+  margin-bottom: 0;
 }
 
 .register-input:focus {
-  background-color: #f8fafc;
-  border-left: 3px solid #0066ff;
-  border-bottom: 1px solid transparent;
+  border-color: #3b82f6;
+  background-color: white;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  transform: translateY(-1px);
 }
 
-.register-input:last-child {
-  border-bottom: none;
+.register-input.error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
 }
 
-/* Estilos para select */
-select.register-input {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a0aec0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 15px center;
-  background-size: 16px;
-  padding-right: 40px;
+.register-input.error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
 }
 
-select.register-input:focus {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230066ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+/* Placeholder igual que login */
+.register-input::placeholder {
+  color: #a0aec0;
+  opacity: 1;
+}
+
+.register-input:focus::placeholder {
+  color: #cbd5e0;
+}
+
+/* === MENSAJES DE ERROR IGUAL QUE LOGIN === */
+.register-error,
+.register-password-mismatch {
+  font-size: 13px;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 10px 14px;
+  background-color: #fef2f2;
+  border-radius: 8px;
+  border-left: 4px solid #ef4444;
+  text-align: left;
+  font-weight: 500;
+  border: none;
 }
 
 /* Footer del formulario */
@@ -411,59 +430,64 @@ select.register-input:focus {
   text-align: left;
 }
 
-/* Contenedor para los campos de contraseña con botón de visibilidad */
+/* Unifica los estilos de error para todos los campos */
+.register-error-text,
+.perfil-validacion {
+  color: #e53e3e;
+  font-size: 0.85rem;
+  margin-top: 2px;
+  margin-bottom: 6px;
+  display: block;
+  text-align: left;
+  padding-left: 2px;
+  font-weight: 500;
+}
+
+/* Unifica el grupo de inputs */
+.register-form-group {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* Input con error */
+.register-form-input.error,
+.register-input-error,
+.register-input.error {
+  border-color: #ef4444 !important;
+  background-color: #fef2f2 !important;
+}
+
+/* Contraseña: icono a la derecha */
 .register-password-container {
   position: relative;
   width: 100%;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid #edf2f7;
 }
 
-.register-password-container:last-child {
-  border-bottom: none;
-}
-
-/* Estilo para el botón de toggle de contraseña */
 .register-password-toggle {
   position: absolute;
-  right: 15px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
   color: #a0aec0;
   z-index: 10;
-  padding: 8px;
-  font-size: 16px;
-  transition: all 0.2s ease;
-  border-radius: 50%;
+  padding: 6px;
+  font-size: 18px;
+  transition: color 0.2s;
 }
 
 .register-password-toggle:hover {
   color: #0066ff;
-  background-color: #f0f7ff;
 }
 
-/* Ajuste para el input de contraseña dentro del contenedor */
+/* Espacio para el icono */
+.register-password-container .register-form-input,
 .register-password-container .register-input {
-  border-bottom: none;
-  padding-right: 40px; /* Espacio para el icono */
-}
-
-
-
-.register-password-mismatch {
-  color: #e53e3e;
-  font-size: 0.8rem;
-  text-align: left;
-  padding: 8px 15px;
-  background-color: #fff5f5;
-}
-
-/* Placeholder styling */
-.register-input::placeholder {
-  color: #a0aec0;
-  opacity: 1;
+  padding-right: 38px;
 }
 
 /* Responsive */
@@ -474,51 +498,51 @@ select.register-input:focus {
     max-width: 92%;
     max-height: 90vh;
   }
-  
+
   .register-form {
     padding: 15px 12px 10px;
   }
-  
+
   .register-buttons-container {
     flex-direction: column-reverse;
   }
-  
+
   .register-button {
     width: 100%;
   }
-  
+
   .register-form-container {
     max-height: calc(100vh - 280px);
   }
-  
+
   .register-logo {
     max-width: 80px;
   }
-  
+
   .register-title {
     font-size: 1.25rem;
   }
-  
+
   .register-subtitle {
     font-size: 0.8rem;
   }
-  
+
   .register-progress-indicator {
     width: 24px;
     height: 24px;
     line-height: 24px;
     font-size: 0.8rem;
   }
-  
+
   .register-progress-label {
     font-size: 0.7rem;
   }
-  
+
   .register-section-title {
     padding: 10px;
     font-size: 0.9rem;
   }
-  
+
   .register-input {
     height: 38px;
     font-size: 0.85rem;
@@ -529,25 +553,104 @@ select.register-input:focus {
   .register-form-container {
     max-height: 40vh;
   }
-  
+
   .register-logo {
     max-width: 70px;
   }
-  
+
   .register-title {
     font-size: 1.2rem;
   }
-  
+
   .register-subtitle {
     font-size: 0.75rem;
   }
-  
+
   .register-form {
     gap: 6px;
   }
-  
+
   .register-input {
     height: 36px;
   }
 }
 
+/* Estilos para el select */
+.register-form-input[type="select"],
+select.register-form-input {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+/* Labels del registro */
+.register-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+  text-align: left;
+}
+
+/* Inputs del registro */
+.register-form-input {
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  background-color: #f8fafc;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+  color: #2d3748;
+  outline: none;
+}
+
+.register-form-input:focus {
+  border-color: #3b82f6;
+  background-color: white;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  transform: translateY(-1px);
+}
+
+.register-form-input.error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.register-form-input.error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+}
+
+.register-form-input::placeholder {
+  color: #a0aec0;
+  opacity: 1;
+}
+
+.register-form-input:focus::placeholder {
+  color: #cbd5e0;
+}
+
+/* Mensajes de error del registro */
+.register-error-text {
+  color: #e53e3e;
+  font-size: 0.85rem;
+  margin-top: 2px;
+  margin-bottom: 6px;
+  display: block;
+  text-align: left;
+  padding-left: 2px;
+  font-weight: 500;
+}
+
+/* Espacio para el icono de contraseña */
+.register-password-container .register-form-input {
+  padding-right: 38px;
+}

@@ -15,8 +15,6 @@ import {
   FaSave,
   FaArrowLeft,
   FaPlus,
-  FaShoppingCart,
-  FaChartLine,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Repuestos/CrearRepuesto.css"
@@ -261,9 +259,6 @@ function CrearRepuesto() {
   const [repuesto, setRepuesto] = useState({
     nombre: "",
     descripcion: "",
-    preciounitario: "",
-    precio_compra: "",
-    margen: "40", // Valor predeterminado de 40%
     categoria_repuesto_id: "",
   })
 
@@ -300,28 +295,10 @@ function CrearRepuesto() {
   const handleChange = useCallback(
     (e) => {
       const { name, value } = e.target
-      let nuevoRepuesto = { ...repuesto, [name]: value }
-
-      // Calcular automáticamente el precio de venta
-      if (name === "precio_compra" || name === "margen") {
-        const precioCompra = parseFloat(
-          name === "precio_compra" ? value : nuevoRepuesto.precio_compra
-        )
-        const margen = parseFloat(
-          name === "margen" ? value : nuevoRepuesto.margen
-        )
-        if (!isNaN(precioCompra) && !isNaN(margen)) {
-          const precioVenta = precioCompra + (precioCompra * margen) / 100
-          nuevoRepuesto.preciounitario = precioVenta.toFixed(2)
-        } else {
-          nuevoRepuesto.preciounitario = ""
-        }
-      }
-
-      setRepuesto(nuevoRepuesto)
+      setRepuesto((prev) => ({ ...prev, [name]: value }))
       setErrores((prev) => ({ ...prev, [name]: undefined }))
     },
-    [repuesto, errores],
+    [errores],
   )
 
   // Validación del formulario sin cantidad y estado
@@ -333,29 +310,9 @@ function CrearRepuesto() {
     } else if (repuesto.nombre.trim().length < 3) {
       errors.nombre = "El nombre debe tener al menos 3 caracteres"
     }
-
     if (repuesto.descripcion.trim().length > 200) {
       errors.descripcion = "La descripción no puede exceder los 200 caracteres"
     }
-
-    if (repuesto.preciounitario === "" || isNaN(repuesto.preciounitario)) {
-      errors.preciounitario = "El precio de venta es obligatorio y debe ser un número"
-    } else if (Number.parseFloat(repuesto.preciounitario) < 0) {
-      errors.preciounitario = "El precio de venta debe ser un número positivo"
-    }
-
-    if (repuesto.precio_compra === "" || isNaN(repuesto.precio_compra)) {
-      errors.precio_compra = "El precio de compra es obligatorio y debe ser un número"
-    } else if (Number.parseFloat(repuesto.precio_compra) < 0) {
-      errors.precio_compra = "El precio de compra debe ser un número positivo"
-    }
-
-    if (repuesto.margen === "" || isNaN(repuesto.margen)) {
-      errors.margen = "El margen es obligatorio y debe ser un número"
-    } else if (Number.parseFloat(repuesto.margen) < 0) {
-      errors.margen = "El margen debe ser un número positivo"
-    }
-
     if (!repuesto.categoria_repuesto_id) {
       errors.categoria_repuesto_id = "Debe seleccionar una categoría"
     }
@@ -402,9 +359,7 @@ function CrearRepuesto() {
         const datosRepuesto = {
           ...repuesto,
           preciounitario: Number.parseFloat(repuesto.preciounitario),
-          precio_compra: Number.parseFloat(repuesto.precio_compra),
           categoria_repuesto_id: Number.parseInt(repuesto.categoria_repuesto_id),
-          // Se pueden agregar valores por defecto para cantidad y estado si son requeridos en el backend
           cantidad: 0, // Valor por defecto
           estado: "Activo", // Valor por defecto
         }
@@ -439,12 +394,7 @@ function CrearRepuesto() {
   )
 
   const handleCancel = useCallback(async () => {
-    const hasData =
-      repuesto.nombre ||
-      repuesto.descripcion ||
-      repuesto.preciounitario ||
-      repuesto.precio_compra ||
-      categoriaSeleccionada
+    const hasData = repuesto.nombre || repuesto.descripcion || repuesto.preciounitario || categoriaSeleccionada
 
     if (hasData) {
       const result = await Swal.fire({
@@ -479,11 +429,7 @@ function CrearRepuesto() {
     <div className="crearRepuesto-container">
       <div className="editarUsuario-header">
         <div className="editarUsuario-header-left">
-          <button
-            className="editarUsuario-btn-back"
-            onClick={() => navigate("/repuestos")}
-            type="button"
-          >
+          <button className="editarUsuario-btn-back" onClick={() => navigate("/repuestos")} type="button">
             <FaArrowLeft />
             Volver
           </button>
@@ -548,7 +494,7 @@ function CrearRepuesto() {
                 <button
                   type="button"
                   className="crearRepuesto-create-category-button"
-                  onClick={() => navigate("/categorias-repuesto")}
+                  onClick={() => navigate("/crearCategoriaRepuesto")}
                 >
                   <FaPlus className="crearRepuesto-button-icon" />
                   Crear Categoría
@@ -583,76 +529,7 @@ function CrearRepuesto() {
                 <FaExclamationTriangle /> {errores.descripcion}
               </span>
             )}
-          </div>
-
-          {/* Sección de precios modificada */}
-          <div className="crearRepuesto-form-grid">
-            <div className="crearRepuesto-form-group">
-              <label htmlFor="precio_compra" className="crearRepuesto-label">
-                <FaShoppingCart className="crearRepuesto-label-icon" />
-                Precio de Compra *
-              </label>
-              <input
-                type="number"
-                id="precio_compra"
-                name="precio_compra"
-                value={repuesto.precio_compra}
-                onChange={handleChange}
-                min="0"
-                step="0.01"
-                className={`crearRepuesto-form-input ${errores.precio_compra ? "error" : ""}`}
-                placeholder="Ingrese el precio de compra"
-                required
-              />
-              {errores.precio_compra && (
-                <span className="crearRepuesto-error-text">
-                  <FaExclamationTriangle /> {errores.precio_compra}
-                </span>
-              )}
-            </div>
-
-            <div className="crearRepuesto-form-group">
-              <label htmlFor="margen" className="crearRepuesto-label">
-                <FaChartLine className="crearRepuesto-label-icon" />
-                Margen de Ganancia (%) *
-              </label>
-              <input
-                type="number"
-                id="margen"
-                name="margen"
-                value={repuesto.margen}
-                onChange={handleChange}
-                min="0"
-                step="0.01"
-                className={`crearRepuesto-form-input ${errores.margen ? "error" : ""}`}
-                placeholder="Ingrese el margen de ganancia"
-                required
-              />
-              {errores.margen && (
-                <span className="crearRepuesto-error-text">
-                  <FaExclamationTriangle /> {errores.margen}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Solo vista previa del precio de venta */}
-          <div className="crearRepuesto-form-grid">
-            <div className="crearRepuesto-form-group">
-              <label className="crearRepuesto-label">
-                <FaDollarSign className="crearRepuesto-label-icon" />
-                Vista Previa del Precio
-              </label>
-              <div className="crearRepuesto-total-display">
-                {formatearPrecio(repuesto.preciounitario)}
-              </div>
-              {errores.preciounitario && (
-                <span className="crearRepuesto-error-text">
-                  <FaExclamationTriangle /> {errores.preciounitario}
-                </span>
-              )}
-            </div>
-          </div>
+          </div>          
         </div>
 
         <div className="crearRepuesto-form-actions">

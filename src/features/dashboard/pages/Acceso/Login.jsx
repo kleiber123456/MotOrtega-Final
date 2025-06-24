@@ -159,7 +159,6 @@ function Login() {
                 <img src="/Logo.png" alt="Logo" className="login-logo" />
               </div>
               <h1 className="login-title">Iniciar Sesión</h1>
-              <p className="login-subtitle">Ingresa tus credenciales para acceder al sistema</p>
             </div>
 
             <form className="login-form" onSubmit={handleSubmit} autoComplete="off">
@@ -224,9 +223,9 @@ function Login() {
                   {error}
                 </div>
               )}
-
-              <div className="login-form-actions">
-                <button type="submit" disabled={loading} className="login-submit-button">
+              <div className="">
+                <center>
+                   <button type="submit" disabled={loading} className="login-submit-button">
                   {loading ? (
                     <>
                       <FaSpinner className="login-button-icon spinning" />
@@ -239,22 +238,19 @@ function Login() {
                     </>
                   )}
                 </button>
-
+                </center>
                 <div className="login-options">
                   <button type="button" className="login-forgot-password" onClick={handleForgotPassword}>
                     ¿Olvidaste tu contraseña?
                   </button>
-                </div>
-              </div>
-            </form>
-
-            <div className="login-footer">
-              <p>¿No tienes una cuenta?</p>
+                   <p></p>
               <button type="button" className="login-register-button" onClick={handleRegister}>
                 <FaUserPlus className="login-button-icon" />
                 Crear cuenta
               </button>
-            </div>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
       </div>

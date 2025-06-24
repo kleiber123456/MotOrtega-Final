@@ -155,7 +155,7 @@ const ListarUsuarios = () => {
 
   const cambiarEstado = useCallback(
     async (id, estadoActual) => {
-      // Buscar el usuario por id para obtener su nombre
+      // Buscar el usuario por id para obtener su información completa
       const usuario = usuarios.find((u) => u.id === id)
       const nombreCompleto = usuario ? `${usuario.nombre} ${usuario.apellido}` : "el usuario"
 
@@ -175,7 +175,19 @@ const ListarUsuarios = () => {
 
         if (!result.isConfirmed) return
 
-        await makeRequest(`/usuarios/${id}/cambiar-estado`, {
+        // Determinar el endpoint según el rol del usuario
+        let endpoint = `/usuarios/${id}/cambiar-estado`
+
+        if (usuario && usuario.rol_nombre) {
+          const rolNombre = usuario.rol_nombre.toLowerCase()
+          if (rolNombre.includes("cliente")) {
+            endpoint = `/clientes/${id}/cambiar-estado`
+          } else if (rolNombre.includes("mecánico") || rolNombre.includes("mecanico")) {
+            endpoint = `/mecanicos/${id}/cambiar-estado`
+          }
+        }
+
+        await makeRequest(endpoint, {
           method: "PUT",
         })
 
@@ -346,7 +358,7 @@ const ListarUsuarios = () => {
                   </button>
                 </td>
                 <td className="listarUsuarios-actions">
-                   <button
+                  <button
                     className="listarUsuarios-action-button detail"
                     onClick={() => navigate(`/usuarios/detalle/${usuario.id}`)}
                     title="Ver detalle"

@@ -1,19 +1,15 @@
 /* Login.css - Estilos modernos consistentes con CrearUsuarios y Register */
 .login-body {
-  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
-  font-family: "Montserrat", sans-serif;
+   height: 100vh; 
+  font-family: "Montserrat";
 }
 
 .login-container {
   width: 100%;
-  max-width: 480px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  max-width: 450px;
 }
 
 .login-wrapper {
@@ -23,18 +19,13 @@
   align-items: center;
 }
 
-.login-form-box {
+.login-form-box { 
   width: 100%;
   background: white;
   border-radius: 20px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.login-form-box:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
 }
 
 .login-header {
@@ -52,15 +43,13 @@
   transition: transform 0.3s ease;
 }
 
-.login-logo:hover {
-  transform: scale(1.05);
-}
+
 
 .login-title {
   font-size: 28px;
   font-weight: 700;
   color: #1a202c;
-  margin: 0 0 8px 0;
+  margin: 0;
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -221,7 +210,8 @@
 }
 
 .login-submit-button {
-  width: 100%;
+  top: 0 auto;
+  width: 90%;
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
   border: none;
@@ -322,6 +312,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  margin-bottom: 20px;
 }
 
 .login-register-button:hover {
@@ -331,10 +322,6 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .login-body {
-    padding: 16px;
-  }
-
   .login-header {
     padding: 24px 20px 16px;
   }

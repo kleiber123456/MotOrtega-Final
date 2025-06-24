@@ -7,7 +7,6 @@ import {
   FaTimes,
   FaTag,
   FaBox,
-  FaDollarSign,
   FaCheckCircle,
   FaSearch,
   FaSpinner,
@@ -15,8 +14,7 @@ import {
   FaSave,
   FaArrowLeft,
   FaFileAlt,
-  FaShoppingCart,
-  FaChartLine,
+  FaPlus,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Repuestos/EditarRepuesto.css"
@@ -87,7 +85,7 @@ const useApi = () => {
 // Componente del modal para categorías
 const CategoriaModal = ({ show, onClose, categorias, onSelect, categoriaActual }) => {
   const [busquedaCategoria, setBusquedaCategoria] = useState("")
-  const [categoriasPorPagina] = useState(5)
+  const [categoriasPorPagina] = useState(5) // Ya configurado para 5 categorías por página
   const [paginaActualCategorias, setPaginaActualCategorias] = useState(1)
   const modalRef = useRef(null)
 
@@ -98,6 +96,7 @@ const CategoriaModal = ({ show, onClose, categorias, onSelect, categoriaActual }
     }
   }, [show])
 
+  // Cerrar modal al hacer clic afuera
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
@@ -114,92 +113,138 @@ const CategoriaModal = ({ show, onClose, categorias, onSelect, categoriaActual }
     }
   }, [show, onClose])
 
+  // Filtrar categorías basado en la búsqueda
   const categoriasFiltradas = categorias.filter((categoria) =>
     categoria.nombre.toLowerCase().includes(busquedaCategoria.toLowerCase()),
   )
 
+  // Calcular índices para la paginación
   const indiceUltimaCategoria = paginaActualCategorias * categoriasPorPagina
   const indicePrimeraCategoria = indiceUltimaCategoria - categoriasPorPagina
   const categoriasActuales = categoriasFiltradas.slice(indicePrimeraCategoria, indiceUltimaCategoria)
   const totalPaginasCategorias = Math.ceil(categoriasFiltradas.length / categoriasPorPagina)
 
+  // Función para ir a la página anterior
+  const irPaginaAnterior = () => {
+    setPaginaActualCategorias((prev) => Math.max(prev - 1, 1))
+  }
+
+  // Función para ir a la página siguiente
+  const irPaginaSiguiente = () => {
+    setPaginaActualCategorias((prev) => Math.min(prev + 1, totalPaginasCategorias))
+  }
+
+  // Función para manejar el cambio de búsqueda
+  const handleBusquedaChange = (e) => {
+    setBusquedaCategoria(e.target.value)
+    setPaginaActualCategorias(1) // Resetear a la primera página cuando se busca
+  }
+
   if (!show) return null
 
   return (
-    <div className="editarRepuesto-modal-overlay">
-      <div className="editarRepuesto-modal-container" ref={modalRef}>
-        <div className="editarRepuesto-modal-header">
-          <h2 className="editarRepuesto-modal-title">
-            <FaTag className="editarRepuesto-modal-title-icon" />
+    <div className="crearRepuesto-modal-overlay">
+      <div className="crearRepuesto-categoria-modal" ref={modalRef}>
+        <div className="crearRepuesto-categoria-modal-header">
+          <h2>
+            <FaTag className="crearRepuesto-modal-header-icon" />
             Seleccionar Categoría
           </h2>
-          <button className="editarRepuesto-modal-close-button" onClick={onClose} aria-label="Cerrar">
+          <button type="button" className="crearRepuesto-categoria-close-button" onClick={onClose}>
             <FaTimes />
           </button>
         </div>
 
-        <div className="editarRepuesto-modal-body">
-          <div className="editarRepuesto-modal-search-container">
-            <div className="editarRepuesto-modal-search-input-wrapper">
-              <FaSearch className="editarRepuesto-modal-search-icon" />
+        <div className="crearRepuesto-categoria-modal-content">
+          {/* Buscador centrado */}
+          <div className="crearRepuesto-categoria-search-container">
+            <div className="crearRepuesto-categoria-search-wrapper">
+              <FaSearch className="crearRepuesto-categoria-search-icon" />
               <input
                 type="text"
                 placeholder="Buscar categoría..."
                 value={busquedaCategoria}
-                onChange={(e) => {
-                  setBusquedaCategoria(e.target.value)
-                  setPaginaActualCategorias(1)
-                }}
-                className="editarRepuesto-modal-search-input"
+                onChange={handleBusquedaChange}
+                className="crearRepuesto-categoria-search-input"
                 autoFocus
               />
             </div>
           </div>
 
-          <div className="editarRepuesto-modal-list-container">
-            {categoriasActuales.length > 0 ? (
-              categoriasActuales.map((categoria) => (
-                <div
-                  key={categoria.id}
-                  className={`editarRepuesto-modal-list-item ${
-                    categoriaActual === categoria.id.toString() ? "editarRepuesto-modal-list-item-selected" : ""
-                  }`}
-                  onClick={() => onSelect(categoria)}
-                >
-                  <span className="editarRepuesto-modal-list-item-text">{categoria.nombre}</span>
-                  <FaCheckCircle className="editarRepuesto-modal-list-item-check" />
-                </div>
-              ))
-            ) : (
-              <div className="editarRepuesto-modal-no-results">
-                <FaExclamationTriangle className="editarRepuesto-modal-no-results-icon" />
-                <span>No se encontraron categorías</span>
+          {/* Lista de categorías con paginación */}
+          <div className="crearRepuesto-categoria-list">
+            {categoriasActuales.length === 0 ? (
+              <div className="crearRepuesto-categoria-no-results">
+                <FaExclamationTriangle className="crearRepuesto-categoria-no-results-icon" />
+                <p>{busquedaCategoria ? "No se encontraron categorías" : "No hay categorías disponibles"}</p>
               </div>
+            ) : (
+              <table className="crearRepuesto-categoria-table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {categoriasActuales.map((categoria) => (
+                    <tr key={categoria.id} className="crearRepuesto-categoria-row">
+                      <td>
+                        <div className="crearRepuesto-categoria-name">{categoria.nombre || "N/A"}</div>
+                      </td>
+                      <td>
+                        <span
+                          className={`crearRepuesto-categoria-status ${categoria.estado === "Activo" ? "active" : "inactive"}`}
+                        >
+                          {categoria.estado || "N/A"}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          className="crearRepuesto-categoria-select-button"
+                          onClick={() => onSelect(categoria)}
+                        >
+                          <FaCheckCircle /> Seleccionar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             )}
           </div>
 
-          {categoriasFiltradas.length > categoriasPorPagina && (
-            <div className="editarRepuesto-modal-pagination">
+          {/* Controles de paginación - Solo se muestran si hay más de una página */}
+          {totalPaginasCategorias > 1 && (
+            <div className="crearRepuesto-categoria-pagination">
               <button
-                onClick={() => setPaginaActualCategorias((prev) => Math.max(prev - 1, 1))}
+                onClick={irPaginaAnterior}
                 disabled={paginaActualCategorias === 1}
-                className="editarRepuesto-modal-pagination-button"
+                className="crearRepuesto-categoria-pagination-button"
+                type="button"
               >
-                <FaArrowLeft className="editarRepuesto-modal-pagination-icon" />
                 Anterior
               </button>
 
-              <div className="editarRepuesto-modal-pagination-info">
+              <span className="crearRepuesto-categoria-page-info">
                 Página {paginaActualCategorias} de {totalPaginasCategorias}
-              </div>
+                {categoriasFiltradas.length > 0 && (
+                  <span className="crearRepuesto-categoria-total-info">
+                    {" "}
+                    ({categoriasFiltradas.length} categoría{categoriasFiltradas.length !== 1 ? "s" : ""})
+                  </span>
+                )}
+              </span>
 
               <button
-                onClick={() => setPaginaActualCategorias((prev) => Math.min(prev + 1, totalPaginasCategorias))}
+                onClick={irPaginaSiguiente}
                 disabled={paginaActualCategorias === totalPaginasCategorias}
-                className="editarRepuesto-modal-pagination-button"
+                className="crearRepuesto-categoria-pagination-button"
+                type="button"
               >
                 Siguiente
-                <FaArrowLeft className="editarRepuesto-modal-pagination-icon editarRepuesto-modal-pagination-icon-right" />
               </button>
             </div>
           )}
@@ -214,15 +259,10 @@ function EditarRepuesto() {
   const { id } = useParams()
   const { makeRequest, loading: apiLoading } = useApi()
 
-  // Modificar el estado inicial para incluir el margen
+  // Estado inicial igual al de crear repuesto
   const [repuesto, setRepuesto] = useState({
     nombre: "",
     descripcion: "",
-    cantidad: 0,
-    preciounitario: 0,
-    precio_compra: 0,
-    margen: 0,
-    estado: "Activo",
     categoria_repuesto_id: "",
   })
 
@@ -234,7 +274,6 @@ function EditarRepuesto() {
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null)
 
   // Cargar datos del repuesto y categorías
-  // Modificar el useEffect para calcular el margen al cargar los datos
   useEffect(() => {
     const cargarDatos = async () => {
       try {
@@ -250,22 +289,9 @@ function EditarRepuesto() {
         // Cargar datos del repuesto
         const dataRepuesto = await makeRequest(`/repuestos/${id}`)
         if (dataRepuesto) {
-          // Calcular el margen basado en los precios existentes
-          let margenCalculado = 0
-          if (dataRepuesto.precio_compra && dataRepuesto.precio_compra > 0 && dataRepuesto.preciounitario) {
-            margenCalculado =
-              ((dataRepuesto.preciounitario - dataRepuesto.precio_compra) / dataRepuesto.precio_compra) * 100
-            margenCalculado = margenCalculado.toFixed(2)
-          }
-
           setRepuesto({
             nombre: dataRepuesto.nombre || "",
             descripcion: dataRepuesto.descripcion || "",
-            cantidad: dataRepuesto.cantidad || 0,
-            preciounitario: dataRepuesto.preciounitario || 0,
-            precio_compra: dataRepuesto.precio_compra || 0,
-            margen: margenCalculado,
-            estado: dataRepuesto.estado || "Activo",
             categoria_repuesto_id: dataRepuesto.categoria_repuesto_id?.toString() || "",
           })
 
@@ -296,7 +322,7 @@ function EditarRepuesto() {
     cargarDatos()
   }, [id, makeRequest, navigate])
 
-  // Validaciones del formulario - MOVER DENTRO DEL COMPONENTE
+  // Validaciones del formulario igual al de crear
   const validateForm = useCallback(() => {
     const errors = {}
 
@@ -310,70 +336,20 @@ function EditarRepuesto() {
       errors.descripcion = "La descripción no puede exceder los 200 caracteres"
     }
 
-    if (repuesto.cantidad === "" || isNaN(repuesto.cantidad)) {
-      errors.cantidad = "La cantidad es obligatoria y debe ser un número"
-    } else if (Number.parseInt(repuesto.cantidad) < 0) {
-      errors.cantidad = "La cantidad debe ser un número positivo"
-    }
-
-    if (repuesto.preciounitario === "" || isNaN(repuesto.preciounitario)) {
-      errors.preciounitario = "El precio unitario es obligatorio y debe ser un número"
-    } else if (Number.parseFloat(repuesto.preciounitario) < 0) {
-      errors.preciounitario = "El precio unitario debe ser un número positivo"
-    }
-
-    if (repuesto.precio_compra === "" || isNaN(repuesto.precio_compra)) {
-      errors.precio_compra = "El precio de compra es obligatorio y debe ser un número"
-    } else if (Number.parseFloat(repuesto.precio_compra) < 0) {
-      errors.precio_compra = "El precio de compra debe ser un número positivo"
-    }
-
-    if (repuesto.margen === "" || isNaN(repuesto.margen)) {
-      errors.margen = "El margen es obligatorio y debe ser un número"
-    } else if (Number.parseFloat(repuesto.margen) < 0) {
-      errors.margen = "El margen debe ser un número positivo"
-    }
-
     if (!repuesto.categoria_repuesto_id) {
       errors.categoria_repuesto_id = "Debe seleccionar una categoría"
-    }
-
-    if (!repuesto.estado) {
-      errors.estado = "Debe seleccionar un estado"
     }
 
     setErrores(errors)
     return Object.keys(errors).length === 0
   }, [repuesto])
 
-  // Modificar el handleChange para calcular automáticamente el precio de venta
+  // HandleChange igual al de crear
   const handleChange = useCallback(
     (e) => {
       const { name, value } = e.target
-
-      // Actualizar el estado con el nuevo valor
-      setRepuesto((prev) => {
-        const newState = { ...prev, [name]: value }
-
-        // Si cambia el precio de compra o el margen, calcular el precio de venta
-        if (name === "precio_compra" || name === "margen") {
-          const precioCompra = Number.parseFloat(name === "precio_compra" ? value : prev.precio_compra) || 0
-          const margen = Number.parseFloat(name === "margen" ? value : prev.margen) || 0
-
-          if (precioCompra > 0 && margen >= 0) {
-            // Calcular precio de venta: precio_compra * (1 + (margen / 100))
-            const precioVenta = precioCompra * (1 + margen / 100)
-            newState.preciounitario = precioVenta.toFixed(2)
-          }
-        }
-
-        return newState
-      })
-
-      // Limpiar error del campo si existe
-      if (errores[name]) {
-        setErrores((prev) => ({ ...prev, [name]: "" }))
-      }
+      setRepuesto((prev) => ({ ...prev, [name]: value }))
+      setErrores((prev) => ({ ...prev, [name]: undefined }))
     },
     [errores],
   )
@@ -395,7 +371,7 @@ function EditarRepuesto() {
     [errores.categoria_repuesto_id],
   )
 
-  // Modificar el handleSubmit para asegurarse de que se envía el precio calculado
+  // Submit del formulario modificado para editar
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault()
@@ -413,16 +389,8 @@ function EditarRepuesto() {
       setIsSubmitting(true)
 
       try {
-        // Asegurarse de que el precio unitario esté calculado correctamente
-        const precioCompra = Number.parseFloat(repuesto.precio_compra)
-        const margen = Number.parseFloat(repuesto.margen)
-        const precioUnitario = precioCompra * (1 + margen / 100)
-
         const datosRepuesto = {
           ...repuesto,
-          cantidad: Number.parseInt(repuesto.cantidad),
-          preciounitario: precioUnitario,
-          precio_compra: precioCompra,
           categoria_repuesto_id: Number.parseInt(repuesto.categoria_repuesto_id),
         }
 
@@ -456,40 +424,33 @@ function EditarRepuesto() {
   )
 
   const handleCancel = useCallback(async () => {
-    const result = await Swal.fire({
-      title: "¿Cancelar edición?",
-      text: "Se perderán todos los cambios realizados",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#ef4444",
-      cancelButtonColor: "#6b7280",
-      confirmButtonText: "Sí, cancelar",
-      cancelButtonText: "Continuar editando",
-    })
+    const hasData = repuesto.nombre || repuesto.descripcion || categoriaSeleccionada
 
-    if (result.isConfirmed) {
+    if (hasData) {
+      const result = await Swal.fire({
+        title: "¿Cancelar edición?",
+        text: "Se perderán todos los cambios realizados",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#ef4444",
+        cancelButtonColor: "#6b7280",
+        confirmButtonText: "Sí, cancelar",
+        cancelButtonText: "Continuar editando",
+      })
+
+      if (result.isConfirmed) {
+        navigate("/repuestos")
+      }
+    } else {
       navigate("/repuestos")
     }
-  }, [navigate])
-
-  const formatearPrecio = useCallback((precio) => {
-    if (!precio) return "$0.00"
-    return new Intl.NumberFormat("es-CO", {
-      style: "currency",
-      currency: "COP",
-      minimumFractionDigits: 2,
-    }).format(precio)
-  }, [])
-
-  const totalCalculado = Number.parseFloat(repuesto.cantidad || 0) * Number.parseFloat(repuesto.preciounitario || 0)
-  // Reemplazar el cálculo del margen de ganancia
-  const margenGanancia = repuesto.margen ? Number.parseFloat(repuesto.margen) : 0
+  }, [repuesto, categoriaSeleccionada, navigate])
 
   if (isLoading) {
     return (
-      <div className="editarRepuesto-container">
-        <div className="editarRepuesto-loading">
-          <div className="editarRepuesto-spinner"></div>
+      <div className="listarRepuesto-container">
+        <div className="listarRepuesto-loading">
+          <div className="listarRepuesto-spinner"></div>
           <p>Cargando datos del repuesto...</p>
         </div>
       </div>
@@ -497,34 +458,34 @@ function EditarRepuesto() {
   }
 
   return (
-    <div className="editarRepuesto-container">
-      <div className="editarRepuesto-header">
-        <div className="editarRepuesto-header-left">
-          <button className="editarRepuesto-btn-back" onClick={() => navigate("/repuestos")}>
+    <div className="crearRepuesto-container">
+      <div className="editarUsuario-header">
+        <div className="editarUsuario-header-left">
+          <button className="editarUsuario-btn-back" onClick={() => navigate("/repuestos")} type="button">
             <FaArrowLeft />
             Volver
           </button>
-          <div className="editarRepuesto-title-section">
-            <h1 className="editarRepuesto-page-title">
-              <FaEdit className="editarRepuesto-title-icon" />
+          <div className="editarUsuario-title-section">
+            <h1 className="crearRepuesto-page-title">
+              <FaEdit className="crearRepuesto-title-icon" />
               Editar Repuesto
             </h1>
-            <p className="editarRepuesto-subtitle">Modifica la información del repuesto</p>
+            <p className="crearRepuesto-subtitle">Modifica la información del repuesto</p>
           </div>
         </div>
       </div>
 
-      <form className="editarRepuesto-form" onSubmit={handleSubmit}>
-        <div className="editarRepuesto-form-section">
-          <h3 className="editarRepuesto-section-title">
-            <FaFileAlt className="editarRepuesto-section-icon" />
+      <form className="crearRepuesto-form" onSubmit={handleSubmit}>
+        <div className="crearRepuesto-form-section">
+          <h3 className="crearRepuesto-section-title">
+            <FaFileAlt className="crearRepuesto-section-icon" />
             Información General
           </h3>
 
-          <div className="editarRepuesto-form-grid">
-            <div className="editarRepuesto-form-group">
-              <label htmlFor="nombre" className="editarRepuesto-label">
-                <FaBox className="editarRepuesto-label-icon" />
+          <div className="crearRepuesto-form-grid">
+            <div className="crearRepuesto-form-group">
+              <label htmlFor="nombre" className="crearRepuesto-label">
+                <FaBox className="crearRepuesto-label-icon" />
                 Nombre del Repuesto *
               </label>
               <input
@@ -534,44 +495,54 @@ function EditarRepuesto() {
                 value={repuesto.nombre}
                 onChange={handleChange}
                 maxLength={45}
-                className={`editarRepuesto-form-input ${errores.nombre ? "error" : ""}`}
+                className={`crearRepuesto-form-input ${errores.nombre ? "error" : ""}`}
                 placeholder="Ingrese el nombre del repuesto"
                 required
               />
               {errores.nombre && (
-                <span className="editarRepuesto-error-text">
+                <span className="crearRepuesto-error-text">
                   <FaExclamationTriangle /> {errores.nombre}
                 </span>
               )}
             </div>
 
-            <div className="editarRepuesto-form-group">
-              <label htmlFor="categoria" className="editarRepuesto-label">
-                <FaTag className="editarRepuesto-label-icon" />
+            <div className="crearRepuesto-form-group">
+              <label htmlFor="categoria" className="crearRepuesto-label">
+                <FaTag className="crearRepuesto-label-icon" />
                 Categoría *
               </label>
-              <input
-                type="text"
-                id="categoria"
-                placeholder="Seleccione una categoría..."
-                value={categoriaSeleccionada ? categoriaSeleccionada.nombre : ""}
-                onClick={() => setMostrarModalCategorias(true)}
-                readOnly
-                className={`editarRepuesto-form-input ${errores.categoria_repuesto_id ? "error" : ""}`}
-                style={{ cursor: "pointer" }}
-                required
-              />
+              <div className="crearRepuesto-input-with-button">
+                <input
+                  type="text"
+                  id="categoria"
+                  placeholder="Seleccione una categoría..."
+                  value={categoriaSeleccionada ? categoriaSeleccionada.nombre : ""}
+                  onClick={() => setMostrarModalCategorias(true)}
+                  readOnly
+                  className={`crearRepuesto-form-input ${errores.categoria_repuesto_id ? "error" : ""}`}
+                  style={{ cursor: "pointer" }}
+                  required
+                />
+                <button
+                  type="button"
+                  className="crearRepuesto-create-category-button"
+                  onClick={() => navigate("/categorias-repuesto")}
+                >
+                  <FaPlus className="crearRepuesto-button-icon" />
+                  Crear Categoría
+                </button>
+              </div>
               {errores.categoria_repuesto_id && (
-                <span className="editarRepuesto-error-text">
+                <span className="crearRepuesto-error-text">
                   <FaExclamationTriangle /> {errores.categoria_repuesto_id}
                 </span>
               )}
             </div>
           </div>
 
-          <div className="editarRepuesto-form-group">
-            <label htmlFor="descripcion" className="editarRepuesto-label">
-              <FaFileAlt className="editarRepuesto-label-icon" />
+          <div className="crearRepuesto-form-group">
+            <label htmlFor="descripcion" className="crearRepuesto-label">
+              <FaFileAlt className="crearRepuesto-label-icon" />
               Descripción
             </label>
             <textarea
@@ -581,160 +552,32 @@ function EditarRepuesto() {
               onChange={handleChange}
               maxLength={200}
               rows={3}
-              className={`editarRepuesto-form-textarea ${errores.descripcion ? "error" : ""}`}
+              className={`crearRepuesto-form-textarea ${errores.descripcion ? "error" : ""}`}
               placeholder="Descripción del repuesto (opcional)"
             />
-            <div className="editarRepuesto-char-count">{repuesto.descripcion.length}/200 caracteres</div>
+            <div className="crearRepuesto-char-count">{repuesto.descripcion.length}/200 caracteres</div>
             {errores.descripcion && (
-              <span className="editarRepuesto-error-text">
+              <span className="crearRepuesto-error-text">
                 <FaExclamationTriangle /> {errores.descripcion}
               </span>
             )}
           </div>
-
-          <div className="editarRepuesto-form-grid">
-            <div className="editarRepuesto-form-group">
-              <label htmlFor="cantidad" className="editarRepuesto-label">
-                <FaBox className="editarRepuesto-label-icon" />
-                Cantidad *
-              </label>
-              <input
-                type="number"
-                id="cantidad"
-                name="cantidad"
-                value={repuesto.cantidad}
-                onChange={handleChange}
-                min="0"
-                className={`editarRepuesto-form-input ${errores.cantidad ? "error" : ""}`}
-                required
-              />
-              {errores.cantidad && (
-                <span className="editarRepuesto-error-text">
-                  <FaExclamationTriangle /> {errores.cantidad}
-                </span>
-              )}
-            </div>
-
-            <div className="editarRepuesto-form-group">
-              <label htmlFor="estado" className="editarRepuesto-label">
-                <FaCheckCircle className="editarRepuesto-label-icon" />
-                Estado *
-              </label>
-              <select
-                id="estado"
-                name="estado"
-                value={repuesto.estado}
-                onChange={handleChange}
-                className={`editarRepuesto-form-input ${errores.estado ? "error" : ""}`}
-                required
-              >
-                <option value="Activo">Activo</option>
-                <option value="Inactivo">Inactivo</option>
-              </select>
-              {errores.estado && (
-                <span className="editarRepuesto-error-text">
-                  <FaExclamationTriangle /> {errores.estado}
-                </span>
-              )}
-            </div>
-          </div>
-
-          <div className="editarRepuesto-form-grid">
-            <div className="editarRepuesto-form-group">
-              <label htmlFor="precio_compra" className="editarRepuesto-label">
-                <FaShoppingCart className="editarRepuesto-label-icon" />
-                Precio de Compra *
-              </label>
-              <input
-                type="number"
-                id="precio_compra"
-                name="precio_compra"
-                value={repuesto.precio_compra}
-                onChange={handleChange}
-                min="0"
-                step="0.01"
-                className={`editarRepuesto-form-input ${errores.precio_compra ? "error" : ""}`}
-                required
-              />
-              {errores.precio_compra && (
-                <span className="editarRepuesto-error-text">
-                  <FaExclamationTriangle /> {errores.precio_compra}
-                </span>
-              )}
-            </div>
-
-            <div className="editarRepuesto-form-group">
-              <label htmlFor="margen" className="editarRepuesto-label">
-                <FaChartLine className="editarRepuesto-label-icon" />
-                Margen de Ganancia (%) *
-              </label>
-              <input
-                type="number"
-                id="margen"
-                name="margen"
-                value={repuesto.margen}
-                onChange={handleChange}
-                min="0"
-                step="0.01"
-                className={`editarRepuesto-form-input ${errores.margen ? "error" : ""}`}
-                required
-              />
-              {errores.margen && (
-                <span className="editarRepuesto-error-text">
-                  <FaExclamationTriangle /> {errores.margen}
-                </span>
-              )}
-            </div>
-          </div>
-
-          <div className="editarRepuesto-form-grid">
-            <div className="editarRepuesto-form-group">
-              <label htmlFor="preciounitario" className="editarRepuesto-label">
-                <FaDollarSign className="editarRepuesto-label-icon" />
-                Precio de Venta (calculado) *
-              </label>
-              <input
-                type="number"
-                id="preciounitario"
-                name="preciounitario"
-                value={repuesto.preciounitario}
-                onChange={handleChange}
-                min="0"
-                step="0.01"
-                className={`editarRepuesto-form-input ${errores.preciounitario ? "error" : ""}`}
-                readOnly
-              />
-              {errores.preciounitario && (
-                <span className="editarRepuesto-error-text">
-                  <FaExclamationTriangle /> {errores.preciounitario}
-                </span>
-              )}
-            </div>
-
-            <div className="editarRepuesto-form-group">
-              <label className="editarRepuesto-label">
-                <FaDollarSign className="editarRepuesto-label-icon" />
-                Total en Inventario
-              </label>
-              <div className="editarRepuesto-total-display">{formatearPrecio(totalCalculado)}</div>
-            </div>
-          </div>
         </div>
 
-        <div className="editarRepuesto-form-actions">
-          <button type="button" className="editarRepuesto-cancel-button" onClick={handleCancel} disabled={isSubmitting}>
-            <FaTimes className="editarRepuesto-button-icon" />
+        <div className="crearRepuesto-form-actions">
+          <button type="button" className="crearRepuesto-cancel-button" onClick={handleCancel} disabled={isSubmitting}>
+            <FaArrowLeft className="crearRepuesto-button-icon" />
             Cancelar
           </button>
-          <button type="submit" className="editarRepuesto-submit-button" disabled={isSubmitting || apiLoading}>
+          <button type="submit" className="crearRepuesto-submit-button" disabled={isSubmitting || apiLoading}>
             {isSubmitting ? (
               <>
-                <FaSpinner className="editarRepuesto-button-icon spinning" />
+                <FaSpinner className="crearRepuesto-button-icon spinning" />
                 Actualizando...
               </>
             ) : (
               <>
-                <FaSave className="editarRepuesto-button-icon" />
+                <FaSave className="crearRepuesto-button-icon" />
                 Actualizar Repuesto
               </>
             )}

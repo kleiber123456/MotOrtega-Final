@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
-import '../../../../shared/styles/register.css';
+"use client"
+
+import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+import Swal from "sweetalert2"
+import "../../../../shared/styles/register.css"
 
 function Register() {
-  const navigate = useNavigate();
-  const [step, setStep] = useState(1);
-  const totalSteps = 3;
+  const navigate = useNavigate()
+  const [step, setStep] = useState(1)
+  const totalSteps = 3
 
   const [formData, setFormData] = useState({
     nombre: "",
@@ -18,240 +20,254 @@ function Register() {
     correo: "",
     password: "",
     confirmPassword: "",
-    estado: "activo"
-  });
+    estado: "activo",
+  })
 
-  const [errores, setErrores] = useState({});
-  const [passwordMatch, setPasswordMatch] = useState(true);
-  const [error, setError] = useState(null);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errores, setErrores] = useState({})
+  const [passwordMatch, setPasswordMatch] = useState(true)
+  const [error, setError] = useState(null)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   useEffect(() => {
-    document.body.style.overflow = "hidden";
-    document.body.style.backgroundColor = "black";
+    document.body.style.overflow = "hidden"
+    document.body.style.backgroundColor = "black"
     return () => {
-      document.body.style.overflow = "";
-      document.body.style.backgroundColor = "";
-    };
-  }, []);
+      document.body.style.overflow = ""
+      document.body.style.backgroundColor = ""
+    }
+  }, [])
 
   useEffect(() => {
     if (formData.confirmPassword) {
-      setPasswordMatch(formData.password === formData.confirmPassword);
+      setPasswordMatch(formData.password === formData.confirmPassword)
     }
-  }, [formData.password, formData.confirmPassword]);
+  }, [formData.password, formData.confirmPassword])
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    validarCampo(name, value);
-  };
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+    validarCampo(name, value)
+  }
 
   const validarCampo = (name, value) => {
-    let nuevoError = '';
+    let nuevoError = ""
 
-    if (name === 'nombre') {
+    if (name === "nombre") {
       if (!value.trim()) {
-        nuevoError = 'El nombre es obligatorio.';
+        nuevoError = "El nombre es obligatorio."
       } else if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]{2,}$/.test(value)) {
-        nuevoError = 'El nombre debe contener solo letras y tener al menos 2 caracteres.';
+        nuevoError = "El nombre debe contener solo letras y tener al menos 2 caracteres."
       }
-    } else if (name === 'apellido') {
+    } else if (name === "apellido") {
       if (!value.trim()) {
-        nuevoError = 'El apellido es obligatorio.';
+        nuevoError = "El apellido es obligatorio."
       } else if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]{2,}$/.test(value)) {
-        nuevoError = 'El apellido debe contener solo letras y tener al menos 2 caracteres.';
+        nuevoError = "El apellido debe contener solo letras y tener al menos 2 caracteres."
       }
-    } else if (name === 'documento') {
+    } else if (name === "documento") {
       if (!value.trim()) {
-        nuevoError = 'El número de documento es obligatorio.';
+        nuevoError = "El número de documento es obligatorio."
       } else if (!/^\d{6,}$/.test(value)) {
-        nuevoError = 'El documento debe contener al menos 6 dígitos.';
+        nuevoError = "El documento debe contener al menos 6 dígitos."
       }
-    } else if (name === 'telefono') {
+    } else if (name === "telefono") {
       if (!value.trim()) {
-        nuevoError = 'El teléfono es obligatorio.';
+        nuevoError = "El teléfono es obligatorio."
       } else if (!/^\d{7,}$/.test(value)) {
-        nuevoError = 'El teléfono debe contener al menos 7 dígitos.';
+        nuevoError = "El teléfono debe contener al menos 7 dígitos."
       }
-    } else if (name === 'direccion') {
+    } else if (name === "direccion") {
       if (!value.trim()) {
-        nuevoError = 'La dirección es obligatoria.';
+        nuevoError = "La dirección es obligatoria."
       } else if (value.length < 5) {
-        nuevoError = 'Por favor ingrese una dirección válida.';
+        nuevoError = "Por favor ingrese una dirección válida."
       }
-    } else if (name === 'correo') {
+    } else if (name === "correo") {
       if (!value.trim()) {
-        nuevoError = 'El correo electrónico es obligatorio.';
+        nuevoError = "El correo electrónico es obligatorio."
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-        nuevoError = 'Por favor ingrese un correo electrónico válido.';
+        nuevoError = "Por favor ingrese un correo electrónico válido."
       }
-    } else if (name === 'password') {
+    } else if (name === "password") {
       if (!value.trim()) {
-        nuevoError = 'La contraseña es obligatoria.';
+        nuevoError = "La contraseña es obligatoria."
       } else {
-        const erroresPassword = [];
+        const erroresPassword = []
         if (value.length < 8) {
-          erroresPassword.push('al menos 8 caracteres');
+          erroresPassword.push("al menos 8 caracteres")
         }
         if (!/(?=.*[A-Z])/.test(value)) {
-          erroresPassword.push('una letra mayúscula');
+          erroresPassword.push("una letra mayúscula")
         }
         if (!/(?=.*\d)/.test(value)) {
-          erroresPassword.push('un número');
+          erroresPassword.push("un número")
         }
-        
+
         if (erroresPassword.length > 0) {
-          nuevoError = 'La contraseña debe contener: ' + erroresPassword.join(', ') + '.';
+          nuevoError = "La contraseña debe contener: " + erroresPassword.join(", ") + "."
         }
       }
-    } else if (name === 'confirmPassword') {
+    } else if (name === "confirmPassword") {
       if (!value.trim()) {
-        nuevoError = 'Debe confirmar la contraseña.';
+        nuevoError = "Debe confirmar la contraseña."
       } else if (value !== formData.password) {
-        nuevoError = 'Las contraseñas no coinciden.';
+        nuevoError = "Las contraseñas no coinciden."
       }
     }
 
-    setErrores(prev => ({ ...prev, [name]: nuevoError }));
-  };
+    setErrores((prev) => ({ ...prev, [name]: nuevoError }))
+  }
 
   const validarCamposPaso = () => {
-    const campos = step === 1 ? ["nombre", "apellido", "documento"] :
-                   step === 2 ? ["telefono", "direccion", "correo"] :
-                                ["password", "confirmPassword"];
-    
-    const nuevosErrores = {};
-    
+    const campos =
+      step === 1
+        ? ["nombre", "apellido", "documento"]
+        : step === 2
+          ? ["telefono", "direccion", "correo"]
+          : ["password", "confirmPassword"]
+
+    const nuevosErrores = {}
+
     // Validar cada campo del paso actual
     for (const campo of campos) {
-      const value = formData[campo];
-      let nuevoError = '';
+      const value = formData[campo]
+      let nuevoError = ""
 
-      if (campo === 'nombre') {
+      if (campo === "nombre") {
         if (!value.trim()) {
-          nuevoError = 'El nombre es obligatorio.';
+          nuevoError = "El nombre es obligatorio."
         } else if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]{2,}$/.test(value)) {
-          nuevoError = 'El nombre debe contener solo letras y tener al menos 2 caracteres.';
+          nuevoError = "El nombre debe contener solo letras y tener al menos 2 caracteres."
         }
-      } else if (campo === 'apellido') {
+      } else if (campo === "apellido") {
         if (!value.trim()) {
-          nuevoError = 'El apellido es obligatorio.';
+          nuevoError = "El apellido es obligatorio."
         } else if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]{2,}$/.test(value)) {
-          nuevoError = 'El apellido debe contener solo letras y tener al menos 2 caracteres.';
+          nuevoError = "El apellido debe contener solo letras y tener al menos 2 caracteres."
         }
-      } else if (campo === 'documento') {
+      } else if (campo === "documento") {
         if (!value.trim()) {
-          nuevoError = 'El número de documento es obligatorio.';
+          nuevoError = "El número de documento es obligatorio."
         } else if (!/^\d{6,}$/.test(value)) {
-          nuevoError = 'El documento debe contener al menos 6 dígitos.';
+          nuevoError = "El documento debe contener al menos 6 dígitos."
         }
-      } else if (campo === 'telefono') {
+      } else if (campo === "telefono") {
         if (!value.trim()) {
-          nuevoError = 'El teléfono es obligatorio.';
+          nuevoError = "El teléfono es obligatorio."
         } else if (!/^\d{7,}$/.test(value)) {
-          nuevoError = 'El teléfono debe contener al menos 7 dígitos.';
+          nuevoError = "El teléfono debe contener al menos 7 dígitos."
         }
-      } else if (campo === 'direccion') {
+      } else if (campo === "direccion") {
         if (!value.trim()) {
-          nuevoError = 'La dirección es obligatoria.';
+          nuevoError = "La dirección es obligatoria."
         } else if (value.length < 5) {
-          nuevoError = 'Por favor ingrese una dirección válida.';
+          nuevoError = "Por favor ingrese una dirección válida."
         }
-      } else if (campo === 'correo') {
+      } else if (campo === "correo") {
         if (!value.trim()) {
-          nuevoError = 'El correo electrónico es obligatorio.';
+          nuevoError = "El correo electrónico es obligatorio."
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          nuevoError = 'Por favor ingrese un correo electrónico válido.';
+          nuevoError = "Por favor ingrese un correo electrónico válido."
         }
-      } else if (campo === 'password') {
+      } else if (campo === "password") {
         if (!value.trim()) {
-          nuevoError = 'La contraseña es obligatoria.';
+          nuevoError = "La contraseña es obligatoria."
         } else {
-          const erroresPassword = [];
+          const erroresPassword = []
           if (value.length < 8) {
-            erroresPassword.push('al menos 8 caracteres');
+            erroresPassword.push("al menos 8 caracteres")
           }
           if (!/(?=.*[A-Z])/.test(value)) {
-            erroresPassword.push('una letra mayúscula');
+            erroresPassword.push("una letra mayúscula")
           }
           if (!/(?=.*\d)/.test(value)) {
-            erroresPassword.push('un número');
+            erroresPassword.push("un número")
           }
-          
+
           if (erroresPassword.length > 0) {
-            nuevoError = 'La contraseña debe contener: ' + erroresPassword.join(', ') + '.';
+            nuevoError = "La contraseña debe contener: " + erroresPassword.join(", ") + "."
           }
         }
-      } else if (campo === 'confirmPassword') {
+      } else if (campo === "confirmPassword") {
         if (!value.trim()) {
-          nuevoError = 'Debe confirmar la contraseña.';
+          nuevoError = "Debe confirmar la contraseña."
         } else if (value !== formData.password) {
-          nuevoError = 'Las contraseñas no coinciden.';
+          nuevoError = "Las contraseñas no coinciden."
         }
       }
 
       if (nuevoError) {
-        nuevosErrores[campo] = nuevoError;
+        nuevosErrores[campo] = nuevoError
       }
     }
-    
-    setErrores(prev => ({ ...prev, ...nuevosErrores }));
-    
+
+    setErrores((prev) => ({ ...prev, ...nuevosErrores }))
+
     if (Object.keys(nuevosErrores).length > 0) {
-      Swal.fire({ 
-        icon: 'warning', 
-        title: 'Campos incompletos o inválidos', 
-        text: 'Por favor complete correctamente todos los campos requeridos', 
-        confirmButtonColor: '#0066ff' 
-      });
-      return false;
+      Swal.fire({
+        icon: "warning",
+        title: "Campos incompletos o inválidos",
+        text: "Por favor complete correctamente todos los campos requeridos",
+        confirmButtonColor: "#0066ff",
+      })
+      return false
     }
-    return true;
-  };
+    return true
+  }
 
   const nextStep = () => {
-    if (validarCamposPaso()) setStep(prev => Math.min(prev + 1, totalSteps));
-  };
+    if (validarCamposPaso()) setStep((prev) => Math.min(prev + 1, totalSteps))
+  }
 
-  const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
+  const prevStep = () => setStep((prev) => Math.max(prev - 1, 1))
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validarCamposPaso()) return;
-    
-    const dataToSend = { ...formData };
-    delete dataToSend.confirmPassword;
+    e.preventDefault()
+    if (!validarCamposPaso()) return
+
+    const dataToSend = { ...formData }
+    delete dataToSend.confirmPassword
 
     try {
       Swal.fire({
-        title: 'Procesando...',
-        text: 'Estamos registrando tu cuenta',
+        title: "Procesando...",
+        text: "Estamos registrando tu cuenta",
         allowOutsideClick: false,
-        didOpen: () => Swal.showLoading()
-      });
+        didOpen: () => Swal.showLoading(),
+      })
       const res = await fetch("https://api-final-8rw7.onrender.com/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dataToSend)
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Error al registrar");
+        body: JSON.stringify(dataToSend),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message || "Error al registrar")
 
-      Swal.fire({ icon: 'success', title: '¡Registro Exitoso!', text: '¡Tu cuenta ha sido creada correctamente!', confirmButtonColor: '#0066ff', timer: 2000 });
-      setTimeout(() => navigate("/login"), 2000);
+      Swal.fire({
+        icon: "success",
+        title: "¡Registro Exitoso!",
+        text: "¡Tu cuenta ha sido creada correctamente!",
+        confirmButtonColor: "#0066ff",
+        timer: 2000,
+      })
+      setTimeout(() => navigate("/login"), 2000)
     } catch (err) {
-      Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Ocurrió un error al registrar tu cuenta', confirmButtonColor: '#0066ff' });
-      setError(err.message);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err.message || "Ocurrió un error al registrar tu cuenta",
+        confirmButtonColor: "#0066ff",
+      })
+      setError(err.message)
     }
-  };
+  }
 
   const renderInput = (type, name, placeholder, max, onInput) => (
     <div className="register-input-container">
       <input
         type={type}
-        className={`register-input ${errores[name] ? 'register-input-error' : ''}`}
+        className={`register-input ${errores[name] ? "register-input-error" : ""}`}
         placeholder={placeholder}
         name={name}
         value={formData[name]}
@@ -262,26 +278,30 @@ function Register() {
       />
       {errores[name] && <span className="perfil-validacion">{errores[name]}</span>}
     </div>
-  );
+  )
 
   const soloNumeros = (e) => {
-    e.target.value = e.target.value.replace(/[^0-9]/g, '');
-  };
+    e.target.value = e.target.value.replace(/[^0-9]/g, "")
+  }
 
   const soloLetras = (e) => {
-    e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, '');
-  };
+    e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, "")
+  }
 
   const renderProgress = () => (
     <div className="register-progress-container" data-step={step}>
       {["Datos Personales", "Información de Contacto", "Seguridad"].map((label, index) => (
         <div key={index} className="register-progress-step">
-          <div className={`register-progress-indicator ${step > index ? "register-progress-completed" : ""} ${step === index + 1 ? "register-progress-current" : ""}`}>{index + 1}</div>
+          <div
+            className={`register-progress-indicator ${step > index ? "register-progress-completed" : ""} ${step === index + 1 ? "register-progress-current" : ""}`}
+          >
+            {index + 1}
+          </div>
           <div className="register-progress-label">{label}</div>
         </div>
       ))}
     </div>
-  );
+  )
 
   return (
     <div className="register-reset">
@@ -296,20 +316,55 @@ function Register() {
                       <img src="/Logo.png" alt="Logo" className="register-logo" />
                     </div>
                     <h1 className="register-title">Registro</h1>
-                    <p className="register-subtitle">Paso {step} de {totalSteps}</p>
                     {renderProgress()}
                     <div className="register-form-container">
                       {step === 1 && (
                         <>
-                          <div className="register-section-title"><i className="fas fa-user-circle"></i> Datos Personales</div>
-                          {renderInput("text", "nombre", "Nombres*", 30, soloLetras)}
-                          {renderInput("text", "apellido", "Apellidos*", 35, soloLetras)}
-                          <div className="register-input-container">
-                            <select 
-                              className="register-input" 
-                              name="tipo_documento" 
-                              value={formData.tipo_documento} 
+                          <div className="register-form-group">
+                            <label className="register-label" htmlFor="nombre">
+                              Nombres *
+                            </label>
+                            <input
+                              type="text"
+                              id="nombre"
+                              name="nombre"
+                              value={formData.nombre}
                               onChange={handleChange}
+                              onBlur={(e) => validarCampo("nombre", e.target.value)}
+                              className={`register-form-input ${errores.nombre ? "error" : ""}`}
+                              placeholder="Juan"
+                              autoComplete="off"
+                            />
+                            {errores.nombre && <span className="register-error-text">{errores.nombre}</span>}
+                          </div>
+                          <div className="register-form-group">
+                            <label className="register-label" htmlFor="apellido">
+                              Apellidos *
+                            </label>
+                            <input
+                              type="text"
+                              id="apellido"
+                              name="apellido"
+                              value={formData.apellido}
+                              onChange={handleChange}
+                              onBlur={(e) => validarCampo("apellido", e.target.value)}
+                              className={`register-form-input ${errores.apellido ? "error" : ""}`}
+                              placeholder="Perez"
+                              autoComplete="off"
+                            />
+                            {errores.apellido && <span className="register-error-text">{errores.apellido}</span>}
+                          </div>
+                          <div className="register-form-group">
+                            <label className="register-label" htmlFor="tipo_documento">
+                              Tipo de documento *
+                            </label>
+                            <select
+                              id="tipo_documento"
+                              name="tipo_documento"
+                              value={formData.tipo_documento}
+                              onChange={handleChange}
+                              onBlur={(e) => validarCampo("tipo_documento", e.target.value)}
+                              className="register-form-input"
                             >
                               <option value="Cédula de ciudadanía">Cédula de ciudadanía</option>
                               <option value="Tarjeta de identidad">Tarjeta de identidad</option>
@@ -318,56 +373,141 @@ function Register() {
                               <option value="Otro">Otro</option>
                             </select>
                           </div>
-                          {renderInput("text", "documento", "Número de Documento*", 15, soloNumeros)}
+                          <div className="register-form-group">
+                            <label className="register-label" htmlFor="documento">
+                              Número de documento *
+                            </label>
+                            <input
+                              type="text"
+                              id="documento"
+                              name="documento"
+                              value={formData.documento}
+                              onChange={handleChange}
+                              onBlur={(e) => validarCampo("documento", e.target.value)}
+                              className={`register-form-input ${errores.documento ? "error" : ""}`}
+                              placeholder="00000000"
+                              autoComplete="off"
+                            />
+                            {errores.documento && <span className="register-error-text">{errores.documento}</span>}
+                          </div>
                         </>
                       )}
                       {step === 2 && (
                         <>
-                          <div className="register-section-title"><i className="fas fa-address-book"></i> Información de Contacto</div>
-                          {renderInput("tel", "telefono", "Teléfono*", 15, soloNumeros)}
-                          {renderInput("text", "direccion", "Dirección*", 100)}
-                          {renderInput("email", "correo", "Correo electrónico*", 254)}
+                          <div className="register-form-group">
+                            <label className="register-label" htmlFor="telefono">
+                              Teléfono *
+                            </label>
+                            <input
+                              type="tel"
+                              id="telefono"
+                              name="telefono"
+                              value={formData.telefono}
+                              onChange={handleChange}
+                              onBlur={(e) => validarCampo("telefono", e.target.value)}
+                              className={`register-form-input ${errores.telefono ? "error" : ""}`}
+                              placeholder="3003003030"
+                              maxLength={15}
+                              onInput={soloNumeros}
+                              autoComplete="off"
+                              required
+                            />
+                            {errores.telefono && <span className="register-error-text">{errores.telefono}</span>}
+                          </div>
+                          <div className="register-form-group">
+                            <label className="register-label" htmlFor="direccion">
+                              Dirección *
+                            </label>
+                            <input
+                              type="text"
+                              id="direccion"
+                              name="direccion"
+                              value={formData.direccion}
+                              onChange={handleChange}
+                              onBlur={(e) => validarCampo("direccion", e.target.value)}
+                              className={`register-form-input ${errores.direccion ? "error" : ""}`}
+                              placeholder="Dirección*"
+                              maxLength={100}
+                              autoComplete="off"
+                              required
+                            />
+                            {errores.direccion && <span className="register-error-text">{errores.direccion}</span>}
+                          </div>
+                          <div className="register-form-group">
+                            <label className="register-label" htmlFor="correo">
+                              Correo *
+                            </label>
+                            <input
+                              type="email"
+                              id="correo"
+                              name="correo"
+                              value={formData.correo}
+                              onChange={handleChange}
+                              onBlur={(e) => validarCampo("correo", e.target.value)}
+                              className={`register-form-input ${errores.correo ? "error" : ""}`}
+                              placeholder="Correo electrónico*"
+                              maxLength={254}
+                              autoComplete="off"
+                              required
+                            />
+                            {errores.correo && <span className="register-error-text">{errores.correo}</span>}
+                          </div>
                         </>
                       )}
                       {step === 3 && (
                         <>
-                          <div className="register-section-title"><i className="fas fa-lock"></i> Seguridad</div>
-                          <div className="register-input-container password-field">
-                            <div className="password-container">
+                          <div className="register-form-group">
+                            <label className="register-label" htmlFor="password">
+                              Contraseña *
+                            </label>
+                            <div className="register-password-container">
                               <input
                                 type={showPassword ? "text" : "password"}
-                                className={`register-input ${errores.password ? 'register-input-error' : ''}`}
-                                placeholder="Contraseña*"
+                                id="password"
                                 name="password"
                                 maxLength={128}
                                 value={formData.password}
                                 onChange={handleChange}
+                                onBlur={(e) => validarCampo("password", e.target.value)}
+                                className={`register-form-input ${errores.password ? "error" : ""}`}
+                                placeholder="Contraseña*"
+                                autoComplete="off"
                                 required
                               />
-                              <span className="password-toggle" onClick={() => setShowPassword(p => !p)}>
+                              <span className="register-password-toggle" onClick={() => setShowPassword((p) => !p)}>
                                 <i className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
                               </span>
                             </div>
-                            {errores.password && <span className="perfil-validacion">{errores.password}</span>}
+                            {errores.password && <span className="register-error-text">{errores.password}</span>}
                           </div>
-                          
-                          <div className="register-input-container password-field">
-                            <div className="password-container">
+                          <div className="register-form-group">
+                            <label className="register-label" htmlFor="confirmPassword">
+                              Confirmar Contraseña *
+                            </label>
+                            <div className="register-password-container">
                               <input
                                 type={showConfirmPassword ? "text" : "password"}
-                                className={`register-input ${errores.confirmPassword ? 'register-input-error' : ''}`}
-                                placeholder="Confirmar Contraseña*"
+                                id="confirmPassword"
                                 name="confirmPassword"
                                 maxLength={128}
                                 value={formData.confirmPassword}
                                 onChange={handleChange}
+                                onBlur={(e) => validarCampo("confirmPassword", e.target.value)}
+                                className={`register-form-input ${errores.confirmPassword ? "error" : ""}`}
+                                placeholder="Confirmar Contraseña*"
+                                autoComplete="off"
                                 required
                               />
-                              <span className="password-toggle" onClick={() => setShowConfirmPassword(p => !p)}>
+                              <span
+                                className="register-password-toggle"
+                                onClick={() => setShowConfirmPassword((p) => !p)}
+                              >
                                 <i className={`fas ${showConfirmPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
                               </span>
                             </div>
-                            {errores.confirmPassword && <span className="perfil-validacion">{errores.confirmPassword}</span>}
+                            {errores.confirmPassword && (
+                              <span className="register-error-text">{errores.confirmPassword}</span>
+                            )}
                           </div>
                         </>
                       )}
@@ -391,7 +531,9 @@ function Register() {
                     </div>
                   </form>
                   <div className="register-form-section">
-                    <p>¿Ya tienes una cuenta? <a href="/login">Iniciar sesión</a></p>
+                    <p>
+                      ¿Ya tienes una cuenta? <a href="/login">Iniciar sesión</a>
+                    </p>
                   </div>
                 </div>
               </div>
@@ -400,7 +542,7 @@ function Register() {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default Register;
+export default Register

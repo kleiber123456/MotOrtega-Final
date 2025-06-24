@@ -92,6 +92,7 @@ const CrearUsuario = () => {
     direccion: "",
     correo: "",
     telefono: "",
+    telefono_emergencia: "",
     rol_id: "",
     estado: "Activo",
     password: "",
@@ -119,90 +120,105 @@ const CrearUsuario = () => {
     cargarRoles()
   }, [makeRequest])
 
-  const handleChange = useCallback((e) => {
-    const { name, value } = e.target
-    setFormulario((prev) => ({ ...prev, [name]: value }))
-    validarCampo(name, value)
-  }, [])
+  const validarCampo = useCallback(
+    (name, value) => {
+      let nuevoError = ""
 
-  const validarCampo = useCallback((name, value) => {
-    let nuevoError = ""
+      switch (name) {
+        case "nombre":
+          if (!value.trim()) {
+            nuevoError = "El nombre es obligatorio."
+          } else if (value.trim().length < 3) {
+            nuevoError = "El nombre debe tener al menos 3 caracteres."
+          }
+          break
+        case "apellido":
+          if (!value.trim()) {
+            nuevoError = "El apellido es obligatorio."
+          } else if (value.trim().length < 3) {
+            nuevoError = "El apellido debe tener al menos 3 caracteres."
+          }
+          break
+        case "documento":
+          if (!value.trim()) {
+            nuevoError = "El documento es obligatorio."
+          }
+          break
+        case "tipo_documento":
+          if (!value) {
+            nuevoError = "Selecciona un tipo de documento."
+          }
+          break
+        case "direccion":
+          if (!value.trim()) {
+            nuevoError = "La dirección es obligatoria."
+          } else if (value.trim().length < 5) {
+            nuevoError = "La dirección debe tener al menos 5 caracteres."
+          }
+          break
+        case "correo":
+          if (!value.trim()) {
+            nuevoError = "El correo es obligatorio."
+          } else if (!/\S+@\S+\.\S+/.test(value)) {
+            nuevoError = "Ingresa un correo electrónico válido."
+          }
+          break
+        case "telefono":
+          if (!value.trim()) {
+            nuevoError = "El teléfono es obligatorio."
+          } else if (value.trim().length < 10) {
+            nuevoError = "El teléfono debe tener al menos 10 números."
+          }
+          break
+        case "rol_id":
+          if (!value) {
+            nuevoError = "Selecciona un rol."
+          }
+          break
+        case "password":
+          if (!value) {
+            nuevoError = "La contraseña es obligatoria."
+          } else {
+            const errores = []
+            if (value.length < 8) {
+              errores.push("al menos 8 caracteres")
+            }
+            if (!/[A-Z]/.test(value)) {
+              errores.push("una letra mayúscula")
+            }
+            if (!/[0-9]/.test(value)) {
+              errores.push("un número")
+            }
 
-    switch (name) {
-      case "nombre":
-        if (!value.trim()) {
-          nuevoError = "El nombre es obligatorio."
-        } else if (value.trim().length < 3) {
-          nuevoError = "El nombre debe tener al menos 3 caracteres."
-        }
-        break
-      case "apellido":
-        if (!value.trim()) {
-          nuevoError = "El apellido es obligatorio."
-        } else if (value.trim().length < 3) {
-          nuevoError = "El apellido debe tener al menos 3 caracteres."
-        }
-        break
-      case "documento":
-        if (!value.trim()) {
-          nuevoError = "El documento es obligatorio."
-        }
-        break
-      case "tipo_documento":
-        if (!value) {
-          nuevoError = "Selecciona un tipo de documento."
-        }
-        break
-      case "direccion":
-        if (!value.trim()) {
-          nuevoError = "La dirección es obligatoria."
-        } else if (value.trim().length < 5) {
-          nuevoError = "La dirección debe tener al menos 5 caracteres."
-        }
-        break
-      case "correo":
-        if (!value.trim()) {
-          nuevoError = "El correo es obligatorio."
-        } else if (!/\S+@\S+\.\S+/.test(value)) {
-          nuevoError = "Ingresa un correo electrónico válido."
-        }
-        break
-      case "telefono":
-        if (!value.trim()) {
-          nuevoError = "El teléfono es obligatorio."
-        } else if (value.trim().length < 10) {
-          nuevoError = "El teléfono debe tener al menos 10 números."
-        }
-        break
-      case "rol_id":
-        if (!value) {
-          nuevoError = "Selecciona un rol."
-        }
-        break
-      case "password":
-        if (!value) {
-          nuevoError = "La contraseña es obligatoria."
-        } else {
-          const errores = []
-          if (value.length < 8) {
-            errores.push("al menos 8 caracteres")
+            if (errores.length > 0) {
+              nuevoError = "La contraseña debe contener: " + errores.join(", ") + "."
+            }
           }
-          if (!/[A-Z]/.test(value)) {
-            errores.push("una letra mayúscula")
+          break
+        case "telefono_emergencia":
+          if (Number.parseInt(formulario.rol_id) === 3) {
+            if (!value.trim()) {
+              nuevoError = "El teléfono de emergencia es obligatorio para mecánicos."
+            } else if (value.trim().length < 10) {
+              nuevoError = "El teléfono de emergencia debe tener al menos 10 números."
+            }
           }
-          if (!/[0-9]/.test(value)) {
-            errores.push("un número")
-          }
+          break
+      }
 
-          if (errores.length > 0) {
-            nuevoError = "La contraseña debe contener: " + errores.join(", ") + "."
-          }
-        }
-        break
-    }
+      setErrores((prev) => ({ ...prev, [name]: nuevoError }))
+    },
+    [formulario.rol_id],
+  )
 
-    setErrores((prev) => ({ ...prev, [name]: nuevoError }))
-  }, [])
+  const handleChange = useCallback(
+    (e) => {
+      const { name, value } = e.target
+      setFormulario((prev) => ({ ...prev, [name]: value }))
+      validarCampo(name, value)
+    },
+    [validarCampo],
+  )
 
   const validarFormulario = useCallback(() => {
     let hayErrores = false
@@ -275,9 +291,29 @@ const CrearUsuario = () => {
       setIsSubmitting(true)
 
       try {
+        // Preparar datos base
+        const userData = {
+          nombre: formulario.nombre.trim(),
+          apellido: formulario.apellido.trim(),
+          tipo_documento: formulario.tipo_documento,
+          documento: formulario.documento.trim(),
+          direccion: formulario.direccion.trim(),
+          correo: formulario.correo.trim(),
+          telefono: formulario.telefono.trim(),
+          rol_id: Number.parseInt(formulario.rol_id),
+          estado: formulario.estado,
+          password: formulario.password,
+        }
+
+        // Agregar campos específicos según el rol
+        if (Number.parseInt(formulario.rol_id) === 3) {
+          // Mecánico - agregar teléfono de emergencia
+          userData.telefono_emergencia = formulario.telefono.trim() // Usar el mismo teléfono como emergencia por defecto
+        }
+
         await makeRequest("/usuarios", {
           method: "POST",
-          body: JSON.stringify(formulario),
+          body: JSON.stringify(userData),
         })
 
         await Swal.fire({
@@ -333,11 +369,7 @@ const CrearUsuario = () => {
     <div className="crearUsuario-container">
       <div className="editarUsuario-header">
         <div className="editarUsuario-header-left">
-          <button
-            className="editarUsuario-btn-back"
-            onClick={() => navigate(-1)}
-            type="button"
-          >
+          <button className="editarUsuario-btn-back" onClick={() => navigate(-1)} type="button">
             <FaArrowLeft />
             Volver
           </button>
@@ -502,6 +534,33 @@ const CrearUsuario = () => {
                 </span>
               )}
             </div>
+
+            {/* Teléfono de Emergencia - Solo para mecánicos */}
+            {Number.parseInt(formulario.rol_id) === 3 && (
+              <div className="crearUsuario-form-group">
+                <label htmlFor="telefono_emergencia" className="crearUsuario-label">
+                  <FaPhone className="crearUsuario-label-icon" />
+                  Teléfono de Emergencia *
+                </label>
+                <input
+                  type="text"
+                  id="telefono_emergencia"
+                  name="telefono_emergencia"
+                  value={formulario.telefono_emergencia || ""}
+                  onChange={handleChange}
+                  onInput={soloNumeros}
+                  maxLength={15}
+                  autoComplete="off"
+                  className={`crearUsuario-form-input ${errores.telefono_emergencia ? "error" : ""}`}
+                  required
+                />
+                {errores.telefono_emergencia && (
+                  <span className="crearUsuario-error-text">
+                    <FaExclamationTriangle /> {errores.telefono_emergencia}
+                  </span>
+                )}
+              </div>
+            )}
 
             <div className="crearUsuario-form-group">
               <label htmlFor="direccion" className="crearUsuario-label">

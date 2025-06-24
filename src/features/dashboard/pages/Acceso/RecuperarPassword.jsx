@@ -608,7 +608,7 @@ function RecuperarPassword() {
   };
 
   return (
-    <div className='fp-bodyLogin' transition-style="in:circle:hesitate">
+    <div className='fp-bodyLogin'>
       <div className='fp-ca-login'>
         <div className="fp-contenedor-login">
           <div className="fp-Login-form-box">

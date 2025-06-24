@@ -100,13 +100,11 @@ const DetalleUsuario = () => {
           const usuarioEncontrado = data.find((u) => u.id === Number.parseInt(id))
           if (usuarioEncontrado) {
             setUsuario(usuarioEncontrado)
-            console.log("Usuario encontrado:", usuarioEncontrado)
           } else {
             throw new Error("Usuario no encontrado")
           }
         }
       } catch (error) {
-        console.error("Error al cargar usuario:", error)
         setError(error.message)
       } finally {
         setCargando(false)
