@@ -552,13 +552,13 @@ function ListarRepuestos() {
           <thead>
             <tr>
               <th>Nombre</th>
-              <th>Descripción</th>
-              <th>Categoría</th>
+              {/* <th>Descripción</th> */}
+              {/* <th>Categoría</th> */}
               <th>Cantidad</th>
-              <th>Precio Compra</th>
+              {/* <th>Precio Compra</th> */}
               <th>Precio Venta</th>
-              <th>Margen</th>
-              <th>Total</th>
+              {/* <th>Margen</th> */}
+              {/* <th>Total</th> */}
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
@@ -571,7 +571,7 @@ function ListarRepuestos() {
                     <span className="listarRepuesto-product-name">{repuesto.nombre}</span>
                   </div>
                 </td>
-                <td>
+                {/* <td>
                   <div className="listarRepuesto-description" title={repuesto.descripcion || "Sin descripción"}>
                     {repuesto.descripcion
                       ? repuesto.descripcion.length > 50
@@ -584,24 +584,24 @@ function ListarRepuestos() {
                   <span className="listarRepuesto-category-badge">
                     {categorias[repuesto.categoria_repuesto_id] || "Sin categoría"}
                   </span>
-                </td>
+                </td> */}
                 <td>
                   <span className="listarRepuesto-quantity">{repuesto.cantidad || 0}</span>
                 </td>
-                <td>
+                {/* <td>
                   <span className="listarRepuesto-price-compra">{formatearPrecio(repuesto.precio_compra)}</span>
-                </td>
+                </td> */}
                 <td>
                   <span className="listarRepuesto-price">{formatearPrecio(repuesto.preciounitario)}</span>
                 </td>
-                <td>
+                {/* <td>
                   <span className="listarRepuesto-margin">
                     {calcularMargenGanancia(repuesto.precio_compra, repuesto.preciounitario).toFixed(2)}%
                   </span>
                 </td>
                 <td>
                   <span className="listarRepuesto-total">{formatearPrecio(repuesto.total)}</span>
-                </td>
+                </td> */}
                 <td>
                   <button
                     className={`listarRepuesto-estado-toggle ${
@@ -619,7 +619,7 @@ function ListarRepuestos() {
                   </button>
                 </td>
                 <td className="listarRepuesto-actions">
-                   <button
+                  <button
                     className="listarRepuesto-action-button detail"
                     onClick={() => navigate(`/DetalleRepuesto/${repuesto.id}`)}
                     title="Ver detalle"
@@ -640,7 +640,6 @@ function ListarRepuestos() {
                   >
                     <FaTrash />
                   </button>
-                 
                 </td>
               </tr>
             ))}
