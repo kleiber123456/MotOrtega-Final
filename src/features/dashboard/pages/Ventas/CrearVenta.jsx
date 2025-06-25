@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import {
   Plus,
   X,
@@ -152,6 +152,7 @@ const useApi = () => {
 // Componente principal
 const CrearVenta = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { makeRequest, loading: apiLoading, setLoading, mecanicos, error, setError, setMecanicos } = useApi()
 
   const [showProductModal, setShowProductModal] = useState(false)
@@ -175,15 +176,32 @@ const CrearVenta = () => {
   const [estadosVenta, setEstadosVenta] = useState([])
   const [vehiculosCliente, setVehiculosCliente] = useState([])
   const [clientes, setClientes] = useState([])
+  const [cantidadInputs, setCantidadInputs] = useState({})
 
   // Cargar clientes al iniciar
   useEffect(() => {
     const cargarClientes = async () => {
       try {
-        const data = await makeRequest("/usuarios")
-        if (data && Array.isArray(data)) {
-          setClientes(data.filter((cliente) => cliente.estado === "Activo"))
+        const data = await makeRequest("/clientes")
+        let clientesArray = []
+
+        if (Array.isArray(data)) {
+          clientesArray = data
+        } else if (Array.isArray(data?.data)) {
+          clientesArray = data.data
+        } else if (Array.isArray(data?.clientes)) {
+          clientesArray = data.clientes
+        } else {
+          const arr = Object.values(data).find((v) => Array.isArray(v))
+          if (arr) clientesArray = arr
         }
+
+        // Filtrar solo clientes activos
+        setClientes(
+          clientesArray.filter(
+            (cliente) => cliente.estado?.toLowerCase() === "activo"
+          )
+        )
       } catch (error) {
         console.error("Error al cargar clientes:", error)
       }
@@ -236,13 +254,13 @@ const CrearVenta = () => {
     }
 
     selectedProducts.forEach((product, index) => {
-      if (product.quantity <= 0) {
+      // Solo aquí validamos cantidad
+      if (!product.quantity || Number(product.quantity) < 1) {
         errors[`product_${index}_quantity`] = `Cantidad inválida para ${product.nombre}`
       }
       if (product.price <= 0) {
         errors[`product_${index}_price`] = `Precio inválido para ${product.nombre}`
       }
-      // NUEVA VALIDACIÓN: Verificar que no exceda el stock disponible
       if (product.quantity > product.stockOriginal) {
         errors[`product_${index}_stock`] = `Cantidad excede el stock disponible para ${product.nombre}`
       }
@@ -376,20 +394,13 @@ const CrearVenta = () => {
 
   // CORREGIDO: Función para actualizar cantidad de producto con validación simple
   const updateProductQuantity = useCallback((productId, newQuantity) => {
-    // No permitir cantidades menores o iguales a 0
-    if (newQuantity <= 0) {
-      Swal.fire({
-        icon: "warning",
-        title: "Cantidad inválida",
-        text: "La cantidad debe ser mayor a 0",
-        confirmButtonColor: "#2563eb",
-      })
-      return
-    }
-
     setSelectedProducts((prev) =>
       prev.map((item) => {
         if (item.id === productId) {
+          // Permitir vacío o 0 temporalmente
+          if (newQuantity === "" || Number(newQuantity) < 1) {
+            return { ...item, quantity: "" };
+          }
           // Validar que no exceda el stock disponible
           if (newQuantity > item.stockOriginal) {
             Swal.fire({
@@ -397,12 +408,12 @@ const CrearVenta = () => {
               title: "Stock insuficiente",
               text: `Solo hay ${item.stockOriginal} unidades disponibles`,
               confirmButtonColor: "#2563eb",
-            })
-            return item // No actualizar si excede el stock
+            });
+            return item; // No actualizar si excede el stock
           }
-          return { ...item, quantity: newQuantity }
+          return { ...item, quantity: Number(newQuantity) };
         }
-        return item
+        return item;
       }),
     )
   }, [])
@@ -514,7 +525,7 @@ const CrearVenta = () => {
   // Manejadores de navegación con preservación de estado
   const handleNavigateToCreateService = useCallback(() => {
     saveFormState()
-    navigate("/crearservicio", { state: { from: "/crearventa" } })
+    navigate("/crearServicios", { state: { from: "/crearventa" } })
   }, [saveFormState, navigate])
 
   const handleNavigateToCreateClient = useCallback(() => {
@@ -528,6 +539,7 @@ const CrearVenta = () => {
       state: {
         from: "/crearventa",
         clienteId: selectedClient?.id,
+        clienteNombre: selectedClient ? `${selectedClient.nombre} ${selectedClient.apellido}` : "",
       },
     })
   }, [saveFormState, navigate, selectedClient])
@@ -843,15 +855,6 @@ const CrearVenta = () => {
               <Plus className="crearVenta-button-icon" />
               Añadir Servicios
             </button>
-            <button
-              type="button"
-              className="crearVenta-create-button"
-              onClick={handleNavigateToCreateService}
-              disabled={isSubmitting}
-            >
-              <Plus className="crearVenta-button-icon" />
-              Crear Nuevo Servicio
-            </button>
           </div>
 
           {formErrors.items && (
@@ -906,54 +909,39 @@ const CrearVenta = () => {
                         <div className="crearVenta-info-item">
                           <span className="crearVenta-info-label">Cantidad:</span>
                           <div className="crearVenta-quantity-controls">
-                            <button
-                              type="button"
-                              className="crearVenta-quantity-btn"
-                              onClick={() => updateProductQuantity(product.id, Math.max(1, product.quantity - 1))}
-                              disabled={product.quantity <= 1}
-                            >
-                              -
-                            </button>
                             <input
                               type="number"
                               min="1"
                               max={product.stockOriginal}
-                              value={product.quantity}
-                              onChange={(e) => {
-                                const newValue = e.target.value
-
-                                // Permitir campo vacío temporalmente
-                                if (newValue === "") {
-                                  return
-                                }
-
-                                const numValue = Number.parseInt(newValue) || 1
-
-                                // No permitir números negativos o cero
-                                if (numValue <= 0) {
-                                  return
-                                }
-
-                                updateProductQuantity(product.id, numValue)
+                              value={product.quantity === 0 ? "" : product.quantity}
+                              style={{
+                                width: 50,
+                                fontWeight: 600,
+                                color: "#2563eb",
+                                border: "1px solid #cbd5e1",
+                                borderRadius: 6,
+                                padding: "2px 6px",
+                                textAlign: "center"
                               }}
-                              onBlur={(e) => {
-                                // Si el campo está vacío al perder el foco, establecer 1
-                                if (e.target.value === "" || Number.parseInt(e.target.value) <= 0) {
-                                  updateProductQuantity(product.id, 1)
-                                }
+                              onChange={e => {
+                                const value = e.target.value;
+                                updateProductQuantity(
+                                  product.id,
+                                  value === "" ? "" : Number(value)
+                                );
                               }}
-                              className="crearVenta-quantity-input-main"
+                              onBlur={e => {
+                                const value = e.target.value;
+                                updateProductQuantity(
+                                  product.id,
+                                  value === "" || Number(value) < 1
+                                    ? 1
+                                    : Number(value) > product.stockOriginal
+                                    ? product.stockOriginal
+                                    : Number(value)
+                                );
+                              }}
                             />
-                            <button
-                              type="button"
-                              className="crearVenta-quantity-btn"
-                              onClick={() =>
-                                updateProductQuantity(product.id, Math.min(product.stockOriginal, product.quantity + 1))
-                              }
-                              disabled={product.quantity >= product.stockOriginal}
-                            >
-                              +
-                            </button>
                           </div>
                         </div>
                         <div className="crearVenta-info-item crearVenta-subtotal-item">
@@ -1078,6 +1066,7 @@ const CrearVenta = () => {
             }
           }}
           existingServices={selectedServices}
+          navigate={handleNavigateToCreateService}
         />
       )}
 
@@ -1119,6 +1108,7 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
   const [products, setProducts] = useState([])
   const [cartItems, setCartItems] = useState([])
   const [total, setTotal] = useState(0)
+  const [cantidadInputs, setCantidadInputs] = useState({})
 
   // Cargar productos desde la API
   useEffect(() => {
@@ -1307,225 +1297,166 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
         </div>
 
         <div className="crearVenta-modal-content">
-          <div className="crearVenta-left-pane">
-            <div className="crearVenta-search-section">
-              <h4>Buscar Productos</h4>
-              <div className="crearVenta-search-container">
-                <Search className="crearVenta-search-icon" />
+          <div className="crearVenta-productos-servicios-modal">
+            {/* Panel izquierdo: búsqueda y lista */}
+            <div className="crearVenta-productos-servicios-left">
+              <div className="crearVenta-productos-servicios-title-row">
+                <span className="crearVenta-productos-servicios-title">Buscar Productos</span>
+              </div>
+              <div className="crearVenta-productos-servicios-search-container">
+                <Search className="crearVenta-productos-servicios-search-icon" />
                 <input
-                  type="text"
+                  className="crearVenta-productos-servicios-search-input"
                   placeholder="Buscar productos..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="crearVenta-search-input"
+                  onChange={e => setSearchTerm(e.target.value)}
                 />
               </div>
+              <div className="crearVenta-productos-servicios-list">
+                {availableProducts.length === 0 ? (
+                  <div className="crearVenta-no-results">
+                    <AlertTriangle className="crearVenta-no-results-icon" />
+                    <p>{searchTerm ? "No se encontraron productos" : "No hay productos disponibles"}</p>
+                  </div>
+                ) : (
+                  availableProducts.map(product => (
+                    <div className="crearVenta-productos-servicios-card" key={product.id}>
+                      <div className="crearVenta-productos-servicios-card-header">
+                        <span className="crearVenta-productos-servicios-card-title">{product.nombre}</span>
+                        <span className="crearVenta-productos-servicios-card-price">{formatCurrency(product.preciounitario)}</span>
+                      </div>
+                      <span className="crearVenta-productos-servicios-card-stock">
+                        Stock: {product.cantidad}
+                      </span>
+                      <div className="crearVenta-productos-servicios-card-cantidad-row">
+                        <label className="crearVenta-productos-servicios-card-cantidad-label">Cantidad</label>
+                        <input
+                          type="number"
+                          min="1"
+                          className="crearVenta-productos-servicios-card-cantidad-input"
+                          value={cantidadInputs[product.id] ?? ""}
+                          onChange={e => {
+                            // Permitir vacío temporalmente
+                            const value = e.target.value;
+                            setCantidadInputs(prev => ({
+                              ...prev,
+                              [product.id]: value === "" ? "" : Math.max(1, Number(value))
+                            }));
+                          }}
+                          onBlur={e => {
+                            // Si el campo está vacío o menor a 1 al perder el foco, establecer 1
+                            if (!e.target.value || Number(e.target.value) < 1) {
+                              setCantidadInputs(prev => ({
+                                ...prev,
+                                [product.id]: 1
+                              }));
+                            }
+                          }}
+                        />
+                        <button
+                          className="crearVenta-productos-servicios-card-add-btn"
+                          onClick={() => {
+                            const cantidad = Number(cantidadInputs[product.id]) || 1;
+                            handleAddToCart(product, cantidad);
+                            setCantidadInputs(prev => ({ ...prev, [product.id]: "" }));
+                          }}
+                          disabled={cartItems.some(item => item.id === product.id)}
+                        >
+                          <Plus size={16} /> Agregar
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
 
-            <div className="crearVenta-product-list">
-              {availableProducts.length === 0 ? (
-                <div className="crearVenta-no-results">
-                  <AlertTriangle className="crearVenta-no-results-icon" />
-                  <p>{searchTerm ? "No se encontraron productos" : "No hay productos disponibles"}</p>
-                </div>
-              ) : (
-                availableProducts.map((product) => (
-                  <div key={product.id} className="crearVenta-product-card">
-                    <div className="crearVenta-product-info">
-                      <div className="crearVenta-product-main-info">
-                        <span className="crearVenta-product-name">{product.nombre}</span>
-                        <span className="crearVenta-product-price">{formatCurrency(product.preciounitario || 0)}</span>
-                      </div>
-                      <span className="crearVenta-product-stock">Stock: {product.cantidad}</span>
-                      {product.descripcion && (
-                        <span className="crearVenta-product-description">{product.descripcion}</span>
-                      )}
-                    </div>
-                    <div className="crearVenta-product-actions">
-                      <div className="crearVenta-input-group">
-                        <div className="crearVenta-input-item">
-                          <label>Cantidad</label>
+            {/* Panel derecho: seleccionados y total */}
+            <div className="crearVenta-productos-servicios-right">
+              <div className="crearVenta-productos-servicios-title-row">
+                <span className="crearVenta-productos-servicios-title">Productos Seleccionados</span>
+                <span className="crearVenta-productos-servicios-count">{cartItems.length} items</span>
+              </div>
+              <div className="crearVenta-productos-servicios-seleccionados-box">
+                {cartItems.length === 0 ? (
+                  <>
+                    <Trash size={32} style={{ opacity: 0.5, marginBottom: 8 }} />
+                    <span>No hay productos seleccionados</span>
+                  </>
+                ) : (
+                  <div className="crearVenta-productos-servicios-seleccionados-list">
+                    {cartItems.map(producto => (
+                      <div className="crearVenta-productos-servicios-seleccionado-card" key={producto.id}>
+                        <span>
+                          {producto.nombre}
+                          {/* Input editable para cantidad */}
                           <input
                             type="number"
-                            className="crearVenta-quantity-input"
-                            min="0"
-                            max={product.cantidad}
-                            defaultValue=""
-                            placeholder="0"
-                            id={`quantity-${product.id}`}
-                            onInput={(e) => {
-                              const value = e.target.value
-
-                              // Permitir campo vacío para que se pueda borrar
-                              if (value === "") {
-                                return
-                              }
-
-                              // Convertir a número y validar
-                              const numValue = Number.parseInt(value) || 0
-
-                              // No permitir números negativos
-                              if (numValue < 0) {
-                                e.target.value = 0
-                                return
-                              }
-
-                              // No permitir exceder el stock
-                              if (numValue > product.cantidad) {
-                                e.target.value = product.cantidad
-                                return
-                              }
-
-                              e.target.value = numValue
+                            min="1"
+                            max={producto.stockOriginal}
+                            value={producto.quantity === 0 ? "" : producto.quantity}
+                            style={{
+                              width: 50,
+                              marginLeft: 8,
+                              marginRight: 4,
+                              fontWeight: 600,
+                              color: "#2563eb",
+                              border: "1px solid #cbd5e1",
+                              borderRadius: 6,
+                              padding: "2px 6px",
+                              textAlign: "center"
                             }}
-                            onBlur={(e) => {
-                              // Si el campo está vacío al perder el foco, establecer 0
-                              if (e.target.value === "") {
-                                e.target.value = "0"
-                              }
+                            onChange={e => {
+                              const value = e.target.value;
+                              setCartItems(prev =>
+                                prev.map(item =>
+                                  item.id === producto.id
+                                    ? { ...item, quantity: value === "" ? "" : Number(value) }
+                                    : item
+                                )
+                              );
+                            }}
+                            onBlur={e => {
+                              const value = e.target.value;
+                              setCartItems(prev =>
+                                prev.map(item =>
+                                  item.id === producto.id
+                                    ? {
+                                        ...item,
+                                        quantity:
+                                          value === "" || Number(value) < 1
+                                            ? 1
+                                            : Number(value) > producto.stockOriginal
+                                            ? producto.stockOriginal
+                                            : Number(value)
+                                      }
+                                    : item
+                                )
+                              );
                             }}
                           />
-                        </div>
+                        </span>
+                        <button
+                          className="crearVenta-productos-servicios-seleccionado-remove-btn"
+                          onClick={() => handleRemoveFromCart(producto.id)}
+                        >
+                          <Trash size={14} />
+                        </button>
                       </div>
-                      <button
-                        type="button"
-                        className="crearVenta-add-button"
-                        disabled={product.cantidad === 0}
-                        onClick={() => {
-                          const quantityInput = document.getElementById(`quantity-${product.id}`)
-                          const quantity = Number.parseInt(quantityInput.value) || 0
-
-                          // Validar que la cantidad sea mayor a 0
-                          if (quantity <= 0) {
-                            Swal.fire({
-                              icon: "warning",
-                              title: "Cantidad inválida",
-                              text: "La cantidad debe ser mayor a 0",
-                              confirmButtonColor: "#2563eb",
-                            })
-                            quantityInput.focus()
-                            return
-                          }
-
-                          if (quantity > product.cantidad) {
-                            Swal.fire({
-                              icon: "warning",
-                              title: "Cantidad excedida",
-                              text: `Solo hay ${product.cantidad} unidades disponibles`,
-                              confirmButtonColor: "#2563eb",
-                            })
-                            quantityInput.value = product.cantidad
-                            return
-                          }
-
-                          handleAddToCart(product, quantity)
-                        }}
-                      >
-                        <Plus size={16} /> {product.cantidad === 0 ? "Sin stock" : "Agregar"}
-                      </button>
-                    </div>
+                    ))}
                   </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          <div className="crearVenta-right-pane">
-            <div className="crearVenta-cart-header">
-              <h4>Productos Seleccionados</h4>
-              <span className="crearVenta-cart-count">
-                {cartItems.length} item{cartItems.length !== 1 ? "s" : ""}
-              </span>
-            </div>
-            <div className="crearVenta-cart-items">
-              {cartItems.length === 0 ? (
-                <div className="crearVenta-empty-cart-message">
-                  <ShoppingBag className="crearVenta-empty-icon" />
-                  <p>No hay productos seleccionados</p>
-                </div>
-              ) : (
-                cartItems.map((item) => (
-                  <div key={item.id} className="crearVenta-cart-item">
-                    <div className="crearVenta-cart-item-header">
-                      <span className="crearVenta-cart-item-name">{item.nombre}</span>
-                      <button
-                        type="button"
-                        className="crearVenta-remove-cart-item"
-                        onClick={() => handleRemoveFromCart(item.id)}
-                      >
-                        <X size={16} />
-                      </button>
-                    </div>
-                    <div className="crearVenta-cart-item-details">
-                      <div className="crearVenta-cart-controls">
-                        <div className="crearVenta-control-group">
-                          <label>Cantidad:</label>
-                          <input
-                            type="number"
-                            min="0"
-                            max={item.stockOriginal}
-                            value={item.quantity}
-                            onChange={(e) => {
-                              const newValue = e.target.value
-
-                              // Permitir campo vacío temporalmente
-                              if (newValue === "") {
-                                return
-                              }
-
-                              const numValue = Number.parseInt(newValue) || 0
-
-                              // No permitir números negativos
-                              if (numValue < 0) {
-                                return
-                              }
-
-                              if (numValue > item.stockOriginal) {
-                                e.target.value = item.stockOriginal
-                                return
-                              }
-
-                              updateCartItemQuantity(item.id, numValue)
-                            }}
-                            onBlur={(e) => {
-                              // Si el campo está vacío al perder el foco, establecer 1 como mínimo
-                              if (e.target.value === "" || Number.parseInt(e.target.value) === 0) {
-                                updateCartItemQuantity(item.id, 1)
-                              }
-                            }}
-                            className="crearVenta-control-input"
-                          />
-                        </div>
-                        <div className="crearVenta-control-group">
-                          <label>Precio:</label>
-                          <span className="crearVenta-control-value">{formatCurrency(item.price)}</span>
-                        </div>
-                      </div>
-                      <div className="crearVenta-cart-item-total">
-                        Subtotal: <strong>{formatCurrency(item.price * item.quantity)}</strong>
-                      </div>
-                      <div className="crearVenta-cart-stock-info">
-                        <small className="text-gray-600">Stock disponible: {item.stockOriginal} unidades</small>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            <div className="crearVenta-cart-summary">
-              <div className="crearVenta-cart-total">
-                <span>Total:</span>
-                <strong>{formatCurrency(total)}</strong>
+                )}
+              </div>
+              <div className="crearVenta-productos-servicios-total-box">
+                <span className="crearVenta-productos-servicios-total-label">Total:</span>
+                <span className="crearVenta-productos-servicios-total-amount">{formatCurrency(total)}</span>
               </div>
               <button
-                type="button"
-                className="crearVenta-confirm-cart-button"
-                onClick={handleConfirm}
+                className="crearVenta-productos-servicios-confirm-btn"
                 disabled={cartItems.length === 0}
+                onClick={handleConfirm}
               >
-                <CheckCircle className="crearVenta-button-icon" />
-                Confirmar Selección ({cartItems.length})
+                <CheckCircle size={18} /> Confirmar Selección ({cartItems.length})
               </button>
             </div>
           </div>
@@ -1536,7 +1467,7 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
 }
 
 // Componente Modal de Servicios (sin cambios)
-const ServiceModal = ({ closeModal, addService, existingServices }) => {
+const ServiceModal = ({ closeModal, addService, existingServices, navigate }) => {
   const { makeRequest, loading, error } = useApi()
   const [searchTerm, setSearchTerm] = useState("")
   const [services, setServices] = useState([])
@@ -1620,111 +1551,106 @@ const ServiceModal = ({ closeModal, addService, existingServices }) => {
         </div>
 
         <div className="crearVenta-modal-content">
-          <div className="crearVenta-left-pane">
-            <div className="crearVenta-search-section">
-              <h4>Buscar Servicios</h4>
-              <div className="crearVenta-search-container">
-                <Search className="crearVenta-search-icon" />
+          <div className="crearVenta-productos-servicios-modal">
+            {/* Panel izquierdo: búsqueda y lista */}
+            <div className="crearVenta-productos-servicios-left">
+              <div className="crearVenta-productos-servicios-title-row">
+                <span className="crearVenta-productos-servicios-title">Buscar Servicios</span>
+                <button
+                  type="button"
+                  className="crearVenta-create-button"
+                  onClick={navigate}
+                >
+                  <Plus className="crearVenta-button-icon" />
+                  Crear Nuevo Servicio
+                </button>
+              </div>
+              <div className="crearVenta-productos-servicios-search-container">
+                <Search className="crearVenta-productos-servicios-search-icon" />
                 <input
-                  type="text"
+                  className="crearVenta-productos-servicios-search-input"
                   placeholder="Buscar servicios..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="crearVenta-search-input"
+                  onChange={e => setSearchTerm(e.target.value)}
                 />
               </div>
-            </div>
-
-            <div className="crearVenta-service-list">
-              {availableServices.length === 0 ? (
-                <div className="crearVenta-no-results">
-                  <AlertTriangle className="crearVenta-no-results-icon" />
-                  <p>{searchTerm ? "No se encontraron servicios" : "No hay servicios disponibles"}</p>
-                </div>
-              ) : (
-                availableServices.map((service) => (
-                  <div
-                    key={service.id}
-                    className={`crearVenta-service-card ${
-                      selectedServices.some((item) => item.id === service.id) ? "selected" : ""
-                    }`}
-                    onClick={() => handleToggleService(service)}
-                  >
-                    <div className="crearVenta-service-info">
-                      <div className="crearVenta-service-main-info">
-                        <span className="crearVenta-service-name">{service.nombre}</span>
-                        <span className="crearVenta-service-price">{formatCurrency(service.precio || 0)}</span>
+              <div className="crearVenta-productos-servicios-list">
+                {availableServices.length === 0 ? (
+                  <div className="crearVenta-no-results">
+                    <AlertTriangle className="crearVenta-no-results-icon" />
+                    <p>{searchTerm ? "No se encontraron servicios" : "No hay servicios disponibles"}</p>
+                  </div>
+                ) : (
+                  availableServices.map(service => (
+                    <div
+                      key={service.id}
+                      className={`crearVenta-productos-servicios-card${selectedServices.some(item => item.id === service.id) ? " selected" : ""}`}
+                      onClick={() => handleToggleService(service)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <div className="crearVenta-productos-servicios-card-header">
+                        <span className="crearVenta-productos-servicios-card-title">{service.nombre}</span>
+                        <span className="crearVenta-productos-servicios-card-price">{formatCurrency(service.precio || 0)}</span>
                       </div>
                       {service.descripcion && (
-                        <span className="crearVenta-service-description">{service.descripcion}</span>
+                        <span className="crearVenta-productos-servicios-card-stock">{service.descripcion}</span>
                       )}
                     </div>
-                    <div className="crearVenta-service-checkbox">
-                      <input
-                        type="checkbox"
-                        checked={selectedServices.some((item) => item.id === service.id)}
-                        onChange={() => handleToggleService(service)}
-                      />
-                    </div>
-                  </div>
-                ))
-              )}
+                  )))
+                }
+              </div>
             </div>
-          </div>
 
-          <div className="crearVenta-right-pane">
-            <div className="crearVenta-cart-header">
-              <h4>Servicios Seleccionados</h4>
-              <span className="crearVenta-cart-count">
-                {selectedServices.length} servicio
-                {selectedServices.length !== 1 ? "s" : ""}
-              </span>
-            </div>
-            <div className="crearVenta-cart-items">
-              {selectedServices.length === 0 ? (
-                <div className="crearVenta-empty-cart-message">
-                  <Wrench className="crearVenta-empty-icon" />
-                  <p>No hay servicios seleccionados</p>
-                </div>
-              ) : (
-                selectedServices.map((service) => (
-                  <div key={service.id} className="crearVenta-cart-item service">
-                    <div className="crearVenta-cart-item-header">
-                      <span className="crearVenta-cart-item-name">{service.nombre}</span>
-                      <button
-                        type="button"
-                        className="crearVenta-remove-cart-item"
-                        onClick={() => handleToggleService(service)}
-                      >
-                        <X size={16} />
-                      </button>
-                    </div>
-                    <div className="crearVenta-cart-item-details">
-                      <div className="crearVenta-service-details">
-                        {service.descripcion && <p className="crearVenta-service-description">{service.descripcion}</p>}
-                        <div className="crearVenta-service-price-display">
-                          <strong>{formatCurrency(service.precio)}</strong>
-                        </div>
+            {/* Panel derecho: seleccionados y total */}
+            <div className="crearVenta-productos-servicios-right">
+              <div className="crearVenta-productos-servicios-title-row">
+                <span className="crearVenta-productos-servicios-title">Servicios Seleccionados</span>
+                <span className="crearVenta-productos-servicios-count">{selectedServices.length} servicios</span>
+              </div>
+              <div className="crearVenta-productos-servicios-seleccionados-box">
+                {selectedServices.length === 0 ? (
+                  <>
+                    <Wrench size={32} style={{ opacity: 0.5, marginBottom: 8 }} />
+                    <span>No hay servicios seleccionados</span>
+                  </>
+                ) : (
+                  <div className="crearVenta-productos-servicios-seleccionados-list">
+                    {selectedServices.map(service => (
+                      <div className="crearVenta-productos-servicios-seleccionado-card" key={service.id}>
+                        <span>
+                          {service.nombre}
+                          {service.precio ? (
+                            <span style={{ marginLeft: 8, color: "#2563eb", fontWeight: 600 }}>
+                              {formatCurrency(service.precio)}
+                            </span>
+                          ) : null}
+                        </span>
+                        <button
+                          className="crearVenta-productos-servicios-seleccionado-remove-btn"
+                          onClick={e => {
+                            e.stopPropagation();
+                            handleToggleService(service);
+                          }}
+                        >
+                          <X size={14} />
+                        </button>
                       </div>
-                    </div>
+                    ))}
                   </div>
-                ))
-              )}
-            </div>
-
-            <div className="crearVenta-cart-summary">
-              <div className="crearVenta-cart-total">
-                <span>Total:</span>
-                <strong>{formatCurrency(selectedServices.reduce((sum, service) => sum + service.precio, 0))}</strong>
+                )}
+              </div>
+              <div className="crearVenta-productos-servicios-total-box">
+                <span className="crearVenta-productos-servicios-total-label">Total:</span>
+                <span className="crearVenta-productos-servicios-total-amount">
+                  {formatCurrency(selectedServices.reduce((sum, s) => sum + (s.precio || 0), 0))}
+                </span>
               </div>
               <button
-                type="button"
-                className="crearVenta-confirm-cart-button"
-                onClick={handleConfirm}
+                className="crearVenta-productos-servicios-confirm-btn"
                 disabled={selectedServices.length === 0}
+                onClick={handleConfirm}
               >
-                <CheckCircle className="crearVenta-button-icon" />
-                Confirmar Selección ({selectedServices.length})
+                <CheckCircle size={18} /> Confirmar Selección ({selectedServices.length})
               </button>
             </div>
           </div>
@@ -1786,12 +1712,14 @@ const ClientModal = ({ closeModal, selectClient, navigate, clientes }) => {
                   onClick={() => selectClient(cliente)}
                   style={{ cursor: "pointer" }}
                 >
-                  <div className="crearVenta-client-info">
-                    <div className="crearVenta-client-name-line">
+                  <div className="crearVenta-client-main-line">
+                    <span className="crearVenta-client-name-line">
+                      <User size={18} style={{ color: "#2563eb" }} />
                       {cliente.nombre} {cliente.apellido}
-                    </div>
-                    <div className="crearVenta-client-document-line">{cliente.documento || "Sin documento"}</div>
-                    <div className="crearVenta-client-contact-line">{cliente.telefono}</div>
+                    </span>
+                    <span className="crearVenta-client-document-line">
+                      {cliente.documento}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -1842,7 +1770,9 @@ const VehiculoClienteModal = ({ closeModal, clienteId, selectVehiculo, navigate,
             {vehiculosCliente
               .filter(
                 (v) =>
-                  v.placa.toLowerCase().includes(search.toLowerCase())
+                  v.placa.toLowerCase().includes(search.toLowerCase()) ||
+                  (v.marca && v.marca.toLowerCase().includes(search.toLowerCase())) ||
+                  (v.modelo && v.modelo.toLowerCase().includes(search.toLowerCase()))
               )
               .map((vehiculo) => (
                 <div
@@ -1851,10 +1781,13 @@ const VehiculoClienteModal = ({ closeModal, clienteId, selectVehiculo, navigate,
                   onClick={() => selectVehiculo(vehiculo)}
                   style={{ cursor: "pointer" }}
                 >
-                  <div className="crearVenta-vehiculo-info">
-                    
-                    <div className="crearVenta-vehiculo-document-line">{vehiculo.placa}</div>
-                  
+                  <div className="crearVenta-vehiculo-main-line">
+                    <span className="crearVenta-vehiculo-name-line">
+                      <Car size={18} style={{ color: "#2563eb" }} />
+                      {vehiculo.placa}
+                    </span>
+                    {/* Si quieres mostrar marca o modelo, descomenta la siguiente línea */}
+                    {/* <span className="crearVenta-vehiculo-document-line">{vehiculo.marca} {vehiculo.modelo}</span> */}
                   </div>
                 </div>
               ))}
@@ -1916,12 +1849,13 @@ const MecanicoModal = ({ closeModal, selectMecanico, navigate, mecanicos }) => {
                   onClick={() => selectMecanico(mecanico)}
                   style={{ cursor: "pointer" }}
                 >
-                  <div className="crearVenta-mecanico-info">
-                    <div className="crearVenta-mecanico-name-line">
+                  <div className="crearVenta-mecanico-main-line">
+                    <span className="crearVenta-mecanico-name-line">
                       {mecanico.nombre} {mecanico.apellido}
-                    </div>
-                    <div className="crearVenta-mecanico-document-line">{mecanico.documento || "Sin documento"}</div>
-                    <div className="crearVenta-mecanico-contact-line">{mecanico.telefono}</div>
+                    </span>
+                    <span className="crearVenta-mecanico-document-line">
+                      {mecanico.documento}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -1931,5 +1865,4 @@ const MecanicoModal = ({ closeModal, selectMecanico, navigate, mecanicos }) => {
     </div>
   )
 }
-
 export default CrearVenta

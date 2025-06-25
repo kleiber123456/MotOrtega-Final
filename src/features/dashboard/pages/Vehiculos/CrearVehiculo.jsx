@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import {
   FaCar,
   FaIdCard,
@@ -74,13 +74,16 @@ const useApi = () => {
 const CrearVehiculo = () => {
   const navigate = useNavigate()
   const { makeRequest, loading: apiLoading } = useApi()
+  const location = useLocation()
+  const clienteId = location.state?.clienteId
+  const clienteNombre = location.state?.clienteNombre
 
   const [formulario, setFormulario] = useState({
     placa: "",
     color: "",
     tipo_vehiculo: "Carro",
     referencia_id: "",
-    cliente_id: "",
+    cliente_id: clienteId || "",
     estado: "Activo",
   })
 
@@ -123,6 +126,12 @@ const CrearVehiculo = () => {
     }
   }
 
+  const handleChange = useCallback((e) => {
+    const { name, value } = e.target
+    setFormulario((prev) => ({ ...prev, [name]: value }))
+    validarCampo(name, value)
+  }, [])
+
   const validarCampo = useCallback((name, value) => {
     let nuevoError = ""
 
@@ -160,26 +169,6 @@ const CrearVehiculo = () => {
 
     setErrores((prev) => ({ ...prev, [name]: nuevoError }))
   }, [])
-
-  const handleChange = useCallback((e) => {
-    const { name, value } = e.target
-    const cleanValue = typeof value === "string" ? value.replace(/^\s+/, "") : value
-
-    // Si cambia el tipo de vehículo, limpia la referencia seleccionada y el campo referencia_id
-    if (name === "tipo_vehiculo") {
-      setReferenciaSeleccionada(null)
-      setFormulario((prev) => ({
-        ...prev,
-        [name]: cleanValue,
-        referencia_id: "",
-      }))
-      validarCampo(name, cleanValue)
-      validarCampo("referencia_id", "")
-    } else {
-      setFormulario((prev) => ({ ...prev, [name]: cleanValue }))
-      validarCampo(name, cleanValue)
-    }
-  }, [validarCampo])
 
   const validarFormulario = useCallback(() => {
     const nuevosErrores = {}
@@ -463,12 +452,13 @@ const CrearVehiculo = () => {
               <div className="crearVehiculo-input-with-button">
                 <input
                   type="text"
-                  value={clienteSeleccionado ? `${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}` : ""}
+                  value={clienteNombre}
                   placeholder="Seleccionar cliente"
                   readOnly
                   className={`crearVehiculo-form-input ${errores.cliente_id ? "error" : ""}`}
                   required
                 />
+                <input type="hidden" name="cliente_id" value={clienteId} />
                 <button type="button" className="crearVehiculo-search-button" onClick={() => setModalCliente(true)}>
                   <FaSearch />
                 </button>
