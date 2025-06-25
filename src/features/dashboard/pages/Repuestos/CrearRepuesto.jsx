@@ -295,7 +295,9 @@ function CrearRepuesto() {
   const handleChange = useCallback(
     (e) => {
       const { name, value } = e.target
-      setRepuesto((prev) => ({ ...prev, [name]: value }))
+      // Elimina espacios al inicio para todos los campos
+      const cleanValue = typeof value === "string" ? value.replace(/^\s+/, "") : value
+      setRepuesto((prev) => ({ ...prev, [name]: cleanValue }))
       setErrores((prev) => ({ ...prev, [name]: undefined }))
     },
     [errores],

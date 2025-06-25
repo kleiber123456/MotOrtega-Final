@@ -181,58 +181,53 @@ const CrearCliente = () => {
   // Manejadores específicos para validación en tiempo real
   const handleNombreChange = useCallback(
     (e) => {
-      const value = e.target.value
-      // Permitir solo letras, espacios y caracteres acentuados
-      const filteredValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")
-      setFormData((prev) => ({ ...prev, nombre: filteredValue }))
-      validarCampo("nombre", filteredValue)
+      let value = e.target.value.replace(/^\s+/, "") // Elimina espacios al inicio
+      value = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")
+      setFormData((prev) => ({ ...prev, nombre: value }))
+      validarCampo("nombre", value)
     },
     [validarCampo],
   )
 
   const handleApellidoChange = useCallback(
     (e) => {
-      const value = e.target.value
-      // Permitir solo letras, espacios y caracteres acentuados
-      const filteredValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")
-      setFormData((prev) => ({ ...prev, apellido: filteredValue }))
-      validarCampo("apellido", filteredValue)
+      let value = e.target.value.replace(/^\s+/, "") // Elimina espacios al inicio
+      value = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")
+      setFormData((prev) => ({ ...prev, apellido: value }))
+      validarCampo("apellido", value)
     },
     [validarCampo],
   )
 
   const handleDocumentoChange = useCallback(
     (e) => {
-      const value = e.target.value
-      // Permitir solo números
-      const filteredValue = value.replace(/[^\d]/g, "")
-      setFormData((prev) => ({ ...prev, documento: filteredValue }))
-      validarCampo("documento", filteredValue)
+      let value = e.target.value.replace(/^\s+/, "") // Elimina espacios al inicio
+      value = value.replace(/[^\d]/g, "")
+      setFormData((prev) => ({ ...prev, documento: value }))
+      validarCampo("documento", value)
     },
     [validarCampo],
   )
 
   const handleTelefonoChange = useCallback(
     (e) => {
-      const value = e.target.value
-      // Permitir solo números y espacios
-      const filteredValue = value.replace(/[^\d\s]/g, "")
-      setFormData((prev) => ({ ...prev, telefono: filteredValue }))
-      validarCampo("telefono", filteredValue)
+      let value = e.target.value.replace(/^\s+/, "") // Elimina espacios al inicio
+      value = value.replace(/[^\d\s]/g, "")
+      setFormData((prev) => ({ ...prev, telefono: value }))
+      validarCampo("telefono", value)
     },
     [validarCampo],
   )
 
-  // Manejador para cambios generales en el formulario
   const handleInputChange = useCallback(
     (e) => {
       const { name, value } = e.target
+      const newValue = value.replace(/^\s+/, "") // Elimina espacios al inicio
       setFormData((prev) => ({
         ...prev,
-        [name]: value,
+        [name]: newValue,
       }))
-
-      validarCampo(name, value)
+      validarCampo(name, newValue)
     },
     [validarCampo],
   )

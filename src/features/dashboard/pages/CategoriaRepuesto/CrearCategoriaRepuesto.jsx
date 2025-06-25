@@ -20,8 +20,10 @@ const CrearCategoriaRepuesto = () => {
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target
-    setCategoria((prev) => ({ ...prev, [name]: value }))
-    validarCampo(name, value)
+    // Elimina espacios al inicio
+    const newValue = value.replace(/^\s+/, "")
+    setCategoria((prev) => ({ ...prev, [name]: newValue }))
+    validarCampo(name, newValue)
   }, [])
 
   const validarCampo = useCallback((name, value) => {

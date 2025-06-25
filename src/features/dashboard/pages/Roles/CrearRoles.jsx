@@ -137,10 +137,11 @@ const CrearRol = () => {
   // Manejadores específicos para validación en tiempo real
   const handleNombreChange = useCallback(
     (e) => {
-      const value = e.target.value
-      const filteredValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")
-      setFormData((prev) => ({ ...prev, nombre: filteredValue }))
-      validarCampo("nombre", filteredValue)
+      let value = e.target.value
+      // Elimina espacios al inicio y caracteres no permitidos
+      value = value.replace(/^\s+/, "").replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")
+      setFormData((prev) => ({ ...prev, nombre: value }))
+      validarCampo("nombre", value)
     },
     [validarCampo],
   )
@@ -166,12 +167,13 @@ const CrearRol = () => {
   const handleInputChange = useCallback(
     (e) => {
       const { name, value } = e.target
+      const cleanValue = typeof value === "string" ? value.replace(/^\s+/, "") : value // Elimina espacios al inicio
       setFormData((prev) => ({
         ...prev,
-        [name]: value,
+        [name]: cleanValue,
       }))
 
-      validarCampo(name, value)
+      validarCampo(name, cleanValue)
     },
     [validarCampo],
   )

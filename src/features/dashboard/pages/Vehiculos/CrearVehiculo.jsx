@@ -123,12 +123,6 @@ const CrearVehiculo = () => {
     }
   }
 
-  const handleChange = useCallback((e) => {
-    const { name, value } = e.target
-    setFormulario((prev) => ({ ...prev, [name]: value }))
-    validarCampo(name, value)
-  }, [])
-
   const validarCampo = useCallback((name, value) => {
     let nuevoError = ""
 
@@ -166,6 +160,26 @@ const CrearVehiculo = () => {
 
     setErrores((prev) => ({ ...prev, [name]: nuevoError }))
   }, [])
+
+  const handleChange = useCallback((e) => {
+    const { name, value } = e.target
+    const cleanValue = typeof value === "string" ? value.replace(/^\s+/, "") : value
+
+    // Si cambia el tipo de vehículo, limpia la referencia seleccionada y el campo referencia_id
+    if (name === "tipo_vehiculo") {
+      setReferenciaSeleccionada(null)
+      setFormulario((prev) => ({
+        ...prev,
+        [name]: cleanValue,
+        referencia_id: "",
+      }))
+      validarCampo(name, cleanValue)
+      validarCampo("referencia_id", "")
+    } else {
+      setFormulario((prev) => ({ ...prev, [name]: cleanValue }))
+      validarCampo(name, cleanValue)
+    }
+  }, [validarCampo])
 
   const validarFormulario = useCallback(() => {
     const nuevosErrores = {}

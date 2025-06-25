@@ -293,7 +293,7 @@
   color: #1e293b;
   border: 1px solid #f1f5f9;
   justify-content: flex-start;
-  width: 89%;
+  width: 100%;
 }
 
 .dashboard__quick-access-card:hover {

@@ -324,16 +324,17 @@ const CrearHorario = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
-    console.log("Input change:", name, value)
+    // Elimina espacios al inicio para todos los campos
+    const cleanValue = typeof value === "string" ? value.replace(/^\s+/, "") : value
 
-    const newHorario = { ...horario, [name]: value }
+    const newHorario = { ...horario, [name]: cleanValue }
 
     if (name === "fecha") {
-      if (value) {
-        const dia = calcularDiaSemana(value)
+      if (cleanValue) {
+        const dia = calcularDiaSemana(cleanValue)
         newHorario.dia = dia
 
-        const errorFecha = validarFecha(value)
+        const errorFecha = validarFecha(cleanValue)
         setErrors((prev) => ({ ...prev, fecha: errorFecha }))
       } else {
         newHorario.dia = ""
@@ -343,15 +344,15 @@ const CrearHorario = () => {
 
     // Auto-seleccionar "Ausencia" si hora inicio es 6:00 AM y fin es 8:00 PM
     if (name === "hora_inicio" || name === "hora_fin") {
-      const horaInicio = name === "hora_inicio" ? value : newHorario.hora_inicio
-      const horaFin = name === "hora_fin" ? value : newHorario.hora_fin
+      const horaInicio = name === "hora_inicio" ? cleanValue : newHorario.hora_inicio
+      const horaFin = name === "hora_fin" ? cleanValue : newHorario.hora_fin
 
       if (horaInicio === "06:00" && horaFin === "20:00") {
         newHorario.tipo_novedad = "Ausencia"
       }
     }
 
-    if (name === "tipo_novedad" && value === "Ausencia") {
+    if (name === "tipo_novedad" && cleanValue === "Ausencia") {
       newHorario.hora_inicio = ""
       newHorario.hora_fin = ""
     }

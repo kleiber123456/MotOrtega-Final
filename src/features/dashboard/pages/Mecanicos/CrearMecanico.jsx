@@ -101,8 +101,10 @@ const CrearMecanico = () => {
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target
-    setFormulario((prev) => ({ ...prev, [name]: value }))
-    validarCampo(name, value)
+    // Elimina espacios al inicio para todos los campos
+    const cleanValue = typeof value === "string" ? value.replace(/^\s+/, "") : value
+    setFormulario((prev) => ({ ...prev, [name]: cleanValue }))
+    validarCampo(name, cleanValue)
   }, [])
 
   // Cargar horarios al montar el componente

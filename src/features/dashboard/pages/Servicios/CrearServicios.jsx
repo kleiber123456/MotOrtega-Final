@@ -93,8 +93,10 @@ const CrearServicio = () => {
   const handleChange = useCallback(
     (e) => {
       const { name, value } = e.target
-      setFormData((prev) => ({ ...prev, [name]: value }))
-      validarCampo(name, value)
+      // Elimina espacios al inicio para todos los campos
+      const cleanValue = typeof value === "string" ? value.replace(/^\s+/, "") : value
+      setFormData((prev) => ({ ...prev, [name]: cleanValue }))
+      validarCampo(name, cleanValue)
     },
     [validarCampo],
   )

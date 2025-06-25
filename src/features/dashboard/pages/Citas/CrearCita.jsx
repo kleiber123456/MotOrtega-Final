@@ -943,9 +943,11 @@ function CrearCita() {
 
   const handleChange = (e) => {
     const { name, value } = e.target
+    // Elimina espacios al inicio
+    const newValue = value.replace(/^\s+/, "")
     setFormData({
       ...formData,
-      [name]: value,
+      [name]: newValue,
     })
 
     if (errors[name]) {

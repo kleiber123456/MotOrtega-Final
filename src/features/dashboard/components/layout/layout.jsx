@@ -192,21 +192,18 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
         </div>
 
         <div className="mo-sidebar__menu">
-          {/* NUEVO: Dropdown de Inicio con Dashboard y Perfil */}
-          <Dropdown
-            id="inicio"
-            title="Inicio"
-            icon={<FaTachometerAlt />}
-            options={[
-              { label: "Dashboard", link: "/dashboard" },
-              { label: "Perfil", link: "/Perfil" },
-            ]}
-            isOpen={activeDropdown === "inicio"}
-            toggleDropdown={toggleDropdown}
-            collapsed={collapsed}
-          />
+          {/* Botón Dashboard directo en HTML */}
+          <a
+            href="/dashboard"
+            className={`mo-dashboard-btn ${activePath === "/dashboard" ? "mo-dashboard-btn--active" : ""} ${collapsed ? "mo-dashboard-btn--collapsed" : ""}`}
+            onClick={handleLinkClick}
+            aria-current={activePath === "/dashboard" ? "page" : undefined}
+          >
+            <span className="mo-dashboard-btn__icon"><FaTachometerAlt /></span>
+            {!collapsed && <span className="mo-dashboard-btn__title">Dashboard</span>}
+          </a>
 
-      <Dropdown
+          <Dropdown
             id="configuracion"
             title="Configuración"
             icon={<FaUserCog />}
@@ -215,12 +212,11 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
               { label: "Usuarios", link: "/listarUsuarios" },
               { label: "Clientes", link: "/ListarClientes" },
               { label: "Mecánicos", link: "/ListarMecanicos" },
-              
             ]}
             isOpen={activeDropdown === "configuracion"}
             toggleDropdown={toggleDropdown}
             collapsed={collapsed}
-           />
+          />
 
           <Dropdown
             id="servicios"
@@ -360,7 +356,9 @@ const Header = ({ sidebarCollapsed, onToggleSidebar }) => {
           >
             <FaBell />
           </button>
-          <button className="mo-header__icon-btn" aria-label="Calendario">
+          <button className="mo-header__icon-btn" aria-label="Calendario"
+            onClick={() => navigate("/citas")}
+          >
             <FaCalendarAlt />
           </button>
           <button
@@ -379,7 +377,11 @@ const Header = ({ sidebarCollapsed, onToggleSidebar }) => {
               <span className="mo-header__role">{userData.role}</span>
             </div>
           )}
-          <div className="mo-header__avatar">
+          <div
+            className="mo-header__avatar"
+            style={{ cursor: "pointer" }}
+            onClick={() => navigate("/Perfil")}
+          >
             <img src={userData.avatar || "/placeholder.svg"} alt="Avatar de usuario" />
           </div>
         </div>
