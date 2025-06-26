@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -39,11 +38,46 @@ const ListarCitas = () => {
   const fetchCitas = async () => {
     setLoading(true)
     try {
-      const response = await axios.get(`${API_BASE_URL}/citas`, {
-        headers: {
-          Authorization: token,
-        },
-      })
+      // Probar diferentes formatos de token
+      const tokenFromLocal = localStorage.getItem("token")
+      const tokenFromSession = sessionStorage.getItem("token")
+      const finalToken = tokenFromLocal || tokenFromSession
+
+      console.log("Token desde localStorage:", tokenFromLocal)
+      console.log("Token desde sessionStorage:", tokenFromSession)
+      console.log("Token final a usar:", finalToken)
+
+      if (!finalToken) {
+        toast.error("No hay token de autenticación")
+        setLoading(false)
+        return
+      }
+
+      // Probar primero sin "Bearer"
+      let response
+      try {
+        response = await axios.get(`${API_BASE_URL}/citas`, {
+          headers: {
+            Authorization: finalToken, // Sin "Bearer"
+            "Content-Type": "application/json",
+          },
+        })
+      } catch (error) {
+        if (error.response?.status === 401) {
+          // Si falla, probar con "Bearer"
+          console.log("Probando con Bearer...")
+          response = await axios.get(`${API_BASE_URL}/citas`, {
+            headers: {
+              Authorization: `Bearer ${finalToken}`,
+              "Content-Type": "application/json",
+            },
+          })
+        } else {
+          throw error
+        }
+      }
+
+      console.log("Respuesta exitosa:", response.data)
 
       const citasData = Array.isArray(response.data)
         ? response.data
@@ -75,6 +109,18 @@ const ListarCitas = () => {
       setCitas(citasTransformadas)
       setLoading(false)
     } catch (error) {
+      console.error("Error completo:", error)
+      console.error("Error response:", error.response?.data)
+      console.error("Error status:", error.response?.status)
+
+      if (error.response?.status === 401) {
+        toast.error("Token inválido o expirado. Por favor, inicie sesión nuevamente.")
+      } else if (error.response?.status === 403) {
+        toast.error("No tiene permisos para acceder a las citas.")
+      } else {
+        toast.error("Error al cargar las citas")
+      }
+
       setCitas([])
       setLoading(false)
     }
@@ -102,7 +148,7 @@ const ListarCitas = () => {
 
         await axios.delete(`${API_BASE_URL}/citas/${id}`, {
           headers: {
-            Authorization: token,
+            Authorization: token, // Usar el mismo formato que funcionó para GET
           },
         })
 
@@ -273,130 +319,10 @@ const ListarCitas = () => {
                 startAccessor="start"
                 endAccessor="end"
                 titleAccessor="title"
-                style={{ height: 500 }}
                 messages={messages}
                 eventPropGetter={eventStyleGetter}
                 onSelectEvent={handleSelectEvent}
               />
-              <style jsx>{`
-                .rbc-calendar {
-                  background: white;
-                  border-radius: 12px;
-                  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-                  overflow: hidden;
-                  border: 1px solid #e5e7eb;
-                }
-                
-                .rbc-header {
-                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                  color: white;
-                  font-weight: 600;
-                  padding: 12px 8px;
-                  border-bottom: none;
-                  text-transform: uppercase;
-                  font-size: 0.875rem;
-                  letter-spacing: 0.05em;
-                }
-                
-                .rbc-month-view {
-                  border: none;
-                }
-                
-                .rbc-date-cell {
-                  padding: 8px;
-                  border-right: 1px solid #f3f4f6;
-                }
-                
-                .rbc-date-cell > a {
-                  color: #374151;
-                  font-weight: 500;
-                  text-decoration: none;
-                }
-                
-                .rbc-today {
-                  background-color: #fef3c7 !important;
-                }
-                
-                .rbc-off-range-bg {
-                  background-color: #f9fafb;
-                }
-                
-                .rbc-event {
-                  border-radius: 6px;
-                  border: none;
-                  padding: 2px 6px;
-                  font-size: 0.75rem;
-                  font-weight: 500;
-                  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-                  transition: all 0.2s ease;
-                }
-                
-                .rbc-event:hover {
-                  transform: translateY(-1px);
-                  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-                }
-                
-                .rbc-toolbar {
-                  background: white;
-                  padding: 16px 20px;
-                  border-bottom: 1px solid #e5e7eb;
-                  margin-bottom: 0;
-                }
-                
-                .rbc-toolbar button {
-                  background: #f8fafc;
-                  border: 1px solid #e2e8f0;
-                  color: #475569;
-                  padding: 8px 16px;
-                  border-radius: 6px;
-                  font-weight: 500;
-                  transition: all 0.2s ease;
-                }
-                
-                .rbc-toolbar button:hover {
-                  background: #e2e8f0;
-                  border-color: #cbd5e1;
-                }
-                
-                .rbc-toolbar button.rbc-active {
-                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                  color: white;
-                  border-color: #667eea;
-                }
-                
-                .rbc-toolbar-label {
-                  font-size: 1.25rem;
-                  font-weight: 700;
-                  color: #1f2937;
-                  text-transform: capitalize;
-                }
-                
-                .rbc-day-bg + .rbc-day-bg {
-                  border-left: 1px solid #f3f4f6;
-                }
-                
-                .rbc-month-row + .rbc-month-row {
-                  border-top: 1px solid #f3f4f6;
-                }
-                
-                .rbc-day-slot .rbc-time-slot {
-                  border-top: 1px solid #f3f4f6;
-                }
-                
-                .rbc-time-view .rbc-time-gutter {
-                  background: #f8fafc;
-                  border-right: 1px solid #e5e7eb;
-                }
-                
-                .rbc-time-view .rbc-time-content {
-                  border-left: none;
-                }
-                
-                .rbc-current-time-indicator {
-                  background-color: #ef4444;
-                  height: 2px;
-                }
-              `}</style>
             </div>
           ) : (
             <div className="listarCitas-table-container">

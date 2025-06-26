@@ -96,6 +96,9 @@ const ListarRoles = () => {
   const [paginaActual, setPaginaActual] = useState(1)
   const [elementosPorPagina] = useState(5)
 
+  // NUEVO
+  const [usuarios, setUsuarios] = useState([])
+
   // Cargar roles
   const cargarRoles = useCallback(async () => {
     try {
@@ -120,10 +123,23 @@ const ListarRoles = () => {
     }
   }, [makeRequest])
 
-  // Cargar roles al montar el componente
+  // Cargar usuarios
+  const cargarUsuarios = useCallback(async () => {
+    try {
+      const data = await makeRequest("/usuarios")
+      if (data && Array.isArray(data)) {
+        setUsuarios(data)
+      }
+    } catch (error) {
+      console.error("Error al cargar usuarios:", error)
+    }
+  }, [makeRequest])
+
+  // Cargar roles y usuarios al montar el componente
   useEffect(() => {
     cargarRoles()
-  }, [cargarRoles])
+    cargarUsuarios()
+  }, [cargarRoles, cargarUsuarios])
 
   // Filtrar roles según búsqueda y estado
   const rolesFiltrados = useMemo(() => {
@@ -175,35 +191,32 @@ const ListarRoles = () => {
     navigate("/CrearRoles")
   }, [navigate])
 
-  // Eliminar rol
-  const eliminarRol = async (id, nombre) => {
-    const result = await Swal.fire({
-      title: "¿Estás seguro?",
-      text: `¿Deseas eliminar el rol ${nombre}?`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar",
-    })
-
-    if (result.isConfirmed) {
-      try {
-        await makeRequest(`/roles/${id}`, {
-          method: "DELETE",
-        })
-        Swal.fire("Eliminado!", "El rol ha sido eliminado.", "success")
-        cargarRoles()
-      } catch (error) {
-        console.error("Error al eliminar el rol:", error)
-        Swal.fire("Error!", "No se pudo eliminar el rol.", "error")
-      }
-    }
-  }
-
   // Cambiar estado
   const cambiarEstado = async (id, estado, nombre) => {
+    if (nombre?.toLowerCase() === "administrador") {
+      await Swal.fire({
+        icon: "warning",
+        title: "Acción no permitida",
+        text: "No puedes desactivar el rol Administrador.",
+        confirmButtonColor: "#ef4444",
+      })
+      return
+    }
+
+    // Buscar si hay usuarios con este rol
+    const tieneUsuarios = usuarios.some(
+      (u) => u.rol_nombre && u.rol_nombre.toLowerCase() === nombre?.toLowerCase()
+    )
+    if (tieneUsuarios) {
+      await Swal.fire({
+        icon: "warning",
+        title: "Acción no permitida",
+        text: `No puedes desactivar el rol ${nombre} porque tiene usuarios asociados.`,
+        confirmButtonColor: "#ef4444",
+      })
+      return
+    }
+
     const nuevoEstado = estado === "Activo" ? "Inactivo" : "Activo"
     const result = await Swal.fire({
       title: "¿Cambiar estado?",
@@ -223,9 +236,61 @@ const ListarRoles = () => {
         })
         Swal.fire("Actualizado!", `El rol ha cambiado a ${nuevoEstado}.`, "success")
         cargarRoles()
+        cargarUsuarios()
       } catch (error) {
         console.error("Error al cambiar el estado del rol:", error)
         Swal.fire("Error!", "No se pudo cambiar el estado del rol.", "error")
+      }
+    }
+  }
+
+  const eliminarRol = async (id, nombre) => {
+    // Buscar si hay usuarios con este rol
+    const tieneUsuarios = usuarios.some(
+      (u) => u.rol_nombre && u.rol_nombre.toLowerCase() === nombre?.toLowerCase()
+    )
+    if (tieneUsuarios) {
+      await Swal.fire({
+        icon: "warning",
+        title: "Acción no permitida",
+        text: `No puedes eliminar el rol ${nombre} porque tiene usuarios asociados.`,
+        confirmButtonColor: "#ef4444",
+      })
+      return
+    }
+
+    if (nombre?.toLowerCase() === "administrador") {
+      await Swal.fire({
+        icon: "warning",
+        title: "Acción no permitida",
+        text: "No puedes eliminar el rol de Administrador.",
+        confirmButtonColor: "#ef4444",
+      })
+      return
+    }
+
+    const result = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: `¿Deseas eliminar el rol ${nombre}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    })
+
+    if (result.isConfirmed) {
+      try {
+        await makeRequest(`/roles/${id}`, {
+          method: "DELETE",
+        })
+        Swal.fire("Eliminado!", "El rol ha sido eliminado.", "success")
+        cargarRoles()
+        cargarUsuarios()
+      } catch (error) {
+        console.error("Error al eliminar el rol:", error)
+        Swal.fire("Error!", "No se pudo eliminar el rol.", "error")
       }
     }
   }
@@ -321,25 +386,37 @@ const ListarRoles = () => {
                       </div>
                     </td>
                     <td>
-                      <button
-                        type="button" // <-- Asegura que no sea submit
-                        className={`listarRoles-estado-toggle ${
-                          rol.estado?.toLowerCase() === "activo" ? "activo" : "inactivo"
-                        }`}
-                        onClick={e => {
-                          e.preventDefault() // <-- Previene comportamiento por defecto
-                          cambiarEstado(rol.id, rol.estado, rol.nombre)
-                        }}
-                        title={`Estado: ${rol.estado} - Click para cambiar`}
-                      >
-                        {rol.estado?.toLowerCase() === "activo" ? (
-                          <FaToggleOn className="listarRoles-toggle-icon" />
-                        ) : (
-                          <FaToggleOff className="listarRoles-toggle-icon" />
-                        )}
-                        <span className="listarRoles-estado-text">{rol.estado}</span>
-                      </button>
-                    </td>
+  {rol.nombre?.toLowerCase() !== "administrador" && (
+    <button
+      type="button"
+      className={`listarRoles-estado-toggle ${
+        rol.estado?.toLowerCase() === "activo" ? "activo" : "inactivo"
+      }`}
+      onClick={e => {
+        e.preventDefault()
+        cambiarEstado(
+          rol.id,
+          rol.estado,
+          rol.nombre,
+          rol.usuariosAsociados || rol.cantidadUsuarios || 0
+        )
+      }}
+      title={`Estado: ${rol.estado} - Click para cambiar`}
+      disabled={
+        (rol.usuariosAsociados && rol.usuariosAsociados > 0) ||
+        (rol.cantidadUsuarios && rol.cantidadUsuarios > 0)
+      }
+    >
+      {rol.estado?.toLowerCase() === "activo" ? (
+        <FaToggleOn className="listarRoles-toggle-icon" />
+      ) : (
+        <FaToggleOff className="listarRoles-toggle-icon" />
+      )}
+      <span className="listarRoles-estado-text">{rol.estado}</span>
+    </button>
+  )}
+  {/* Si es administrador, no mostrar nada */}
+</td>
                     <td className="listarRoles-actions">
                       <button
                         className="listarRoles-action-button detail"
@@ -355,13 +432,19 @@ const ListarRoles = () => {
                       >
                         <FaEdit />
                       </button>
-                      <button
-                        className="listarRoles-action-button delete"
-                        onClick={() => eliminarRol(rol.id, rol.nombre)}
-                        title="Eliminar rol"
-                      >
-                        <FaTrash />
-                      </button>
+                      {rol.nombre?.toLowerCase() !== "administrador" && (
+    <button
+      className="listarRoles-action-button delete"
+      onClick={() => eliminarRol(rol.id, rol.nombre, rol.usuariosAsociados || rol.cantidadUsuarios || 0)}
+      title="Eliminar rol"
+      disabled={
+        (rol.usuariosAsociados && rol.usuariosAsociados > 0) ||
+        (rol.cantidadUsuarios && rol.cantidadUsuarios > 0)
+      }
+    >
+      <FaTrash />
+    </button>
+  )}
                     </td>
                   </tr>
                 ))}
