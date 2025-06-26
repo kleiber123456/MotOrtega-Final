@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { FaArrowLeft, FaUserShield, FaIdCard, FaTimes, FaSpinner, FaExclamationTriangle, FaSave, FaLock } from "react-icons/fa"
 import Swal from "sweetalert2"
@@ -70,6 +70,23 @@ const CrearRol = () => {
   const navigate = useNavigate()
   const { makeRequest, loading: apiLoading } = useApi()
 
+  // Estado oculto para los nombres de roles existentes
+  const rolesNombresRef = useRef([])
+
+  // Al montar, carga los nombres de los roles una sola vez
+  useEffect(() => {
+    (async () => {
+      try {
+        const roles = await makeRequest("/roles")
+        if (roles && Array.isArray(roles)) {
+          rolesNombresRef.current = roles.map((r) => r.nombre.toLowerCase().trim())
+        }
+      } catch {
+        // Silencioso, no mostrar nada
+      }
+    })()
+  }, [makeRequest])
+
   const [formData, setFormData] = useState({
     nombre: "",
     descripcion: "",
@@ -124,8 +141,8 @@ const CrearRol = () => {
           nuevoError = "La descripción es obligatoria."
         } else if (value.trim().length < 10) {
           nuevoError = "La descripción debe tener al menos 10 caracteres."
-        } else if (value.trim().length > 500) {
-          nuevoError = "La descripción no puede exceder 500 caracteres."
+        } else if (value.trim().length > 80) {
+          nuevoError = "La descripción no puede exceder 80 caracteres."
         }
         break
     }
@@ -148,11 +165,10 @@ const CrearRol = () => {
 
   // Validación cuando el usuario termina de escribir el nombre (onBlur)
   const handleNombreBlur = useCallback(
-    async (e) => {
-      const nombre = e.target.value.trim()
+    (e) => {
+      const nombre = e.target.value.trim().toLowerCase()
       if (nombre && validarCampo("nombre", nombre)) {
-        const existe = await verificarRolExistente(nombre)
-        if (existe) {
+        if (rolesNombresRef.current.includes(nombre)) {
           setErrores((prev) => ({
             ...prev,
             nombre: "Ya existe un rol con este nombre. Por favor elige otro nombre.",
@@ -160,7 +176,7 @@ const CrearRol = () => {
         }
       }
     },
-    [validarCampo, verificarRolExistente],
+    [validarCampo],
   )
 
   // Manejador para cambios generales en el formulario
@@ -214,16 +230,6 @@ const CrearRol = () => {
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault()
-
-      if (!validarFormulario()) {
-        await Swal.fire({
-          icon: "warning",
-          title: "Campos inválidos",
-          text: "Por favor corrige los errores antes de continuar.",
-          confirmButtonColor: "#2563eb",
-        })
-        return
-      }
 
       setIsSubmitting(true)
 
@@ -420,7 +426,7 @@ const CrearRol = () => {
                 placeholder="Describe las responsabilidades y alcance de este rol..."
                 value={formData.descripcion}
                 onChange={handleInputChange}
-                maxLength={500}
+                maxLength={80}
                 rows={4}
                 required
               />
@@ -429,7 +435,7 @@ const CrearRol = () => {
                   <FaExclamationTriangle /> {errores.descripcion}
                 </span>
               )}
-              <small className="crearRol-char-count">{formData.descripcion.length}/500 caracteres</small>
+              <small className="crearRol-char-count">{formData.descripcion.length}/80 caracteres</small>
             </div>
           </div>
         </div>

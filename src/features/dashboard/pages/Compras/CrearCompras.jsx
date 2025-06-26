@@ -213,10 +213,10 @@ const CrearCompra = () => {
           ? {
               ...item,
               porcentaje: newPorcentaje,
-              precioVenta: Number(item.price) + (Number(item.price) * Number(newPorcentaje) / 100),
+              precioVenta: Number(item.price) + (Number(item.price) * Number(newPorcentaje)) / 100,
             }
-          : item
-      )
+          : item,
+      ),
     )
   }, [])
 
@@ -229,10 +229,10 @@ const CrearCompra = () => {
           ? {
               ...item,
               price: newPrice,
-              precioVenta: Number(newPrice) + (Number(newPrice) * Number(item.porcentaje || 40) / 100),
+              precioVenta: Number(newPrice) + (Number(newPrice) * Number(item.porcentaje || 40)) / 100,
             }
-          : item
-      )
+          : item,
+      ),
     )
   }, [])
 
@@ -259,8 +259,9 @@ const CrearCompra = () => {
           detalles: selectedProducts.map((product) => ({
             repuesto_id: product.id,
             cantidad: product.quantity,
-            precio_compra: product.price, // Este es el precio compra de la compra
-            // NO envíes precio_venta aquí, solo se muestra
+            precio_compra: product.price,
+            porcentaje_ganancia: product.porcentaje || 40, // Enviar el porcentaje
+            // El precio_venta se calculará en el backend
           })),
           estado: "Pendiente",
         }
@@ -320,11 +321,7 @@ const CrearCompra = () => {
     <div className="crearCompra-container">
       <div className="editarUsuario-header">
         <div className="editarUsuario-header-left">
-          <button
-            className="editarUsuario-btn-back"
-            onClick={() => navigate("/ListarCompras")}
-            type="button"
-          >
+          <button className="editarUsuario-btn-back" onClick={() => navigate("/ListarCompras")} type="button">
             <FaArrowLeft />
             Volver
           </button>
@@ -486,7 +483,9 @@ const CrearCompra = () => {
                               min="0"
                               step="0.01"
                               value={product.porcentaje ?? 40}
-                              onChange={(e) => updateProductPorcentaje(product.id, Number.parseFloat(e.target.value) || "")}
+                              onChange={(e) =>
+                                updateProductPorcentaje(product.id, Number.parseFloat(e.target.value) || "")
+                              }
                               className="crearCompra-inline-input"
                               placeholder="Ingrese el porcentaje"
                             />
@@ -499,7 +498,8 @@ const CrearCompra = () => {
                               type="text"
                               value={formatNumber(
                                 product.precioVenta ??
-                                (Number(product.price) + (Number(product.price) * Number(product.porcentaje ?? 40) / 100))
+                                  Number(product.price) +
+                                    (Number(product.price) * Number(product.porcentaje ?? 40)) / 100,
                               )}
                               className="crearCompra-inline-input"
                               readOnly
@@ -660,7 +660,7 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
     if (!validateInputs(product.id, cantidad, precioCompra, porcentaje)) return
 
     // Calcula el precio venta usando el porcentaje y el precio compra
-    const precioVenta = Number(precioCompra) + (Number(precioCompra) * Number(porcentaje) / 100)
+    const precioVenta = Number(precioCompra) + (Number(precioCompra) * Number(porcentaje)) / 100
 
     setCartItems((prev) => [
       ...prev,
@@ -821,7 +821,11 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                               min="1"
                               value={cantidad === undefined ? "" : cantidad}
                               onChange={(e) =>
-                                handleInputChange(product.id, "cantidad", e.target.value === "" ? "" : Number.parseInt(e.target.value))
+                                handleInputChange(
+                                  product.id,
+                                  "cantidad",
+                                  e.target.value === "" ? "" : Number.parseInt(e.target.value),
+                                )
                               }
                               placeholder="Ingrese la cantidad"
                             />
@@ -840,7 +844,11 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                               step="0.01"
                               value={precioCompra === undefined ? "" : precioCompra}
                               onChange={(e) =>
-                                handleInputChange(product.id, "precioCompra", e.target.value === "" ? "" : Number.parseFloat(e.target.value))
+                                handleInputChange(
+                                  product.id,
+                                  "precioCompra",
+                                  e.target.value === "" ? "" : Number.parseFloat(e.target.value),
+                                )
                               }
                               onFocus={(e) => e.target.select()}
                               placeholder="Ingrese el precio de compra"
@@ -862,7 +870,11 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                               step="0.01"
                               value={porcentaje === undefined ? "" : porcentaje}
                               onChange={(e) =>
-                                handleInputChange(product.id, "porcentaje", e.target.value === "" ? "" : Number.parseFloat(e.target.value))
+                                handleInputChange(
+                                  product.id,
+                                  "porcentaje",
+                                  e.target.value === "" ? "" : Number.parseFloat(e.target.value),
+                                )
                               }
                               placeholder="Ingrese el porcentaje"
                             />
@@ -889,13 +901,7 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                           className="crearCompra-add-button"
                           style={{ marginTop: 8 }}
                           onClick={() => {
-                            handleAddToCart(
-                              product,
-                              cantidad,
-                              precioCompra,
-                              porcentaje,
-                              precioVenta,
-                            )
+                            handleAddToCart(product, cantidad, precioCompra, porcentaje, precioVenta)
                           }}
                         >
                           <FaPlus /> Agregar

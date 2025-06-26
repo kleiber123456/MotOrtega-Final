@@ -24,7 +24,6 @@ const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
 const getValidToken = () => {
   const token = localStorage.getItem("token") || sessionStorage.getItem("token")
   if (!token) {
-    console.error("No hay token disponible")
     return null
   }
   return token
@@ -45,7 +44,7 @@ const useApi = () => {
       setLoading(false)
       return null
     }
-
+console
     try {
       const response = await fetch(`${API_BASE_URL}${url}`, {
         ...options,
@@ -101,20 +100,20 @@ const EditarMecanico = () => {
   useEffect(() => {
     const cargarMecanico = async () => {
       if (!id) {
-        console.error("ID de mecánico no proporcionado")
+        
         navigate("/ListarMecanicos")
         return
       }
 
       try {
         setCargando(true)
-        console.log(`Cargando mecánico con ID: ${id}`)
+        
 
         // Solo cargar datos básicos del mecánico, NO horarios
         const data = await makeRequest(`/mecanicos/${id}`)
 
         if (data) {
-          console.log("Datos del mecánico cargados:", data)
+          
 
           // Mapear solo los campos que existen en la base de datos
           setFormulario({

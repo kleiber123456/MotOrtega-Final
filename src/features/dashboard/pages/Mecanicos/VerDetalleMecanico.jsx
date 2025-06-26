@@ -97,7 +97,6 @@ const useApi = () => {
 
   return { makeRequest, loading, error }
 }
-
 const VerDetalleMecanico = () => {
   const navigate = useNavigate()
   const { id } = useParams()
@@ -116,7 +115,6 @@ const VerDetalleMecanico = () => {
   useEffect(() => {
     const cargarMecanico = async () => {
       if (!id) {
-        console.error("ID de mecánico no proporcionado")
         navigate("/ListarMecanicos")
         return
       }
@@ -125,15 +123,12 @@ const VerDetalleMecanico = () => {
         setCargando(true)
         setErrorDetalle(null)
 
-        console.log(`Cargando mecánico con ID: ${id}`)
         const data = await makeRequest(`/mecanicos/${id}`)
 
         if (data) {
-          console.log("Datos del mecánico cargados exitosamente:", data)
           setMecanico(data)
         }
       } catch (error) {
-        console.error("Error al cargar mecánico:", error)
         setErrorDetalle(error.message)
 
         const errorTitle = error.message.includes("servidor") ? "Servidor no disponible" : "Error de conexión"

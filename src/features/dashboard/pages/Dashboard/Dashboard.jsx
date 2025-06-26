@@ -251,9 +251,12 @@ const Dashboard = () => {
               <FaTools />
             </div>
             <div className="dashboard__stat-content">
-              <h3>Servicios Activos</h3>
-              <p>{dashboardData.estadisticas?.servicios?.total || dashboardData.serviciosActivos.length || 0}</p>
-              <span className="dashboard__stat-change">+12% este mes</span>
+              <div className="dashboard__stat-info">
+                <h3>Servicios Activos</h3>
+                <p>{dashboardData.estadisticas?.servicios?.total || dashboardData.serviciosActivos.length || 0}</p>
+                <span className="dashboard__stat-change">+12% este mes</span>
+              </div>
+              <Link to="/servicios" className="dashboard__vermas-button">Ver más</Link>
             </div>
           </div>
 
@@ -265,6 +268,7 @@ const Dashboard = () => {
               <h3>Ingresos del Mes</h3>
               <p>${dashboardData.estadisticas?.ingresos_mes?.toLocaleString() || "0"}</p>
               <span className="dashboard__stat-change">+8% vs mes anterior</span>
+              <Link to="/ingresos" className="dashboard__vermas-button">Ver más</Link>
             </div>
           </div>
 
@@ -276,6 +280,7 @@ const Dashboard = () => {
               <h3>Repuestos Bajo Stock</h3>
               <p>{dashboardData.repuestosBajoStock.length}</p>
               <span className="dashboard__stat-change">Requiere atención</span>
+              <Link to="/repuestos" className="dashboard__vermas-button">Ver más</Link>
             </div>
           </div>
 
@@ -287,6 +292,7 @@ const Dashboard = () => {
               <h3>Compras Recientes</h3>
               <p>{dashboardData.comprasRecientes.length}</p>
               <span className="dashboard__stat-change">Últimos 30 días</span>
+              <Link to="/ListarCompras" className="dashboard__vermas-button">Ver más</Link>
             </div>
           </div>
         </div>

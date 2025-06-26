@@ -88,9 +88,6 @@
   transition: all 0.3s ease;
 }
 
-.editarRol-form-section:hover {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-}
 
 .editarRol-form-section:last-child {
   border-bottom: none;
@@ -109,10 +106,6 @@
   transition: all 0.3s ease;
 }
 
-.editarRol-section-title:hover {
-  border-bottom-color: #2563eb;
-  color: #2563eb;
-}
 
 .editarRol-section-icon {
   color: #2563eb;
@@ -146,10 +139,6 @@
   padding: 4px 0;
 }
 
-.editarRol-label:hover {
-  color: #2563eb;
-  transform: translateX(4px);
-}
 
 .editarRol-label-icon {
   color: #6b7280;
@@ -169,11 +158,7 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
-.editarRol-form-input:hover {
-  border-color: #94a3b8;
-  background-color: #ffffff;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-}
+
 
 .editarRol-form-input:focus {
   border-color: #3b82f6;
@@ -205,12 +190,6 @@
   resize: vertical;
   box-sizing: border-box;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-}
-
-.editarRol-form-textarea:hover {
-  border-color: #94a3b8;
-  background-color: #ffffff;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .editarRol-form-textarea:focus {

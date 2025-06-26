@@ -385,9 +385,7 @@ const EditarUsuario = () => {
                 required
                 disabled // <-- Campo deshabilitado
               >
-                <option value="">Seleccionar tipo</option>
-                <option value="Cedula de Ciudadania">Cédula de Ciudadanía</option>
-                <option value="Tarjeta de Identidad">Tarjeta de Identidad</option>
+                <option>{usuario.tipo_documento}</option>
               </select>
               {errores.tipo_documento && (
                 <span className="editarUsuario-error-text">

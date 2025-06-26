@@ -30,6 +30,18 @@ function DetalleVenta() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
+    if (!id) {
+      setError("ID de venta no válido")
+      setCargando(false)
+      return
+    }
+
+    if (!token) {
+      setError("Token de autenticación no encontrado. Por favor, inicie sesión.")
+      setCargando(false)
+      return
+    }
+
     document.body.style.backgroundColor = "#f9fafb"
     cargarDatos()
     return () => {
@@ -42,6 +54,9 @@ function DetalleVenta() {
       setCargando(true)
       setError(null)
 
+      console.log("Cargando datos para venta ID:", id)
+      console.log("Token disponible:", !!token)
+
       // Cargar estados de venta
       const resEstados = await fetch("https://api-final-8rw7.onrender.com/api/estados-venta", {
         method: "GET",
@@ -50,12 +65,17 @@ function DetalleVenta() {
         },
       })
 
-      if (!resEstados.ok) throw new Error("Error al cargar los estados de venta")
+      if (!resEstados.ok) {
+        console.error("Error al cargar estados:", resEstados.status, resEstados.statusText)
+        throw new Error(`Error al cargar los estados de venta: ${resEstados.status}`)
+      }
 
       const dataEstados = await resEstados.json()
+      console.log("Estados cargados:", dataEstados)
       setEstadosVenta(dataEstados)
 
       // Cargar venta
+      console.log("Cargando venta con ID:", id)
       const resVenta = await fetch(`https://api-final-8rw7.onrender.com/api/ventas/${id}`, {
         method: "GET",
         headers: {
@@ -63,18 +83,26 @@ function DetalleVenta() {
         },
       })
 
+      console.log("Respuesta de venta:", resVenta.status, resVenta.statusText)
+
       if (!resVenta.ok) {
         if (resVenta.status === 404) {
           throw new Error("Venta no encontrada")
+        } else if (resVenta.status === 500) {
+          throw new Error("Error interno del servidor. Por favor, contacte al administrador.")
+        } else if (resVenta.status === 401) {
+          throw new Error("No autorizado. Por favor, inicie sesión nuevamente.")
         }
-        throw new Error("Error al cargar la venta")
+        throw new Error(`Error al cargar la venta: ${resVenta.status} - ${resVenta.statusText}`)
       }
 
       const dataVenta = await resVenta.json()
+      console.log("Datos de venta cargados:", dataVenta)
       setVenta(dataVenta)
 
       // Cargar información del cliente
       if (dataVenta.cliente_id) {
+        console.log("Cargando cliente ID:", dataVenta.cliente_id)
         const resCliente = await fetch(`https://api-final-8rw7.onrender.com/api/clientes/${dataVenta.cliente_id}`, {
           method: "GET",
           headers: {
@@ -84,11 +112,14 @@ function DetalleVenta() {
 
         if (resCliente.ok) {
           const dataCliente = await resCliente.json()
+          console.log("Cliente cargado:", dataCliente)
           setCliente(dataCliente)
+        } else {
+          console.warn("No se pudo cargar el cliente:", resCliente.status)
         }
       }
     } catch (error) {
-      console.error("Error al cargar datos:", error)
+      console.error("Error completo al cargar datos:", error)
       setError(error.message || "No se pudieron cargar los datos")
     } finally {
       setCargando(false)
@@ -312,16 +343,21 @@ function DetalleVenta() {
     )
   }
 
-  if (!venta) {
+  if (!venta && !cargando && !error) {
     return (
       <div className="detalleVenta-container">
         <div className="detalleVenta-not-found">
           <AlertTriangle size={48} className="detalleVenta-error-icon" />
           <h2>Venta no encontrada</h2>
-          <p>La venta solicitada no existe o no tienes permisos para verla.</p>
-          <button className="detalleVenta-back-button" onClick={() => navigate("/ventas")}>
-            Volver a Ventas
-          </button>
+          <p>La venta con ID #{id} no existe o no tienes permisos para verla.</p>
+          <div className="detalleVenta-error-actions">
+            <button className="detalleVenta-back-button" onClick={() => navigate("/ListarVentas")}>
+              Volver a Ventas
+            </button>
+            <button className="detalleVenta-retry-button" onClick={cargarDatos}>
+              Reintentar
+            </button>
+          </div>
         </div>
       </div>
     )

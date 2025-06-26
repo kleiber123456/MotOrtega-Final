@@ -312,7 +312,6 @@ function ListarCompras() {
     }
   }
 
-
   const handleAnularCompra = async (compraId, estadoActual) => {
     try {
       if (estadoActual !== "Pendiente") {
@@ -392,7 +391,15 @@ function ListarCompras() {
       })
 
       const { compra, proveedor, detallesConProductos } = await cargarDatosCompletosCompra(compraId, token)
-      await generarFacturaPDF(compra, proveedor, detallesConProductos, token)
+
+      // Asegurar que los detalles tienen los precios correctos
+      const detallesConPrecios = detallesConProductos.map((detalle) => ({
+        ...detalle,
+        precio_compra: detalle.precio_compra || detalle.precio || 0,
+        precio_venta: detalle.precio_venta || 0,
+      }))
+
+      await generarFacturaPDF(compra, proveedor, detallesConPrecios, token)
 
       Swal.close()
       Swal.fire("¡Éxito!", "El PDF se ha generado correctamente", "success")

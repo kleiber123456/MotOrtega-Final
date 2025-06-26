@@ -9,7 +9,6 @@ import {
   FaCalendarAlt,
   FaBoxes,
   FaDollarSign,
-  FaDownload,
   FaExclamationTriangle,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
@@ -128,7 +127,6 @@ const DetalleCompra = () => {
 
             let nombreProducto = `Repuesto ID: ${detalle.repuesto_id}`
             let descripcionProducto = ""
-            let precioUnitario = 0
 
             if (responseRepuesto.ok) {
               const dataRepuesto = await responseRepuesto.json()
@@ -136,28 +134,32 @@ const DetalleCompra = () => {
               descripcionProducto = dataRepuesto.descripcion || ""
             }
 
-            // Calcular precio unitario desde subtotal y cantidad
-            if (detalle.cantidad && detalle.cantidad > 0) {
-              precioUnitario = (detalle.subtotal || 0) / detalle.cantidad
-            }
+            // Usar los precios del detalle de la compra
+            const precioCompra = detalle.precio_compra || 0
+            const precioVenta = detalle.precio_venta || 0
 
             return {
               ...detalle,
               nombre_repuesto: nombreProducto,
               descripcion: descripcionProducto,
-              precio: precioUnitario,
+              precio_compra: precioCompra,
+              precio_venta: precioVenta,
+              precio: precioCompra, // Para compatibilidad con el código existente
               // Asegurar que tenemos subtotal
-              subtotal: detalle.subtotal || precioUnitario * (detalle.cantidad || 0),
+              subtotal: detalle.subtotal || precioCompra * (detalle.cantidad || 0),
             }
           } catch (error) {
             console.warn(`Error al cargar repuesto ${detalle.repuesto_id}:`, error)
             // Retornar detalle con información básica si falla la carga del producto
-            const precioUnitario = detalle.cantidad > 0 ? (detalle.subtotal || 0) / detalle.cantidad : 0
+            const precioCompra = detalle.precio_compra || 0
+            const precioVenta = detalle.precio_venta || 0
             return {
               ...detalle,
               nombre_repuesto: `Repuesto ID: ${detalle.repuesto_id}`,
               descripcion: "",
-              precio: precioUnitario,
+              precio_compra: precioCompra,
+              precio_venta: precioVenta,
+              precio: precioCompra,
               subtotal: detalle.subtotal || 0,
             }
           }
@@ -169,12 +171,15 @@ const DetalleCompra = () => {
       console.error("Error al enriquecer detalles:", error)
       // Si falla, usar los detalles básicos
       const detallesBasicos = detalles.map((detalle) => {
-        const precioUnitario = detalle.cantidad > 0 ? (detalle.subtotal || 0) / detalle.cantidad : 0
+        const precioCompra = detalle.precio_compra || 0
+        const precioVenta = detalle.precio_venta || 0
         return {
           ...detalle,
           nombre_repuesto: `Repuesto ID: ${detalle.repuesto_id}`,
           descripcion: "",
-          precio: precioUnitario,
+          precio_compra: precioCompra,
+          precio_venta: precioVenta,
+          precio: precioCompra,
           subtotal: detalle.subtotal || 0,
         }
       })
@@ -264,11 +269,7 @@ const DetalleCompra = () => {
     <div className="detalleCompra-container">
       <div className="editarUsuario-header">
         <div className="editarUsuario-header-left">
-          <button
-            className="editarUsuario-btn-back"
-            onClick={() => navigate("/ListarCompras")}
-            type="button"
-          >
+          <button className="editarUsuario-btn-back" onClick={() => navigate("/ListarCompras")} type="button">
             <FaArrowLeft />
             Volver
           </button>
@@ -383,7 +384,8 @@ const DetalleCompra = () => {
                 <div className="detalleCompra-table-cell">#</div>
                 <div className="detalleCompra-table-cell">Producto</div>
                 <div className="detalleCompra-table-cell">Cantidad</div>
-                <div className="detalleCompra-table-cell">Precio Unitario</div>
+                <div className="detalleCompra-table-cell">Precio Compra</div>
+                <div className="detalleCompra-table-cell">Precio Venta</div>
                 <div className="detalleCompra-table-cell">Subtotal</div>
               </div>
               {detallesConProductos.map((detalle, index) => (
@@ -397,7 +399,10 @@ const DetalleCompra = () => {
                   </div>
                   <div className="detalleCompra-table-cell detalleCompra-cantidad">{detalle.cantidad}</div>
                   <div className="detalleCompra-table-cell detalleCompra-precio">
-                    {formatearPrecio(detalle.precio || 0)}
+                    {formatearPrecio(detalle.precio_compra || 0)}
+                  </div>
+                  <div className="detalleCompra-table-cell detalleCompra-precio">
+                    {formatearPrecio(detalle.precio_venta || 0)}
                   </div>
                   <div className="detalleCompra-table-cell detalleCompra-subtotal">
                     {formatearPrecio(detalle.subtotal || 0)}

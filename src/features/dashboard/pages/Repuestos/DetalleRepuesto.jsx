@@ -155,8 +155,8 @@ function DetalleRepuesto() {
   }, [])
 
   const calcularMargenGanancia = useCallback(() => {
-    if (!repuesto?.precio_compra || !repuesto?.preciounitario || repuesto.precio_compra <= 0) return 0
-    return ((repuesto.preciounitario - repuesto.precio_compra) / repuesto.precio_compra) * 100
+    if (!repuesto?.precio_compra || !repuesto?.precio_venta || repuesto.precio_compra <= 0) return 0
+    return ((repuesto.precio_venta - repuesto.precio_compra) / repuesto.precio_compra) * 100
   }, [repuesto])
 
   const handleEditar = useCallback(() => {
@@ -313,7 +313,7 @@ function DetalleRepuesto() {
             </div>
             <div className="detalleRepuesto-info-content">
               <span className="detalleRepuesto-info-label">Precio de Venta</span>
-              <span className="detalleRepuesto-price-display">{formatearPrecio(repuesto.preciounitario)}</span>
+              <span className="detalleRepuesto-price-display">{formatearPrecio(repuesto.precio_venta)}</span>
             </div>
           </div>
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import {
   FaUserShield,
@@ -90,6 +90,26 @@ const EditarRol = () => {
   const [cargando, setCargando] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // Estado oculto para los nombres de roles existentes
+  const rolesNombresRef = useRef([])
+
+  // Al montar, carga los nombres de los roles una sola vez
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const roles = await makeRequest("/roles")
+        if (roles && Array.isArray(roles)) {
+          // Excluye el nombre del rol actual para permitir editar sin error
+          rolesNombresRef.current = roles
+            .filter((r) => String(r.id) !== String(id))
+            .map((r) => r.nombre.toLowerCase().trim())
+        }
+      } catch {
+        // Silencioso, no mostrar nada
+      }
+    })()
+  }, [makeRequest, id])
+
   useEffect(() => {
     const cargarDatos = async () => {
       try {
@@ -103,7 +123,6 @@ const EditarRol = () => {
           })
         }
       } catch (error) {
-        console.error("Error al cargar datos:", error)
         Swal.fire("Error", "No se pudieron cargar los datos del rol", "error")
       } finally {
         setCargando(false)
@@ -129,6 +148,12 @@ const EditarRol = () => {
           nuevoError = "El nombre del rol es obligatorio."
         } else if (value.trim().length < 3) {
           nuevoError = "El nombre debe tener al menos 3 caracteres."
+        } else if (value.trim().length > 50) {
+          nuevoError = "El nombre no puede exceder 50 caracteres."
+        } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value.trim())) {
+          nuevoError = "El nombre solo puede contener letras y espacios."
+        } else if (rolesNombresRef.current.includes(value.trim().toLowerCase())) {
+          nuevoError = "Ya existe un rol con este nombre. Por favor elige otro nombre."
         }
         break
       case "descripcion":
@@ -136,6 +161,8 @@ const EditarRol = () => {
           nuevoError = "La descripción es obligatoria."
         } else if (value.trim().length < 10) {
           nuevoError = "La descripción debe tener al menos 10 caracteres."
+        } else if (value.trim().length > 80) {
+          nuevoError = "La descripción no puede exceder 80 caracteres."
         }
         break
     }
@@ -145,10 +172,9 @@ const EditarRol = () => {
   // Validación en tiempo real solo para nombre
   const handleNombreChange = useCallback(
     (e) => {
-      const value = e.target.value
-      const filteredValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")
-      setRol((prev) => ({ ...prev, nombre: filteredValue }))
-      validarCampo("nombre", filteredValue)
+      const value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")
+      setRol((prev) => ({ ...prev, nombre: value }))
+      validarCampo("nombre", value)
     },
     [validarCampo],
   )
@@ -313,7 +339,7 @@ const EditarRol = () => {
                 placeholder="Describe las responsabilidades y alcance de este rol..."
                 value={rol.descripcion}
                 onChange={handleChange}
-                maxLength={500}
+                maxLength={80}
                 rows={4}
                 required
               />
@@ -322,6 +348,7 @@ const EditarRol = () => {
                   <FaExclamationTriangle /> {errores.descripcion}
                 </span>
               )}
+              <small className="editarRol-char-count">{rol.descripcion.length}/80 caracteres</small>
             </div>
           </div>
         </div>

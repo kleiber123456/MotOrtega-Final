@@ -101,17 +101,10 @@ const ListarRoles = () => {
     try {
       setCargando(true)
       setError(null)
-      console.log("Cargando roles...")
-
       const data = await makeRequest("/roles")
-
       if (data && Array.isArray(data)) {
-        console.log(`${data.length} roles cargados`)
         setRoles(data)
-      } else {
-        console.warn("La respuesta no contiene un array de roles")
-        setRoles([])
-      }
+      } 
     } catch (error) {
       console.error("Error al cargar roles:", error)
       setError(error.message || "Error al cargar los roles")
@@ -289,13 +282,6 @@ const ListarRoles = () => {
             <option value="Inactivo">Inactivos</option>
           </select>
         </div>
-      </div>
-
-      {/* Información de paginación */}
-      <div style={{ padding: "10px 20px", backgroundColor: "white", borderRadius: "8px", marginBottom: "10px" }}>
-        <p style={{ margin: 0, fontSize: "14px", color: "#666" }}>
-          Mostrando {rolesEnPagina.length} de {totalElementos} roles - Página {paginaActual} de {totalPaginas}
-        </p>
       </div>
 
       {/* Tabla */}

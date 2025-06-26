@@ -197,11 +197,7 @@ const CrearVenta = () => {
         }
 
         // Filtrar solo clientes activos
-        setClientes(
-          clientesArray.filter(
-            (cliente) => cliente.estado?.toLowerCase() === "activo"
-          )
-        )
+        setClientes(clientesArray.filter((cliente) => cliente.estado?.toLowerCase() === "activo"))
       } catch (error) {
         console.error("Error al cargar clientes:", error)
       }
@@ -399,7 +395,7 @@ const CrearVenta = () => {
         if (item.id === productId) {
           // Permitir vacío o 0 temporalmente
           if (newQuantity === "" || Number(newQuantity) < 1) {
-            return { ...item, quantity: "" };
+            return { ...item, quantity: "" }
           }
           // Validar que no exceda el stock disponible
           if (newQuantity > item.stockOriginal) {
@@ -408,12 +404,12 @@ const CrearVenta = () => {
               title: "Stock insuficiente",
               text: `Solo hay ${item.stockOriginal} unidades disponibles`,
               confirmButtonColor: "#2563eb",
-            });
-            return item; // No actualizar si excede el stock
+            })
+            return item // No actualizar si excede el stock
           }
-          return { ...item, quantity: Number(newQuantity) };
+          return { ...item, quantity: Number(newQuantity) }
         }
-        return item;
+        return item
       }),
     )
   }, [])
@@ -731,7 +727,7 @@ const CrearVenta = () => {
             {/* Update the client input section to include a deselect button: */}
             <div className="crearVenta-form-group">
               <label className="crearVenta-label">
-                <i className="icon-user" /> Cliente 
+                <i className="icon-user" /> Cliente
               </label>
               <div className="crearVenta-input-with-actions">
                 <input
@@ -779,11 +775,7 @@ const CrearVenta = () => {
                   <input
                     type="text"
                     className="crearVenta-form-input"
-                    value={
-                      selectedVehiculo
-                        ? `${selectedVehiculo.placa} `
-                        : ""
-                    }
+                    value={selectedVehiculo ? `${selectedVehiculo.placa} ` : ""}
                     readOnly
                     onClick={openVehiculoClienteModal}
                     placeholder="Seleccione un vehículo"
@@ -897,6 +889,7 @@ const CrearVenta = () => {
                           <span className="crearVenta-info-label">Precio:</span>
                           <div className="crearVenta-editable-field">
                             <input
+                              disabled
                               type="number"
                               min="0"
                               step="0.01"
@@ -921,25 +914,22 @@ const CrearVenta = () => {
                                 border: "1px solid #cbd5e1",
                                 borderRadius: 6,
                                 padding: "2px 6px",
-                                textAlign: "center"
+                                textAlign: "center",
                               }}
-                              onChange={e => {
-                                const value = e.target.value;
-                                updateProductQuantity(
-                                  product.id,
-                                  value === "" ? "" : Number(value)
-                                );
+                              onChange={(e) => {
+                                const value = e.target.value
+                                updateProductQuantity(product.id, value === "" ? "" : Number(value))
                               }}
-                              onBlur={e => {
-                                const value = e.target.value;
+                              onBlur={(e) => {
+                                const value = e.target.value
                                 updateProductQuantity(
                                   product.id,
                                   value === "" || Number(value) < 1
                                     ? 1
                                     : Number(value) > product.stockOriginal
-                                    ? product.stockOriginal
-                                    : Number(value)
-                                );
+                                      ? product.stockOriginal
+                                      : Number(value),
+                                )
                               }}
                             />
                           </div>
@@ -1101,7 +1091,7 @@ const CrearVenta = () => {
   )
 }
 
-// SIMPLIFICADO: Componente Modal de Productos sin sistema de reservas
+// CORREGIDO: Componente Modal de Productos con precio_venta
 const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
   const { makeRequest, loading, error } = useApi()
   const [searchTerm, setSearchTerm] = useState("")
@@ -1140,7 +1130,7 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
     setTotal(newTotal)
   }, [cartItems])
 
-  // SIMPLIFICADO: Agregar al carrito con validación básica
+  // CORREGIDO: Agregar al carrito usando precio_venta
   const handleAddToCart = useCallback(
     (product, quantity) => {
       const existingItem = cartItems.find((item) => item.id === product.id)
@@ -1158,7 +1148,8 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
         return
       }
 
-      const finalPrice = product.preciounitario || 0
+      // CORREGIDO: Usar precio_venta en lugar de preciounitario
+      const finalPrice = product.precio_venta || 0
 
       if (existingItem) {
         setCartItems((prev) =>
@@ -1309,7 +1300,7 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                   className="crearVenta-productos-servicios-search-input"
                   placeholder="Buscar productos..."
                   value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
               <div className="crearVenta-productos-servicios-list">
@@ -1319,15 +1310,16 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                     <p>{searchTerm ? "No se encontraron productos" : "No hay productos disponibles"}</p>
                   </div>
                 ) : (
-                  availableProducts.map(product => (
+                  availableProducts.map((product) => (
                     <div className="crearVenta-productos-servicios-card" key={product.id}>
                       <div className="crearVenta-productos-servicios-card-header">
                         <span className="crearVenta-productos-servicios-card-title">{product.nombre}</span>
-                        <span className="crearVenta-productos-servicios-card-price">{formatCurrency(product.preciounitario)}</span>
+                        {/* CORREGIDO: Usar precio_venta */}
+                        <span className="crearVenta-productos-servicios-card-price">
+                          {formatCurrency(product.precio_venta || 0)}
+                        </span>
                       </div>
-                      <span className="crearVenta-productos-servicios-card-stock">
-                        Stock: {product.cantidad}
-                      </span>
+                      <span className="crearVenta-productos-servicios-card-stock">Stock: {product.cantidad}</span>
                       <div className="crearVenta-productos-servicios-card-cantidad-row">
                         <label className="crearVenta-productos-servicios-card-cantidad-label">Cantidad</label>
                         <input
@@ -1335,32 +1327,32 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                           min="1"
                           className="crearVenta-productos-servicios-card-cantidad-input"
                           value={cantidadInputs[product.id] ?? ""}
-                          onChange={e => {
+                          onChange={(e) => {
                             // Permitir vacío temporalmente
-                            const value = e.target.value;
-                            setCantidadInputs(prev => ({
+                            const value = e.target.value
+                            setCantidadInputs((prev) => ({
                               ...prev,
-                              [product.id]: value === "" ? "" : Math.max(1, Number(value))
-                            }));
+                              [product.id]: value === "" ? "" : Math.max(1, Number(value)),
+                            }))
                           }}
-                          onBlur={e => {
+                          onBlur={(e) => {
                             // Si el campo está vacío o menor a 1 al perder el foco, establecer 1
                             if (!e.target.value || Number(e.target.value) < 1) {
-                              setCantidadInputs(prev => ({
+                              setCantidadInputs((prev) => ({
                                 ...prev,
-                                [product.id]: 1
-                              }));
+                                [product.id]: 1,
+                              }))
                             }
                           }}
                         />
                         <button
                           className="crearVenta-productos-servicios-card-add-btn"
                           onClick={() => {
-                            const cantidad = Number(cantidadInputs[product.id]) || 1;
-                            handleAddToCart(product, cantidad);
-                            setCantidadInputs(prev => ({ ...prev, [product.id]: "" }));
+                            const cantidad = Number(cantidadInputs[product.id]) || 1
+                            handleAddToCart(product, cantidad)
+                            setCantidadInputs((prev) => ({ ...prev, [product.id]: "" }))
                           }}
-                          disabled={cartItems.some(item => item.id === product.id)}
+                          disabled={cartItems.some((item) => item.id === product.id)}
                         >
                           <Plus size={16} /> Agregar
                         </button>
@@ -1385,7 +1377,7 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                   </>
                 ) : (
                   <div className="crearVenta-productos-servicios-seleccionados-list">
-                    {cartItems.map(producto => (
+                    {cartItems.map((producto) => (
                       <div className="crearVenta-productos-servicios-seleccionado-card" key={producto.id}>
                         <span>
                           {producto.nombre}
@@ -1404,22 +1396,22 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                               border: "1px solid #cbd5e1",
                               borderRadius: 6,
                               padding: "2px 6px",
-                              textAlign: "center"
+                              textAlign: "center",
                             }}
-                            onChange={e => {
-                              const value = e.target.value;
-                              setCartItems(prev =>
-                                prev.map(item =>
+                            onChange={(e) => {
+                              const value = e.target.value
+                              setCartItems((prev) =>
+                                prev.map((item) =>
                                   item.id === producto.id
                                     ? { ...item, quantity: value === "" ? "" : Number(value) }
-                                    : item
-                                )
-                              );
+                                    : item,
+                                ),
+                              )
                             }}
-                            onBlur={e => {
-                              const value = e.target.value;
-                              setCartItems(prev =>
-                                prev.map(item =>
+                            onBlur={(e) => {
+                              const value = e.target.value
+                              setCartItems((prev) =>
+                                prev.map((item) =>
                                   item.id === producto.id
                                     ? {
                                         ...item,
@@ -1427,12 +1419,12 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                                           value === "" || Number(value) < 1
                                             ? 1
                                             : Number(value) > producto.stockOriginal
-                                            ? producto.stockOriginal
-                                            : Number(value)
+                                              ? producto.stockOriginal
+                                              : Number(value),
                                       }
-                                    : item
-                                )
-                              );
+                                    : item,
+                                ),
+                              )
                             }}
                           />
                         </span>
@@ -1556,11 +1548,7 @@ const ServiceModal = ({ closeModal, addService, existingServices, navigate }) =>
             <div className="crearVenta-productos-servicios-left">
               <div className="crearVenta-productos-servicios-title-row">
                 <span className="crearVenta-productos-servicios-title">Buscar Servicios</span>
-                <button
-                  type="button"
-                  className="crearVenta-create-button"
-                  onClick={navigate}
-                >
+                <button type="button" className="crearVenta-create-button" onClick={navigate}>
                   <Plus className="crearVenta-button-icon" />
                   Crear Nuevo Servicio
                 </button>
@@ -1571,7 +1559,7 @@ const ServiceModal = ({ closeModal, addService, existingServices, navigate }) =>
                   className="crearVenta-productos-servicios-search-input"
                   placeholder="Buscar servicios..."
                   value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
               <div className="crearVenta-productos-servicios-list">
@@ -1581,23 +1569,25 @@ const ServiceModal = ({ closeModal, addService, existingServices, navigate }) =>
                     <p>{searchTerm ? "No se encontraron servicios" : "No hay servicios disponibles"}</p>
                   </div>
                 ) : (
-                  availableServices.map(service => (
+                  availableServices.map((service) => (
                     <div
                       key={service.id}
-                      className={`crearVenta-productos-servicios-card${selectedServices.some(item => item.id === service.id) ? " selected" : ""}`}
+                      className={`crearVenta-productos-servicios-card${selectedServices.some((item) => item.id === service.id) ? " selected" : ""}`}
                       onClick={() => handleToggleService(service)}
                       style={{ cursor: "pointer" }}
                     >
                       <div className="crearVenta-productos-servicios-card-header">
                         <span className="crearVenta-productos-servicios-card-title">{service.nombre}</span>
-                        <span className="crearVenta-productos-servicios-card-price">{formatCurrency(service.precio || 0)}</span>
+                        <span className="crearVenta-productos-servicios-card-price">
+                          {formatCurrency(service.precio || 0)}
+                        </span>
                       </div>
                       {service.descripcion && (
                         <span className="crearVenta-productos-servicios-card-stock">{service.descripcion}</span>
                       )}
                     </div>
-                  )))
-                }
+                  ))
+                )}
               </div>
             </div>
 
@@ -1615,7 +1605,7 @@ const ServiceModal = ({ closeModal, addService, existingServices, navigate }) =>
                   </>
                 ) : (
                   <div className="crearVenta-productos-servicios-seleccionados-list">
-                    {selectedServices.map(service => (
+                    {selectedServices.map((service) => (
                       <div className="crearVenta-productos-servicios-seleccionado-card" key={service.id}>
                         <span>
                           {service.nombre}
@@ -1627,9 +1617,9 @@ const ServiceModal = ({ closeModal, addService, existingServices, navigate }) =>
                         </span>
                         <button
                           className="crearVenta-productos-servicios-seleccionado-remove-btn"
-                          onClick={e => {
-                            e.stopPropagation();
-                            handleToggleService(service);
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleToggleService(service)
                           }}
                         >
                           <X size={14} />
@@ -1703,7 +1693,6 @@ const ClientModal = ({ closeModal, selectClient, navigate, clientes }) => {
                   c.nombre.toLowerCase().includes(search.toLowerCase()) ||
                   c.apellido.toLowerCase().includes(search.toLowerCase()) ||
                   c.documento?.toString().includes(search.toLowerCase()),
-                
               )
               .map((cliente) => (
                 <div
@@ -1717,9 +1706,7 @@ const ClientModal = ({ closeModal, selectClient, navigate, clientes }) => {
                       <User size={18} style={{ color: "#2563eb" }} />
                       {cliente.nombre} {cliente.apellido}
                     </span>
-                    <span className="crearVenta-client-document-line">
-                      {cliente.documento}
-                    </span>
+                    <span className="crearVenta-client-document-line">{cliente.documento}</span>
                   </div>
                 </div>
               ))}
@@ -1772,7 +1759,7 @@ const VehiculoClienteModal = ({ closeModal, clienteId, selectVehiculo, navigate,
                 (v) =>
                   v.placa.toLowerCase().includes(search.toLowerCase()) ||
                   (v.marca && v.marca.toLowerCase().includes(search.toLowerCase())) ||
-                  (v.modelo && v.modelo.toLowerCase().includes(search.toLowerCase()))
+                  (v.modelo && v.modelo.toLowerCase().includes(search.toLowerCase())),
               )
               .map((vehiculo) => (
                 <div
@@ -1853,9 +1840,7 @@ const MecanicoModal = ({ closeModal, selectMecanico, navigate, mecanicos }) => {
                     <span className="crearVenta-mecanico-name-line">
                       {mecanico.nombre} {mecanico.apellido}
                     </span>
-                    <span className="crearVenta-mecanico-document-line">
-                      {mecanico.documento}
-                    </span>
+                    <span className="crearVenta-mecanico-document-line">{mecanico.documento}</span>
                   </div>
                 </div>
               ))}

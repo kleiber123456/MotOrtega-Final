@@ -99,6 +99,14 @@
 }
 
 .dashboard__stat-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  min-height: 120px;
+}
+
+.dashboard__stat-info {
   flex: 1;
 }
 
@@ -562,4 +570,27 @@
   .dashboard__table-header h3 {
     font-size: 15px;
   }
+}
+
+.dashboard__vermas-button {
+  display: inline-block;
+  margin-top: 8px;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #fff;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+}
+.dashboard__vermas-button:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+  align-self: flex-end;
+  margin-top: 12px;
+  margin-bottom: 0;
 }

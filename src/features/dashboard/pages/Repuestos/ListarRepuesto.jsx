@@ -592,7 +592,7 @@ function ListarRepuestos() {
                   <span className="listarRepuesto-price-compra">{formatearPrecio(repuesto.precio_compra)}</span>
                 </td> */}
                 <td>
-                  <span className="listarRepuesto-price">{formatearPrecio(repuesto.preciounitario)}</span>
+                  <span className="listarRepuesto-price">{formatearPrecio(repuesto.precio_venta)}</span>
                 </td>
                 {/* <td>
                   <span className="listarRepuesto-margin">

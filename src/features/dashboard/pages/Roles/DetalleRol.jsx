@@ -146,22 +146,24 @@ const DetalleRol = () => {
   return (
     <div className="detalleRol-container">
       {/* Header */}
-      <div className="detalleRol-header">
-        <div className="detalleRol-header-left">
-          <button className="detalleRol-btn-back" onClick={() => navigate("/ListarRoles")}>
+      <div className="detalleUsuario-header">
+        <div className="detalleUsuario-header-left">
+          <button className="detalleUsuario-btn-back" onClick={() => navigate("/ListarRoles")}>
             <FaArrowLeft />
             Volver
           </button>
-          <div className="detalleRol-title-section">
-            <h1 className="detalleRol-page-title">
-              <FaUserShield className="detalleRol-title-icon" />
+          <div className="detalleUsuario-title-section">
+            <h1 className="detalleUsuario-page-title">
+              <FaUserShield className="detalleUsuario-title-icon" />
               Detalle del Rol
             </h1>
-            <p className="detalleRol-subtitle">Información completa del rol {rol.nombre}</p>
+            <p className="detalleUsuario-subtitle">
+              Información completa de {rol.nombre}
+            </p>
           </div>
         </div>
-        <div className="detalleRol-header-actions">
-          <button className="detalleRol-btn-edit" onClick={() => navigate(`/EditarRol/${rol.id}`)}>
+        <div className="detalleUsuario-header-actions">
+          <button className="detalleUsuario-btn-edit"onClick={() => navigate(`/EditarRol/${rol.id}`)}>
             <FaEdit />
             Editar Rol
           </button>
