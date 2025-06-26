@@ -613,7 +613,7 @@ const CrearUsuario = () => {
                 </span>
               )}
             </div>
-            <div className="crearUsuario-form-group">
+            <div className="crearUsuario-form-group" style={{ display:"none"}}>
               <label htmlFor="estado" className="crearUsuario-label">
                 <FaUserTag className="crearUsuario-label-icon" />
                 Estado

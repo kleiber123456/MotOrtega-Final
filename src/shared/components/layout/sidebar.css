@@ -789,6 +789,8 @@
 /* Agrega esto a tu sidebar.css */
 .mo-dashboard-btn {
   width: 86%;
+  height: 15px;
+  font-size: 14px;
   display: flex;
   align-items: center;
   padding: 14px 16px;
@@ -798,7 +800,6 @@
   color: var(--mo-text-primary);
   cursor: pointer;
   transition: all var(--mo-transition);
-  font-weight: 500;
   position: relative;
   overflow: hidden;
   text-decoration: none;

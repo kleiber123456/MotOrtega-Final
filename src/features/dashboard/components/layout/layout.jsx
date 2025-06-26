@@ -203,6 +203,8 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
             {!collapsed && <span className="mo-dashboard-btn__title">Dashboard</span>}
           </a>
 
+          
+
           <Dropdown
             id="configuracion"
             title="Configuración"
@@ -217,7 +219,16 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
             toggleDropdown={toggleDropdown}
             collapsed={collapsed}
           />
-
+{/* Botón Vehículos directo en HTML */}
+          <a
+            href="/vehiculos"
+            className={`mo-dashboard-btn ${activePath === "/vehiculos" ? "mo-dashboard-btn--active" : ""} ${collapsed ? "mo-dashboard-btn--collapsed" : ""}`}
+            onClick={handleLinkClick}
+            aria-current={activePath === "/vehiculos" ? "page" : undefined}
+          >
+            <span className="mo-dashboard-btn__icon"><FaCar /></span>
+            {!collapsed && <span className="mo-dashboard-btn__title">Vehículos</span>}
+          </a>
           <Dropdown
             id="servicios"
             title="Servicios & Repuestos"
@@ -229,18 +240,6 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
               { label: "Novedades", link: "/Horarios" },
             ]}
             isOpen={activeDropdown === "servicios"}
-            toggleDropdown={toggleDropdown}
-            collapsed={collapsed}
-          />
-
-          <Dropdown
-            id="vehiculos"
-            title="Vehículos"
-            icon={<FaCar />}
-            options={[
-              { label: "Vehículos", link: "/vehiculos" },
-            ]}
-            isOpen={activeDropdown === "vehiculos"}
             toggleDropdown={toggleDropdown}
             collapsed={collapsed}
           />

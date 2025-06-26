@@ -489,7 +489,7 @@ const EditarUsuario = () => {
               )}
             </div>
 
-            <div className="editarUsuario-form-group">
+            <div className="editarUsuario-form-group" style={{ display: "none" }}>
               <label htmlFor="estado" className="editarUsuario-label">
                 <FaUserTag className="editarUsuario-label-icon" />
                 Estado *

@@ -18,6 +18,15 @@ const localizer = momentLocalizer(moment)
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
 
+// Suprimir warnings de JSX transform para esta librería específica
+const originalConsoleWarn = console.warn
+console.warn = (...args) => {
+  if (args[0]?.includes?.("JSX transform") || args[0]?.includes?.("outdated JSX")) {
+    return // Suprimir este warning específico
+  }
+  originalConsoleWarn.apply(console, args)
+}
+
 const ListarCitas = () => {
   const [citas, setCitas] = useState([])
   const [loading, setLoading] = useState(true)
@@ -43,10 +52,6 @@ const ListarCitas = () => {
       const tokenFromSession = sessionStorage.getItem("token")
       const finalToken = tokenFromLocal || tokenFromSession
 
-      console.log("Token desde localStorage:", tokenFromLocal)
-      console.log("Token desde sessionStorage:", tokenFromSession)
-      console.log("Token final a usar:", finalToken)
-
       if (!finalToken) {
         toast.error("No hay token de autenticación")
         setLoading(false)
@@ -65,7 +70,6 @@ const ListarCitas = () => {
       } catch (error) {
         if (error.response?.status === 401) {
           // Si falla, probar con "Bearer"
-          console.log("Probando con Bearer...")
           response = await axios.get(`${API_BASE_URL}/citas`, {
             headers: {
               Authorization: `Bearer ${finalToken}`,
@@ -76,8 +80,6 @@ const ListarCitas = () => {
           throw error
         }
       }
-
-      console.log("Respuesta exitosa:", response.data)
 
       const citasData = Array.isArray(response.data)
         ? response.data
@@ -110,8 +112,6 @@ const ListarCitas = () => {
       setLoading(false)
     } catch (error) {
       console.error("Error completo:", error)
-      console.error("Error response:", error.response?.data)
-      console.error("Error status:", error.response?.status)
 
       if (error.response?.status === 401) {
         toast.error("Token inválido o expirado. Por favor, inicie sesión nuevamente.")
@@ -174,29 +174,52 @@ const ListarCitas = () => {
     setSelectedCita(null)
   }
 
-  // Definir calendarEvents aquí
+  // MEJORAR LA TRANSFORMACIÓN DE EVENTOS PARA EL CALENDARIO
   const calendarEvents = Array.isArray(citas)
     ? citas
         .map((cita) => {
           if (!cita.fecha) return null
-          const fechaStr = cita.fecha
-          const horaStr = cita.hora ? cita.hora.slice(0, 5) : "08:00"
-          let fechaBase = fechaStr
-          if (fechaStr && fechaStr.includes("T")) {
-            fechaBase = fechaStr.split("T")[0]
-          }
-          const [year, month, day] = fechaBase.split("-")
-          const [hour, minute] = horaStr.split(":")
-          const start = new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute))
-          const end = new Date(start)
-          end.setHours(end.getHours() + 1)
-          if (isNaN(start.getTime())) return null
-          return {
-            id: cita.id,
-            title: cita.vehiculo?.placa || "Cita",
-            start,
-            end,
-            resource: cita,
+
+          try {
+            // Mejorar el parsing de fecha y hora
+            let fechaStr = cita.fecha
+            let horaStr = cita.hora || "08:00"
+
+            // Si la fecha viene con formato ISO, extraer solo la fecha
+            if (fechaStr.includes("T")) {
+              fechaStr = fechaStr.split("T")[0]
+            }
+
+            // Si la hora viene con segundos, extraer solo HH:MM
+            if (horaStr.includes(":") && horaStr.length > 5) {
+              horaStr = horaStr.substring(0, 5)
+            }
+
+            // Crear la fecha completa
+            const fechaCompleta = `${fechaStr}T${horaStr}:00`
+            const start = new Date(fechaCompleta)
+
+            // Verificar que la fecha sea válida
+            if (isNaN(start.getTime())) {
+              console.warn("Fecha inválida para cita:", cita.id, fechaCompleta)
+              return null
+            }
+
+            // Crear fecha de fin (1 hora después)
+            const end = new Date(start)
+            end.setHours(end.getHours() + 1)
+
+            return {
+              id: cita.id,
+              title: `${cita.vehiculo?.placa || "Sin placa"} - ${cita.vehiculo?.cliente?.nombre || "Sin cliente"}`,
+              start,
+              end,
+              resource: cita,
+              allDay: false,
+            }
+          } catch (error) {
+            console.error("Error procesando cita:", cita.id, error)
+            return null
           }
         })
         .filter((event) => event !== null)
@@ -204,26 +227,40 @@ const ListarCitas = () => {
 
   // Personalizar los eventos del calendario
   const eventStyleGetter = (event) => {
-    let backgroundColor = "#3b82f6"
-    if (event.resource.estado_cita_id === 1) {
-      backgroundColor = "#f59e0b" // Pendiente
-    } else if (event.resource.estado_cita_id === 2) {
-      backgroundColor = "#10b981" // Confirmada
-    } else if (event.resource.estado_cita_id === 3) {
-      backgroundColor = "#ef4444" // Cancelada
-    } else if (event.resource.estado_cita_id === 4) {
-      backgroundColor = "#3b82f6" // Finalizada
+    const estado = event.resource.estado_cita_id
+    const style = {
+      borderRadius: "8px",
+      border: "none",
+      color: "white",
+      fontWeight: "600",
+      fontSize: "12px",
+      padding: "2px 6px",
+      boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
     }
-    return {
-      style: {
-        backgroundColor,
-        borderRadius: "5px",
-        opacity: 0.8,
-        color: "white",
-        border: "0px",
-        display: "block",
-      },
+
+    switch (estado) {
+      case 1: // Pendiente
+        style.backgroundColor = "#f59e0b" // Amarillo
+        style.borderLeft = "4px solid #d97706"
+        break
+      case 2: // Confirmada
+        style.backgroundColor = "#10b981" // Verde
+        style.borderLeft = "4px solid #059669"
+        break
+      case 3: // Cancelada
+        style.backgroundColor = "#ef4444" // Rojo
+        style.borderLeft = "4px solid #dc2626"
+        break
+      case 4: // Finalizada/Completada
+        style.backgroundColor = "#3b82f6" // Azul
+        style.borderLeft = "4px solid #1d4ed8"
+        break
+      default:
+        style.backgroundColor = "#6b7280"
+        style.borderLeft = "4px solid #4b5563"
     }
+
+    return { style }
   }
 
   // Mensajes en español para el calendario
@@ -239,7 +276,8 @@ const ListarCitas = () => {
     date: "Fecha",
     time: "Hora",
     event: "Evento",
-    noEventsInRange: "No hay citas en este rango",
+    noEventsInRange: "No hay citas en este rango de fechas",
+    showMore: (total) => `+ Ver ${total} más`,
   }
 
   // Filtrar citas basadas en el término de búsqueda
@@ -313,15 +351,52 @@ const ListarCitas = () => {
         <>
           {viewMode === "calendar" ? (
             <div className="listarCitas-calendar-container">
+              <div className="listarCitas-calendar-legend">
+                <div className="listarCitas-legend-item">
+                  <span className="listarCitas-legend-color" style={{ backgroundColor: "#f59e0b" }}></span>
+                  <span>Pendiente</span>
+                </div>
+                <div className="listarCitas-legend-item">
+                  <span className="listarCitas-legend-color" style={{ backgroundColor: "#10b981" }}></span>
+                  <span>Completada</span>
+                </div>
+                <div className="listarCitas-legend-item">
+                  <span className="listarCitas-legend-color" style={{ backgroundColor: "#ef4444" }}></span>
+                  <span>Cancelada</span>
+                </div>
+                <div className="listarCitas-legend-item">
+                  <span className="listarCitas-legend-color" style={{ backgroundColor: "#3b82f6" }}></span>
+                  <span>Finalizada</span>
+                </div>
+              </div>
+
               <Calendar
                 localizer={localizer}
                 events={calendarEvents}
                 startAccessor="start"
                 endAccessor="end"
                 titleAccessor="title"
+                style={{ height: 600, minHeight: 600 }}
                 messages={messages}
                 eventPropGetter={eventStyleGetter}
                 onSelectEvent={handleSelectEvent}
+                views={["month", "week", "day", "agenda"]}
+                defaultView="month"
+                popup={true}
+                popupOffset={30}
+                step={60}
+                showMultiDayTimes={true}
+                culture="es"
+                formats={{
+                  dateFormat: "DD",
+                  dayFormat: (date, culture, localizer) => localizer.format(date, "dddd", culture),
+                  dayHeaderFormat: (date, culture, localizer) => localizer.format(date, "dddd DD/MM", culture),
+                  monthHeaderFormat: (date, culture, localizer) => localizer.format(date, "MMMM YYYY", culture),
+                  agendaDateFormat: "DD/MM/YYYY",
+                  agendaTimeFormat: "HH:mm",
+                  agendaTimeRangeFormat: ({ start, end }, culture, localizer) =>
+                    `${localizer.format(start, "HH:mm", culture)} - ${localizer.format(end, "HH:mm", culture)}`,
+                }}
               />
             </div>
           ) : (
@@ -453,35 +528,53 @@ const ListarCitas = () => {
               </button>
             </div>
             <div className="listarCitas-modal-body">
-              <p>
-                <strong>Fecha:</strong> {moment(selectedCita.start).format("DD/MM/YYYY")}
-              </p>
-              <p>
-                <strong>Hora:</strong> {moment(selectedCita.start).format("HH:mm")}
-              </p>
-              <p>
-                <strong>Vehículo:</strong> {selectedCita.resource.vehiculo?.placa || "N/A"}
-              </p>
-              <p>
-                <strong>Cliente:</strong>{" "}
-                {selectedCita.resource.vehiculo?.cliente?.nombre
-                  ? `${selectedCita.resource.vehiculo.cliente.nombre} ${selectedCita.resource.vehiculo.cliente.apellido || ""}`
-                  : "N/A"}
-              </p>
-              <p>
-                <strong>Mecánico:</strong>{" "}
-                {selectedCita.resource.mecanico?.nombre
-                  ? `${selectedCita.resource.mecanico.nombre} ${selectedCita.resource.mecanico.apellido || ""}`
-                  : "N/A"}
-              </p>
-              <p>
-                <strong>Estado:</strong> {selectedCita.resource.estado_cita?.nombre || "Pendiente"}
-              </p>
-              <p>
-                <strong>Observaciones:</strong> {selectedCita.resource.observaciones || "Sin observaciones"}
-              </p>
+              <div className="listarCitas-modal-info">
+                <div className="listarCitas-info-group">
+                  <strong>Fecha:</strong>
+                  <span>{moment(selectedCita.start).format("DD/MM/YYYY")}</span>
+                </div>
+                <div className="listarCitas-info-group">
+                  <strong>Hora:</strong>
+                  <span>{moment(selectedCita.start).format("HH:mm")}</span>
+                </div>
+                <div className="listarCitas-info-group">
+                  <strong>Vehículo:</strong>
+                  <span>{selectedCita.resource.vehiculo?.placa || "N/A"}</span>
+                </div>
+                <div className="listarCitas-info-group">
+                  <strong>Cliente:</strong>
+                  <span>
+                    {selectedCita.resource.vehiculo?.cliente?.nombre
+                      ? `${selectedCita.resource.vehiculo.cliente.nombre} ${selectedCita.resource.vehiculo.cliente.apellido || ""}`
+                      : "N/A"}
+                  </span>
+                </div>
+                <div className="listarCitas-info-group">
+                  <strong>Mecánico:</strong>
+                  <span>
+                    {selectedCita.resource.mecanico?.nombre
+                      ? `${selectedCita.resource.mecanico.nombre} ${selectedCita.resource.mecanico.apellido || ""}`
+                      : "N/A"}
+                  </span>
+                </div>
+                <div className="listarCitas-info-group">
+                  <strong>Estado:</strong>
+                  <span
+                    className={`listarCitas-estado-badge listarCitas-estado-${selectedCita.resource.estado_cita_id}`}
+                  >
+                    {selectedCita.resource.estado_cita?.nombre || "Pendiente"}
+                  </span>
+                </div>
+                <div className="listarCitas-info-group">
+                  <strong>Observaciones:</strong>
+                  <span>{selectedCita.resource.observaciones || "Sin observaciones"}</span>
+                </div>
+              </div>
             </div>
             <div className="listarCitas-modal-footer">
+              <Link to={`/citas/detalle/${selectedCita.resource.id}`} className="listarCitas-btn-edit-modal">
+                <FaEye /> Ver Detalle
+              </Link>
               <button className="listarCitas-btn-close-modal" onClick={closeModal}>
                 Cerrar
               </button>
