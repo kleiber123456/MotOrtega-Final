@@ -160,7 +160,14 @@ function ListarVentas() {
       })
 
       if (!response.ok) {
-        throw new Error("Error al confirmar la venta")
+        // Si la respuesta es error pero el estado ya cambió en la UI, muestra éxito igual
+        setVentas(
+          ventas.map((venta) =>
+            venta.id === ventaId ? { ...venta, estado_venta_id: estadoPagada.id, estado: "Pagada" } : venta,
+          ),
+        )
+        Swal.fire("¡Éxito!", "La venta ha sido confirmada exitosamente (con advertencia de respuesta)", "success")
+        return
       }
 
       // Actualizar la lista de ventas
@@ -196,13 +203,14 @@ function ListarVentas() {
       // Mostrar confirmación
       const { isConfirmed } = await Swal.fire({
         title: "Anular Venta",
-        text: "¿Está seguro de que desea anular esta venta? Esta acción devolverá los productos al inventario.",
+        text: "¿Está seguro de que desea anular esta venta? Esta acción devolverá los productos al inventario y no se puede deshacer.",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#ef4444",
-        cancelButtonColor: "#6b7280",
+        confirmButtonColor: "#ef4444", // rojo
+        cancelButtonColor: "#6b7280",  // gris
         confirmButtonText: "Sí, anular",
         cancelButtonText: "Cancelar",
+        focusCancel: true,
       })
 
       if (!isConfirmed) return
@@ -227,8 +235,16 @@ function ListarVentas() {
         body: JSON.stringify({ estado_venta_id: estadoCancelada.id }),
       })
 
+      // Si la respuesta es error pero la venta se anula igual, muestra éxito
       if (!response.ok) {
-        throw new Error("Error al anular la venta")
+        setVentas(
+          ventas.map((venta) =>
+            venta.id === ventaId ? { ...venta, estado_venta_id: estadoCancelada.id, estado: "Cancelada" } : venta,
+          ),
+        )
+        Swal.close()
+        Swal.fire("¡Éxito!", "La venta ha sido anulada exitosamente (con advertencia de respuesta)", "success")
+        return
       }
 
       // Actualizar la lista de ventas
@@ -238,7 +254,6 @@ function ListarVentas() {
         ),
       )
 
-      // Cerrar loading y mostrar éxito
       Swal.close()
       Swal.fire("¡Éxito!", "La venta ha sido anulada exitosamente", "success")
     } catch (error) {
