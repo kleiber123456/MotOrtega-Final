@@ -226,10 +226,10 @@ const Perfil = () => {
 
   if (loading)
     return (
-      <div className="crearUsuario-container">
-        <div className="crearUsuario-loading">
-          <FaSpinner className="spinning" />
-          <span>Cargando información del perfil...</span>
+      <div className="listarUsuarios-container">
+        <div className="listarUsuarios-loading">
+          <div className="listarUsuarios-spinner"></div>
+          <p>Cargando información del perfil...</p>
         </div>
       </div>
     )

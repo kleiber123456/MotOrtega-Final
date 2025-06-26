@@ -1,8 +1,8 @@
 "use client"
 
-// src/pages/auth/Login.jsx
 import { useState, useCallback, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
+import { useAuth } from "../../../auth/hooks/useAuth"
 import {
   FaEnvelope,
   FaLock,
@@ -24,6 +24,8 @@ function Login() {
   }, [])
 
   const navigate = useNavigate()
+  const { login } = useAuth()
+
   const [formData, setFormData] = useState({
     correo: "",
     password: "",
@@ -124,21 +126,22 @@ function Login() {
 
         const usuario = data.usuario || {}
         const usuarioFinal = {
+          id: usuario.id,
           nombre: `${usuario.nombre} ${usuario.apellido}`,
+          email: usuario.correo,
           rol: usuario.rol,
+          rol_nombre: usuario.rol_nombre || usuario.rol,
         }
 
-        localStorage.setItem("token", data.token)
-        localStorage.setItem("usuario", JSON.stringify(usuarioFinal))
-
-        navigate("/dashboard")
+        // Usar el método login del hook useAuth que redirige automáticamente según el rol
+        login(usuarioFinal, data.token, false)
       } catch (err) {
         setError(err.message || "Error en la conexión")
       } finally {
         setLoading(false)
       }
     },
-    [formData, navigate],
+    [formData, login],
   )
 
   const handleForgotPassword = () => {
@@ -223,31 +226,33 @@ function Login() {
                   {error}
                 </div>
               )}
+
               <div className="">
                 <center>
-                   <button type="submit" disabled={loading} className="login-submit-button">
-                  {loading ? (
-                    <>
-                      <FaSpinner className="login-button-icon spinning" />
-                      Verificando...
-                    </>
-                  ) : (
-                    <>
-                      <FaSignInAlt className="login-button-icon" />
-                      Iniciar Sesión
-                    </>
-                  )}
-                </button>
+                  <button type="submit" disabled={loading} className="login-submit-button">
+                    {loading ? (
+                      <>
+                        <FaSpinner className="login-button-icon spinning" />
+                        Verificando...
+                      </>
+                    ) : (
+                      <>
+                        <FaSignInAlt className="login-button-icon" />
+                        Iniciar Sesión
+                      </>
+                    )}
+                  </button>
                 </center>
+
                 <div className="login-options">
                   <button type="button" className="login-forgot-password" onClick={handleForgotPassword}>
                     ¿Olvidaste tu contraseña?
                   </button>
-                   <p></p>
-              <button type="button" className="login-register-button" onClick={handleRegister}>
-                <FaUserPlus className="login-button-icon" />
-                Crear cuenta
-              </button>
+                  <p></p>
+                  <button type="button" className="login-register-button" onClick={handleRegister}>
+                    <FaUserPlus className="login-button-icon" />
+                    Crear cuenta
+                  </button>
                 </div>
               </div>
             </form>

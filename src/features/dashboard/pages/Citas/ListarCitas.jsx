@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -256,7 +257,12 @@ const ListarCitas = () => {
       </div>
 
       {loading ? (
-        <div className="listarCitas-loading-spinner">Cargando...</div>
+        <div className="listarUsuarios-container">
+          <div className="listarUsuarios-loading">
+            <div className="listarUsuarios-spinner"></div>
+            <p>Cargando citas...</p>
+          </div>
+        </div>
       ) : (
         <>
           {viewMode === "calendar" ? (

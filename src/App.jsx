@@ -1,13 +1,21 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { Routes, Route } from "react-router-dom"
 import MotOrtega from "./features/dashboard/pages/Principal/MotOtega"
 import Login from "./features/dashboard/pages/Acceso/Login"
 import Register from "./features/dashboard/pages/Acceso/Register"
 import RecuperarPassword from "./features/dashboard/pages/Acceso/RecuperarPassword"
 import Dashboard from "./features/dashboard/pages/Dashboard/Dashboard"
 import Layout from "./features/dashboard/components/layout/layout"
+import ClientLayout from "./features/dashboard/components/layout/ClientLayout"
+import MechanicLayout from "./features/dashboard/components/layout/MechanicLayout"
 import PrivateRoute from "./features/auth/hooks/PrivateRoute"
+import RoleBasedRoute from "./features/auth/hooks/RoleBasedRoute"
 import Perfil from "./features/dashboard/pages/Perfil/Perfil"
 import CambiarContraseña from "./features/dashboard/pages/Acceso/CambiarContraseña"
+
+// Dashboards específicos por rol
+import ClientDashboard from "./features/client/pages/ClientDashboard"
+import MechanicDashboard from "./features/mechanic/pages/MechanicDashboard"
+
 // --------------------------------USUARIOS-------------------------------
 import ListarUsuarios from "./features/dashboard/pages/Usuario/ListarUsuarios"
 import CrearUsuario from "./features/dashboard/pages/Usuario/CrearUsuario"
@@ -92,577 +100,720 @@ import CrearRoles from "./features/dashboard/pages/Roles/CrearRoles"
 import EditarRol from "./features/dashboard/pages/Roles/EditarRol"
 import DetalleRol from "./features/dashboard/pages/Roles/DetalleRol"
 // ----------------------------------------------------------------------
-// --------------------------------roles--------------------------------------
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Ruta inicio */}
-        <Route path="/" element={<MotOrtega />} />
+    <Routes>
+      {/* Ruta inicio */}
+      <Route path="/" element={<MotOrtega />} />
 
-        {/* Rutas Acceso */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/recuperarContraseña" element={<RecuperarPassword />} />
-        <Route path="/cambiarContraseña" element={<CambiarContraseña />} />
+      {/* Rutas Acceso */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/recuperarContraseña" element={<RecuperarPassword />} />
+      <Route path="/cambiarContraseña" element={<CambiarContraseña />} />
 
-        {/* Rutas privadas */}
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute>
+      {/* RUTAS ESPECÍFICAS PARA CLIENTES */}
+      <Route
+        path="/client/dashboard"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["cliente"]}>
+              <ClientLayout>
+                <ClientDashboard />
+              </ClientLayout>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/client/perfil"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["cliente"]}>
+              <ClientLayout>
+                <Perfil />
+              </ClientLayout>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+
+      {/* RUTAS ESPECÍFICAS PARA MECÁNICOS */}
+      <Route
+        path="/mechanic/dashboard"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["mecánico", "mecanico"]}>
+              <MechanicLayout>
+                <MechanicDashboard />
+              </MechanicLayout>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/mechanic/perfil"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["mecánico", "mecanico"]}>
+              <MechanicLayout>
+                <Perfil />
+              </MechanicLayout>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+
+      {/* RUTAS ADMINISTRATIVAS (Solo admin y recepcionista) */}
+      <Route
+        path="/dashboard"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <Dashboard />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/perfil"
-          element={
-            <PrivateRoute>
-              <Layout>
-                <Perfil />
-              </Layout>
-            </PrivateRoute>
-          }
-        />
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/perfil"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <Perfil />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
 
-        {/* CITAS */}
-        <Route
-          path="/citas"
-          element={
-            <PrivateRoute>
+      {/* CITAS */}
+      <Route
+        path="/citas"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <ListarCitas />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route 
-          path="/citas/crear"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/citas/crear"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <CrearCita />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/citas/editar/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/citas/editar/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <EditarCita />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/citas/detalle/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/citas/detalle/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <DetalleCita />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        {/* ------------------------------------------------------------------------ */}
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
 
-        {/* USUARIOS */}
-        <Route
-          path="/listarUsuarios"
-          element={
-            <PrivateRoute>
+      {/* USUARIOS - Solo admin */}
+      <Route
+        path="/listarUsuarios"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
               <Layout>
                 <ListarUsuarios />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/crearUsuarios"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/crearUsuarios"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
               <Layout>
                 <CrearUsuario />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        {/* Nueva ruta para editar usuario con parámetro :id */}
-        <Route
-          path="/usuarios/editar/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/usuarios/editar/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
               <Layout>
                 <EditarUsuario />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/usuarios/detalle/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/usuarios/detalle/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
               <Layout>
                 <DetalleUsuario />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        {/* ------------------------------------------------------------------------ */}
-        {/* CATEGORIA REPEUSTO */}
-        <Route
-          path="/categorias-repuesto"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+
+      {/* CATEGORIA REPUESTO */}
+      <Route
+        path="/categorias-repuesto"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <ListarCategoriasRepuesto />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/crearCategoriaRepuesto"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/crearCategoriaRepuesto"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
               <Layout>
                 <CrearCategoriaRepuesto />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/categorias-repuesto/editar/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/categorias-repuesto/editar/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
               <Layout>
                 <EditarCategoriaRepuesto />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/categorias-repuesto/detalle/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/categorias-repuesto/detalle/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <DetalleCategoriaRepuesto />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        {/* ------------------------------------------------------------------------ */}
-        {/* REPEUSTO */}
-        <Route
-          path="/repuestos"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+
+      {/* REPUESTOS */}
+      <Route
+        path="/repuestos"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <ListarRepuestos />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/crearRepuestos"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/crearRepuestos"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
               <Layout>
                 <CrearRepuesto />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/repuestos/editar/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/repuestos/editar/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
               <Layout>
                 <EditarRepuesto />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/DetalleRepuesto/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/DetalleRepuesto/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <DetalleRepuesto />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        {/* ------------------------------------------------------------------------ */}
-        {/* PROVEEDORES */}
-        <Route
-          path="/ListarProveedores"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+
+      {/* PROVEEDORES */}
+      <Route
+        path="/ListarProveedores"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <ListarProveedores />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/CrearProveedor"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/CrearProveedor"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
               <Layout>
                 <CrearProveedor />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        {/* Corregida la ruta de editar proveedor */}
-        <Route
-          path="/EditarProveedor/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/EditarProveedor/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
               <Layout>
                 <EditarProveedor />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/DetalleProveedor/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/DetalleProveedor/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <DetalleProveedor />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        {/* ------------------------------------------------------------------------ */}
-        {/* COMPRAS */}
-        <Route
-          path="/ListarCompras"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+
+      {/* COMPRAS */}
+      <Route
+        path="/ListarCompras"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <ListarCompras />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/CrearCompras"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/CrearCompras"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
               <Layout>
                 <CrearCompras />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/DetalleCompra/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/DetalleCompra/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <DetalleCompra />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        {/* ------------------------------------------------------------------------ */}
-        {/* VENTAS */}
-        <Route
-          path="/ListarVentas"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+
+      {/* VENTAS */}
+      <Route
+        path="/ListarVentas"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <ListarVentas />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/CrearVenta"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/CrearVenta"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
               <Layout>
                 <CrearVenta />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/DetalleVenta/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/DetalleVenta/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <DetalleVenta />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        {/* ------------------------------------------------------------------------ */}
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
 
-        {/* VEHÍCULOS */}
-        <Route
-          path="/vehiculos"
-          element={
-            <PrivateRoute>
+      {/* VEHÍCULOS */}
+      <Route
+        path="/vehiculos"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <ListarVehiculos />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/vehiculos/crear"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/vehiculos/crear"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <CrearVehiculo />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/vehiculos/editar/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/vehiculos/editar/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <EditarVehiculo />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/vehiculos/detalle/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/vehiculos/detalle/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <DetalleVehiculo />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        {/* ------------------------------------------------------------------------ */}
-        {/* Servicios */}
-        <Route
-          path="/listarServicios"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+
+      {/* Servicios */}
+      <Route
+        path="/listarServicios"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <ListarServicios />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/CrearServicios"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/CrearServicios"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
               <Layout>
                 <CrearServicios />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/servicios/editar/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/servicios/editar/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
               <Layout>
                 <EditarServicios />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/servicios/detalle/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/servicios/detalle/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <DetalleServicios />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        {/* ------------------------------------------------------------------------ */}
-        {/* Mecanicos */}
-        <Route
-          path="/ListarMecanicos"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+
+      {/* Mecanicos */}
+      <Route
+        path="/ListarMecanicos"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <ListarMecanicos />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/CrearMecanicos"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/CrearMecanicos"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
               <Layout>
                 <CrearMecanicos />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/Mecanicos/editar/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/Mecanicos/editar/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
               <Layout>
                 <EditarMecanicos />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/Mecanicos/detalle/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/Mecanicos/detalle/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <VerDetalleMecanico />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        {/* ------------------------------------------------------------------------ */}
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
 
-        <Route
-          path="/ListarClientes"
-          element={
-            <PrivateRoute>
+      <Route
+        path="/ListarClientes"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <ListarClientes />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/CrearClientes"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/CrearClientes"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <CrearClientes />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/DetalleCliente/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/DetalleCliente/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <DetalleCliente />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/EditarCliente/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/EditarCliente/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <EditarClientes />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        {/* ------------------------------------------------------------------------ */}
-        {/* ------------------------------------------------------------------------ */}
-        {/* HORARIOS */}
-<Route
-          path="/Horarios"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+
+      {/* HORARIOS */}
+      <Route
+        path="/Horarios"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <ListarHorarios />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/CrearHorario"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/CrearHorario"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
               <Layout>
                 <CrearHorario />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/EditarHorario/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/EditarHorario/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
               <Layout>
                 <EditarHorario />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/DetalleHorario/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/DetalleHorario/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <DetalleHorario />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        {/* ROLES */}
-        <Route
-          path="/ListarRoles"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+
+      {/* ROLES */}
+      <Route
+        path="/ListarRoles"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
               <Layout>
                 <ListarRoles />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/CrearRoles"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/CrearRoles"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
               <Layout>
                 <CrearRoles />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/EditarRol/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/EditarRol/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
               <Layout>
                 <EditarRol />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/DetalleRol/:id"
-          element={
-            <PrivateRoute>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/DetalleRol/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
               <Layout>
                 <DetalleRol />
               </Layout>
-            </PrivateRoute>
-          }
-        />
-        {/* ------------------------------------------------------------------------ */}
-      </Routes>
-    </BrowserRouter>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+    </Routes>
   )
 }
 
