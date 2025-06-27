@@ -1282,7 +1282,7 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
         return
       }
 
-      const finalPrice = product.preciounitario || 0
+      const finalPrice = product.precio_venta || 0
 
       if (existingItem) {
         setCartItems((prev) =>
@@ -1447,7 +1447,7 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                     <div className="crearVenta-productos-servicios-card" key={product.id}>
                       <div className="crearVenta-productos-servicios-card-header">
                         <span className="crearVenta-productos-servicios-card-title">{product.nombre}</span>
-                        <span className="crearVenta-productos-servicios-card-price">{formatCurrency(product.preciounitario)}</span>
+                        <span className="crearVenta-productos-servicios-card-price">{formatCurrency(product.precio_venta)}</span>
                       </div>
                       <span className="crearVenta-productos-servicios-card-stock">
                         Stock: {product.cantidad}

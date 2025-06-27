@@ -281,7 +281,7 @@
 
 .detalleCompra-table-header {
   display: grid;
-  grid-template-columns: 60px 1fr 120px 150px 150px;
+  grid-template-columns: 60px 1fr 120px 150px 150px 150px; /* 6 columnas */
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
   font-weight: 600;
@@ -290,7 +290,7 @@
 
 .detalleCompra-table-row {
   display: grid;
-  grid-template-columns: 60px 1fr 120px 150px 150px;
+  grid-template-columns: 60px 1fr 120px 150px 150px 150px; /* 6 columnas */
   border-bottom: 1px solid #f1f5f9;
   transition: background-color 0.2s ease;
 }
