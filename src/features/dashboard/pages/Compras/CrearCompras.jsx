@@ -698,6 +698,20 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
     setCartItems((prev) => prev.map((item) => (item.id === productId ? { ...item, price: numericPrice } : item)))
   }, [])
 
+  const updateCartItemPorcentaje = useCallback((productId, newPorcentaje) => {
+    setCartItems((prev) =>
+      prev.map((item) =>
+        item.id === productId
+          ? {
+              ...item,
+              porcentaje: newPorcentaje,
+              precioVenta: Number(item.price) + (Number(item.price) * Number(newPorcentaje)) / 100,
+            }
+          : item,
+      ),
+    )
+  }, [])
+
   const handleConfirm = useCallback(async () => {
     if (cartItems.length > 0) {
       addProduct(cartItems)
@@ -941,43 +955,64 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                       </button>
                     </div>
                     <div className="crearCompra-cart-item-details">
-                      <div className="crearCompra-cart-controls">
-                        <div className="crearCompra-control-group">
-                          <label>Cantidad:</label>
+                      <div className="crearCompra-input-group">
+                        <div className="crearCompra-input-item" style={{ flex: 1 }}>
+                          <label>Cantidad</label>
                           <input
                             type="number"
                             min="1"
                             value={item.quantity}
-                            onChange={(e) => updateCartItemQuantity(item.id, Number.parseInt(e.target.value) || 1)}
-                            className="crearCompra-control-input"
+                            onChange={(e) =>
+                              updateCartItemQuantity(item.id, Number.parseInt(e.target.value) || 1)
+                            }
+                            className="crearCompra-quantity-input"
+                            placeholder="Cantidad"
                           />
                         </div>
-                        <div className="crearCompra-control-group">
-                          <label>Precio Compra:</label>
+                        <div className="crearCompra-input-item" style={{ flex: 1 }}>
+                          <label>Precio Compra</label>
                           <input
                             type="number"
                             min="0"
                             step="0.01"
-                            value={item.price || 0}
-                            onChange={(e) => updateCartItemPrice(item.id, Number.parseFloat(e.target.value) || 0)}
-                            className="crearCompra-control-input"
-                            onFocus={(e) => e.target.select()}
-                            placeholder="0"
-                          />
-                        </div>
-                        <div className="crearCompra-control-group">
-                          <label>Precio Venta:</label>
-                          <input
-                            type="text"
-                            value={formatNumber(item.precioVenta)}
-                            className="crearCompra-control-input"
-                            readOnly
-                            tabIndex={-1}
-                            style={{ background: "#f3f4f6", color: "#374151" }}
+                            value={item.price}
+                            onChange={(e) =>
+                              updateCartItemPrice(item.id, Number.parseFloat(e.target.value) || 0)
+                            }
+                            className="crearCompra-quantity-input"
+                            placeholder="Precio compra"
                           />
                         </div>
                       </div>
-                      <div className="crearCompra-cart-item-total">
+                      <div className="crearCompra-input-group">
+                        <div className="crearCompra-input-item" style={{ flex: 1 }}>
+                          <label>Porcentaje</label>
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={item.porcentaje ?? 40}
+                            onChange={(e) =>
+                              updateCartItemPorcentaje(item.id, Number.parseFloat(e.target.value) || 0)
+                            }
+                            className="crearCompra-quantity-input"
+                            placeholder="Porcentaje"
+                          />
+                        </div>
+                        <div className="crearCompra-input-item" style={{ flex: 1 }}>
+                          <label>Precio Venta</label>
+                          <input
+                            type="text"
+                            value={formatNumber(item.precioVenta)}
+                            className="crearCompra-quantity-input"
+                            readOnly
+                            tabIndex={-1}
+                            style={{ background: "#f3f4f6", color: "#374151" }}
+                            placeholder="Precio venta"
+                          />
+                        </div>
+                      </div>
+                      <div className="crearCompra-cart-item-total" style={{ textAlign: "right", marginTop: 8 }}>
                         Subtotal: <strong>${formatNumber(item.price * item.quantity)}</strong>
                       </div>
                     </div>

@@ -1457,19 +1457,33 @@ const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
                         <input
                           type="number"
                           min="1"
+                          max={product.cantidad}
                           className="crearVenta-productos-servicios-card-cantidad-input"
                           value={cantidadInputs[product.id] ?? ""}
                           onChange={e => {
+                            let value = e.target.value;
                             // Permitir vacío temporalmente
-                            const value = e.target.value;
+                            if (value === "") {
+                              setCantidadInputs(prev => ({
+                                ...prev,
+                                [product.id]: ""
+                              }));
+                              return;
+                            }
+                            value = Math.max(1, Number(value));
+                            // Limitar al stock disponible
+                            if (value > product.cantidad) {
+                              value = product.cantidad;
+                            }
                             setCantidadInputs(prev => ({
                               ...prev,
-                              [product.id]: value === "" ? "" : Math.max(1, Number(value))
+                              [product.id]: value
                             }));
                           }}
                           onBlur={e => {
                             // Si el campo está vacío o menor a 1 al perder el foco, establecer 1
-                            if (!e.target.value || Number(e.target.value) < 1) {
+                            let value = e.target.value;
+                            if (!value || Number(value) < 1) {
                               setCantidadInputs(prev => ({
                                 ...prev,
                                 [product.id]: 1
