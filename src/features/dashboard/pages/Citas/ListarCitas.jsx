@@ -9,7 +9,7 @@ import { Link } from "react-router-dom"
 import axios from "axios"
 import { toast } from "react-toastify"
 import "../../../../shared/styles/Citas/ListarCitas.css"
-import { FaPlus, FaEye, FaTrash, FaSync, FaCalendarAlt, FaList } from "react-icons/fa"
+import { FaPlus, FaEye, FaTrash, FaCalendarAlt, FaList } from "react-icons/fa"
 
 // Configurar localización en español
 moment.locale("es")
@@ -36,6 +36,8 @@ const ListarCitas = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(5)
   const [searchTerm, setSearchTerm] = useState("")
+  const [calendarDate, setCalendarDate] = useState(new Date())
+  const [calendarView, setCalendarView] = useState("month")
 
   useEffect(() => {
     fetchCitas()
@@ -81,33 +83,41 @@ const ListarCitas = () => {
         }
       }
 
+      console.log("Respuesta de la API:", response.data) // Debug
+
       const citasData = Array.isArray(response.data)
         ? response.data
         : Array.isArray(response.data.data)
           ? response.data.data
           : []
 
-      const citasTransformadas = citasData.map((cita) => ({
-        ...cita,
-        fecha: cita.fecha || cita.fecha_cita || "",
-        hora: cita.hora || cita.hora_cita || "",
-        vehiculo: {
-          placa: cita.vehiculo_placa || cita.placa || "N/A",
-          cliente: {
-            nombre: cita.cliente_nombre || "N/A",
-            apellido: cita.cliente_apellido || "",
-          },
-        },
-        mecanico: {
-          nombre: cita.mecanico_nombre || "N/A",
-          apellido: cita.mecanico_apellido || "",
-        },
-        estado_cita: {
-          nombre: cita.estado_nombre || "Pendiente",
-        },
-        estado_cita_id: cita.estado_cita_id || 1,
-      }))
+      console.log("Citas procesadas:", citasData) // Debug
 
+      const citasTransformadas = citasData.map((cita) => {
+        console.log("Procesando cita:", cita) // Debug
+        return {
+          ...cita,
+          fecha: cita.fecha || cita.fecha_cita || "",
+          hora: cita.hora || cita.hora_cita || "",
+          vehiculo: {
+            placa: cita.vehiculo_placa || cita.placa || "N/A",
+            cliente: {
+              nombre: cita.cliente_nombre || "N/A",
+              apellido: cita.cliente_apellido || "",
+            },
+          },
+          mecanico: {
+            nombre: cita.mecanico_nombre || "N/A",
+            apellido: cita.mecanico_apellido || "",
+          },
+          estado_cita: {
+            nombre: cita.estado_nombre || "Pendiente",
+          },
+          estado_cita_id: cita.estado_cita_id || 1,
+        }
+      })
+
+      console.log("Citas transformadas:", citasTransformadas) // Debug
       setCitas(citasTransformadas)
       setLoading(false)
     } catch (error) {
@@ -174,16 +184,32 @@ const ListarCitas = () => {
     setSelectedCita(null)
   }
 
+  // Funciones para manejar la navegación del calendario
+  const handleNavigate = (newDate) => {
+    setCalendarDate(newDate)
+  }
+
+  const handleViewChange = (view) => {
+    setCalendarView(view)
+  }
+
   // MEJORAR LA TRANSFORMACIÓN DE EVENTOS PARA EL CALENDARIO
   const calendarEvents = Array.isArray(citas)
     ? citas
         .map((cita) => {
-          if (!cita.fecha) return null
+          console.log("Procesando cita para calendario:", cita) // Debug
+
+          if (!cita.fecha) {
+            console.warn("Cita sin fecha:", cita.id)
+            return null
+          }
 
           try {
             // Mejorar el parsing de fecha y hora
             let fechaStr = cita.fecha
             let horaStr = cita.hora || "08:00"
+
+            console.log("Fecha original:", fechaStr, "Hora original:", horaStr) // Debug
 
             // Si la fecha viene con formato ISO, extraer solo la fecha
             if (fechaStr.includes("T")) {
@@ -195,13 +221,17 @@ const ListarCitas = () => {
               horaStr = horaStr.substring(0, 5)
             }
 
-            // Crear la fecha completa
-            const fechaCompleta = `${fechaStr}T${horaStr}:00`
-            const start = new Date(fechaCompleta)
+            // Crear la fecha usando el constructor de Date más confiable
+            const [year, month, day] = fechaStr.split("-").map(Number)
+            const [hour, minute] = horaStr.split(":").map(Number)
+
+            const start = new Date(year, month - 1, day, hour, minute)
+
+            console.log("Fecha procesada:", start) // Debug
 
             // Verificar que la fecha sea válida
             if (isNaN(start.getTime())) {
-              console.warn("Fecha inválida para cita:", cita.id, fechaCompleta)
+              console.warn("Fecha inválida para cita:", cita.id, fechaStr, horaStr)
               return null
             }
 
@@ -209,7 +239,7 @@ const ListarCitas = () => {
             const end = new Date(start)
             end.setHours(end.getHours() + 1)
 
-            return {
+            const event = {
               id: cita.id,
               title: `${cita.vehiculo?.placa || "Sin placa"} - ${cita.vehiculo?.cliente?.nombre || "Sin cliente"}`,
               start,
@@ -217,6 +247,9 @@ const ListarCitas = () => {
               resource: cita,
               allDay: false,
             }
+
+            console.log("Evento creado:", event) // Debug
+            return event
           } catch (error) {
             console.error("Error procesando cita:", cita.id, error)
             return null
@@ -224,6 +257,8 @@ const ListarCitas = () => {
         })
         .filter((event) => event !== null)
     : []
+
+  console.log("Eventos del calendario:", calendarEvents) // Debug
 
   // Personalizar los eventos del calendario
   const eventStyleGetter = (event) => {
@@ -240,20 +275,20 @@ const ListarCitas = () => {
 
     switch (estado) {
       case 1: // Pendiente
+        style.backgroundColor = "#2563eb" // Azul principal
+        style.borderLeft = "4px solid #1d4ed8"
+        break
+      case 2: // Confirmada
         style.backgroundColor = "#f59e0b" // Amarillo
         style.borderLeft = "4px solid #d97706"
         break
-      case 2: // Confirmada
+      case 3: // Completada
         style.backgroundColor = "#10b981" // Verde
         style.borderLeft = "4px solid #059669"
         break
-      case 3: // Cancelada
+      case 4: // Cancelada
         style.backgroundColor = "#ef4444" // Rojo
         style.borderLeft = "4px solid #dc2626"
-        break
-      case 4: // Finalizada/Completada
-        style.backgroundColor = "#3b82f6" // Azul
-        style.borderLeft = "4px solid #1d4ed8"
         break
       default:
         style.backgroundColor = "#6b7280"
@@ -272,7 +307,6 @@ const ListarCitas = () => {
     month: "Mes",
     week: "Semana",
     day: "Día",
-    agenda: "Agenda",
     date: "Fecha",
     time: "Hora",
     event: "Evento",
@@ -299,15 +333,16 @@ const ListarCitas = () => {
   const indexOfLastItem = currentPage * itemsPerPage
   const indexOfFirstItem = indexOfLastItem - itemsPerPage
   const currentCitas = filteredCitas.slice(indexOfFirstItem, indexOfLastItem)
+  const totalPages = Math.ceil(filteredCitas.length / itemsPerPage)
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber)
 
   return (
     <div className="listarCitas-container">
       <div className="listarCitas-header">
-        <div>
-          <h1>Gestión de Citas</h1>
-          <p>Administra y visualiza las citas de tus clientes.</p>
+        <div className="listarCitas-header-content">
+          <h1 className="listarCitas-title">Gestión de Citas</h1>
+          <p className="listarCitas-subtitle">Administra y visualiza las citas de tus clientes.</p>
         </div>
         <div className="listarCitas-actions">
           <input
@@ -317,34 +352,31 @@ const ListarCitas = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button className="listarCitas-btn-refresh" onClick={fetchCitas}>
-            <FaSync />
-          </button>
           <div className="listarCitas-view-toggle">
             <button
-              className={`listarCitas-view-btn ${viewMode === "list" ? "active" : ""}`}
+              className={`listarCitas-view-btn listarCitas-list-btn ${viewMode === "list" ? "active" : ""}`}
               onClick={() => setViewMode("list")}
             >
-              <FaList />
+              <FaList className="listarCitas-view-icon" />
             </button>
             <button
-              className={`listarCitas-view-btn ${viewMode === "calendar" ? "active" : ""}`}
+              className={`listarCitas-view-btn listarCitas-calendar-btn ${viewMode === "calendar" ? "active" : ""}`}
               onClick={() => setViewMode("calendar")}
             >
-              <FaCalendarAlt />
+              <FaCalendarAlt className="listarCitas-view-icon" />
             </button>
           </div>
           <Link to="/citas/crear" className="listarCitas-btn-crear">
-            <FaPlus /> Nueva Cita
+            <FaPlus className="listarCitas-crear-icon" /> Nueva Cita
           </Link>
         </div>
       </div>
 
       {loading ? (
-        <div className="listarUsuarios-container">
-          <div className="listarUsuarios-loading">
-            <div className="listarUsuarios-spinner"></div>
-            <p>Cargando citas...</p>
+        <div className="listarCitas-loading-container">
+          <div className="listarCitas-loading-content">
+            <div className="listarCitas-spinner"></div>
+            <p className="listarCitas-loading-text">Cargando citas...</p>
           </div>
         </div>
       ) : (
@@ -352,166 +384,204 @@ const ListarCitas = () => {
           {viewMode === "calendar" ? (
             <div className="listarCitas-calendar-container">
               <div className="listarCitas-calendar-legend">
-                <div className="listarCitas-legend-item">
-                  <span className="listarCitas-legend-color" style={{ backgroundColor: "#f59e0b" }}></span>
-                  <span>Pendiente</span>
+                <div className="listarCitas-legend-item listarCitas-legend-pendiente">
+                  <span className="listarCitas-legend-color listarCitas-color-pendiente"></span>
+                  <span className="listarCitas-legend-text">Pendiente</span>
                 </div>
-                <div className="listarCitas-legend-item">
-                  <span className="listarCitas-legend-color" style={{ backgroundColor: "#10b981" }}></span>
-                  <span>Completada</span>
+                <div className="listarCitas-legend-item listarCitas-legend-confirmada">
+                  <span className="listarCitas-legend-color listarCitas-color-confirmada"></span>
+                  <span className="listarCitas-legend-text">Confirmada</span>
                 </div>
-                <div className="listarCitas-legend-item">
-                  <span className="listarCitas-legend-color" style={{ backgroundColor: "#ef4444" }}></span>
-                  <span>Cancelada</span>
+                <div className="listarCitas-legend-item listarCitas-legend-completada">
+                  <span className="listarCitas-legend-color listarCitas-color-completada"></span>
+                  <span className="listarCitas-legend-text">Completada</span>
                 </div>
-                <div className="listarCitas-legend-item">
-                  <span className="listarCitas-legend-color" style={{ backgroundColor: "#3b82f6" }}></span>
-                  <span>Finalizada</span>
+                <div className="listarCitas-legend-item listarCitas-legend-cancelada">
+                  <span className="listarCitas-legend-color listarCitas-color-cancelada"></span>
+                  <span className="listarCitas-legend-text">Cancelada</span>
                 </div>
               </div>
 
-              <Calendar
-                localizer={localizer}
-                events={calendarEvents}
-                startAccessor="start"
-                endAccessor="end"
-                titleAccessor="title"
-                style={{ height: 600, minHeight: 600 }}
-                messages={messages}
-                eventPropGetter={eventStyleGetter}
-                onSelectEvent={handleSelectEvent}
-                views={["month", "week", "day", "agenda"]}
-                defaultView="month"
-                popup={true}
-                popupOffset={30}
-                step={60}
-                showMultiDayTimes={true}
-                culture="es"
-                formats={{
-                  dateFormat: "DD",
-                  dayFormat: (date, culture, localizer) => localizer.format(date, "dddd", culture),
-                  dayHeaderFormat: (date, culture, localizer) => localizer.format(date, "dddd DD/MM", culture),
-                  monthHeaderFormat: (date, culture, localizer) => localizer.format(date, "MMMM YYYY", culture),
-                  agendaDateFormat: "DD/MM/YYYY",
-                  agendaTimeFormat: "HH:mm",
-                  agendaTimeRangeFormat: ({ start, end }, culture, localizer) =>
-                    `${localizer.format(start, "HH:mm", culture)} - ${localizer.format(end, "HH:mm", culture)}`,
-                }}
-              />
+              <div className="listarCitas-calendar-wrapper">
+                <Calendar
+                  localizer={localizer}
+                  events={calendarEvents}
+                  startAccessor="start"
+                  endAccessor="end"
+                  titleAccessor="title"
+                  style={{ height: 600, minHeight: 600 }}
+                  messages={messages}
+                  eventPropGetter={eventStyleGetter}
+                  onSelectEvent={handleSelectEvent}
+                  views={["month", "week", "day"]}
+                  view={calendarView}
+                  onView={handleViewChange}
+                  date={calendarDate}
+                  onNavigate={handleNavigate}
+                  popup={true}
+                  popupOffset={30}
+                  step={60}
+                  showMultiDayTimes={true}
+                  culture="es"
+                  className="listarCitas-calendar"
+                  formats={{
+                    dateFormat: "DD",
+                    dayFormat: (date, culture, localizer) => localizer.format(date, "dddd", culture),
+                    dayHeaderFormat: (date, culture, localizer) => localizer.format(date, "dddd DD/MM", culture),
+                    monthHeaderFormat: (date, culture, localizer) => localizer.format(date, "MMMM YYYY", culture),
+                    agendaDateFormat: "DD/MM/YYYY",
+                    agendaTimeFormat: "HH:mm",
+                    agendaTimeRangeFormat: ({ start, end }, culture, localizer) =>
+                      `${localizer.format(start, "HH:mm", culture)} - ${localizer.format(end, "HH:mm", culture)}`,
+                  }}
+                />
+              </div>
             </div>
           ) : (
             <div className="listarCitas-table-container">
-              <table className="listarCitas-table">
-                <thead>
-                  <tr>
-                    <th>Fecha</th>
-                    <th>Hora</th>
-                    <th>Vehículo</th>
-                    <th>Cliente</th>
-                    <th>Mecánico</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentCitas.length > 0 ? (
-                    currentCitas.map((cita) => {
-                      // --- Construcción local de la fecha igual que en el calendario ---
-                      const fechaStr = cita.fecha
-                      const horaStr = cita.hora ? cita.hora.slice(0, 5) : "08:00"
-                      let fechaBase = fechaStr
-                      if (fechaStr && fechaStr.includes("T")) {
-                        fechaBase = fechaStr.split("T")[0]
-                      }
-                      let fechaLocal = null
-                      if (fechaBase) {
-                        const [year, month, day] = fechaBase.split("-")
-                        const [hour, minute] = horaStr.split(":")
-                        fechaLocal = new Date(
-                          Number(year),
-                          Number(month) - 1,
-                          Number(day),
-                          Number(hour),
-                          Number(minute),
-                        )
-                      }
-                      // ---------------------------------------------------------------
-
-                      return (
-                        <tr key={cita.id}>
-                          <td>
-                            {fechaLocal
-                              ? fechaLocal.toLocaleDateString("es-CO", {
-                                  day: "2-digit",
-                                  month: "2-digit",
-                                  year: "numeric",
-                                })
-                              : "N/A"}
-                          </td>
-                          <td>
-                            {fechaLocal
-                              ? fechaLocal.toLocaleTimeString("es-CO", {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                  hour12: false,
-                                })
-                              : "N/A"}
-                          </td>
-                          <td>{cita.vehiculo?.placa || "N/A"}</td>
-                          <td>
-                            {cita.vehiculo?.cliente?.nombre
-                              ? `${cita.vehiculo.cliente.nombre} ${cita.vehiculo.cliente.apellido || ""}`
-                              : "N/A"}
-                          </td>
-                          <td>
-                            {cita.mecanico?.nombre ? `${cita.mecanico.nombre} ${cita.mecanico.apellido || ""}` : "N/A"}
-                          </td>
-                          <td>
-                            <span className={`listarCitas-estado-badge listarCitas-estado-${cita.estado_cita_id}`}>
-                              {cita.estado_cita?.nombre || "Pendiente"}
-                            </span>
-                          </td>
-                          <td className="listarCitas-actions-cell">
-                            <Link
-                              to={`/citas/detalle/${cita.id}`}
-                              className="listarCitas-btn-action listarCitas-btn-view"
-                            >
-                              <FaEye />
-                            </Link>
-                            <button
-                              className="listarCitas-btn-action listarCitas-btn-delete"
-                              onClick={() => handleDeleteCita(cita.id)}
-                            >
-                              <FaTrash />
-                            </button>
-                          </td>
-                        </tr>
-                      )
-                    })
-                  ) : (
-                    <tr>
-                      <td colSpan="7" className="listarCitas-no-data">
-                        No hay citas registradas
-                      </td>
+              <div className="listarCitas-table-wrapper">
+                <table className="listarCitas-table">
+                  <thead className="listarCitas-table-header">
+                    <tr className="listarCitas-header-row">
+                      <th className="listarCitas-th listarCitas-th-fecha">Fecha</th>
+                      <th className="listarCitas-th listarCitas-th-hora">Hora</th>
+                      <th className="listarCitas-th listarCitas-th-vehiculo">Vehículo</th>
+                      <th className="listarCitas-th listarCitas-th-cliente">Cliente</th>
+                      <th className="listarCitas-th listarCitas-th-mecanico">Mecánico</th>
+                      <th className="listarCitas-th listarCitas-th-estado">Estado</th>
+                      <th className="listarCitas-th listarCitas-th-acciones">Acciones</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="listarCitas-table-body">
+                    {currentCitas.length > 0 ? (
+                      currentCitas.map((cita) => {
+                        // --- Construcción local de la fecha igual que en el calendario ---
+                        const fechaStr = cita.fecha
+                        const horaStr = cita.hora ? cita.hora.slice(0, 5) : "08:00"
+                        let fechaBase = fechaStr
+                        if (fechaStr && fechaStr.includes("T")) {
+                          fechaBase = fechaStr.split("T")[0]
+                        }
+                        let fechaLocal = null
+                        if (fechaBase) {
+                          const [year, month, day] = fechaBase.split("-")
+                          const [hour, minute] = horaStr.split(":")
+                          fechaLocal = new Date(
+                            Number(year),
+                            Number(month) - 1,
+                            Number(day),
+                            Number(hour),
+                            Number(minute),
+                          )
+                        }
+                        // ---------------------------------------------------------------
 
-              {/* Paginación */}
-              <div className="listarCitas-pagination">
-                {Array.from({ length: Math.ceil(filteredCitas.length / itemsPerPage) }, (_, i) => i + 1).map(
-                  (number) => (
-                    <button
-                      key={number}
-                      onClick={() => paginate(number)}
-                      className={`listarCitas-page-number ${currentPage === number ? "listarCitas-active" : ""}`}
-                    >
-                      {number}
-                    </button>
-                  ),
-                )}
+                        return (
+                          <tr key={cita.id} className="listarCitas-table-row">
+                            <td className="listarCitas-td listarCitas-td-fecha">
+                              {fechaLocal
+                                ? fechaLocal.toLocaleDateString("es-CO", {
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                    year: "numeric",
+                                  })
+                                : "N/A"}
+                            </td>
+                            <td className="listarCitas-td listarCitas-td-hora">
+                              {fechaLocal
+                                ? fechaLocal.toLocaleTimeString("es-CO", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: false,
+                                  })
+                                : "N/A"}
+                            </td>
+                            <td className="listarCitas-td listarCitas-td-vehiculo">
+                              <span className="listarCitas-vehiculo-placa">{cita.vehiculo?.placa || "N/A"}</span>
+                            </td>
+                            <td className="listarCitas-td listarCitas-td-cliente">
+                              <span className="listarCitas-cliente-nombre">
+                                {cita.vehiculo?.cliente?.nombre
+                                  ? `${cita.vehiculo.cliente.nombre} ${cita.vehiculo.cliente.apellido || ""}`
+                                  : "N/A"}
+                              </span>
+                            </td>
+                            <td className="listarCitas-td listarCitas-td-mecanico">
+                              <span className="listarCitas-mecanico-nombre">
+                                {cita.mecanico?.nombre
+                                  ? `${cita.mecanico.nombre} ${cita.mecanico.apellido || ""}`
+                                  : "N/A"}
+                              </span>
+                            </td>
+                            <td className="listarCitas-td listarCitas-td-estado">
+                              <span className={`listarCitas-estado-badge listarCitas-estado-${cita.estado_cita_id}`}>
+                                {cita.estado_cita?.nombre || "Pendiente"}
+                              </span>
+                            </td>
+                            <td className="listarCitas-td listarCitas-actions-cell">
+                              <div className="listarCitas-actions-group">
+                                <Link
+                                  to={`/citas/detalle/${cita.id}`}
+                                  className="listarCitas-btn-action listarCitas-btn-view"
+                                  title="Ver detalle"
+                                >
+                                  <FaEye className="listarCitas-action-icon" />
+                                </Link>
+                                <button
+                                  className="listarCitas-btn-action listarCitas-btn-delete"
+                                  onClick={() => handleDeleteCita(cita.id)}
+                                  title="Eliminar cita"
+                                >
+                                  <FaTrash className="listarCitas-action-icon" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        )
+                      })
+                    ) : (
+                      <tr className="listarCitas-no-data-row">
+                        <td colSpan="7" className="listarCitas-no-data">
+                          <div className="listarCitas-no-data-content">
+                            <span className="listarCitas-no-data-text">No hay citas registradas</span>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
+
+              {/* Paginación igual que ListarUsuarios */}
+              {filteredCitas.length > itemsPerPage && (
+                <div className="listarCitas-pagination">
+                  <button
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="listarCitas-pagination-button"
+                  >
+                    Anterior
+                  </button>
+
+                  {Array.from({ length: totalPages }, (_, i) => (
+                    <button
+                      key={i + 1}
+                      onClick={() => setCurrentPage(i + 1)}
+                      className={`listarCitas-pagination-button ${currentPage === i + 1 ? "active" : ""}`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+
+                  <button
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="listarCitas-pagination-button"
+                  >
+                    Siguiente
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </>
@@ -522,58 +592,60 @@ const ListarCitas = () => {
         <div className="listarCitas-modal-overlay">
           <div className="listarCitas-modal-content">
             <div className="listarCitas-modal-header">
-              <h2>Detalle de Cita</h2>
+              <h2 className="listarCitas-modal-title">Detalle de Cita</h2>
               <button className="listarCitas-close-btn" onClick={closeModal}>
-                ×
+                <span className="listarCitas-close-icon">×</span>
               </button>
             </div>
             <div className="listarCitas-modal-body">
               <div className="listarCitas-modal-info">
-                <div className="listarCitas-info-group">
-                  <strong>Fecha:</strong>
-                  <span>{moment(selectedCita.start).format("DD/MM/YYYY")}</span>
+                <div className="listarCitas-info-group listarCitas-info-fecha">
+                  <strong className="listarCitas-info-label">Fecha:</strong>
+                  <span className="listarCitas-info-value">{moment(selectedCita.start).format("DD/MM/YYYY")}</span>
                 </div>
-                <div className="listarCitas-info-group">
-                  <strong>Hora:</strong>
-                  <span>{moment(selectedCita.start).format("HH:mm")}</span>
+                <div className="listarCitas-info-group listarCitas-info-hora">
+                  <strong className="listarCitas-info-label">Hora:</strong>
+                  <span className="listarCitas-info-value">{moment(selectedCita.start).format("HH:mm")}</span>
                 </div>
-                <div className="listarCitas-info-group">
-                  <strong>Vehículo:</strong>
-                  <span>{selectedCita.resource.vehiculo?.placa || "N/A"}</span>
+                <div className="listarCitas-info-group listarCitas-info-vehiculo">
+                  <strong className="listarCitas-info-label">Vehículo:</strong>
+                  <span className="listarCitas-info-value">{selectedCita.resource.vehiculo?.placa || "N/A"}</span>
                 </div>
-                <div className="listarCitas-info-group">
-                  <strong>Cliente:</strong>
-                  <span>
+                <div className="listarCitas-info-group listarCitas-info-cliente">
+                  <strong className="listarCitas-info-label">Cliente:</strong>
+                  <span className="listarCitas-info-value">
                     {selectedCita.resource.vehiculo?.cliente?.nombre
                       ? `${selectedCita.resource.vehiculo.cliente.nombre} ${selectedCita.resource.vehiculo.cliente.apellido || ""}`
                       : "N/A"}
                   </span>
                 </div>
-                <div className="listarCitas-info-group">
-                  <strong>Mecánico:</strong>
-                  <span>
+                <div className="listarCitas-info-group listarCitas-info-mecanico">
+                  <strong className="listarCitas-info-label">Mecánico:</strong>
+                  <span className="listarCitas-info-value">
                     {selectedCita.resource.mecanico?.nombre
                       ? `${selectedCita.resource.mecanico.nombre} ${selectedCita.resource.mecanico.apellido || ""}`
                       : "N/A"}
                   </span>
                 </div>
-                <div className="listarCitas-info-group">
-                  <strong>Estado:</strong>
+                <div className="listarCitas-info-group listarCitas-info-estado">
+                  <strong className="listarCitas-info-label">Estado:</strong>
                   <span
                     className={`listarCitas-estado-badge listarCitas-estado-${selectedCita.resource.estado_cita_id}`}
                   >
                     {selectedCita.resource.estado_cita?.nombre || "Pendiente"}
                   </span>
                 </div>
-                <div className="listarCitas-info-group">
-                  <strong>Observaciones:</strong>
-                  <span>{selectedCita.resource.observaciones || "Sin observaciones"}</span>
+                <div className="listarCitas-info-group listarCitas-info-observaciones">
+                  <strong className="listarCitas-info-label">Observaciones:</strong>
+                  <span className="listarCitas-info-value">
+                    {selectedCita.resource.observaciones || "Sin observaciones"}
+                  </span>
                 </div>
               </div>
             </div>
             <div className="listarCitas-modal-footer">
               <Link to={`/citas/detalle/${selectedCita.resource.id}`} className="listarCitas-btn-edit-modal">
-                <FaEye /> Ver Detalle
+                <FaEye className="listarCitas-modal-icon" /> Ver Detalle
               </Link>
               <button className="listarCitas-btn-close-modal" onClick={closeModal}>
                 Cerrar
