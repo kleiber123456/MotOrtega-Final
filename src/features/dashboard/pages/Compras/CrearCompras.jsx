@@ -15,7 +15,9 @@ import {
   FaSearch,
   FaTrash,
   FaSave,
-  FaArrowLeft, // <-- Agrega este icono
+  FaArrowLeft,
+  FaChevronLeft,
+  FaChevronRight,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Compras/CrearCompras.css"
@@ -32,13 +34,28 @@ const getValidToken = () => {
   }
   return token
 }
-// ...otros imports...
 
 // Formatear números solo con separador de miles, sin decimales
 const formatNumber = (num) =>
   Number(num).toLocaleString("es-CO", { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 
-// ...resto del código...
+// Función para calcular días hábiles hacia atrás
+const calcularFechaMinima = () => {
+  const hoy = new Date()
+  let diasHabiles = 0
+  const fechaActual = new Date(hoy)
+
+  while (diasHabiles < 3) {
+    fechaActual.setDate(fechaActual.getDate() - 1)
+    const diaSemana = fechaActual.getDay()
+    // Si no es sábado (6) ni domingo (0), es día hábil
+    if (diaSemana !== 0 && diaSemana !== 6) {
+      diasHabiles++
+    }
+  }
+
+  return fechaActual.toISOString().substr(0, 10)
+}
 
 // Hook personalizado para manejo de API
 const useApi = () => {
@@ -87,12 +104,11 @@ const useApi = () => {
   return { makeRequest, loading, error }
 }
 
-// Componente principal mejorado
+// Componente principal simplificado
 const CrearCompra = () => {
   const navigate = useNavigate()
   const { makeRequest, loading: apiLoading } = useApi()
 
-  const [showProductModal, setShowProductModal] = useState(false)
   const [showSupplierModal, setShowSupplierModal] = useState(false)
   const [selectedProducts, setSelectedProducts] = useState([])
   const [selectedSupplier, setSelectedSupplier] = useState(null)
@@ -103,11 +119,75 @@ const CrearCompra = () => {
   const [formErrors, setFormErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // Estados para la búsqueda de productos
+  const [searchTerm, setSearchTerm] = useState("")
+  const [products, setProducts] = useState([])
+  const [loadingProducts, setLoadingProducts] = useState(false)
+  const [inputValues, setInputValues] = useState({})
+  const [inputErrors, setInputErrors] = useState({})
+
+  // Estados para paginación
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(3)
+
+  // Estados para la paginación de productos seleccionados
+  const [selectedProductsCurrentPage, setSelectedProductsCurrentPage] = useState(1)
+  const [selectedProductsItemsPerPage] = useState(4) // Configurable desde aquí
+
+  // Cargar productos desde la API
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoadingProducts(true)
+      try {
+        const data = await makeRequest("/repuestos")
+        if (data) {
+          const activeProducts = data.filter((product) => product.nombre)
+          setProducts(activeProducts)
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error)
+      } finally {
+        setLoadingProducts(false)
+      }
+    }
+
+    fetchProducts()
+  }, [makeRequest])
+
   // Calcular el total cuando cambian los productos seleccionados
   useEffect(() => {
     const productsTotal = selectedProducts.reduce((sum, item) => sum + item.price * item.quantity, 0)
     setTotal(productsTotal)
   }, [selectedProducts])
+
+  // Filtrar productos disponibles solo si hay término de búsqueda
+  const filteredProducts = searchTerm.trim()
+    ? products.filter(
+        (product) =>
+          !selectedProducts.some((existing) => existing.id === product.id) &&
+          product.nombre.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+    : []
+
+  // Calcular paginación
+  const indexOfLastItem = currentPage * itemsPerPage
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage
+  const currentProducts = filteredProducts.slice(indexOfFirstItem, indexOfLastItem)
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage)
+
+  // Calcular paginación para productos seleccionados
+  const selectedProductsIndexOfLastItem = selectedProductsCurrentPage * selectedProductsItemsPerPage
+  const selectedProductsIndexOfFirstItem = selectedProductsIndexOfLastItem - selectedProductsItemsPerPage
+  const currentSelectedProducts = selectedProducts.slice(
+    selectedProductsIndexOfFirstItem,
+    selectedProductsIndexOfLastItem,
+  )
+  const selectedProductsTotalPages = Math.ceil(selectedProducts.length / selectedProductsItemsPerPage)
+
+  // Reset página cuando cambia la búsqueda
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm])
 
   // Validaciones del formulario
   const validateForm = useCallback(() => {
@@ -125,7 +205,6 @@ const CrearCompra = () => {
       errors.fecha = "La fecha es obligatoria"
     }
 
-    // Validar que todos los productos tengan cantidad y precio válidos
     selectedProducts.forEach((product, index) => {
       if (product.quantity <= 0) {
         errors[`product_${index}_quantity`] = `Cantidad inválida para ${product.nombre}`
@@ -140,12 +219,10 @@ const CrearCompra = () => {
   }, [selectedSupplier, selectedProducts, formData.fecha])
 
   // Manejadores para modales
-  const openProductModal = useCallback(() => setShowProductModal(true), [])
-  const closeProductModal = useCallback(() => setShowProductModal(false), [])
   const openSupplierModal = useCallback(() => setShowSupplierModal(true), [])
   const closeSupplierModal = useCallback(() => setShowSupplierModal(false), [])
 
-  // Manejador para eliminar productos con confirmación
+  // Manejador para eliminar productos
   const removeProduct = useCallback(async (id) => {
     const result = await Swal.fire({
       title: "¿Eliminar producto?",
@@ -175,7 +252,6 @@ const CrearCompra = () => {
     (supplier) => {
       setSelectedSupplier(supplier)
       closeSupplierModal()
-      // Limpiar error de proveedor si existe
       if (formErrors.supplier) {
         setFormErrors((prev) => ({ ...prev, supplier: "" }))
       }
@@ -189,7 +265,6 @@ const CrearCompra = () => {
       const { name, value } = e.target
       setFormData((prev) => ({ ...prev, [name]: value }))
 
-      // Limpiar error del campo si existe
       if (formErrors[name]) {
         setFormErrors((prev) => ({ ...prev, [name]: "" }))
       }
@@ -236,7 +311,90 @@ const CrearCompra = () => {
     )
   }, [])
 
-  // Manejador mejorado para envío del formulario
+  // Manejar cambios en los inputs de cada producto
+  const handleInputChange2 = (productId, field, value) => {
+    setInputValues((prev) => ({
+      ...prev,
+      [productId]: {
+        ...prev[productId],
+        [field]: value,
+      },
+    }))
+  }
+
+  // Calcular precio venta
+  const getPrecioVenta = (precioCompra, porcentaje) => {
+    const pc = Number(precioCompra) || 0
+    const por = Number(porcentaje) || 0
+    return pc + (pc * por) / 100
+  }
+
+  // Validar campos antes de agregar al carrito
+  const validateInputs = (productId, cantidad, precioCompra, porcentaje) => {
+    const errors = {}
+    if (!cantidad || isNaN(cantidad) || cantidad < 1) {
+      errors.cantidad = "Ingrese una cantidad válida (mayor o igual a 1)"
+    }
+    if (!precioCompra || isNaN(precioCompra) || precioCompra <= 0) {
+      errors.precioCompra = "Ingrese el precio de compra (mayor a 0)"
+    }
+    if (porcentaje === "" || porcentaje === null || isNaN(porcentaje) || porcentaje < 0) {
+      errors.porcentaje = "Ingrese el porcentaje (0 o mayor)"
+    }
+    setInputErrors((prev) => ({ ...prev, [productId]: errors }))
+    return Object.keys(errors).length === 0
+  }
+
+  // Función para agregar productos directamente
+  const handleAddProduct = (product, cantidad, precioCompra, porcentaje) => {
+    if (!validateInputs(product.id, cantidad, precioCompra, porcentaje)) return
+
+    const precioVenta = Number(precioCompra) + (Number(precioCompra) * Number(porcentaje)) / 100
+
+    setSelectedProducts((prev) => [
+      ...prev,
+      {
+        ...product,
+        quantity: cantidad,
+        price: precioCompra,
+        porcentaje: porcentaje,
+        precioVenta: precioVenta,
+      },
+    ])
+
+    // Limpiar errores y valores temporales
+    setInputErrors((prev) => ({ ...prev, [product.id]: {} }))
+    setInputValues((prev) => ({ ...prev, [product.id]: {} }))
+
+    // Mostrar confirmación
+  }
+
+  // Manejadores de paginación
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1))
+  }
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+  }
+
+  // Manejadores de paginación para productos seleccionados
+  const handleSelectedPreviousPage = () => {
+    setSelectedProductsCurrentPage((prev) => Math.max(prev - 1, 1))
+  }
+
+  const handleSelectedNextPage = () => {
+    setSelectedProductsCurrentPage((prev) => Math.min(prev + 1, selectedProductsTotalPages))
+  }
+
+  // Reset página cuando cambian los productos seleccionados
+  useEffect(() => {
+    if (selectedProductsCurrentPage > selectedProductsTotalPages && selectedProductsTotalPages > 0) {
+      setSelectedProductsCurrentPage(selectedProductsTotalPages)
+    }
+  }, [selectedProducts.length, selectedProductsCurrentPage, selectedProductsTotalPages])
+
+  // Manejador para envío del formulario
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault()
@@ -260,8 +418,7 @@ const CrearCompra = () => {
             repuesto_id: product.id,
             cantidad: product.quantity,
             precio_compra: product.price,
-            porcentaje_ganancia: product.porcentaje || 40, // Enviar el porcentaje
-            // El precio_venta se calculará en el backend
+            porcentaje_ganancia: product.porcentaje || 40,
           })),
           estado: "Pendiente",
         }
@@ -295,7 +452,7 @@ const CrearCompra = () => {
     [validateForm, selectedSupplier, selectedProducts, makeRequest, navigate],
   )
 
-  // Manejador para cancelar con confirmación
+  // Manejador para cancelar
   const handleCancel = useCallback(async () => {
     if (selectedProducts.length > 0 || selectedSupplier) {
       const result = await Swal.fire({
@@ -336,6 +493,7 @@ const CrearCompra = () => {
       </div>
 
       <form className="crearCompra-form" onSubmit={handleSubmit}>
+        {/* Información General */}
         <div className="crearCompra-form-section">
           <h3 className="crearCompra-section-title">
             <FaUser className="crearCompra-section-icon" />
@@ -386,6 +544,7 @@ const CrearCompra = () => {
                 className={`crearCompra-form-input ${formErrors.fecha ? "error" : ""}`}
                 value={formData.fecha}
                 onChange={handleInputChange}
+                min={calcularFechaMinima()}
                 max={new Date().toISOString().substr(0, 10)}
                 required
               />
@@ -398,86 +557,282 @@ const CrearCompra = () => {
           </div>
         </div>
 
-        <div className="crearCompra-form-section">
-          <h3 className="crearCompra-section-title">
-            <FaBoxes className="crearCompra-section-icon" />
-            Productos
-          </h3>
-          <div className="crearCompra-add-products-section">
-            <button
-              type="button"
-              className="crearCompra-create-button"
-              onClick={openProductModal}
-              disabled={isSubmitting}
+        {/* Sección del Carrito */}
+        <div className="crearCompra-cart-main-section">
+          <div className="crearCompra-cart-header">
+            <h3
+              className="crearCompra-cart-title-clickable"
+              onClick={() => {
+                const selectedProductsSection = document.querySelector(".crearCompra-selected-products-section")
+                if (selectedProductsSection) {
+                  const rect = selectedProductsSection.getBoundingClientRect()
+                  const offset = 80 // Ajusta este valor para controlar qué tan arriba quieres que aparezca
+                  window.scrollTo({
+                    top: window.pageYOffset + rect.top - offset,
+                    behavior: "smooth",
+                  })
+                }
+              }}
+              title="Ir a productos seleccionados"
             >
-              <FaPlus className="crearCompra-button-icon" />
-              Añadir Productos
-            </button>
+              <FaShoppingCart className="crearCompra-cart-icon" />
+              Carrito
+            </h3>
           </div>
 
-          {formErrors.products && (
-            <div className="crearCompra-error-message">
-              <FaExclamationTriangle /> {formErrors.products}
-            </div>
-          )}
+          <div className="crearCompra-cart-content">
+            {/* Columna Izquierda: Búsqueda y Selección de Productos */}
+            <div className="crearCompra-search-section">
+              <div className="crearCompra-form-section">
+                <h3 className="crearCompra-section-title">
+                  <FaBoxes className="crearCompra-section-icon" />
+                  Buscar y Agregar Productos
+                </h3>
 
-          {/* Sección de productos seleccionados mejorada */}
-          {selectedProducts.length > 0 && (
-            <div className="crearCompra-selected-products-section">
-              <div className="crearCompra-products-header">
-                <h4>Productos Seleccionados</h4>
-                <span className="crearCompra-products-count">
-                  {selectedProducts.length} producto{selectedProducts.length !== 1 ? "s" : ""}
-                </span>
-              </div>
-              <div className="crearCompra-product-cards">
-                {selectedProducts.map((product) => (
-                  <div key={product.id} className="crearCompra-product-card-selected">
-                    <div className="crearCompra-product-card-header">
-                      <h4 className="crearCompra-product-name">{product.nombre}</h4>
-                      <div className="crearCompra-product-actions">
-                        <button
-                          type="button"
-                          className="crearCompra-remove-button"
-                          onClick={() => removeProduct(product.id)}
-                          title="Eliminar producto"
-                        >
-                          <FaTrash />
-                        </button>
+                <div className="crearCompra-search-container">
+                  <FaSearch className="crearCompra-search-icon" />
+                  <input
+                    type="text"
+                    placeholder="Buscar productos por nombre..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="crearCompra-search-input"
+                  />
+                </div>
+
+                {loadingProducts ? (
+                  <div className="crearCompra-loading-products">
+                    <FaSpinner className="spinning" /> Cargando productos...
+                  </div>
+                ) : searchTerm.trim() ? (
+                  <div className="crearCompra-product-list">
+                    {currentProducts.length === 0 ? (
+                      <div className="crearCompra-no-results">
+                        <FaExclamationTriangle className="crearCompra-no-results-icon" />
+                        <p>No se encontraron productos que coincidan con "{searchTerm}"</p>
                       </div>
-                    </div>
-                    <div className="crearCompra-product-card-details">
-                      <div className="crearCompra-product-info-grid">
-                        <div className="crearCompra-info-item">
-                          <span className="crearCompra-info-label">Cantidad:</span>
-                          <div className="crearCompra-editable-field">
+                    ) : (
+                      <>
+                        <div className="crearCompra-search-products-container">
+                          {currentProducts.map((product) => {
+                            const values = inputValues[product.id] || {}
+                            const cantidad = values.cantidad ?? 1
+                            const precioCompra = values.precioCompra ?? product.preciounitario ?? 0
+                            const porcentaje = values.porcentaje ?? 40
+                            const precioVenta = getPrecioVenta(precioCompra, porcentaje)
+
+                            return (
+                              <div key={product.id} className="crearCompra-search-product-card-compact">
+                                <div className="crearCompra-search-product-header-compact">
+                                  <div className="crearCompra-search-product-info-compact">
+                                    <h4 className="crearCompra-search-product-name-compact">{product.nombre}</h4>
+                                    <div className="crearCompra-search-product-details-compact">
+                                      <span className="crearCompra-search-product-stock-compact">
+                                        Stock: {product.cantidad || 0}
+                                      </span>
+                                    </div>
+                                    {product.descripcion && (
+                                      <span className="crearCompra-search-product-description-compact">
+                                        {product.descripcion}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="crearCompra-search-product-inputs-row">
+                                  <div className="crearCompra-search-input-compact">
+                                    <label>Cant.</label>
+                                    <input
+                                      type="number"
+                                      className="crearCompra-search-input-field-compact"
+                                      min="1"
+                                      value={cantidad === undefined ? "" : cantidad}
+                                      onChange={(e) =>
+                                        handleInputChange2(
+                                          product.id,
+                                          "cantidad",
+                                          e.target.value === "" ? "" : Number.parseInt(e.target.value),
+                                        )
+                                      }
+                                      onKeyDown={(e) => e.key === "-" && e.preventDefault()}
+                                      placeholder="1"
+                                    />
+                                    {inputErrors[product.id]?.cantidad && (
+                                      <span className="crearCompra-search-error-hint">
+                                        {inputErrors[product.id].cantidad}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="crearCompra-search-input-compact">
+                                    <label>P. Compra</label>
+                                    <input
+                                      type="number"
+                                      className="crearCompra-search-input-field-compact"
+                                      min="0"
+                                      step="0.01"
+                                      value={precioCompra === undefined ? "" : precioCompra}
+                                      onChange={(e) =>
+                                        handleInputChange2(
+                                          product.id,
+                                          "precioCompra",
+                                          e.target.value === "" ? "" : Number.parseFloat(e.target.value),
+                                        )
+                                      }
+                                      onKeyDown={(e) => e.key === "-" && e.preventDefault()}
+                                      onFocus={(e) => e.target.select()}
+                                      placeholder="0"
+                                    />
+                                    {inputErrors[product.id]?.precioCompra && (
+                                      <span className="crearCompra-search-error-hint">
+                                        {inputErrors[product.id].precioCompra}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="crearCompra-search-input-compact">
+                                    <label>%</label>
+                                    <input
+                                      type="number"
+                                      className="crearCompra-search-input-field-compact"
+                                      min="0"
+                                      step="0.01"
+                                      value={porcentaje === undefined ? "" : porcentaje}
+                                      onChange={(e) =>
+                                        handleInputChange2(
+                                          product.id,
+                                          "porcentaje",
+                                          e.target.value === "" ? "" : Number.parseFloat(e.target.value),
+                                        )
+                                      }
+                                      onKeyDown={(e) => e.key === "-" && e.preventDefault()}
+                                      placeholder="40"
+                                    />
+                                    {inputErrors[product.id]?.porcentaje && (
+                                      <span className="crearCompra-search-error-hint">
+                                        {inputErrors[product.id].porcentaje}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="crearCompra-search-input-compact">
+                                    <label>P. Unitario</label>
+                                    <input
+                                      type="text"
+                                      className="crearCompra-search-input-field-compact crearCompra-search-readonly"
+                                      value={formatNumber(precioVenta)}
+                                      readOnly
+                                      tabIndex={-1}
+                                    />
+                                  </div>
+                                  <div className="crearCompra-search-add-button-container">
+                                    <button
+                                      type="button"
+                                      className="crearCompra-search-add-button-compact"
+                                      onClick={() => {
+                                        handleAddProduct(product, cantidad, precioCompra, porcentaje)
+                                      }}
+                                    >
+                                      <FaPlus />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+
+                        {/* Paginación */}
+                        {totalPages > 1 && (
+                          <div className="crearCompra-pagination">
+                            <button
+                              type="button"
+                              onClick={handlePreviousPage}
+                              disabled={currentPage === 1}
+                              className="crearCompra-pagination-button"
+                            >
+                              <FaChevronLeft /> Anterior
+                            </button>
+
+                            <span className="crearCompra-page-info">
+                              Página {currentPage} de {totalPages} ({filteredProducts.length} productos encontrados)
+                            </span>
+
+                            <button
+                              type="button"
+                              onClick={handleNextPage}
+                              disabled={currentPage === totalPages}
+                              className="crearCompra-pagination-button"
+                            >
+                              Siguiente <FaChevronRight />
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <div className="crearCompra-search-placeholder">
+                    <FaSearch className="crearCompra-search-placeholder-icon" />
+                    <p>Escriba el nombre del producto que desea buscar</p>
+                  </div>
+                )}
+
+                {formErrors.products && (
+                  <div className="crearCompra-error-message">
+                    <FaExclamationTriangle /> {formErrors.products}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Columna Derecha: Productos Seleccionados */}
+            <div className="crearCompra-selected-products-section">
+              {selectedProducts.length > 0 ? (
+                <div className="crearCompra-form-section">
+                  <div className="crearCompra-products-header">
+                    <h4 className="crearCompra-form-section-h4">Productos Seleccionados</h4>
+                    <span className="crearCompra-products-count">
+                      {selectedProducts.length} producto{selectedProducts.length !== 1 ? "s" : ""}
+                    </span>
+                  </div>
+
+                  <div className="crearCompra-selected-products-container">
+                    {currentSelectedProducts.map((product) => (
+                      <div key={product.id} className="crearCompra-product-card-selected-compact">
+                        <div className="crearCompra-product-card-header-compact">
+                          <h4 className="crearCompra-product-name-compact">{product.nombre}</h4>
+                          <button
+                            type="button"
+                            className="crearCompra-remove-button-compact"
+                            onClick={() => removeProduct(product.id)}
+                            title="Eliminar producto"
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                        <div className="crearCompra-product-inputs-row">
+                          <div className="crearCompra-input-compact">
+                            <label>Cantidad</label>
                             <input
                               type="number"
                               min="1"
                               value={product.quantity}
                               onChange={(e) => updateProductQuantity(product.id, Number.parseInt(e.target.value) || "")}
-                              className="crearCompra-inline-input"
-                              placeholder="Ingrese la cantidad"
+                              onKeyDown={(e) => e.key === "-" && e.preventDefault()}
+                              className="crearCompra-input-field-compact"
                             />
                           </div>
-                        </div>
-                        <div className="crearCompra-info-item">
-                          <span className="crearCompra-info-label">Precio Compra:</span>
-                          <div className="crearCompra-editable-field">
+                          <div className="crearCompra-input-compact">
+                            <label>P. Compra</label>
                             <input
                               type="number"
                               min="0"
                               step="0.01"
                               value={product.price}
                               onChange={(e) => updateProductPrice(product.id, Number.parseFloat(e.target.value) || "")}
-                              className="crearCompra-inline-input"
-                              placeholder="Ingrese el precio de compra"
+                              onKeyDown={(e) => e.key === "-" && e.preventDefault()}
+                              className="crearCompra-input-field-compact"
                             />
                           </div>
-                        </div>
-                        <div className="crearCompra-info-item">
-                          <span className="crearCompra-info-label">Porcentaje:</span>
-                          <div className="crearCompra-editable-field">
+                          <div className="crearCompra-input-compact">
+                            <label>Margen</label>
                             <input
                               type="number"
                               min="0"
@@ -486,14 +841,12 @@ const CrearCompra = () => {
                               onChange={(e) =>
                                 updateProductPorcentaje(product.id, Number.parseFloat(e.target.value) || "")
                               }
-                              className="crearCompra-inline-input"
-                              placeholder="Ingrese el porcentaje"
+                              onKeyDown={(e) => e.key === "-" && e.preventDefault()}
+                              className="crearCompra-input-field-compact"
                             />
                           </div>
-                        </div>
-                        <div className="crearCompra-info-item">
-                          <span className="crearCompra-info-label">Precio Venta:</span>
-                          <div className="crearCompra-editable-field">
+                          <div className="crearCompra-input-compact">
+                            <label>P. Unitario</label>
                             <input
                               type="text"
                               value={formatNumber(
@@ -501,38 +854,48 @@ const CrearCompra = () => {
                                   Number(product.price) +
                                     (Number(product.price) * Number(product.porcentaje ?? 40)) / 100,
                               )}
-                              className="crearCompra-inline-input"
+                              className="crearCompra-input-field-compact crearCompra-readonly"
                               readOnly
                               tabIndex={-1}
-                              style={{ background: "#f3f4f6", color: "#374151" }}
-                              placeholder="Precio venta"
                             />
+                          </div>
+                          <div className="crearCompra-subtotal-compact">
+                            <span>${formatNumber(product.price * product.quantity)}</span>
                           </div>
                         </div>
                       </div>
-                      {/* Subtotal alineado a la derecha */}
-                      <div className="crearCompra-product-subtotal" style={{ textAlign: "right", marginTop: 8 }}>
-                        <span className="crearCompra-info-label">Subtotal:</span>
-                        <span className="crearCompra-subtotal" style={{ fontWeight: 600, marginLeft: 8 }}>
-                          ${formatNumber(product.price * product.quantity)}
-                        </span>
-                      </div>
-                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
 
-              <div className="crearCompra-total-section" style={{ display: "flex", justifyContent: "flex-end" }}>
-                <div className="crearCompra-total-card">
-                  <span className="crearCompra-total-label">Total de la Compra:</span>
-                  <span className="crearCompra-total-amount">${formatNumber(total)}</span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+                  {/* Paginación para productos seleccionados */}
+                  {selectedProductsTotalPages > 1 && (
+                    <div className="crearCompra-selected-pagination">
+                      <button
+                        type="button"
+                        onClick={handleSelectedPreviousPage}
+                        disabled={selectedProductsCurrentPage === 1}
+                        className="crearCompra-pagination-button-small"
+                      >
+                        <FaChevronLeft />
+                      </button>
 
-        {/* Acciones del formulario mejoradas */}
+                      <span className="crearCompra-page-info-small">
+                        {selectedProductsCurrentPage} / {selectedProductsTotalPages}
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={handleSelectedNextPage}
+                        disabled={selectedProductsCurrentPage === selectedProductsTotalPages}
+                        className="crearCompra-pagination-button-small"
+                      >
+                        <FaChevronRight />
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="crearCompra-total-section-compact">
+                    {/* Acciones del formulario */}
         <div className="crearCompra-form-actions">
           <button type="button" className="crearCompra-cancel-button" onClick={handleCancel} disabled={isSubmitting}>
             <FaTimes className="crearCompra-button-icon" />
@@ -552,498 +915,33 @@ const CrearCompra = () => {
             )}
           </button>
         </div>
+                    <div className="crearCompra-total-card-compact">
+                      <span className="crearCompra-total-label-compact">Total:</span>
+                      <span className="crearCompra-total-amount-compact">${formatNumber(total)}</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="crearCompra-form-section">
+                  <div className="crearCompra-empty-cart">
+                    <FaShoppingCart className="crearCompra-empty-cart-icon" />
+                    <h4>Carrito vacío</h4>
+                    <p>Busca y agrega productos para comenzar tu compra</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </form>
 
-      {/* Modales */}
-      {showProductModal && (
-        <ProductModal
-          closeModal={closeProductModal}
-          addProduct={(products) => {
-            if (Array.isArray(products)) {
-              setSelectedProducts((prev) => [...prev, ...products])
-            } else {
-              setSelectedProducts((prev) => [...prev, products])
-            }
-          }}
-          existingProducts={selectedProducts}
-        />
-      )}
-
+      {/* Modal de Proveedores */}
       {showSupplierModal && <SupplierModal closeModal={closeSupplierModal} selectSupplier={selectSupplier} />}
     </div>
   )
 }
 
-// Componente Modal de Productos
-const ProductModal = ({ closeModal, addProduct, existingProducts }) => {
-  const { makeRequest, loading, error } = useApi()
-  const [searchTerm, setSearchTerm] = useState("")
-  const [products, setProducts] = useState([])
-  const [cartItems, setCartItems] = useState([])
-  const [total, setTotal] = useState(0)
-  // Estado para inputs temporales por producto
-  const [inputValues, setInputValues] = useState({})
-  // Agrega este estado para errores de inputs en el modal
-  const [inputErrors, setInputErrors] = useState({})
-
-  // Cargar productos desde la API
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const data = await makeRequest("/repuestos")
-        if (data) {
-          // Filtrar productos activos y con stock
-          const activeProducts = data.filter((product) => product.nombre)
-          setProducts(activeProducts)
-        }
-      } catch (error) {
-        console.error("Error fetching products:", error)
-      }
-    }
-
-    fetchProducts()
-  }, [makeRequest])
-
-  // Filtrar productos disponibles (no ya seleccionados)
-  const availableProducts = products.filter(
-    (product) =>
-      !existingProducts.some((existing) => existing.id === product.id) &&
-      product.nombre.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
-
-  // Calcular total del carrito
-  useEffect(() => {
-    const newTotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
-    setTotal(newTotal)
-  }, [cartItems])
-
-  // Manejar cambios en los inputs de cada producto
-  const handleInputChange = (productId, field, value) => {
-    setInputValues((prev) => ({
-      ...prev,
-      [productId]: {
-        ...prev[productId],
-        [field]: value,
-      },
-    }))
-  }
-
-  // Calcular precio venta
-  const getPrecioVenta = (precioCompra, porcentaje) => {
-    const pc = Number(precioCompra) || 0
-    const por = Number(porcentaje) || 0
-    return pc + (pc * por) / 100
-  }
-
-  // Formatear números solo con separador de miles, sin decimales
-  const formatNumber = (num) =>
-    Number(num).toLocaleString("es-CO", { minimumFractionDigits: 0, maximumFractionDigits: 0 })
-
-  // Validar campos antes de agregar al carrito
-  const validateInputs = (productId, cantidad, precioCompra, porcentaje) => {
-    const errors = {}
-    if (!cantidad || isNaN(cantidad) || cantidad < 1) {
-      errors.cantidad = "Ingrese una cantidad válida (mayor o igual a 1)"
-    }
-    if (!precioCompra || isNaN(precioCompra) || precioCompra <= 0) {
-      errors.precioCompra = "Ingrese el precio de compra (mayor a 0)"
-    }
-    if (porcentaje === "" || porcentaje === null || isNaN(porcentaje) || porcentaje < 0) {
-      errors.porcentaje = "Ingrese el porcentaje (0 o mayor)"
-    }
-    setInputErrors((prev) => ({ ...prev, [productId]: errors }))
-    return Object.keys(errors).length === 0
-  }
-
-  // Función para agregar productos al carrito
-  const handleAddToCart = (product, cantidad, precioCompra, porcentaje) => {
-    if (!validateInputs(product.id, cantidad, precioCompra, porcentaje)) return
-
-    // Calcula el precio venta usando el porcentaje y el precio compra
-    const precioVenta = Number(precioCompra) + (Number(precioCompra) * Number(porcentaje)) / 100
-
-    setCartItems((prev) => [
-      ...prev,
-      {
-        ...product,
-        quantity: cantidad,
-        price: precioCompra,
-        porcentaje: porcentaje,
-        precioVenta: precioVenta,
-      },
-    ])
-    // Limpia errores y valores temporales
-    setInputErrors((prev) => ({ ...prev, [product.id]: {} }))
-    setInputValues((prev) => ({ ...prev, [product.id]: {} }))
-  }
-
-  const handleRemoveFromCart = useCallback((productId) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== productId))
-  }, [])
-
-  const updateCartItemQuantity = useCallback(
-    (productId, newQuantity) => {
-      if (newQuantity <= 0) {
-        handleRemoveFromCart(productId)
-        return
-      }
-
-      setCartItems((prev) => prev.map((item) => (item.id === productId ? { ...item, quantity: newQuantity } : item)))
-    },
-    [handleRemoveFromCart],
-  )
-
-  const updateCartItemPrice = useCallback((productId, newPrice) => {
-    const numericPrice = Math.max(0, newPrice)
-    setCartItems((prev) => prev.map((item) => (item.id === productId ? { ...item, price: numericPrice } : item)))
-  }, [])
-
-  const updateCartItemPorcentaje = useCallback((productId, newPorcentaje) => {
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.id === productId
-          ? {
-              ...item,
-              porcentaje: newPorcentaje,
-              precioVenta: Number(item.price) + (Number(item.price) * Number(newPorcentaje)) / 100,
-            }
-          : item,
-      ),
-    )
-  }, [])
-
-  const handleConfirm = useCallback(async () => {
-    if (cartItems.length > 0) {
-      addProduct(cartItems)
-      await Swal.fire({
-        icon: "success",
-        title: "Productos agregados",
-        text: `Se agregaron ${cartItems.length} producto(s) a la compra`,
-        timer: 1500,
-        showConfirmButton: false,
-      })
-      closeModal()
-    }
-  }, [cartItems, addProduct, closeModal])
-
-  if (loading) {
-    return (
-      <div className="crearCompra-modal-overlay">
-        <div className="crearCompra-large-modal">
-          <div className="crearCompra-modal-header">
-            <h2>
-              <FaSpinner className="spinning" /> Cargando productos...
-            </h2>
-            <button type="button" className="crearCompra-close-modal-button" onClick={closeModal}>
-              <FaTimes />
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="crearCompra-modal-overlay">
-        <div className="crearCompra-large-modal">
-          <div className="crearCompra-modal-header">
-            <h2>
-              <FaExclamationTriangle /> Error
-            </h2>
-            <button type="button" className="crearCompra-close-modal-button" onClick={closeModal}>
-              <FaTimes />
-            </button>
-          </div>
-          <div className="crearCompra-modal-content">
-            <div className="crearCompra-error-message">
-              <p>{error}</p>
-              <button className="crearCompra-retry-button" onClick={() => window.location.reload()}>
-                Reintentar
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="crearCompra-modal-overlay">
-      <div className="crearCompra-large-modal">
-        <div className="crearCompra-modal-header">
-          <h2>
-            <FaBoxes className="crearCompra-modal-icon" />
-            Añadir Productos
-          </h2>
-          <button type="button" className="crearCompra-close-modal-button" onClick={closeModal}>
-            <FaTimes />
-          </button>
-        </div>
-
-        <div className="crearCompra-modal-content">
-          <div className="crearCompra-left-pane">
-            <div className="crearCompra-search-section">
-              <h4>Buscar Productos</h4>
-              <div className="crearCompra-search-container">
-                <FaSearch className="crearCompra-search-icon" />
-                <input
-                  type="text"
-                  placeholder="Buscar productos..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="crearCompra-search-input"
-                />
-              </div>
-            </div>
-
-            <div className="crearCompra-product-list">
-              {availableProducts.length === 0 ? (
-                <div className="crearCompra-no-results">
-                  <FaExclamationTriangle className="crearCompra-no-results-icon" />
-                  <p>{searchTerm ? "No se encontraron productos" : "No hay productos disponibles"}</p>
-                </div>
-              ) : (
-                availableProducts.map((product) => {
-                  const values = inputValues[product.id] || {}
-                  const cantidad = values.cantidad ?? 1
-                  const precioCompra = values.precioCompra ?? product.preciounitario ?? 0
-                  const porcentaje = values.porcentaje ?? 40
-                  const precioVenta = getPrecioVenta(precioCompra, porcentaje)
-
-                  return (
-                    <div key={product.id} className="crearCompra-product-card">
-                      <div className="crearCompra-product-info">
-                        <div className="crearCompra-product-main-info">
-                          <span className="crearCompra-product-name">{product.nombre}</span>
-                          <span className="crearCompra-product-price">
-                            ${formatNumber(product.preciounitario || 0)}
-                          </span>
-                        </div>
-                        <span className="crearCompra-product-stock">Stock: {product.cantidad || 0}</span>
-                        {product.descripcion && (
-                          <span className="crearCompra-product-description">{product.descripcion}</span>
-                        )}
-                      </div>
-                      <div className="crearCompra-product-actions crearCompra-product-actions-vertical">
-                        <div className="crearCompra-input-group">
-                          <div className="crearCompra-input-item">
-                            <label>Cantidad</label>
-                            <input
-                              type="number"
-                              className="crearCompra-quantity-input"
-                              min="1"
-                              value={cantidad === undefined ? "" : cantidad}
-                              onChange={(e) =>
-                                handleInputChange(
-                                  product.id,
-                                  "cantidad",
-                                  e.target.value === "" ? "" : Number.parseInt(e.target.value),
-                                )
-                              }
-                              placeholder="Ingrese la cantidad"
-                            />
-                            {inputErrors[product.id]?.cantidad && (
-                              <span className="crearCompra-input-hint" style={{ color: "#ef4444" }}>
-                                {inputErrors[product.id].cantidad}
-                              </span>
-                            )}
-                          </div>
-                          <div className="crearCompra-input-item">
-                            <label>Precio Compra</label>
-                            <input
-                              type="number"
-                              className="crearCompra-quantity-input"
-                              min="0"
-                              step="0.01"
-                              value={precioCompra === undefined ? "" : precioCompra}
-                              onChange={(e) =>
-                                handleInputChange(
-                                  product.id,
-                                  "precioCompra",
-                                  e.target.value === "" ? "" : Number.parseFloat(e.target.value),
-                                )
-                              }
-                              onFocus={(e) => e.target.select()}
-                              placeholder="Ingrese el precio de compra"
-                            />
-                            {inputErrors[product.id]?.precioCompra && (
-                              <span className="crearCompra-input-hint" style={{ color: "#ef4444" }}>
-                                {inputErrors[product.id].precioCompra}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="crearCompra-input-group">
-                          <div className="crearCompra-input-item">
-                            <label>Porcentaje</label>
-                            <input
-                              type="number"
-                              className="crearCompra-quantity-input"
-                              min="0"
-                              step="0.01"
-                              value={porcentaje === undefined ? "" : porcentaje}
-                              onChange={(e) =>
-                                handleInputChange(
-                                  product.id,
-                                  "porcentaje",
-                                  e.target.value === "" ? "" : Number.parseFloat(e.target.value),
-                                )
-                              }
-                              placeholder="Ingrese el porcentaje"
-                            />
-                            {inputErrors[product.id]?.porcentaje && (
-                              <span className="crearCompra-input-hint" style={{ color: "#ef4444" }}>
-                                {inputErrors[product.id].porcentaje}
-                              </span>
-                            )}
-                          </div>
-                          <div className="crearCompra-input-item">
-                            <label>Precio Venta</label>
-                            <input
-                              type="text"
-                              className="crearCompra-quantity-input"
-                              value={formatNumber(precioVenta)}
-                              readOnly
-                              tabIndex={-1}
-                              style={{ background: "#f3f4f6", color: "#374151" }}
-                            />
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          className="crearCompra-add-button"
-                          style={{ marginTop: 8 }}
-                          onClick={() => {
-                            handleAddToCart(product, cantidad, precioCompra, porcentaje, precioVenta)
-                          }}
-                        >
-                          <FaPlus /> Agregar
-                        </button>
-                      </div>
-                    </div>
-                  )
-                })
-              )}
-            </div>
-          </div>
-
-          <div className="crearCompra-right-pane">
-            <div className="crearCompra-cart-header">
-              <h4>Productos Seleccionados</h4>
-              <span className="crearCompra-cart-count">
-                {cartItems.length} item{cartItems.length !== 1 ? "s" : ""}
-              </span>
-            </div>
-            <div className="crearCompra-cart-items">
-              {cartItems.length === 0 ? (
-                <div className="crearCompra-empty-cart-message">
-                  <FaShoppingCart className="crearCompra-empty-icon" />
-                  <p>No hay productos seleccionados</p>
-                </div>
-              ) : (
-                cartItems.map((item) => (
-                  <div key={item.id} className="crearCompra-cart-item">
-                    <div className="crearCompra-cart-item-header">
-                      <span className="crearCompra-cart-item-name">{item.nombre}</span>
-                      <button
-                        type="button"
-                        className="crearCompra-remove-cart-item"
-                        onClick={() => handleRemoveFromCart(item.id)}
-                      >
-                        <FaTimes />
-                      </button>
-                    </div>
-                    <div className="crearCompra-cart-item-details">
-                      <div className="crearCompra-input-group">
-                        <div className="crearCompra-input-item" style={{ flex: 1 }}>
-                          <label>Cantidad</label>
-                          <input
-                            type="number"
-                            min="1"
-                            value={item.quantity}
-                            onChange={(e) =>
-                              updateCartItemQuantity(item.id, Number.parseInt(e.target.value) || 1)
-                            }
-                            className="crearCompra-quantity-input"
-                            placeholder="Cantidad"
-                          />
-                        </div>
-                        <div className="crearCompra-input-item" style={{ flex: 1 }}>
-                          <label>Precio Compra</label>
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={item.price}
-                            onChange={(e) =>
-                              updateCartItemPrice(item.id, Number.parseFloat(e.target.value) || 0)
-                            }
-                            className="crearCompra-quantity-input"
-                            placeholder="Precio compra"
-                          />
-                        </div>
-                      </div>
-                      <div className="crearCompra-input-group">
-                        <div className="crearCompra-input-item" style={{ flex: 1 }}>
-                          <label>Porcentaje</label>
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={item.porcentaje ?? 40}
-                            onChange={(e) =>
-                              updateCartItemPorcentaje(item.id, Number.parseFloat(e.target.value) || 0)
-                            }
-                            className="crearCompra-quantity-input"
-                            placeholder="Porcentaje"
-                          />
-                        </div>
-                        <div className="crearCompra-input-item" style={{ flex: 1 }}>
-                          <label>Precio Venta</label>
-                          <input
-                            type="text"
-                            value={formatNumber(item.precioVenta)}
-                            className="crearCompra-quantity-input"
-                            readOnly
-                            tabIndex={-1}
-                            style={{ background: "#f3f4f6", color: "#374151" }}
-                            placeholder="Precio venta"
-                          />
-                        </div>
-                      </div>
-                      <div className="crearCompra-cart-item-total" style={{ textAlign: "right", marginTop: 8 }}>
-                        Subtotal: <strong>${formatNumber(item.price * item.quantity)}</strong>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            <div className="crearCompra-cart-summary">
-              <div className="crearCompra-cart-total">
-                <span>Total:</span>
-                <strong>${formatNumber(total)}</strong>
-              </div>
-              <button
-                type="button"
-                className="crearCompra-confirm-cart-button"
-                onClick={handleConfirm}
-                disabled={cartItems.length === 0}
-              >
-                <FaCheckCircle className="crearCompra-button-icon" />
-                Confirmar Selección ({cartItems.length})
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// Componente Modal de Proveedores
+// Componente Modal de Proveedores (mantenido)
 const SupplierModal = ({ closeModal, selectSupplier }) => {
   const { makeRequest, loading, error } = useApi()
   const [searchTerm, setSearchTerm] = useState("")
@@ -1051,7 +949,6 @@ const SupplierModal = ({ closeModal, selectSupplier }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(5)
 
-  // Cargar proveedores desde la API
   useEffect(() => {
     const fetchSuppliers = async () => {
       try {
@@ -1158,7 +1055,7 @@ const SupplierModal = ({ closeModal, selectSupplier }) => {
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value)
-                setCurrentPage(1) // Reset to first page when searching
+                setCurrentPage(1)
               }}
               className="crearCompra-supplier-search-input"
             />

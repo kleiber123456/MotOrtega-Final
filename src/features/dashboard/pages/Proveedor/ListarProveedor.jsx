@@ -12,8 +12,6 @@ import {
   FaPlus,
   FaToggleOn,
   FaToggleOff,
-  FaChevronDown,
-  FaChevronUp,
   FaPhone,
   FaIdCard,
   FaMapMarkerAlt,
@@ -156,9 +154,7 @@ const ListarProveedor = () => {
         // Busca el proveedor para mostrar el nombre en la alerta
         const proveedor = proveedores.find((p) => p._id === id)
         // Usa el nombre o un fallback claro
-        const nombreProveedor = proveedor && proveedor.nombre
-          ? proveedor.nombre
-          : "Proveedor sin nombre"
+        const nombreProveedor = proveedor && proveedor.nombre ? proveedor.nombre : "Proveedor sin nombre"
 
         const nuevoEstado = estadoActual?.toLowerCase() === "activo" ? "inactivo" : "activo"
 
@@ -231,9 +227,7 @@ const ListarProveedor = () => {
   const getProveedorId = (proveedor) => proveedor._id || proveedor.id || null
 
   const proveedoresFiltrados = proveedores.filter((proveedor) => {
-    const matchBusqueda = Object.values(proveedor).some((val) =>
-      String(val).toLowerCase().includes(busqueda),
-    )
+    const matchBusqueda = Object.values(proveedor).some((val) => String(val).toLowerCase().includes(busqueda))
     const matchEstado = estadoFiltro === "" || proveedor.estado === estadoFiltro
     return matchBusqueda && matchEstado
   })
@@ -339,13 +333,25 @@ const ListarProveedor = () => {
                     </button>
                   </td>
                   <td className="listarProveedor-actions">
-                    <button className="listarProveedor-action-button detail" onClick={() => navigate(`/DetalleProveedor/${proveedorId}`)} title="Ver detalle">
+                    <button
+                      className="listarProveedor-action-button detail"
+                      onClick={() => navigate(`/DetalleProveedor/${proveedorId}`)}
+                      title="Ver detalle"
+                    >
                       <FaEye />
                     </button>
-                    <button className="listarProveedor-action-button edit" onClick={() => navigate(`/EditarProveedor/${proveedorId}`)} title="Editar proveedor">
+                    <button
+                      className="listarProveedor-action-button edit"
+                      onClick={() => navigate(`/EditarProveedor/${proveedorId}`)}
+                      title="Editar proveedor"
+                    >
                       <FaEdit />
                     </button>
-                    <button className="listarProveedor-action-button delete" onClick={() => eliminarProveedor(proveedorId)} title="Eliminar proveedor">
+                    <button
+                      className="listarProveedor-action-button delete"
+                      onClick={() => eliminarProveedor(proveedorId)}
+                      title="Eliminar proveedor"
+                    >
                       <FaTrash />
                     </button>
                   </td>
@@ -359,7 +365,9 @@ const ListarProveedor = () => {
                             <FaPhone className="listarProveedor-expanded-icon" />
                             <div>
                               <span className="listarProveedor-expanded-label">Teléfono Empresa:</span>
-                              <span className="listarProveedor-expanded-value">{proveedor.telefono_empresa || "No disponible"}</span>
+                              <span className="listarProveedor-expanded-value">
+                                {proveedor.telefono_empresa || "No disponible"}
+                              </span>
                             </div>
                           </div>
                           <div className="listarProveedor-expanded-item">
@@ -373,14 +381,18 @@ const ListarProveedor = () => {
                             <FaMapMarkerAlt className="listarProveedor-expanded-icon" />
                             <div>
                               <span className="listarProveedor-expanded-label">Dirección:</span>
-                              <span className="listarProveedor-expanded-value">{proveedor.direccion || "No disponible"}</span>
+                              <span className="listarProveedor-expanded-value">
+                                {proveedor.direccion || "No disponible"}
+                              </span>
                             </div>
                           </div>
                           <div className="listarProveedor-expanded-item">
                             <FaEnvelope className="listarProveedor-expanded-icon" />
                             <div>
                               <span className="listarProveedor-expanded-label">Correo:</span>
-                              <span className="listarProveedor-expanded-value">{proveedor.correo || "No disponible"}</span>
+                              <span className="listarProveedor-expanded-value">
+                                {proveedor.correo || "No disponible"}
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -409,15 +421,82 @@ const ListarProveedor = () => {
             >
               Anterior
             </button>
-            {Array.from({ length: totalPaginas }, (_, i) => (
-              <button
-                key={i + 1}
-                onClick={() => setPaginaActual(i + 1)}
-                className={`listarProveedor-pagination-button ${paginaActual === i + 1 ? "active" : ""}`}
-              >
-                {i + 1}
-              </button>
-            ))}
+
+            {(() => {
+              const pages = []
+              const maxVisiblePages = 5
+
+              if (totalPaginas <= maxVisiblePages) {
+                // Si hay pocas páginas, mostrar todas
+                for (let i = 1; i <= totalPaginas; i++) {
+                  pages.push(
+                    <button
+                      key={i}
+                      onClick={() => setPaginaActual(i)}
+                      className={`listarProveedor-pagination-button ${paginaActual === i ? "active" : ""}`}
+                    >
+                      {i}
+                    </button>,
+                  )
+                }
+              } else {
+                // Si hay muchas páginas, mostrar paginación inteligente
+                const startPage = Math.max(1, paginaActual - 2)
+                const endPage = Math.min(totalPaginas, paginaActual + 2)
+
+                // Primera página
+                if (startPage > 1) {
+                  pages.push(
+                    <button key={1} onClick={() => setPaginaActual(1)} className="listarProveedor-pagination-button">
+                      1
+                    </button>,
+                  )
+                  if (startPage > 2) {
+                    pages.push(
+                      <span key="ellipsis1" className="listarProveedor-pagination-ellipsis">
+                        ...
+                      </span>,
+                    )
+                  }
+                }
+
+                // Páginas del rango actual
+                for (let i = startPage; i <= endPage; i++) {
+                  pages.push(
+                    <button
+                      key={i}
+                      onClick={() => setPaginaActual(i)}
+                      className={`listarProveedor-pagination-button ${paginaActual === i ? "active" : ""}`}
+                    >
+                      {i}
+                    </button>,
+                  )
+                }
+
+                // Última página
+                if (endPage < totalPaginas) {
+                  if (endPage < totalPaginas - 1) {
+                    pages.push(
+                      <span key="ellipsis2" className="listarProveedor-pagination-ellipsis">
+                        ...
+                      </span>,
+                    )
+                  }
+                  pages.push(
+                    <button
+                      key={totalPaginas}
+                      onClick={() => setPaginaActual(totalPaginas)}
+                      className="listarProveedor-pagination-button"
+                    >
+                      {totalPaginas}
+                    </button>,
+                  )
+                }
+              }
+
+              return pages
+            })()}
+
             <button
               onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
               disabled={paginaActual === totalPaginas}

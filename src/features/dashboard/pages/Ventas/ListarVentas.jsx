@@ -207,7 +207,7 @@ function ListarVentas() {
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#ef4444", // rojo
-        cancelButtonColor: "#6b7280",  // gris
+        cancelButtonColor: "#6b7280", // gris
         confirmButtonText: "Sí, anular",
         cancelButtonText: "Cancelar",
         focusCancel: true,
@@ -555,7 +555,6 @@ function ListarVentas() {
                 </td>
                 <td className="listarVenta-actions">
                   {/* Solo mostrar botones de acción si la venta está en estado Pendiente */}
-                  
 
                   {/* Botón Ver Detalle - Siempre visible */}
                   <button
@@ -619,15 +618,80 @@ function ListarVentas() {
               Anterior
             </button>
 
-            {Array.from({ length: totalPaginas }, (_, i) => (
-              <button
-                key={i + 1}
-                onClick={() => setPaginaActual(i + 1)}
-                className={`listarVenta-pagination-button ${paginaActual === i + 1 ? "active" : ""}`}
-              >
-                {i + 1}
-              </button>
-            ))}
+            {(() => {
+              const pages = []
+              const maxVisiblePages = 5
+
+              if (totalPaginas <= maxVisiblePages) {
+                // Si hay pocas páginas, mostrar todas
+                for (let i = 1; i <= totalPaginas; i++) {
+                  pages.push(
+                    <button
+                      key={i}
+                      onClick={() => setPaginaActual(i)}
+                      className={`listarVenta-pagination-button ${paginaActual === i ? "active" : ""}`}
+                    >
+                      {i}
+                    </button>,
+                  )
+                }
+              } else {
+                // Si hay muchas páginas, mostrar paginación inteligente
+                const startPage = Math.max(1, paginaActual - 2)
+                const endPage = Math.min(totalPaginas, paginaActual + 2)
+
+                // Primera página
+                if (startPage > 1) {
+                  pages.push(
+                    <button key={1} onClick={() => setPaginaActual(1)} className="listarVenta-pagination-button">
+                      1
+                    </button>,
+                  )
+                  if (startPage > 2) {
+                    pages.push(
+                      <span key="ellipsis1" className="listarVenta-pagination-ellipsis">
+                        ...
+                      </span>,
+                    )
+                  }
+                }
+
+                // Páginas del rango actual
+                for (let i = startPage; i <= endPage; i++) {
+                  pages.push(
+                    <button
+                      key={i}
+                      onClick={() => setPaginaActual(i)}
+                      className={`listarVenta-pagination-button ${paginaActual === i ? "active" : ""}`}
+                    >
+                      {i}
+                    </button>,
+                  )
+                }
+
+                // Última página
+                if (endPage < totalPaginas) {
+                  if (endPage < totalPaginas - 1) {
+                    pages.push(
+                      <span key="ellipsis2" className="listarVenta-pagination-ellipsis">
+                        ...
+                      </span>,
+                    )
+                  }
+                  pages.push(
+                    <button
+                      key={totalPaginas}
+                      onClick={() => setPaginaActual(totalPaginas)}
+                      className="listarVenta-pagination-button"
+                    >
+                      {totalPaginas}
+                    </button>,
+                  )
+                }
+              }
+
+              return pages
+            })()}
 
             <button
               onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}

@@ -18,6 +18,36 @@ import Swal from "sweetalert2"
 import { generarFacturaPDF, cargarDatosCompletosCompra } from "../../utils/pdf-generator"
 import "../../../../shared/styles/Compras/ListarCompras.css"
 
+// Función para formatear fecha igual que en ListarCitas
+const formatearFecha = (fechaString) => {
+  if (!fechaString) return "N/A"
+
+  try {
+    let fechaBase = fechaString
+    if (fechaString && fechaString.includes("T")) {
+      fechaBase = fechaString.split("T")[0]
+    }
+
+    if (fechaBase) {
+      const [year, month, day] = fechaBase.split("-")
+      const fechaLocal = new Date(Number(year), Number(month) - 1, Number(day), 0, 0, 0)
+
+      if (!isNaN(fechaLocal.getTime())) {
+        return fechaLocal.toLocaleDateString("es-CO", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        })
+      }
+    }
+
+    return "N/A"
+  } catch (error) {
+    console.error("Error al formatear fecha:", error)
+    return "N/A"
+  }
+}
+
 // Componente del modal para proveedores
 const ProveedorModal = ({ show, onClose, proveedores, onSelect, proveedorActual }) => {
   const [busquedaProveedor, setBusquedaProveedor] = useState("")
@@ -412,7 +442,7 @@ function ListarCompras() {
 
   // Filtrar compras por búsqueda, proveedor y estado
   const comprasFiltradas = compras.filter((compra) => {
-    const fechaFormateada = new Date(compra.fecha).toLocaleDateString("es-CO").toLowerCase()
+    const fechaFormateada = formatearFecha(compra.fecha).toLowerCase()
     const matchFecha = fechaFormateada.includes(busqueda)
     const matchProveedor = proveedorFiltro === "" || compra.proveedor_id.toString() === proveedorFiltro
     const matchEstado = estadoFiltro === "" || compra.estado === estadoFiltro
@@ -550,7 +580,7 @@ function ListarCompras() {
           <tbody>
             {comprasActuales.map((compra) => (
               <tr key={compra.id}>
-                <td>{new Date(compra.fecha).toLocaleDateString("es-CO")}</td>
+                <td>{formatearFecha(compra.fecha)}</td>
                 <td>{proveedores[compra.proveedor_id] || "Sin proveedor"}</td>
                 <td>{formatearPrecio(compra.total)}</td>
                 <td>
@@ -616,15 +646,80 @@ function ListarCompras() {
               Anterior
             </button>
 
-            {Array.from({ length: totalPaginas }, (_, i) => (
-              <button
-                key={i + 1}
-                onClick={() => setPaginaActual(i + 1)}
-                className={`listarCompra-pagination-button ${paginaActual === i + 1 ? "active" : ""}`}
-              >
-                {i + 1}
-              </button>
-            ))}
+            {(() => {
+              const pages = []
+              const maxVisiblePages = 5
+
+              if (totalPaginas <= maxVisiblePages) {
+                // Si hay pocas páginas, mostrar todas
+                for (let i = 1; i <= totalPaginas; i++) {
+                  pages.push(
+                    <button
+                      key={i}
+                      onClick={() => setPaginaActual(i)}
+                      className={`listarCompra-pagination-button ${paginaActual === i ? "active" : ""}`}
+                    >
+                      {i}
+                    </button>,
+                  )
+                }
+              } else {
+                // Si hay muchas páginas, mostrar paginación inteligente
+                const startPage = Math.max(1, paginaActual - 2)
+                const endPage = Math.min(totalPaginas, paginaActual + 2)
+
+                // Primera página
+                if (startPage > 1) {
+                  pages.push(
+                    <button key={1} onClick={() => setPaginaActual(1)} className="listarCompra-pagination-button">
+                      1
+                    </button>,
+                  )
+                  if (startPage > 2) {
+                    pages.push(
+                      <span key="ellipsis1" className="listarCompra-pagination-ellipsis">
+                        ...
+                      </span>,
+                    )
+                  }
+                }
+
+                // Páginas del rango actual
+                for (let i = startPage; i <= endPage; i++) {
+                  pages.push(
+                    <button
+                      key={i}
+                      onClick={() => setPaginaActual(i)}
+                      className={`listarCompra-pagination-button ${paginaActual === i ? "active" : ""}`}
+                    >
+                      {i}
+                    </button>,
+                  )
+                }
+
+                // Última página
+                if (endPage < totalPaginas) {
+                  if (endPage < totalPaginas - 1) {
+                    pages.push(
+                      <span key="ellipsis2" className="listarCompra-pagination-ellipsis">
+                        ...
+                      </span>,
+                    )
+                  }
+                  pages.push(
+                    <button
+                      key={totalPaginas}
+                      onClick={() => setPaginaActual(totalPaginas)}
+                      className="listarCompra-pagination-button"
+                    >
+                      {totalPaginas}
+                    </button>,
+                  )
+                }
+              }
+
+              return pages
+            })()}
 
             <button
               onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
