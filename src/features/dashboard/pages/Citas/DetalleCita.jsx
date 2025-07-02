@@ -13,11 +13,11 @@ import {
   FaTools,
   FaClipboardList,
   FaEdit,
-  FaPrint,
   FaArrowLeft,
+  FaIdCard,
+  FaEnvelope,
+  FaPhone,
 } from "react-icons/fa"
-import { jsPDF } from "jspdf"
-import "jspdf-autotable"
 import moment from "moment"
 import "moment/locale/es"
 
@@ -121,85 +121,35 @@ const DetalleCita = () => {
     }
   }
 
-  const generarPDF = () => {
-    if (!cita) return
-
-    const doc = new jsPDF()
-
-    // Título
-    doc.setFontSize(20)
-    doc.text("Detalle de Cita", 105, 20, { align: "center" })
-
-    // Información de la empresa
-    doc.setFontSize(12)
-    doc.text("MotOrtega", 105, 30, { align: "center" })
-    doc.text("Taller Mecánico", 105, 35, { align: "center" })
-    doc.text("NIT: 123456789", 105, 40, { align: "center" })
-
-    // Línea divisoria
-    doc.setLineWidth(0.5)
-    doc.line(20, 45, 190, 45)
-
-    // Información de la cita
-    doc.setFontSize(14)
-    doc.text("Información de la Cita", 20, 55)
-
-    doc.setFontSize(11)
-    doc.text(`Número de Cita: ${cita.id}`, 20, 65)
-    doc.text(`Fecha: ${moment(cita.fecha).format("DD/MM/YYYY")}`, 20, 72)
-    doc.text(`Hora: ${moment(cita.hora, "HH:mm:ss").format("HH:mm")} horas`, 20, 79)
-    doc.text(`Estado: ${cita.estado_cita?.nombre || "Pendiente"}`, 20, 86)
-
-    // Información del cliente y vehículo
-    doc.setFontSize(14)
-    doc.text("Cliente y Vehículo", 20, 100)
-
-    doc.setFontSize(11)
+  // Función para obtener información del cliente
+  const getClienteInfo = () => {
+    // Priorizar información del vehículo.cliente si está disponible
     if (cita.vehiculo && cita.vehiculo.cliente) {
-      doc.text(`Cliente: ${cita.vehiculo.cliente.nombre} ${cita.vehiculo.cliente.apellido}`, 20, 110)
-      doc.text(`Documento: ${cita.vehiculo.cliente.documento}`, 20, 117)
-      doc.text(`Teléfono: ${cita.vehiculo.cliente.telefono}`, 20, 124)
+      return cita.vehiculo.cliente
     }
 
+    // Fallback a información directa de la cita
+    return {
+      nombre: cita.cliente_nombre || "",
+      apellido: cita.cliente_apellido || "",
+      documento: cita.cliente_documento || "",
+      telefono: cita.cliente_telefono || "",
+      correo: cita.cliente_correo || "",
+    }
+  }
+
+  // Función para obtener información del vehículo
+  const getVehiculoInfo = () => {
     if (cita.vehiculo) {
-      doc.text(`Vehículo: ${cita.vehiculo.placa}`, 20, 131)
-      if (cita.vehiculo.referencia) {
-        doc.text(`Marca: ${cita.vehiculo.referencia.marca?.nombre || "N/A"}`, 20, 138)
-        doc.text(`Modelo: ${cita.vehiculo.referencia.nombre || "N/A"}`, 20, 145)
-      }
-      doc.text(`Tipo: ${cita.vehiculo.tipo_vehiculo || "N/A"}`, 20, 152)
-      doc.text(`Color: ${cita.vehiculo.color || "N/A"}`, 20, 159)
+      return cita.vehiculo
     }
 
-    // Información del mecánico
-    doc.setFontSize(14)
-    doc.text("Mecánico Asignado", 20, 175)
-
-    doc.setFontSize(11)
-    if (cita.mecanico) {
-      doc.text(`Nombre: ${cita.mecanico.nombre} ${cita.mecanico.apellido}`, 20, 185)
-      doc.text(`Documento: ${cita.mecanico.documento}`, 20, 192)
-      doc.text(`Teléfono: ${cita.mecanico.telefono}`, 20, 199)
+    return {
+      placa: cita.vehiculo_placa || "",
+      tipo_vehiculo: cita.vehiculo_tipo || "",
+      color: cita.vehiculo_color || "",
+      referencia: null,
     }
-
-    // Observaciones
-    doc.setFontSize(14)
-    doc.text("Observaciones", 20, 215)
-
-    doc.setFontSize(11)
-    const observaciones = cita.observaciones || "Sin observaciones"
-
-    // Dividir observaciones largas en múltiples líneas
-    const splitObservaciones = doc.splitTextToSize(observaciones, 170)
-    doc.text(splitObservaciones, 20, 225)
-
-    // Pie de página
-    doc.setFontSize(10)
-    doc.text(`Fecha de impresión: ${moment().format("DD/MM/YYYY HH:mm")}`, 20, 280)
-    doc.text("MotOrtega - Todos los derechos reservados", 105, 285, { align: "center" })
-
-    // Guardar el PDF
-    doc.save(`Cita_${cita.id}_${moment().format("YYYYMMDD")}.pdf`)
   }
 
   if (loading) {
@@ -222,6 +172,9 @@ const DetalleCita = () => {
       </div>
     )
   }
+
+  const clienteInfo = getClienteInfo()
+  const vehiculoInfo = getVehiculoInfo()
 
   return (
     <div className="detalleCita-container">
@@ -314,33 +267,102 @@ const DetalleCita = () => {
             </div>
           </div>
 
-          {/* Cliente y Vehículo */}
+          {/* Información Completa del Cliente */}
           <div className="detalleCita-section">
             <div className="detalleCita-section-header">
               <FaUser className="detalleCita-section-icon" />
-              <h2>Cliente y Vehículo</h2>
+              <h2>Información del Cliente</h2>
             </div>
-            {cita.cliente_nombre || cita.vehiculo_placa ? (
+            {clienteInfo.nombre || clienteInfo.apellido ? (
               <div className="detalleCita-grid">
                 <div className="detalleCita-field">
                   <label className="detalleCita-label">
                     <FaUser />
-                    Cliente
+                    Nombre Completo
                   </label>
                   <span className="detalleCita-value">
-                    {`${cita.cliente_nombre || ""} ${cita.cliente_apellido || ""}`}
+                    {`${clienteInfo.nombre || ""} ${clienteInfo.apellido || ""}`.trim() || "No especificado"}
                   </span>
                 </div>
                 <div className="detalleCita-field">
                   <label className="detalleCita-label">
-                    <FaCar />
-                    Vehículo
+                    <FaIdCard />
+                    Documento
                   </label>
-                  <span className="detalleCita-value">{cita.vehiculo_placa || ""}</span>
+                  <span className="detalleCita-value">{clienteInfo.documento || "No especificado"}</span>
+                </div>
+                <div className="detalleCita-field">
+                  <label className="detalleCita-label">
+                    <FaPhone />
+                    Teléfono
+                  </label>
+                  <span className="detalleCita-value">{clienteInfo.telefono || "No especificado"}</span>
+                </div>
+                <div className="detalleCita-field">
+                  <label className="detalleCita-label">
+                    <FaEnvelope />
+                    Correo Electrónico
+                  </label>
+                  <span className="detalleCita-value">{clienteInfo.correo || "No especificado"}</span>
                 </div>
               </div>
             ) : (
-              <p className="detalleCita-no-data">No hay información disponible del cliente o vehículo</p>
+              <p className="detalleCita-no-data">No hay información disponible del cliente</p>
+            )}
+          </div>
+
+          {/* Información del Vehículo */}
+          <div className="detalleCita-section">
+            <div className="detalleCita-section-header">
+              <FaCar className="detalleCita-section-icon" />
+              <h2>Información del Vehículo</h2>
+            </div>
+            {vehiculoInfo.placa ? (
+              <div className="detalleCita-grid">
+                <div className="detalleCita-field">
+                  <label className="detalleCita-label">
+                    <FaCar />
+                    Placa
+                  </label>
+                  <span className="detalleCita-value">{vehiculoInfo.placa}</span>
+                </div>
+                <div className="detalleCita-field">
+                  <label className="detalleCita-label">
+                    <FaCar />
+                    Tipo de Vehículo
+                  </label>
+                  <span className="detalleCita-value">{vehiculoInfo.tipo_vehiculo || "No especificado"}</span>
+                </div>
+                <div className="detalleCita-field">
+                  <label className="detalleCita-label">
+                    <FaCar />
+                    Color
+                  </label>
+                  <span className="detalleCita-value">{vehiculoInfo.color || "No especificado"}</span>
+                </div>
+                {vehiculoInfo.referencia && (
+                  <>
+                    <div className="detalleCita-field">
+                      <label className="detalleCita-label">
+                        <FaCar />
+                        Marca
+                      </label>
+                      <span className="detalleCita-value">
+                        {vehiculoInfo.referencia.marca?.nombre || "No especificada"}
+                      </span>
+                    </div>
+                    <div className="detalleCita-field">
+                      <label className="detalleCita-label">
+                        <FaCar />
+                        Modelo
+                      </label>
+                      <span className="detalleCita-value">{vehiculoInfo.referencia.nombre || "No especificado"}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <p className="detalleCita-no-data">No hay información disponible del vehículo</p>
             )}
           </div>
 
@@ -350,7 +372,7 @@ const DetalleCita = () => {
               <FaTools className="detalleCita-section-icon" />
               <h2>Mecánico Asignado</h2>
             </div>
-            {cita.mecanico_nombre ? (
+            {cita.mecanico_nombre || (cita.mecanico && cita.mecanico.nombre) ? (
               <div className="detalleCita-grid">
                 <div className="detalleCita-field">
                   <label className="detalleCita-label">
@@ -358,12 +380,23 @@ const DetalleCita = () => {
                     Nombre
                   </label>
                   <span className="detalleCita-value">
-                    {`${cita.mecanico_nombre || ""} ${cita.mecanico_apellido || ""}`}
+                    {cita.mecanico
+                      ? `${cita.mecanico.nombre || ""} ${cita.mecanico.apellido || ""}`.trim()
+                      : `${cita.mecanico_nombre || ""} ${cita.mecanico_apellido || ""}`.trim()}
+                  </span>
+                </div>
+                <div className="detalleCita-field">
+                  <label className="detalleCita-label">
+                    <FaPhone />
+                    Teléfono
+                  </label>
+                  <span className="detalleCita-value">
+                    {cita.mecanico?.telefono || cita.mecanico_telefono || "No especificado"}
                   </span>
                 </div>
               </div>
             ) : (
-              <p className="detalleCita-no-data">No hay información disponible del mecánico</p>
+              <p className="detalleCita-no-data">No hay mecánico asignado</p>
             )}
           </div>
 
@@ -387,10 +420,6 @@ const DetalleCita = () => {
             <div className="detalleCita-info-content">
               <p className="detalleCita-info-text">Desde aquí puedes realizar las siguientes acciones con esta cita:</p>
               <div className="detalleCita-actions">
-                <button onClick={generarPDF} className="detalleCita-btn-action btn-print">
-                  <FaPrint />
-                  Generar PDF
-                </button>
                 <Link to={`/citas/editar/${id}`} className="detalleCita-btn-action btn-edit">
                   <FaEdit />
                   Editar Cita

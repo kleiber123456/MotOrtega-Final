@@ -16,7 +16,7 @@ import {
   XCircle,
 } from "lucide-react"
 import Swal from "sweetalert2"
-import { generarFacturaPDF } from "../../utils/pdf-generator"
+import { generarFacturaPDF, cargarDatosCompletosVenta } from "../../utils/pdf-generator"
 import "../../../../shared/styles/Ventas/DetalleVenta.css"
 
 function DetalleVenta() {
@@ -281,16 +281,15 @@ function DetalleVenta() {
         },
       })
 
+      // Cargar datos completos usando la función del generador
+      const {
+        venta: ventaCompleta,
+        cliente: clienteCompleto,
+        detallesConProductos,
+      } = await cargarDatosCompletosVenta(id, token)
+
       // Generar el PDF
-      await generarFacturaPDF(
-        {
-          ...venta,
-          tipo: "venta",
-        },
-        cliente,
-        [...(venta.servicios || []), ...(venta.repuestos || [])],
-        token,
-      )
+      await generarFacturaPDF(ventaCompleta, clienteCompleto, detallesConProductos, token)
 
       // Cerrar loading y mostrar éxito
       Swal.close()

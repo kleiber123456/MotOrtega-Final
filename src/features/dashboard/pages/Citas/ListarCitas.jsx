@@ -74,7 +74,7 @@ const ListarCitas = () => {
           // Si falla, probar con "Bearer"
           response = await axios.get(`${API_BASE_URL}/citas`, {
             headers: {
-              Authorization: `Bearer ${finalToken}`,
+              Authorization: `${finalToken}`,
               "Content-Type": "application/json",
             },
           })
@@ -83,7 +83,7 @@ const ListarCitas = () => {
         }
       }
 
-      console.log("Respuesta de la API:", response.data) // Debug
+      console.log("Respuesta COMPLETA de la API:", response.data) // Debug
 
       const citasData = Array.isArray(response.data)
         ? response.data
@@ -93,36 +93,11 @@ const ListarCitas = () => {
 
       console.log("Citas procesadas:", citasData) // Debug
 
-      const citasTransformadas = citasData.map((cita) => {
-        console.log("Procesando cita:", cita) // Debug
-        return {
-          ...cita,
-          fecha: cita.fecha || cita.fecha_cita || "",
-          hora: cita.hora || cita.hora_cita || "",
-          vehiculo: {
-            placa: cita.vehiculo_placa || cita.placa || "N/A",
-            cliente: {
-              nombre: cita.cliente_nombre || "N/A",
-              apellido: cita.cliente_apellido || "",
-            },
-          },
-          mecanico: {
-            nombre: cita.mecanico_nombre || "N/A",
-            apellido: cita.mecanico_apellido || "",
-          },
-          estado_cita: {
-            nombre: cita.estado_nombre || "Pendiente",
-          },
-          estado_cita_id: cita.estado_cita_id || 1,
-        }
-      })
-
-      console.log("Citas transformadas:", citasTransformadas) // Debug
-      setCitas(citasTransformadas)
+      // SIMPLIFICAR - No transformar, usar datos directos
+      setCitas(citasData)
       setLoading(false)
     } catch (error) {
       console.error("Error completo:", error)
-
       if (error.response?.status === 401) {
         toast.error("Token inválido o expirado. Por favor, inicie sesión nuevamente.")
       } else if (error.response?.status === 403) {
@@ -130,7 +105,6 @@ const ListarCitas = () => {
       } else {
         toast.error("Error al cargar las citas")
       }
-
       setCitas([])
       setLoading(false)
     }
@@ -140,7 +114,7 @@ const ListarCitas = () => {
     // Encontrar la cita para mostrar información en la confirmación
     const cita = citas.find((c) => c.id === id)
     const citaInfo = cita
-      ? `${cita.vehiculo?.placa || "N/A"} - ${cita.vehiculo?.cliente?.nombre || "N/A"} ${cita.vehiculo?.cliente?.apellido || ""}`
+      ? `${cita.documento || cita.cliente_documento || "N/A"} - ${cita.cliente_nombre || "N/A"}`
       : "esta cita"
 
     if (
@@ -150,7 +124,6 @@ const ListarCitas = () => {
     ) {
       try {
         const token = localStorage.getItem("token") || sessionStorage.getItem("token")
-
         if (!token) {
           toast.error("No hay sesión activa. Por favor inicie sesión nuevamente.")
           return
@@ -161,7 +134,6 @@ const ListarCitas = () => {
             Authorization: token, // Usar el mismo formato que funcionó para GET
           },
         })
-
         toast.success("Cita eliminada correctamente")
         fetchCitas()
       } catch (error) {
@@ -198,7 +170,6 @@ const ListarCitas = () => {
     ? citas
         .map((cita) => {
           console.log("Procesando cita para calendario:", cita) // Debug
-
           if (!cita.fecha) {
             console.warn("Cita sin fecha:", cita.id)
             return null
@@ -241,7 +212,7 @@ const ListarCitas = () => {
 
             const event = {
               id: cita.id,
-              title: `${cita.vehiculo?.placa || "Sin placa"} - ${cita.vehiculo?.cliente?.nombre || "Sin cliente"}`,
+              title: `Doc: ${cita.documento || cita.cliente_documento || "Sin documento"} - ${cita.cliente_nombre || "Sin cliente"}`,
               start,
               end,
               resource: cita,
@@ -320,12 +291,13 @@ const ListarCitas = () => {
     return (
       cita.fecha?.toLowerCase().includes(searchTermLower) ||
       cita.hora?.toLowerCase().includes(searchTermLower) ||
-      cita.vehiculo?.placa?.toLowerCase().includes(searchTermLower) ||
-      cita.vehiculo?.cliente?.nombre?.toLowerCase().includes(searchTermLower) ||
-      cita.vehiculo?.cliente?.apellido?.toLowerCase().includes(searchTermLower) ||
-      cita.mecanico?.nombre?.toLowerCase().includes(searchTermLower) ||
-      cita.mecanico?.apellido?.toLowerCase().includes(searchTermLower) ||
-      cita.estado_cita?.nombre?.toLowerCase().includes(searchTermLower)
+      cita.documento?.toLowerCase().includes(searchTermLower) ||
+      cita.cliente_documento?.toLowerCase().includes(searchTermLower) ||
+      cita.cliente_nombre?.toLowerCase().includes(searchTermLower) ||
+      cita.cliente_apellido?.toLowerCase().includes(searchTermLower) ||
+      cita.mecanico_nombre?.toLowerCase().includes(searchTermLower) ||
+      cita.mecanico_apellido?.toLowerCase().includes(searchTermLower) ||
+      cita.estado_nombre?.toLowerCase().includes(searchTermLower)
     )
   })
 
@@ -334,7 +306,6 @@ const ListarCitas = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage
   const currentCitas = filteredCitas.slice(indexOfFirstItem, indexOfLastItem)
   const totalPages = Math.ceil(filteredCitas.length / itemsPerPage)
-
   const paginate = (pageNumber) => setCurrentPage(pageNumber)
 
   return (
@@ -445,7 +416,7 @@ const ListarCitas = () => {
                     <tr className="listarCitas-header-row">
                       <th className="listarCitas-th listarCitas-th-fecha">Fecha</th>
                       <th className="listarCitas-th listarCitas-th-hora">Hora</th>
-                      <th className="listarCitas-th listarCitas-th-vehiculo">Vehículo</th>
+                      <th className="listarCitas-th listarCitas-th-documento">Documento</th>
                       <th className="listarCitas-th listarCitas-th-cliente">Cliente</th>
                       <th className="listarCitas-th listarCitas-th-mecanico">Mecánico</th>
                       <th className="listarCitas-th listarCitas-th-estado">Estado</th>
@@ -455,13 +426,17 @@ const ListarCitas = () => {
                   <tbody className="listarCitas-table-body">
                     {currentCitas.length > 0 ? (
                       currentCitas.map((cita) => {
+                        console.log("CITA INDIVIDUAL EN TABLA:", cita) // Debug para ver cada cita
+
                         // --- Construcción local de la fecha igual que en el calendario ---
                         const fechaStr = cita.fecha
                         const horaStr = cita.hora ? cita.hora.slice(0, 5) : "08:00"
+
                         let fechaBase = fechaStr
                         if (fechaStr && fechaStr.includes("T")) {
                           fechaBase = fechaStr.split("T")[0]
                         }
+
                         let fechaLocal = null
                         if (fechaBase) {
                           const [year, month, day] = fechaBase.split("-")
@@ -496,26 +471,28 @@ const ListarCitas = () => {
                                   })
                                 : "N/A"}
                             </td>
-                            <td className="listarCitas-td listarCitas-td-vehiculo">
-                              <span className="listarCitas-vehiculo-placa">{cita.vehiculo?.placa || "N/A"}</span>
+                            <td className="listarCitas-td listarCitas-td-documento">
+                              <span className="listarCitas-documento-numero">
+                                {cita.documento || cita.cliente_documento || "Sin documento"}
+                              </span>
                             </td>
                             <td className="listarCitas-td listarCitas-td-cliente">
                               <span className="listarCitas-cliente-nombre">
-                                {cita.vehiculo?.cliente?.nombre
-                                  ? `${cita.vehiculo.cliente.nombre} ${cita.vehiculo.cliente.apellido || ""}`
-                                  : "N/A"}
+                                {cita.cliente_nombre
+                                  ? `${cita.cliente_nombre} ${cita.cliente_apellido || ""}`
+                                  : "Sin cliente"}
                               </span>
                             </td>
                             <td className="listarCitas-td listarCitas-td-mecanico">
                               <span className="listarCitas-mecanico-nombre">
-                                {cita.mecanico?.nombre
-                                  ? `${cita.mecanico.nombre} ${cita.mecanico.apellido || ""}`
-                                  : "N/A"}
+                                {cita.mecanico_nombre
+                                  ? `${cita.mecanico_nombre} ${cita.mecanico_apellido || ""}`
+                                  : "Sin mecánico"}
                               </span>
                             </td>
                             <td className="listarCitas-td listarCitas-td-estado">
                               <span className={`listarCitas-estado-badge listarCitas-estado-${cita.estado_cita_id}`}>
-                                {cita.estado_cita?.nombre || "Pendiente"}
+                                {cita.estado_nombre || "Pendiente"}
                               </span>
                             </td>
                             <td className="listarCitas-td listarCitas-actions-cell">
@@ -562,7 +539,6 @@ const ListarCitas = () => {
                   >
                     Anterior
                   </button>
-
                   {Array.from({ length: totalPages }, (_, i) => (
                     <button
                       key={i + 1}
@@ -572,7 +548,6 @@ const ListarCitas = () => {
                       {i + 1}
                     </button>
                   ))}
-
                   <button
                     onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                     disabled={currentPage === totalPages}
@@ -607,24 +582,26 @@ const ListarCitas = () => {
                   <strong className="listarCitas-info-label">Hora:</strong>
                   <span className="listarCitas-info-value">{moment(selectedCita.start).format("HH:mm")}</span>
                 </div>
-                <div className="listarCitas-info-group listarCitas-info-vehiculo">
-                  <strong className="listarCitas-info-label">Vehículo:</strong>
-                  <span className="listarCitas-info-value">{selectedCita.resource.vehiculo?.placa || "N/A"}</span>
+                <div className="listarCitas-info-group listarCitas-info-documento">
+                  <strong className="listarCitas-info-label">Documento:</strong>
+                  <span className="listarCitas-info-value">
+                    {selectedCita.resource.documento || selectedCita.resource.cliente_documento || "Sin documento"}
+                  </span>
                 </div>
                 <div className="listarCitas-info-group listarCitas-info-cliente">
                   <strong className="listarCitas-info-label">Cliente:</strong>
                   <span className="listarCitas-info-value">
-                    {selectedCita.resource.vehiculo?.cliente?.nombre
-                      ? `${selectedCita.resource.vehiculo.cliente.nombre} ${selectedCita.resource.vehiculo.cliente.apellido || ""}`
-                      : "N/A"}
+                    {selectedCita.resource.cliente_nombre
+                      ? `${selectedCita.resource.cliente_nombre} ${selectedCita.resource.cliente_apellido || ""}`
+                      : "Sin cliente"}
                   </span>
                 </div>
                 <div className="listarCitas-info-group listarCitas-info-mecanico">
                   <strong className="listarCitas-info-label">Mecánico:</strong>
                   <span className="listarCitas-info-value">
-                    {selectedCita.resource.mecanico?.nombre
-                      ? `${selectedCita.resource.mecanico.nombre} ${selectedCita.resource.mecanico.apellido || ""}`
-                      : "N/A"}
+                    {selectedCita.resource.mecanico_nombre
+                      ? `${selectedCita.resource.mecanico_nombre} ${selectedCita.resource.mecanico_apellido || ""}`
+                      : "Sin mecánico"}
                   </span>
                 </div>
                 <div className="listarCitas-info-group listarCitas-info-estado">
@@ -632,7 +609,7 @@ const ListarCitas = () => {
                   <span
                     className={`listarCitas-estado-badge listarCitas-estado-${selectedCita.resource.estado_cita_id}`}
                   >
-                    {selectedCita.resource.estado_cita?.nombre || "Pendiente"}
+                    {selectedCita.resource.estado_nombre || "Pendiente"}
                   </span>
                 </div>
                 <div className="listarCitas-info-group listarCitas-info-observaciones">
