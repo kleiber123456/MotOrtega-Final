@@ -906,379 +906,400 @@
 .crearVenta-no-results p {
   margin: 0;
   font-size: 16px;
+  font-style: italic;
 }
-.crearVenta-client-card {
-  width: 100%;
-  max-width: 420px;      /* Ajusta el ancho máximo si lo deseas */
-  min-width: 260px;
-  padding: 14px 22px;
-  margin-bottom: 12px;
-  background: #fff;
-  border: 2px solid #e0e7ef;
+
+/* --- NUEVO LAYOUT DE PRODUCTOS Y SERVICIOS (tipo compras) --- */
+.crearVenta-cart-main-section {
+  background: white;
+  margin-bottom: 104px;
+  overflow: hidden;
+}
+
+.crearVenta-cart-header {
+  padding: 24px;
+}
+
+.crearVenta-cart-title-clickable {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 16px 20px;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(80, 112, 255, 0.08);
-  transition: box-shadow 0.18s, border-color 0.18s, transform 0.12s;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  font-size: 1rem;
+  margin: 0;
+  font-size: 24px;
   font-weight: 600;
-  color: #1e293b;
-  position: relative;
-  border-left: 4px solid #2563eb;
+  color: #1a202c;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.crearVenta-client-card:hover {
-  border-color: #2563eb;
-  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.13);
-  background: #f5faff;
-  transform: translateY(-2px) scale(1.03);
-}
-
-
-
-.crearVenta-client-name-line {
-  font-weight: 700;
-  font-size: 1rem;
-  color: #1e293b;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.crearVenta-client-document-line {
-  font-size: 1rem;
+.crearVenta-cart-title-clickable:hover {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-color: #3b82f6;
   color: #2563eb;
-  font-weight: 500;
-  margin-left: 12px;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.15);
 }
 
-/* Oculta teléfono si existe */
-.crearVenta-client-contact-line {
-  display: none !important;
-}
-
-/* Oculta documento y teléfono si existen en el JSX */
-/* .crearVenta-client-document-line,
-.crearVenta-client-contact-line {
-  display: none !important;
-} */
-
-.crearVenta-input-with-actions {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.crearVenta-deselect-button {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
+.crearVenta-cart-icon {
   color: #2563eb;
-  cursor: pointer;
-  padding: 2px;
-  border-radius: 50%;
-  transition: background 0.15s;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 20px;
+  transition: all 0.3s ease;
 }
 
-.crearVenta-deselect-button:hover {
-  background: #e0e7ff;
+.crearVenta-cart-title-clickable:hover .crearVenta-cart-icon {
+  transform: scale(1.15) rotate(5deg);
   color: #1d4ed8;
 }
 
-/* --- PANEL DE PRODUCTOS Y SERVICIOS --- */
-.crearVenta-productos-servicios-modal {
-  display: flex;
-  flex-direction: row;
-  gap: 32px;
-  width: 100%;
-  min-height: 420px;
+.crearVenta-cart-content {
+  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 24px;
 }
 
-.crearVenta-productos-servicios-left,
-.crearVenta-productos-servicios-right {
-  flex: 1;
+.crearVenta-search-section {
+  min-height: 500px;
+}
+
+.crearVenta-search-section .crearVenta-form-section {
+  margin: 0;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.crearVenta-selected-items-section {
+  min-height: 400px;
+}
+
+.crearVenta-selected-items-section .crearVenta-form-section {
+  margin: 0;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  height: 93.5%;
+}
+
+.crearVenta-empty-cart {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #6b7280;
+  height: 100%;
+  min-height: 300px;
 }
 
-.crearVenta-productos-servicios-left {
-  padding-right: 16px;
+.crearVenta-empty-cart-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+  color: #d1d5db;
 }
 
-.crearVenta-productos-servicios-right {
-  padding-left: 16px;
+.crearVenta-empty-cart h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 8px 0;
 }
 
-.crearVenta-productos-servicios-title-row {
+.crearVenta-empty-cart p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Tabs para alternar productos/servicios */
+.crearVenta-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.crearVenta-tab-btn {
+  background: #f3f4f6;
+  color: #2563eb;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px 8px 0 0;
+  padding: 10px 24px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.crearVenta-tab-btn.active,
+.crearVenta-tab-btn:hover {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  color: #1d4ed8;
+  border-bottom: 2px solid #2563eb;
+}
+
+.crearVenta-search-container {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
 
-.crearVenta-productos-servicios-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: #1a202c;
-}
-
-.crearVenta-productos-servicios-count {
+.crearVenta-search-icon {
+  position: absolute;
+  left: 12px;
+  color: #6b7280;
   font-size: 14px;
-  color: #2563eb;
-  background: #eff6ff;
-  border-radius: 12px;
-  padding: 2px 12px;
-  font-weight: 600;
+  z-index: 1;
 }
 
-.crearVenta-productos-servicios-search-container {
-  position: relative;
-  margin-bottom: 12px;
-}
-
-.crearVenta-productos-servicios-search-input {
+.crearVenta-search-input {
   width: 100%;
-  padding: 12px 16px 12px 38px;
+  padding: 12px 16px 12px 36px;
   border: 2px solid #e2e8f0;
   border-radius: 10px;
-  font-size: 15px;
+  font-size: 14px;
   background-color: #f8fafc;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   font-family: inherit;
 }
 
-.crearVenta-productos-servicios-search-input:focus {
-  border-color: #2563eb;
-  background: #fff;
+.crearVenta-search-input:focus {
+  border-color: #3b82f6;
+  background-color: white;
   outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.crearVenta-productos-servicios-search-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
+.crearVenta-product-list,
+.crearVenta-service-list {
+  max-height: 600px;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  background-color: #f8fafc;
+}
+
+.crearVenta-no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
   color: #6b7280;
-  font-size: 18px;
+  text-align: center;
 }
 
-.crearVenta-productos-servicios-list {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+.crearVenta-no-results-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
 }
 
-.crearVenta-productos-servicios-card {
-  background: #fff;
-  border: 1.5px solid #e5e7eb;
+.crearVenta-no-results p {
+  margin: 0;
+  font-size: 16px;
+  font-style: italic;
+}
+
+/* Tarjetas compactas */
+.crearVenta-card-compact {
+  background: white;
+  border: 2px solid #e2e8f0;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.06);
-  padding: 18px 22px 18px 22px;
+  padding: 12px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.crearVenta-card-compact:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.crearVenta-card-header-compact {
+  margin-bottom: 8px;
+}
+
+.crearVenta-card-info-compact {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  transition: border 0.2s, box-shadow 0.2s;
+  gap: 4px;
 }
 
-.crearVenta-productos-servicios-card:hover {
-  border-color: #2563eb;
-  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.10);
+.crearVenta-card-name-compact {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.crearVenta-productos-servicios-card-header {
+.crearVenta-card-details-compact {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
 }
 
-.crearVenta-productos-servicios-card-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1a202c;
-  margin-bottom: 2px;
-}
-
-.crearVenta-productos-servicios-card-price {
-  font-size: 16px;
-  font-weight: 700;
+.crearVenta-card-price-compact {
+  font-size: 12px;
   color: #2563eb;
-  margin-left: 8px;
+  font-weight: 600;
 }
 
-.crearVenta-productos-servicios-card-stock {
-  font-size: 13px;
-  color: #64748b;
-  margin-bottom: 4px;
+.crearVenta-card-stock-compact {
+  font-size: 11px;
+  color: #6b7280;
 }
 
-.crearVenta-productos-servicios-card-cantidad-row {
+.crearVenta-card-description-compact {
+  font-size: 11px;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crearVenta-card-inputs-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 0.8fr;
+  gap: 8px;
+  align-items: end;
+}
+
+.crearVenta-input-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.crearVenta-input-compact label {
+  font-size: 10px;
+  color: #6b7280;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.crearVenta-input-field-compact {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: white;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.crearVenta-input-field-compact:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.crearVenta-input-field-compact.crearVenta-readonly {
+  background-color: #f3f4f6;
+  color: #374151;
+  cursor: default;
+}
+
+.crearVenta-error-hint {
+  color: #ef4444;
+  font-size: 9px;
+  margin-top: 2px;
+  line-height: 1.2;
+}
+
+.crearVenta-add-button-container {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 6px;
+  justify-content: center;
 }
 
-.crearVenta-productos-servicios-card-cantidad-label {
+.crearVenta-add-button-compact {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+  height: 30px;
+}
+
+.crearVenta-add-button-compact:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+/* Paginación */
+.crearVenta-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  margin-top: 16px;
+  border-top: 2px solid #f1f5f9;
+  background-color: white;
+  border-radius: 8px;
+}
+
+.crearVenta-pagination-button {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.crearVenta-pagination-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.crearVenta-pagination-button:disabled {
+  background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.crearVenta-page-info {
   font-size: 14px;
   color: #374151;
   font-weight: 500;
-}
-
-.crearVenta-productos-servicios-card-cantidad-input {
-  width: 60px;
-  padding: 7px 10px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 15px;
-  background: #f8fafc;
-  transition: border 0.2s;
-  margin-right: 8px;
-}
-
-.crearVenta-productos-servicios-card-cantidad-input:focus {
-  border-color: #2563eb;
-  outline: none;
-  background: #fff;
-}
-
-.crearVenta-productos-servicios-card-add-btn {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 18px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.13);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.crearVenta-productos-servicios-card-add-btn:disabled {
-  background: #d1d5db;
-  color: #6b7280;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-/* --- PANEL DERECHO: SELECCIONADOS Y TOTAL --- */
-.crearVenta-productos-servicios-seleccionados-box {
-  background: #f8fafc;
-  border: 1.5px solid #e5e8f0;
-  border-radius: 12px;
-  min-height: 120px;
-  padding: 32px 18px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #64748b;
-  font-size: 16px;
-  margin-bottom: 18px;
-}
-
-.crearVenta-productos-servicios-seleccionados-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
-}
-
-.crearVenta-productos-servicios-seleccionado-card {
-  background: #fff;
-  border: 1.5px solid #2563eb;
-  border-radius: 10px;
-  padding: 14px 18px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 15px;
-  color: #1a202c;
-  font-weight: 600;
-  gap: 8px;
-}
-
-.crearVenta-productos-servicios-seleccionado-remove-btn {
-  background: #ef4444;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 13px;
-  cursor: pointer;
-  transition: background 0.2s;
-  margin-left: 10px;
-}
-
-.crearVenta-productos-servicios-seleccionado-remove-btn:hover {
-  background: #dc2626;
-}
-
-.crearVenta-productos-servicios-total-box {
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-  border: 2px solid #bfdbfe;
-  border-radius: 12px;
-  padding: 18px 24px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 20px;
-  font-weight: 700;
-  color: #1e40af;
-  margin-bottom: 12px;
-  justify-content: space-between;
-}
-
-.crearVenta-productos-servicios-total-label {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1e40af;
-}
-
-.crearVenta-productos-servicios-total-amount {
-  font-size: 22px;
-  font-weight: 700;
-  color: #2563eb;
-}
-
-.crearVenta-productos-servicios-confirm-btn {
-  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 0;
-  font-size: 17px;
-  font-weight: 600;
-  cursor: pointer;
-  width: 100%;
-  transition: background 0.2s, box-shadow 0.2s;
-  box-shadow: 0 2px 8px rgba(107, 114, 128, 0.13);
-  margin-top: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.crearVenta-productos-servicios-confirm-btn:disabled {
-  background: #d1d5db;
-  color: #6b7280;
-  cursor: not-allowed;
-  box-shadow: none;
+  text-align: center;
 }
 
 /* Quitar flechas de los inputs type="number" en Chrome, Edge, Safari */
