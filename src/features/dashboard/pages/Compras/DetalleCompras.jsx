@@ -37,6 +37,10 @@ const DetalleCompra = () => {
       setCargando(true)
       setError(null)
 
+      console.log("=== INICIANDO CARGA DE COMPRA ===")
+      console.log("Compra ID:", id)
+      console.log("Token disponible:", !!token)
+
       // Cargar detalles de la compra
       const responseCompra = await fetch(`https://api-final-8rw7.onrender.com/api/compras/${id}`, {
         method: "GET",
@@ -46,15 +50,18 @@ const DetalleCompra = () => {
       })
 
       if (!responseCompra.ok) {
-        throw new Error("Error al cargar los detalles de la compra")
+        throw new Error(`Error al cargar los detalles de la compra: ${responseCompra.status}`)
       }
 
       const dataCompra = await responseCompra.json()
+      console.log("=== DATOS DE COMPRA CARGADOS ===")
+      console.log("Compra completa:", JSON.stringify(dataCompra, null, 2))
       setCompra(dataCompra)
 
       // Cargar información del proveedor
       if (dataCompra.proveedor_id) {
         try {
+          console.log("Cargando proveedor ID:", dataCompra.proveedor_id)
           const responseProveedor = await fetch(
             `https://api-final-8rw7.onrender.com/api/proveedores/${dataCompra.proveedor_id}`,
             {
@@ -67,22 +74,20 @@ const DetalleCompra = () => {
 
           if (responseProveedor.ok) {
             const dataProveedor = await responseProveedor.json()
+            console.log("Proveedor cargado:", dataProveedor)
             setProveedor(dataProveedor)
+          } else {
+            console.warn("Error al cargar proveedor:", responseProveedor.status)
           }
         } catch (error) {
-          console.warn("No se pudo cargar la información del proveedor:", error)
+          console.warn("Excepción al cargar proveedor:", error)
         }
       }
 
-      // Cargar detalles de productos si existen
-      if (dataCompra.detalles && dataCompra.detalles.length > 0) {
-        await cargarDetallesConProductos(dataCompra.detalles)
-      } else {
-        // Si no hay detalles en la respuesta, intentar cargar desde el endpoint de detalles
-        await cargarDetallesDesdeAPI()
-      }
+      // Cargar detalles de productos
+      await procesarDetallesCompra(dataCompra)
     } catch (error) {
-      console.error("Error al cargar detalle:", error)
+      console.error("=== ERROR AL CARGAR COMPRA ===", error)
       setError("No se pudo cargar el detalle de la compra")
       Swal.fire("Error", "No se pudo cargar el detalle de la compra", "error")
     } finally {
@@ -90,31 +95,81 @@ const DetalleCompra = () => {
     }
   }
 
-  const cargarDetallesDesdeAPI = async () => {
-    try {
-      // Intentar cargar detalles desde un endpoint específico
-      const responseDetalles = await fetch(`https://api-final-8rw7.onrender.com/api/compras/${id}/detalles`, {
-        method: "GET",
-        headers: {
-          Authorization: token,
-        },
-      })
+  const procesarDetallesCompra = async (dataCompra) => {
+    console.log("=== PROCESANDO DETALLES DE COMPRA ===")
 
-      if (responseDetalles.ok) {
-        const detalles = await responseDetalles.json()
-        await cargarDetallesConProductos(detalles)
+    let detallesParaProcesar = []
+
+    // Estrategia 1: Usar detalles de la respuesta principal
+    if (dataCompra.detalles && Array.isArray(dataCompra.detalles) && dataCompra.detalles.length > 0) {
+      detallesParaProcesar = dataCompra.detalles
+      console.log("Usando detalles de respuesta principal:", detallesParaProcesar.length, "items")
+    }
+    // Estrategia 2: Intentar endpoint específico de detalles
+    else {
+      console.log("No hay detalles en respuesta principal, intentando endpoint específico...")
+      try {
+        const responseDetalles = await fetch(`https://api-final-8rw7.onrender.com/api/compras/${id}/detalles`, {
+          method: "GET",
+          headers: {
+            Authorization: token,
+          },
+        })
+
+        if (responseDetalles.ok) {
+          const detallesData = await responseDetalles.json()
+          console.log("Detalles desde endpoint específico:", detallesData)
+          detallesParaProcesar = Array.isArray(detallesData) ? detallesData : []
+        } else {
+          console.warn("Error en endpoint específico:", responseDetalles.status)
+        }
+      } catch (error) {
+        console.warn("Excepción en endpoint específico:", error)
       }
-    } catch (error) {
-      console.warn("No se pudieron cargar los detalles desde el endpoint específico:", error)
+    }
+
+    console.log("=== DETALLES PARA PROCESAR ===")
+    console.log("Total de detalles:", detallesParaProcesar.length)
+    detallesParaProcesar.forEach((detalle, index) => {
+      console.log(`Detalle ${index + 1}:`, {
+        repuesto_id: detalle.repuesto_id,
+        cantidad: detalle.cantidad,
+        precio_compra: detalle.precio_compra,
+        precio_venta: detalle.precio_venta,
+        subtotal: detalle.subtotal,
+      })
+    })
+
+    if (detallesParaProcesar.length > 0) {
+      await enriquecerDetallesConRepuestos(detallesParaProcesar)
+    } else {
+      console.warn("No se encontraron detalles para procesar")
+      setDetallesConProductos([])
     }
   }
 
-  const cargarDetallesConProductos = async (detalles) => {
-    try {
-      const detallesEnriquecidos = await Promise.all(
-        detalles.map(async (detalle) => {
+  const enriquecerDetallesConRepuestos = async (detalles) => {
+    console.log("=== ENRIQUECIENDO DETALLES CON REPUESTOS ===")
+
+    const detallesEnriquecidos = []
+
+    for (let i = 0; i < detalles.length; i++) {
+      const detalle = detalles[i]
+      console.log(`\n--- Procesando detalle ${i + 1}/${detalles.length} ---`)
+      console.log("Detalle original:", detalle)
+
+      try {
+        let nombreProducto = `Repuesto ID: ${detalle.repuesto_id}`
+        let descripcionProducto = ""
+        const precioCompra = detalle.precio_compra || 0
+        const precioVenta = detalle.precio_venta || 0
+        let subtotal = detalle.subtotal || 0
+
+        // Intentar cargar información del repuesto
+        if (detalle.repuesto_id) {
+          console.log(`Cargando repuesto ID: ${detalle.repuesto_id}`)
+
           try {
-            // Cargar información del producto/repuesto
             const responseRepuesto = await fetch(
               `https://api-final-8rw7.onrender.com/api/repuestos/${detalle.repuesto_id}`,
               {
@@ -125,66 +180,90 @@ const DetalleCompra = () => {
               },
             )
 
-            let nombreProducto = `Repuesto ID: ${detalle.repuesto_id}`
-            let descripcionProducto = ""
+            console.log(
+              `Respuesta repuesto ${detalle.repuesto_id}:`,
+              responseRepuesto.status,
+              responseRepuesto.statusText,
+            )
 
             if (responseRepuesto.ok) {
               const dataRepuesto = await responseRepuesto.json()
-              nombreProducto = dataRepuesto.nombre || nombreProducto
-              descripcionProducto = dataRepuesto.descripcion || ""
-            }
+              console.log(`Datos del repuesto ${detalle.repuesto_id}:`, dataRepuesto)
 
-            // Usar los precios del detalle de la compra
-            const precioCompra = detalle.precio_compra || 0
-            const precioVenta = detalle.precio_venta || 0
+              if (dataRepuesto && dataRepuesto.nombre) {
+                nombreProducto = dataRepuesto.nombre
+                descripcionProducto = dataRepuesto.descripcion || ""
+                console.log(`✅ Repuesto ${detalle.repuesto_id} cargado exitosamente: ${nombreProducto}`)
+              } else {
+                console.warn(`⚠️ Repuesto ${detalle.repuesto_id} sin nombre en respuesta:`, dataRepuesto)
+              }
+            } else {
+              console.warn(`❌ Error HTTP al cargar repuesto ${detalle.repuesto_id}:`, responseRepuesto.status)
 
-            return {
-              ...detalle,
-              nombre_repuesto: nombreProducto,
-              descripcion: descripcionProducto,
-              precio_compra: precioCompra,
-              precio_venta: precioVenta,
-              precio: precioCompra, // Para compatibilidad con el código existente
-              // Asegurar que tenemos subtotal
-              subtotal: detalle.subtotal || precioCompra * (detalle.cantidad || 0),
+              // Intentar obtener más información del error
+              try {
+                const errorText = await responseRepuesto.text()
+                console.warn("Respuesta de error:", errorText)
+              } catch (e) {
+                console.warn("No se pudo leer respuesta de error")
+              }
             }
-          } catch (error) {
-            console.warn(`Error al cargar repuesto ${detalle.repuesto_id}:`, error)
-            // Retornar detalle con información básica si falla la carga del producto
-            const precioCompra = detalle.precio_compra || 0
-            const precioVenta = detalle.precio_venta || 0
-            return {
-              ...detalle,
-              nombre_repuesto: `Repuesto ID: ${detalle.repuesto_id}`,
-              descripcion: "",
-              precio_compra: precioCompra,
-              precio_venta: precioVenta,
-              precio: precioCompra,
-              subtotal: detalle.subtotal || 0,
-            }
+          } catch (repuestoError) {
+            console.error(`💥 Excepción al cargar repuesto ${detalle.repuesto_id}:`, repuestoError)
           }
-        }),
-      )
+        }
 
-      setDetallesConProductos(detallesEnriquecidos)
-    } catch (error) {
-      console.error("Error al enriquecer detalles:", error)
-      // Si falla, usar los detalles básicos
-      const detallesBasicos = detalles.map((detalle) => {
-        const precioCompra = detalle.precio_compra || 0
-        const precioVenta = detalle.precio_venta || 0
-        return {
+        // Calcular subtotal si no existe
+        if (!subtotal && detalle.cantidad && precioCompra) {
+          subtotal = detalle.cantidad * precioCompra
+          console.log(`Subtotal calculado: ${subtotal}`)
+        }
+
+        const detalleEnriquecido = {
+          ...detalle,
+          nombre_repuesto: nombreProducto,
+          descripcion: descripcionProducto,
+          precio_compra: precioCompra,
+          precio_venta: precioVenta,
+          precio: precioCompra, // Para compatibilidad
+          subtotal: subtotal,
+        }
+
+        console.log(`Detalle ${i + 1} enriquecido:`, {
+          repuesto_id: detalleEnriquecido.repuesto_id,
+          nombre_repuesto: detalleEnriquecido.nombre_repuesto,
+          descripcion: detalleEnriquecido.descripcion,
+          cantidad: detalleEnriquecido.cantidad,
+          precio_compra: detalleEnriquecido.precio_compra,
+          subtotal: detalleEnriquecido.subtotal,
+        })
+
+        detallesEnriquecidos.push(detalleEnriquecido)
+      } catch (error) {
+        console.error(`💥 Error al procesar detalle ${i + 1}:`, error)
+
+        // Agregar detalle con información básica
+        const detalleBasico = {
           ...detalle,
           nombre_repuesto: `Repuesto ID: ${detalle.repuesto_id}`,
           descripcion: "",
-          precio_compra: precioCompra,
-          precio_venta: precioVenta,
-          precio: precioCompra,
-          subtotal: detalle.subtotal || 0,
+          precio_compra: detalle.precio_compra || 0,
+          precio_venta: detalle.precio_venta || 0,
+          precio: detalle.precio_compra || 0,
+          subtotal: detalle.subtotal || detalle.cantidad * (detalle.precio_compra || 0) || 0,
         }
-      })
-      setDetallesConProductos(detallesBasicos)
+
+        detallesEnriquecidos.push(detalleBasico)
+      }
     }
+
+    console.log("=== RESULTADO FINAL ===")
+    console.log("Total detalles enriquecidos:", detallesEnriquecidos.length)
+    detallesEnriquecidos.forEach((detalle, index) => {
+      console.log(`Final ${index + 1}: ${detalle.nombre_repuesto} (ID: ${detalle.repuesto_id})`)
+    })
+
+    setDetallesConProductos(detallesEnriquecidos)
   }
 
   const formatearPrecio = (precio) => {
@@ -389,7 +468,7 @@ const DetalleCompra = () => {
                 <div className="detalleCompra-table-cell">Subtotal</div>
               </div>
               {detallesConProductos.map((detalle, index) => (
-                <div key={index} className="detalleCompra-table-row">
+                <div key={`${detalle.repuesto_id}-${index}`} className="detalleCompra-table-row">
                   <div className="detalleCompra-table-cell detalleCompra-table-number">{index + 1}</div>
                   <div className="detalleCompra-table-cell detalleCompra-producto-info">
                     <div className="detalleCompra-producto-name">
@@ -397,7 +476,7 @@ const DetalleCompra = () => {
                     </div>
                     {detalle.descripcion && <div className="detalleCompra-producto-desc">{detalle.descripcion}</div>}
                   </div>
-                  <div className="detalleCompra-table-cell detalleCompra-cantidad">{detalle.cantidad}</div>
+                  <div className="detalleCompra-table-cell detalleCompra-cantidad">{detalle.cantidad || 0}</div>
                   <div className="detalleCompra-table-cell detalleCompra-precio">
                     {formatearPrecio(detalle.precio_compra || 0)}
                   </div>

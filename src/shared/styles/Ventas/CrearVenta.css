@@ -566,6 +566,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  margin-top: 20px;
 }
 
 .crearVenta-items-header h4 {
@@ -590,7 +591,8 @@
 .crearVenta-item-cards {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
+  /* Quitar max-height y overflow-y */
 }
 
 .crearVenta-item-card-selected {
@@ -670,13 +672,11 @@
 }
 
 .crearVenta-info-label {
-  
   font-size: 12px;
   color: #6b7280;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  
 }
 
 .crearVenta-info-value {
@@ -730,7 +730,6 @@
   font-weight: 700;
   text-align: right;
 }
-
 
 .text-gray-600 {
   color: #6b7280;
@@ -1020,23 +1019,6 @@
   z-index: 1;
 }
 
-.crearCompra-supplier-search-input {
-  width: 100%;
-  padding: 12px 16px 12px 36px;
-  border: 2px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 14px;
-  background-color: #f8fafc;
-  transition: all 0.2s ease;
-  font-family: inherit;
-}
-
-.crearCompra-supplier-search-input:focus {
-  border-color: #3b82f6;
-  background-color: white;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
 
 .crearCompra-suppliers-list {
   flex: 1;
@@ -1276,6 +1258,9 @@
 .crearVenta-search-section {
   min-height: 500px;
 }
+.crearVenta-items-title{
+ margin-top: 30px;
+}
 
 .crearVenta-search-section .crearVenta-form-section {
   margin: 0;
@@ -1330,6 +1315,12 @@
 }
 
 /* Tabs para alternar productos/servicios */
+.crearVenta-tabs-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
 .crearVenta-tabs {
   display: flex;
   gap: 8px;
@@ -1483,6 +1474,11 @@ input[type="number"] {
   .crearVenta-cart-icon {
     font-size: 18px;
   }
+
+  .crearVenta-item-inputs-row-compact {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1528,6 +1524,11 @@ input[type="number"] {
 
   .crearVenta-empty-cart-icon {
     font-size: 36px;
+  }
+
+  .crearVenta-item-inputs-row-compact {
+    grid-template-columns: 1fr;
+    gap: 8px;
   }
 }
 
@@ -1808,6 +1809,11 @@ input[type="number"] {
   .crearCompra-subtotal-compact {
     grid-column: span 2;
   }
+
+  .crearVenta-item-inputs-row-compact {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1818,5 +1824,201 @@ input[type="number"] {
 
   .crearCompra-subtotal-compact {
     grid-column: span 1;
+  }
+
+  .crearVenta-item-inputs-row-compact {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+.crearVenta-item-card-selected-compact {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+}
+
+.crearVenta-item-card-selected-compact:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.crearVenta-item-card-selected-compact.service {
+  background: linear-gradient(135deg, #fef7ff 0%, #faf5ff 100%);
+  border-color: #e9d5ff;
+}
+
+.crearVenta-item-card-selected-compact.service:hover {
+  border-color: #d8b4fe;
+}
+
+.crearVenta-item-card-header-compact {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.crearVenta-item-name-compact {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crearVenta-item-actions-compact {
+  display: flex;
+  gap: 4px;
+}
+
+.crearVenta-remove-button-compact {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  min-width: 28px;
+  height: 28px;
+}
+
+.crearVenta-remove-button-compact:hover {
+  background-color: #dc2626;
+  transform: scale(1.05);
+}
+
+.crearVenta-item-inputs-row-compact {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  align-items: end;
+}
+
+.crearVenta-stock-info-compact {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.crearVenta-stock-info-compact small {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+/* Agregar estilos para paginación compacta */
+.crearVenta-selected-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  margin-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.crearVenta-pagination-button-small {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+}
+
+.crearVenta-pagination-button-small:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.crearVenta-pagination-button-small:disabled {
+  background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.crearVenta-page-info-small {
+  font-size: 12px;
+  color: #374151;
+  font-weight: 500;
+  min-width: 40px;
+  text-align: center;
+}
+
+/* Cambiar el total para que esté al lado de los botones */
+.crearVenta-total-section-compact {
+  margin-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.crearVenta-total-card-compact {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 2px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.crearVenta-total-label-compact {
+  font-size: 12px;
+  color: #1e40af;
+  font-weight: 600;
+}
+
+.crearVenta-total-amount-compact {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e40af;
+}
+
+/* Quitar el justify-content: space-between del título del carrito */
+.crearVenta-cart-title-clickable {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 16px 20px;
+  border-radius: 12px;
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a202c;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive para el total compacto */
+@media (max-width: 768px) {
+  .crearVenta-total-section-compact {
+    flex-direction: column;
+    gap: 12px;
   }
 }

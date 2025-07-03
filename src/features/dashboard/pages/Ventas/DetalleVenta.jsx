@@ -2,19 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import {
-  ArrowLeft,
-  User,
-  Calendar,
-  Package,
-  Wrench,
-  FileText,
-  ShoppingBag,
-  AlertTriangle,
-  Loader,
-  CheckCircle,
-  XCircle,
-} from "lucide-react"
+import { ArrowLeft, User, Calendar, Package, Wrench, FileText, ShoppingBag, AlertTriangle, Loader, CheckCircle, XCircle } from 'lucide-react'
 import Swal from "sweetalert2"
 import { generarFacturaPDF, cargarDatosCompletosVenta } from "../../utils/pdf-generator"
 import "../../../../shared/styles/Ventas/DetalleVenta.css"
@@ -98,6 +86,71 @@ function DetalleVenta() {
 
       const dataVenta = await resVenta.json()
       console.log("Datos de venta cargados:", dataVenta)
+
+      // Procesar repuestos para asegurar que tengan nombres correctos
+      if (dataVenta.repuestos && Array.isArray(dataVenta.repuestos)) {
+        const repuestosEnriquecidos = await Promise.all(
+          dataVenta.repuestos.map(async (repuesto, index) => {
+            console.log(`Procesando repuesto ${index + 1}:`, repuesto)
+            
+            try {
+              let nombreRepuesto = repuesto.repuesto_nombre || `Repuesto ID: ${repuesto.repuesto_id}`
+              let descripcionRepuesto = repuesto.repuesto_descripcion || ""
+              let precioRepuesto = repuesto.repuesto_precio || 0
+
+              // Si no tenemos el nombre del repuesto, intentar cargarlo
+              if (!repuesto.repuesto_nombre && repuesto.repuesto_id) {
+                try {
+                  const responseRepuesto = await fetch(
+                    `https://api-final-8rw7.onrender.com/api/repuestos/${repuesto.repuesto_id}`,
+                    {
+                      method: "GET",
+                      headers: {
+                        Authorization: token,
+                      },
+                    },
+                  )
+
+                  if (responseRepuesto.ok) {
+                    const dataRepuesto = await responseRepuesto.json()
+                    console.log(`Repuesto ${repuesto.repuesto_id} cargado:`, dataRepuesto)
+                    
+                    nombreRepuesto = dataRepuesto.nombre || nombreRepuesto
+                    descripcionRepuesto = dataRepuesto.descripcion || descripcionRepuesto
+                    // Usar el precio de venta del repuesto si no tenemos precio en la venta
+                    if (!precioRepuesto) {
+                      precioRepuesto = dataRepuesto.precio_venta || dataRepuesto.preciounitario || 0
+                    }
+                  } else {
+                    console.warn(`Error al cargar repuesto ${repuesto.repuesto_id}:`, responseRepuesto.status)
+                  }
+                } catch (repuestoError) {
+                  console.warn(`Error al cargar repuesto ${repuesto.repuesto_id}:`, repuestoError)
+                }
+              }
+
+              return {
+                ...repuesto,
+                repuesto_nombre: nombreRepuesto,
+                repuesto_descripcion: descripcionRepuesto,
+                repuesto_precio: precioRepuesto,
+              }
+            } catch (error) {
+              console.warn(`Error al procesar repuesto ${index + 1}:`, error)
+              return {
+                ...repuesto,
+                repuesto_nombre: repuesto.repuesto_nombre || `Repuesto ID: ${repuesto.repuesto_id}`,
+                repuesto_descripcion: repuesto.repuesto_descripcion || "",
+                repuesto_precio: repuesto.repuesto_precio || 0,
+              }
+            }
+          }),
+        )
+
+        dataVenta.repuestos = repuestosEnriquecidos
+        console.log("Repuestos enriquecidos:", repuestosEnriquecidos)
+      }
+
       setVenta(dataVenta)
 
       // Cargar información del cliente
@@ -481,7 +534,7 @@ function DetalleVenta() {
             </div>
             <div className="detalleVenta-items-container">
               {venta.repuestos.map((repuesto, index) => (
-                <div key={index} className="detalleVenta-item-card">
+                <div key={`repuesto-${repuesto.repuesto_id}-${index}`} className="detalleVenta-item-card">
                   <div className="detalleVenta-item-header">
                     <h4 className="detalleVenta-item-name">{repuesto.repuesto_nombre}</h4>
                     <span className="detalleVenta-item-subtotal">{formatearPrecio(repuesto.subtotal)}</span>
@@ -519,7 +572,7 @@ function DetalleVenta() {
             </div>
             <div className="detalleVenta-items-container">
               {venta.servicios.map((servicio, index) => (
-                <div key={index} className="detalleVenta-item-card service">
+                <div key={`servicio-${servicio.id}-${index}`} className="detalleVenta-item-card service">
                   <div className="detalleVenta-item-header">
                     <h4 className="detalleVenta-item-name">{servicio.nombre}</h4>
                     <span className="detalleVenta-item-subtotal">{formatearPrecio(servicio.subtotal)}</span>

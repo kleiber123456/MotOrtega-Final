@@ -141,7 +141,7 @@ export const generarFacturaPDF = async (documento, clienteOProveedor, detallesCo
           // Para compras
           descripcion = detalle.nombre_repuesto || `Repuesto ${detalle.repuesto_id}`
           cantidad = detalle.cantidad || 0
-          precio = detalle.precio || 0
+          precio = detalle.precio || detalle.precio_compra || 0
           subtotal = detalle.subtotal || 0
         }
 
@@ -275,7 +275,7 @@ export const generarFacturaPDF = async (documento, clienteOProveedor, detallesCo
   }
 }
 
-// Función auxiliar para formatear precios (sin cambios)
+// Función auxiliar para formatear precios
 const formatearPrecio = (precio) => {
   if (!precio) return "$0.00"
   return new Intl.NumberFormat("es-CO", {
@@ -288,6 +288,9 @@ const formatearPrecio = (precio) => {
 // Función para cargar datos completos de una venta
 export const cargarDatosCompletosVenta = async (ventaId, token) => {
   try {
+    console.log("=== INICIANDO CARGA DE DATOS PARA PDF DE VENTA ===")
+    console.log("Venta ID:", ventaId)
+
     // Cargar detalles de la venta
     const responseVenta = await fetch(`https://api-final-8rw7.onrender.com/api/ventas/${ventaId}`, {
       method: "GET",
@@ -301,6 +304,83 @@ export const cargarDatosCompletosVenta = async (ventaId, token) => {
     }
 
     const dataVenta = await responseVenta.json()
+    console.log("Datos de venta para PDF:", dataVenta)
+
+    // Procesar repuestos para asegurar que tengan nombres correctos
+    if (dataVenta.repuestos && Array.isArray(dataVenta.repuestos)) {
+      console.log("Procesando", dataVenta.repuestos.length, "repuestos para PDF...")
+
+      const repuestosEnriquecidos = []
+
+      for (let i = 0; i < dataVenta.repuestos.length; i++) {
+        const repuesto = dataVenta.repuestos[i]
+        console.log(`=== PROCESANDO REPUESTO ${i + 1} PARA PDF ===`)
+        console.log("Repuesto original:", repuesto)
+
+        try {
+          let nombreRepuesto = repuesto.repuesto_nombre || `Repuesto ID: ${repuesto.repuesto_id}`
+          let descripcionRepuesto = repuesto.repuesto_descripcion || ""
+          let precioRepuesto = repuesto.repuesto_precio || 0
+
+          // Si no tenemos el nombre del repuesto, intentar cargarlo
+          if (!repuesto.repuesto_nombre && repuesto.repuesto_id) {
+            console.log(`Cargando datos del repuesto ID: ${repuesto.repuesto_id}`)
+
+            try {
+              const responseRepuesto = await fetch(
+                `https://api-final-8rw7.onrender.com/api/repuestos/${repuesto.repuesto_id}`,
+                {
+                  method: "GET",
+                  headers: {
+                    Authorization: token,
+                  },
+                },
+              )
+
+              console.log(`Respuesta API repuesto ${repuesto.repuesto_id}:`, responseRepuesto.status)
+
+              if (responseRepuesto.ok) {
+                const dataRepuesto = await responseRepuesto.json()
+                console.log(`Datos del repuesto ${repuesto.repuesto_id}:`, dataRepuesto)
+
+                nombreRepuesto = dataRepuesto.nombre || nombreRepuesto
+                descripcionRepuesto = dataRepuesto.descripcion || descripcionRepuesto
+                // Usar el precio de venta del repuesto si no tenemos precio en la venta
+                if (!precioRepuesto) {
+                  precioRepuesto = dataRepuesto.precio_venta || dataRepuesto.preciounitario || 0
+                }
+              } else {
+                const errorText = await responseRepuesto.text()
+                console.warn(`Error al cargar repuesto ${repuesto.repuesto_id}:`, responseRepuesto.status, errorText)
+              }
+            } catch (repuestoError) {
+              console.error(`Error de red al cargar repuesto ${repuesto.repuesto_id}:`, repuestoError)
+            }
+          }
+
+          const repuestoEnriquecido = {
+            ...repuesto,
+            repuesto_nombre: nombreRepuesto,
+            repuesto_descripcion: descripcionRepuesto,
+            repuesto_precio: precioRepuesto,
+          }
+
+          console.log(`Repuesto ${i + 1} enriquecido:`, repuestoEnriquecido)
+          repuestosEnriquecidos.push(repuestoEnriquecido)
+        } catch (error) {
+          console.error(`Error al procesar repuesto ${i + 1}:`, error)
+          repuestosEnriquecidos.push({
+            ...repuesto,
+            repuesto_nombre: repuesto.repuesto_nombre || `Repuesto ID: ${repuesto.repuesto_id}`,
+            repuesto_descripcion: repuesto.repuesto_descripcion || "",
+            repuesto_precio: repuesto.repuesto_precio || 0,
+          })
+        }
+      }
+
+      dataVenta.repuestos = repuestosEnriquecidos
+      console.log("Repuestos finales enriquecidos para PDF:", repuestosEnriquecidos)
+    }
 
     // Cargar información del cliente
     let cliente = null
@@ -318,9 +398,10 @@ export const cargarDatosCompletosVenta = async (ventaId, token) => {
 
         if (responseCliente.ok) {
           cliente = await responseCliente.json()
+          console.log("Cliente cargado para PDF:", cliente)
         }
       } catch (error) {
-        console.warn("No se pudo cargar la información del cliente:", error)
+        console.warn("No se pudo cargar la información del cliente para PDF:", error)
       }
     }
 
@@ -337,6 +418,10 @@ export const cargarDatosCompletosVenta = async (ventaId, token) => {
       detallesConProductos = [...detallesConProductos, ...dataVenta.repuestos]
     }
 
+    console.log("=== DETALLES FINALES PARA PDF ===")
+    console.log("Total de items:", detallesConProductos.length)
+    console.log("Detalles completos:", detallesConProductos)
+
     return {
       venta: {
         ...dataVenta,
@@ -351,9 +436,12 @@ export const cargarDatosCompletosVenta = async (ventaId, token) => {
   }
 }
 
-// Función para cargar datos completos de una compra (sin cambios)
+// Función para cargar datos completos de una compra
 export const cargarDatosCompletosCompra = async (compraId, token) => {
   try {
+    console.log("=== INICIANDO CARGA DE DATOS PARA PDF DE COMPRA ===")
+    console.log("Compra ID:", compraId)
+
     // Cargar detalles de la compra
     const responseCompra = await fetch(`https://api-final-8rw7.onrender.com/api/compras/${compraId}`, {
       method: "GET",
@@ -367,6 +455,7 @@ export const cargarDatosCompletosCompra = async (compraId, token) => {
     }
 
     const dataCompra = await responseCompra.json()
+    console.log("Datos de compra para PDF:", dataCompra)
 
     // Cargar información del proveedor
     let proveedor = null
@@ -384,63 +473,131 @@ export const cargarDatosCompletosCompra = async (compraId, token) => {
 
         if (responseProveedor.ok) {
           proveedor = await responseProveedor.json()
+          console.log("Proveedor cargado para PDF:", proveedor)
         }
       } catch (error) {
-        console.warn("No se pudo cargar la información del proveedor:", error)
+        console.warn("No se pudo cargar la información del proveedor para PDF:", error)
       }
     }
 
     // Cargar detalles de productos
     let detallesConProductos = []
-    if (dataCompra.detalles && dataCompra.detalles.length > 0) {
-      detallesConProductos = await Promise.all(
-        dataCompra.detalles.map(async (detalle) => {
-          try {
-            const responseRepuesto = await fetch(
-              `https://api-final-8rw7.onrender.com/api/repuestos/${detalle.repuesto_id}`,
-              {
-                method: "GET",
-                headers: {
-                  Authorization: token,
+    let detallesParaProcesar = []
+
+    // Primero intentar obtener detalles desde la respuesta de la compra
+    if (dataCompra.detalles && Array.isArray(dataCompra.detalles) && dataCompra.detalles.length > 0) {
+      detallesParaProcesar = dataCompra.detalles
+      console.log("Usando detalles de la compra para PDF:", detallesParaProcesar)
+    } else {
+      // Si no hay detalles, intentar cargar desde endpoint específico
+      try {
+        const responseDetalles = await fetch(`https://api-final-8rw7.onrender.com/api/compras/${compraId}/detalles`, {
+          method: "GET",
+          headers: {
+            Authorization: token,
+          },
+        })
+
+        if (responseDetalles.ok) {
+          const detallesData = await responseDetalles.json()
+          console.log("Detalles desde endpoint específico para PDF:", detallesData)
+          detallesParaProcesar = Array.isArray(detallesData) ? detallesData : []
+        }
+      } catch (error) {
+        console.warn("No se pudieron cargar los detalles desde el endpoint específico para PDF:", error)
+      }
+    }
+
+    if (detallesParaProcesar.length > 0) {
+      console.log("Procesando", detallesParaProcesar.length, "detalles para PDF...")
+
+      detallesConProductos = []
+
+      for (let i = 0; i < detallesParaProcesar.length; i++) {
+        const detalle = detallesParaProcesar[i]
+        console.log(`=== PROCESANDO DETALLE ${i + 1} PARA PDF ===`)
+        console.log("Detalle original:", detalle)
+
+        try {
+          let nombreProducto = `Repuesto ID: ${detalle.repuesto_id}`
+          let descripcionProducto = ""
+          const precioCompra = detalle.precio_compra || 0
+          const precioVenta = detalle.precio_venta || 0
+          let subtotal = detalle.subtotal || 0
+
+          // Intentar cargar información del repuesto
+          if (detalle.repuesto_id) {
+            console.log(`Cargando datos del repuesto ID: ${detalle.repuesto_id}`)
+
+            try {
+              const responseRepuesto = await fetch(
+                `https://api-final-8rw7.onrender.com/api/repuestos/${detalle.repuesto_id}`,
+                {
+                  method: "GET",
+                  headers: {
+                    Authorization: token,
+                  },
                 },
-              },
-            )
+              )
 
-            let nombreProducto = `Repuesto ID: ${detalle.repuesto_id}`
-            let descripcionProducto = ""
-            let precioUnitario = 0
+              console.log(`Respuesta API repuesto ${detalle.repuesto_id}:`, responseRepuesto.status)
 
-            if (responseRepuesto.ok) {
-              const dataRepuesto = await responseRepuesto.json()
-              nombreProducto = dataRepuesto.nombre || nombreProducto
-              descripcionProducto = dataRepuesto.descripcion || ""
-            }
+              if (responseRepuesto.ok) {
+                const dataRepuesto = await responseRepuesto.json()
+                console.log(`Datos del repuesto ${detalle.repuesto_id}:`, dataRepuesto)
 
-            if (detalle.cantidad && detalle.cantidad > 0) {
-              precioUnitario = (detalle.subtotal || 0) / detalle.cantidad
-            }
-
-            return {
-              ...detalle,
-              nombre_repuesto: nombreProducto,
-              descripcion: descripcionProducto,
-              precio: precioUnitario,
-              subtotal: detalle.subtotal || precioUnitario * (detalle.cantidad || 0),
-            }
-          } catch (error) {
-            console.warn(`Error al cargar repuesto ${detalle.repuesto_id}:`, error)
-            const precioUnitario = detalle.cantidad > 0 ? (detalle.subtotal || 0) / detalle.cantidad : 0
-            return {
-              ...detalle,
-              nombre_repuesto: `Repuesto ID: ${detalle.repuesto_id}`,
-              descripcion: "",
-              precio: precioUnitario,
-              subtotal: detalle.subtotal || 0,
+                nombreProducto = dataRepuesto.nombre || nombreProducto
+                descripcionProducto = dataRepuesto.descripcion || ""
+              } else {
+                const errorText = await responseRepuesto.text()
+                console.warn(`Error al cargar repuesto ${detalle.repuesto_id}:`, responseRepuesto.status, errorText)
+              }
+            } catch (repuestoError) {
+              console.error(`Error de red al cargar repuesto ${detalle.repuesto_id}:`, repuestoError)
             }
           }
-        }),
-      )
+
+          // Calcular subtotal si no existe
+          if (!subtotal && detalle.cantidad && precioCompra) {
+            subtotal = detalle.cantidad * precioCompra
+          }
+
+          const detalleEnriquecido = {
+            ...detalle,
+            nombre_repuesto: nombreProducto,
+            descripcion: descripcionProducto,
+            precio_compra: precioCompra,
+            precio_venta: precioVenta,
+            precio: precioCompra, // Para compatibilidad
+            subtotal: subtotal,
+          }
+
+          console.log(`Detalle ${i + 1} enriquecido para PDF:`, detalleEnriquecido)
+          detallesConProductos.push(detalleEnriquecido)
+        } catch (error) {
+          console.error(`Error al procesar detalle ${i + 1} para PDF:`, error)
+
+          // Retornar detalle con información básica si falla
+          const precioCompra = detalle.precio_compra || 0
+          const precioVenta = detalle.precio_venta || 0
+          const subtotal = detalle.subtotal || detalle.cantidad * precioCompra || 0
+
+          detallesConProductos.push({
+            ...detalle,
+            nombre_repuesto: `Repuesto ID: ${detalle.repuesto_id}`,
+            descripcion: "",
+            precio_compra: precioCompra,
+            precio_venta: precioVenta,
+            precio: precioCompra,
+            subtotal: subtotal,
+          })
+        }
+      }
     }
+
+    console.log("=== DETALLES FINALES PARA PDF ===")
+    console.log("Total de items:", detallesConProductos.length)
+    console.log("Detalles completos:", detallesConProductos)
 
     return {
       compra: dataCompra,
@@ -448,7 +605,7 @@ export const cargarDatosCompletosCompra = async (compraId, token) => {
       detallesConProductos,
     }
   } catch (error) {
-    console.error("Error al cargar datos completos:", error)
+    console.error("Error al cargar datos completos de compra:", error)
     throw error
   }
 }

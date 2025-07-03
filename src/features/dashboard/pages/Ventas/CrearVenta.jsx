@@ -117,7 +117,7 @@ const CrearVenta = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(3)
   const [cartCurrentPage, setCartCurrentPage] = useState(1)
-  const [cartItemsPerPage] = useState(4)
+  const [cartItemsPerPage] = useState(3)
   const [selectedClient, setSelectedClient] = useState(null)
   const [selectedVehiculo, setSelectedVehiculo] = useState(null)
   const [selectedMecanico, setSelectedMecanico] = useState(null)
@@ -645,7 +645,6 @@ const CrearVenta = () => {
           <p className="crearVenta-subtitle">Registra una nueva venta de productos y servicios</p>
         </div>
       </div>
-
       <form className="crearVenta-form" onSubmit={handleSubmit}>
         <div className="crearVenta-form-section">
           <h3 className="crearVenta-section-title">
@@ -744,7 +743,21 @@ const CrearVenta = () => {
         {/* --- Sección de productos/servicios --- */}
         <div className="crearVenta-cart-main-section">
           <div className="crearVenta-cart-header">
-            <h3 className="crearVenta-cart-title-clickable">
+            <h3
+              className="crearVenta-cart-title-clickable"
+              onClick={() => {
+                const selectedItemsSection = document.querySelector(".crearVenta-selected-items-section")
+                if (selectedItemsSection) {
+                  const rect = selectedItemsSection.getBoundingClientRect()
+                  const offset = 80
+                  window.scrollTo({
+                    top: window.pageYOffset + rect.top - offset,
+                    behavior: "smooth",
+                  })
+                }
+              }}
+              title="Ir a productos y servicios seleccionados"
+            >
               <ShoppingBag className="crearVenta-cart-icon" />
               Carrito
             </h3>
@@ -753,21 +766,23 @@ const CrearVenta = () => {
             {/* Columna Izquierda: Tabs, búsqueda y listado */}
             <div className="crearVenta-search-section">
               <div className="crearVenta-form-section">
-                <div className="crearVenta-tabs">
-                  <button
-                    className={`crearVenta-tab-btn${activeTab === "productos" ? " active" : ""}`}
-                    onClick={() => setActiveTab("productos")}
-                    type="button"
-                  >
-                    <Package size={16} /> Productos
-                  </button>
-                  <button
-                    className={`crearVenta-tab-btn${activeTab === "servicios" ? " active" : ""}`}
-                    onClick={() => setActiveTab("servicios")}
-                    type="button"
-                  >
-                    <Wrench size={16} /> Servicios
-                  </button>
+                <div className="crearVenta-tabs-container">
+                  <div className="crearVenta-tabs">
+                    <button
+                      className={`crearVenta-tab-btn${activeTab === "productos" ? " active" : ""}`}
+                      onClick={() => setActiveTab("productos")}
+                      type="button"
+                    >
+                      <Package size={16} /> Productos
+                    </button>
+                    <button
+                      className={`crearVenta-tab-btn${activeTab === "servicios" ? " active" : ""}`}
+                      onClick={() => setActiveTab("servicios")}
+                      type="button"
+                    >
+                      <Wrench size={16} /> Servicios
+                    </button>
+                  </div>
                 </div>
                 <div className="crearVenta-search-container">
                   <Search className="crearVenta-search-icon" />
@@ -918,7 +933,7 @@ const CrearVenta = () => {
               {cartItems.length > 0 ? (
                 <div className="crearVenta-form-section">
                   <div className="crearVenta-items-header">
-                    <h4>
+                    <h4 className="crearVenta-items-title">
                       <ShoppingBag size={16} /> Productos y Servicios Seleccionados
                     </h4>
                     <span className="crearVenta-items-count">{cartItems.length} item(s)</span>
@@ -927,166 +942,162 @@ const CrearVenta = () => {
                     {currentCartItems.map((item) => (
                       <div
                         key={item.id + item.type}
-                        className={`crearVenta-item-card-selected${item.type === "servicio" ? " service" : ""}`}
+                        className={`crearVenta-item-card-selected-compact${item.type === "servicio" ? " service" : ""}`}
                       >
-                        <div className="crearVenta-item-card-header">
-                          <h4 className="crearVenta-item-name">
+                        <div className="crearVenta-item-card-header-compact">
+                          <h4 className="crearVenta-item-name-compact">
                             {item.nombre}
                             {item.type === "servicio" && (
                               <span style={{ marginLeft: 8, color: "#2563eb", fontWeight: 600 }}>(Servicio)</span>
                             )}
                           </h4>
-                          <div className="crearVenta-item-actions">
+                          <div className="crearVenta-item-actions-compact">
                             <button
                               type="button"
-                              className="crearVenta-remove-button"
+                              className="crearVenta-remove-button-compact"
                               onClick={() => removeCartItem(item.id, item.type)}
                               title="Eliminar"
                             >
-                              <Trash size={16} />
+                              <Trash size={12} />
                             </button>
                           </div>
                         </div>
-                        <div className="crearVenta-item-card-details">
-                          <div className="crearVenta-item-info-grid">
-                            {item.type === "producto" ? (
-                              <>
-                                <div className="crearVenta-info-item">
-                                  <span className="crearVenta-info-label">Precio:</span>
-                                  <div className="crearVenta-editable-field">
-                                    <input
-                                      type="number"
-                                      min="0"
-                                      step="0.01"
-                                      value={item.price}
-                                      readOnly
-                                      disabled
-                                      className="crearVenta-inline-input crearVenta-readonly"
-                                    />
-                                  </div>
-                                </div>
-                                <div className="crearVenta-info-item">
-                                  <span className="crearVenta-info-label">Cantidad:</span>
-                                  <div className="crearVenta-quantity-controls">
-                                    <input
-                                      type="number"
-                                      min="1"
-                                      max={item.stockOriginal}
-                                      value={item.quantity === 0 ? "" : item.quantity}
-                                      style={{
-                                        width: 50,
-                                        fontWeight: 600,
-                                        color: "#2563eb",
-                                        border: "1px solid #cbd5e1",
-                                        borderRadius: 6,
-                                        padding: "2px 6px",
-                                        textAlign: "center",
-                                      }}
-                                      onChange={(e) => {
-                                        const value = e.target.value
-                                        updateCartItemQuantity(item.id, value === "" ? "" : Number(value))
-                                      }}
-                                      onBlur={(e) => {
-                                        const value = e.target.value
-                                        updateCartItemQuantity(
-                                          item.id,
-                                          value === "" || Number(value) < 1
-                                            ? 1
-                                            : Number(value) > item.stockOriginal
-                                              ? item.stockOriginal
-                                              : Number(value),
-                                        )
-                                      }}
-                                    />
-                                  </div>
-                                  <span className="crearVenta-info-label">Subtotal:</span>
-                                  <span className="crearVenta-subtotal">
-                                    {formatCurrency(item.price * item.quantity)}
-                                  </span>
-                                </div>
-                                
-                              </>
-                            ) : (
-                              <>
-                                <div className="crearVenta-info-item">
-                                  <span className="crearVenta-info-label">Descripción:</span>
-                                  <span className="crearVenta-info-value">{item.descripcion || "Sin descripción"}</span>
-                                </div>
-                                <div className="crearVenta-info-item crearVenta-subtotal-item">
-                                  <span className="crearVenta-info-label">Precio:</span>
-                                  <input
-                                    type="number"
-                                    value={item.precio}
-                                    readOnly
-                                    disabled
-                                    className="crearVenta-inline-input crearVenta-readonly"
-                                    style={{ width: 90 }}
-                                  />
-                                </div>
-                              </>
-                            )}
-                          </div>
-                          {item.type === "producto" && (
-                            <div className="crearVenta-stock-info">
-                              <small className="text-gray-600">Stock disponible: {item.stockOriginal} unidades</small>
-                            </div>
+                        <div className="crearVenta-item-inputs-row-compact">
+                          {item.type === "producto" ? (
+                            <>
+                              <div className="crearVenta-input-compact">
+                                <label>Precio</label>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  value={item.price}
+                                  readOnly
+                                  disabled
+                                  className="crearVenta-input-field-compact crearVenta-readonly"
+                                />
+                              </div>
+                              <div className="crearVenta-input-compact">
+                                <label>Cantidad</label>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  max={item.stockOriginal}
+                                  value={item.quantity === 0 ? "" : item.quantity}
+                                  className="crearVenta-input-field-compact"
+                                  onChange={(e) => {
+                                    const value = e.target.value
+                                    updateCartItemQuantity(item.id, value === "" ? "" : Number(value))
+                                  }}
+                                  onBlur={(e) => {
+                                    const value = e.target.value
+                                    updateCartItemQuantity(
+                                      item.id,
+                                      value === "" || Number(value) < 1
+                                        ? 1
+                                        : Number(value) > item.stockOriginal
+                                          ? item.stockOriginal
+                                          : Number(value),
+                                    )
+                                  }}
+                                />
+                              </div>
+                              <div className="crearVenta-input-compact">
+                                <label>Subtotal</label>
+                                <input
+                                  type="text"
+                                  className="crearVenta-input-field-compact crearVenta-readonly"
+                                  value={formatCurrency(item.price * item.quantity)}
+                                  readOnly
+                                  tabIndex={-1}
+                                />
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="crearVenta-input-compact">
+                                <label>Descripción</label>
+                                <input
+                                  type="text"
+                                  className="crearVenta-input-field-compact crearVenta-readonly"
+                                  value={item.descripcion || "Sin descripción"}
+                                  readOnly
+                                  tabIndex={-1}
+                                />
+                              </div>
+                              <div className="crearVenta-input-compact">
+                                <label>Precio</label>
+                                <input
+                                  type="number"
+                                  value={item.precio}
+                                  readOnly
+                                  disabled
+                                  className="crearVenta-input-field-compact crearVenta-readonly"
+                                />
+                              </div>
+                            </>
                           )}
                         </div>
+                        {item.type === "producto" && (
+                          <div className="crearVenta-stock-info-compact">
+                            <small>Stock: {item.stockOriginal} unidades</small>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
                   {cartTotalPages > 1 && (
-                    <div className="crearVenta-pagination">
+                    <div className="crearVenta-selected-pagination">
                       <button
                         type="button"
                         onClick={() => setCartCurrentPage((prev) => Math.max(prev - 1, 1))}
                         disabled={cartCurrentPage === 1}
-                        className="crearVenta-pagination-button"
+                        className="crearVenta-pagination-button-small"
                       >
                         <ChevronLeft size={16} />
                       </button>
-                      <span className="crearVenta-page-info">
+                      <span className="crearVenta-page-info-small">
                         {cartCurrentPage} / {cartTotalPages}
                       </span>
                       <button
                         type="button"
                         onClick={() => setCartCurrentPage((prev) => Math.min(prev + 1, cartTotalPages))}
                         disabled={cartCurrentPage === cartTotalPages}
-                        className="crearVenta-pagination-button"
+                        className="crearVenta-pagination-button-small"
                       >
                         <ChevronRight size={16} />
                       </button>
                     </div>
                   )}
-                  <div className="crearVenta-total-section">
-                    <div className="crearVenta-total-card">
-                      <span className="crearVenta-total-label">Total de la Venta:</span>
-                      <span className="crearVenta-total-amount">{formatCurrency(total)}</span>
+                  <div className="crearVenta-total-section-compact">
+                    <div className="crearVenta-form-actions">
+                      <button
+                        type="button"
+                        className="crearVenta-cancel-button"
+                        onClick={handleCancel}
+                        disabled={isSubmitting}
+                      >
+                        <X className="crearVenta-button-icon" />
+                        Cancelar
+                      </button>
+                      <button type="submit" className="crearVenta-submit-button" disabled={isSubmitting || apiLoading}>
+                        {isSubmitting ? (
+                          <>
+                            <Loader className="crearVenta-button-icon spinning" />
+                            Guardando...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="crearVenta-button-icon" />
+                            Guardar Venta
+                          </>
+                        )}
+                      </button>
                     </div>
-                  </div>
-                  <div className="crearVenta-form-actions">
-                    <button
-                      type="button"
-                      className="crearVenta-cancel-button"
-                      onClick={handleCancel}
-                      disabled={isSubmitting}
-                    >
-                      <X className="crearVenta-button-icon" />
-                      Cancelar
-                    </button>
-                    <button type="submit" className="crearVenta-submit-button" disabled={isSubmitting || apiLoading}>
-                      {isSubmitting ? (
-                        <>
-                          <Loader className="crearVenta-button-icon spinning" />
-                          Guardando...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="crearVenta-button-icon" />
-                          Guardar Venta
-                        </>
-                      )}
-                    </button>
+                    <div className="crearVenta-total-card-compact">
+                      <span className="crearVenta-total-label-compact">Total:</span>
+                      <span className="crearVenta-total-amount-compact">{formatCurrency(total)}</span>
+                    </div>
                   </div>
                 </div>
               ) : (
@@ -1102,7 +1113,6 @@ const CrearVenta = () => {
           </div>
         </div>
       </form>
-
       {/* Modales */}
       {showClientModal && (
         <ClientModal closeModal={() => setShowClientModal(false)} selectClient={selectClient} clientes={clientes} />
@@ -1122,8 +1132,6 @@ const CrearVenta = () => {
           mecanicos={mecanicos}
         />
       )}
-
-      {/* Modal para cita programada */}
       {showCitaModal && citaProgramada && (
         <div className="crearCompra-supplier-modal-overlay">
           <div className="crearCompra-supplier-modal">
@@ -1143,16 +1151,17 @@ const CrearVenta = () => {
             <div className="crearCompra-supplier-modal-content">
               <div style={{ padding: "20px", textAlign: "left" }}>
                 <p style={{ marginBottom: "10px" }}>
-                  <b>Fecha:</b> {citaProgramada.fecha?.substring(0, 10)} {citaProgramada.hora}
+                  <b>Fecha:</b> {citaProgramada?.fecha?.substring(0, 10) || "No especificada"}{" "}
+                  {citaProgramada?.hora || ""}
                 </p>
                 <p style={{ marginBottom: "10px" }}>
-                  <b>Vehículo:</b> {citaProgramada.vehiculo_placa || "No especificado"}
+                  <b>Vehículo:</b> {citaProgramada?.vehiculo_placa || "No especificado"}
                 </p>
                 <p style={{ marginBottom: "10px" }}>
-                  <b>Marca:</b> {citaProgramada.marca_nombre || "No especificada"}
+                  <b>Marca:</b> {citaProgramada?.marca_nombre || "No especificada"}
                 </p>
                 <p style={{ marginBottom: "20px" }}>
-                  <b>Observaciones:</b> {citaProgramada.observaciones || "Sin observaciones"}
+                  <b>Observaciones:</b> {citaProgramada?.observaciones || "Sin observaciones"}
                 </p>
                 <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
                   <button
@@ -1160,22 +1169,22 @@ const CrearVenta = () => {
                     onClick={() => {
                       // Llenar ambos estados: selectedVehiculo y formData
                       const vehiculoObj = {
-                        id: citaProgramada.vehiculo_id,
-                        placa: citaProgramada.vehiculo_placa,
-                        marca_nombre: citaProgramada.marca_nombre || "",
+                        id: citaProgramada?.vehiculo_id,
+                        placa: citaProgramada?.vehiculo_placa,
+                        marca_nombre: citaProgramada?.marca_nombre || "",
                       }
                       const mecanicoObj = {
-                        id: citaProgramada.mecanico_id,
-                        nombre: citaProgramada.mecanico_nombre,
-                        apellido: citaProgramada.mecanico_apellido,
+                        id: citaProgramada?.mecanico_id,
+                        nombre: citaProgramada?.mecanico_nombre,
+                        apellido: citaProgramada?.mecanico_apellido,
                       }
                       setSelectedVehiculo(vehiculoObj)
                       setSelectedMecanico(mecanicoObj)
                       setFormData((prev) => ({
                         ...prev,
-                        vehiculo_id: citaProgramada.vehiculo_id,
-                        mecanico_id: citaProgramada.mecanico_id,
-                        cita_id: citaProgramada.id,
+                        vehiculo_id: citaProgramada?.vehiculo_id || "",
+                        mecanico_id: citaProgramada?.mecanico_id || "",
+                        cita_id: citaProgramada?.id || "",
                       }))
                       setShowCitaModal(false)
                     }}
@@ -1295,7 +1304,6 @@ const ClientModal = ({ closeModal, selectClient, clientes }) => {
         </div>
         <div className="crearCompra-supplier-modal-content">
           <div className="crearCompra-supplier-search-container">
-            <Search className="crearCompra-supplier-search-icon" />
             <input
               type="text"
               placeholder="Buscar por nombre, apellido o documento..."
@@ -1424,7 +1432,6 @@ const VehiculoClienteModal = ({ closeModal, clienteId, selectVehiculo, vehiculos
 
         <div className="crearCompra-supplier-modal-content">
           <div className="crearCompra-supplier-search-container">
-            <Search className="crearCompra-search-icon" />
             <input
               type="text"
               placeholder="Buscar por placa o marca..."
@@ -1553,7 +1560,6 @@ const MecanicoModal = ({ closeModal, selectMecanico, mecanicos }) => {
         </div>
         <div className="crearCompra-supplier-modal-content">
           <div className="crearCompra-supplier-search-container">
-            <Search className="crearCompra-supplier-search-icon" />
             <input
               type="text"
               placeholder="Buscar por nombre, apellido o documento..."

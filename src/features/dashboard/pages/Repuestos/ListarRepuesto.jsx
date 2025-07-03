@@ -633,13 +633,6 @@ function ListarRepuestos() {
                   >
                     <FaEdit />
                   </button>
-                  <button
-                    className="listarRepuesto-action-button delete"
-                    onClick={() => handleEliminar(repuesto.id, repuesto.nombre)}
-                    title="Eliminar repuesto"
-                  >
-                    <FaTrash />
-                  </button>
                 </td>
               </tr>
             ))}
