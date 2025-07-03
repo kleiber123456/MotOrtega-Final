@@ -500,7 +500,6 @@ function ListarVentas() {
         <table className="listarVenta-table">
           <thead>
             <tr>
-              <th>ID</th>
               <th>Fecha</th>
               <th>Cliente</th>
               <th>Total</th>
@@ -511,7 +510,6 @@ function ListarVentas() {
           <tbody>
             {ventasActuales.map((venta) => (
               <tr key={venta.id}>
-                <td className="listarVenta-id">#{venta.id}</td>
                 <td>{new Date(venta.fecha).toLocaleDateString("es-CO")}</td>
                 <td>
                   <div className="listarVenta-cliente">

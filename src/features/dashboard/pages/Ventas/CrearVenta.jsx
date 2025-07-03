@@ -36,7 +36,6 @@ const formatCurrency = (amount) => {
 const getValidToken = () => {
   const token = localStorage.getItem("token") || sessionStorage.getItem("token")
   if (!token) {
-    console.error("No hay token disponible")
     return null
   }
   return token
@@ -174,8 +173,6 @@ const CrearVenta = () => {
     // Cargar clientes
     makeRequest("/clientes")
       .then((data) => {
-        console.log("Respuesta completa clientes:", data)
-
         let clientesArray = []
 
         // Intentar diferentes estructuras de respuesta
@@ -201,7 +198,6 @@ const CrearVenta = () => {
           )
         })
 
-        console.log("Clientes procesados:", clientesValidos)
         setClientes(clientesValidos)
       })
       .catch((error) => {
@@ -212,7 +208,6 @@ const CrearVenta = () => {
     // Cargar estados de venta
     makeRequest("/estados-venta")
       .then((data) => {
-        console.log("Respuesta estados venta:", data)
         if (data && Array.isArray(data)) {
           setEstadosVenta(data)
         }
@@ -227,8 +222,6 @@ const CrearVenta = () => {
   useEffect(() => {
     makeRequest("/mecanicos/estado/Activo")
       .then((data) => {
-        console.log("Respuesta completa mecánicos:", data)
-
         let mecanicosList = []
 
         // Intentar diferentes estructuras de respuesta
@@ -254,7 +247,6 @@ const CrearVenta = () => {
           )
         })
 
-        console.log("Mecánicos procesados:", mecanicosValidos)
         setMecanicos(mecanicosValidos)
       })
       .catch((error) => {
@@ -448,9 +440,8 @@ const CrearVenta = () => {
       }
 
       try {
-        // Cargar vehículos del cliente con información completa (marca y modelo)
-        const dataVehiculos = await makeRequest(`/vehiculos/cliente/${client.id}/completos`)
-        console.log("Vehículos completos del cliente:", dataVehiculos)
+        // Intentar cargar vehículos del cliente usando el endpoint normal
+        const dataVehiculos = await makeRequest(`/vehiculos/cliente/${client.id}`)
 
         let vehiculosArray = []
 
@@ -465,131 +456,39 @@ const CrearVenta = () => {
           }
         }
 
-        // Si no funciona el endpoint completo, intentar con el normal
-        if (vehiculosArray.length === 0) {
-          console.log("Intentando con endpoint normal de vehículos...")
-          const dataVehiculosNormal = await makeRequest(`/vehiculos/cliente/${client.id}`)
-
-          if (Array.isArray(dataVehiculosNormal)) {
-            vehiculosArray = dataVehiculosNormal
-          } else if (dataVehiculosNormal && typeof dataVehiculosNormal === "object") {
-            const possibleArrays = Object.values(dataVehiculosNormal).filter((value) => Array.isArray(value))
-            if (possibleArrays.length > 0) {
-              vehiculosArray = possibleArrays[0]
-            }
-          }
-        }
-
         // Filtrar vehículos válidos
         const vehiculosValidos = vehiculosArray.filter((vehiculo) => {
           return vehiculo && typeof vehiculo === "object" && vehiculo.id
         })
 
-        console.log("Vehículos válidos del cliente:", vehiculosValidos)
         setVehiculosCliente(vehiculosValidos)
 
-        // Buscar citas programadas vinculadas a este cliente con información completa
+        // Buscar citas programadas vinculadas a este cliente
         try {
-          console.log("=== INICIANDO BÚSQUEDA DE CITAS COMPLETAS ===")
-          console.log("Cliente seleccionado:", client)
-          console.log("ID del cliente:", client.id)
-
-          // Usar endpoint que incluye información completa del vehículo
-          const citas = await makeRequest(`/citas/cliente/${client.id}/completas`)
-          console.log("=== RESPUESTA COMPLETA DE CITAS CON VEHÍCULO ===")
-          console.log("Respuesta raw de la API:", citas)
-          console.log("Tipo de respuesta:", typeof citas)
-          console.log("Es array?:", Array.isArray(citas))
+          const citas = await makeRequest(`/citas/cliente/${client.id}`)
 
           let citasArray = []
 
           // Intentar diferentes estructuras de respuesta
           if (Array.isArray(citas)) {
             citasArray = citas
-            console.log("✅ Citas es un array directo")
           } else if (citas && typeof citas === "object") {
-            console.log("🔍 Citas es un objeto, buscando arrays internos...")
-            console.log("Propiedades del objeto:", Object.keys(citas))
             const possibleArrays = Object.values(citas).filter((value) => Array.isArray(value))
-            console.log("Arrays encontrados:", possibleArrays.length)
             if (possibleArrays.length > 0) {
               citasArray = possibleArrays[0]
-              console.log("✅ Usando el primer array encontrado")
             }
           }
 
-          console.log("=== CITAS PROCESADAS ===")
-          console.log("Total de citas encontradas:", citasArray.length)
-          console.log("Citas completas:", citasArray)
-
           // Buscar cita programada (estado_cita_id === 1) para fechas válidas (hoy + próximos 7 días)
-          const fechaHoy = getFechaHoy()
-          console.log("=== FILTRADO POR FECHA Y ESTADO ===")
-          console.log("Fecha de hoy:", fechaHoy)
-          console.log("Rango permitido: Hoy + próximos 7 días")
-
-          // Log detallado de cada cita
-          citasArray.forEach((cita, index) => {
-            console.log(`--- Cita ${index + 1} ---`)
-            console.log("ID:", cita.id)
-            console.log("Estado cita ID:", cita.estado_cita_id)
-            console.log("Fecha completa:", cita.fecha)
-            console.log("Fecha cortada:", cita.fecha ? cita.fecha.substring(0, 10) : "Sin fecha")
-            console.log("Hora:", cita.hora)
-            console.log("Vehículo ID:", cita.vehiculo_id)
-            console.log("Vehículo placa:", cita.vehiculo_placa)
-            console.log("Marca:", cita.marca_nombre || "No disponible")
-            console.log("Modelo:", cita.modelo_nombre || "No disponible")
-            console.log("Mecánico ID:", cita.mecanico_id)
-            console.log("Mecánico nombre:", cita.mecanico_nombre, cita.mecanico_apellido)
-            console.log("Observaciones:", cita.observaciones)
-            console.log("¿Es estado programado (1)?:", cita.estado_cita_id === 1)
-            console.log("¿Fecha es válida (hoy + 7 días)?:", esFechaValida(cita.fecha))
-
-            if (cita.fecha) {
-              const fechaCita = cita.fecha.substring(0, 10)
-              const hoy = new Date()
-              const fechaCitaObj = new Date(fechaCita)
-              hoy.setHours(0, 0, 0, 0)
-              fechaCitaObj.setHours(0, 0, 0, 0)
-              const diferenciaDias = Math.floor((fechaCitaObj - hoy) / (1000 * 60 * 60 * 24))
-              console.log(`Diferencia en días: ${diferenciaDias} (0=hoy, 1=mañana, etc.)`)
-            }
-          })
-
-          // NUEVA LÓGICA: Buscar citas programadas en el rango de fechas válidas
           const citasValidas = citasArray.filter((c) => c.estado_cita_id === 1 && esFechaValida(c.fecha))
-
-          console.log("=== CITAS VÁLIDAS ENCONTRADAS ===")
-          console.log("Citas que cumplen criterios:", citasValidas.length)
-          console.log("Citas válidas:", citasValidas)
 
           // Tomar la primera cita válida (más próxima)
           const cita = citasValidas.length > 0 ? citasValidas[0] : null
 
-          console.log("=== RESULTADO DE BÚSQUEDA ===")
           if (cita) {
-            console.log("🎉 ¡CITA PROGRAMADA ENCONTRADA!")
-            console.log("Cita seleccionada:", cita)
-            console.log("Detalles de la cita:")
-            console.log("- ID:", cita.id)
-            console.log("- Fecha:", cita.fecha)
-            console.log("- Hora:", cita.hora)
-            console.log("- Vehículo ID:", cita.vehiculo_id)
-            console.log("- Vehículo placa:", cita.vehiculo_placa)
-            console.log("- Marca:", cita.marca_nombre || "No disponible")
-            console.log("- Modelo:", cita.modelo_nombre || "No disponible")
-            console.log("- Mecánico ID:", cita.mecanico_id)
-            console.log("- Mecánico nombre:", cita.mecanico_nombre, cita.mecanico_apellido)
-            console.log("- Observaciones:", cita.observaciones)
             setCitaProgramada(cita)
             setShowCitaModal(true) // Mostrar el modal
           } else {
-            console.log("❌ No se encontró cita programada en el rango de fechas válidas")
-            console.log("Criterios de búsqueda:")
-            console.log("- estado_cita_id debe ser 1 (programado)")
-            console.log("- fecha debe estar entre hoy y los próximos 7 días")
-            console.log("- debe tener fecha válida")
             setCitaProgramada(null)
             setShowCitaModal(false)
             // Limpiar selecciones previas si no hay cita
@@ -597,39 +496,7 @@ const CrearVenta = () => {
             setSelectedMecanico(null)
             setFormData((prev) => ({ ...prev, vehiculo_id: "", mecanico_id: "", cita_id: "" }))
           }
-          console.log("=== FIN BÚSQUEDA DE CITAS ===")
         } catch (error) {
-          console.error("💥 ERROR AL BUSCAR CITAS:")
-          console.error("Mensaje de error:", error.message)
-          console.error("Error completo:", error)
-
-          // Si el endpoint completo no existe, intentar con el endpoint normal
-          console.log("🔄 Intentando con endpoint normal de citas...")
-          try {
-            const citasNormales = await makeRequest(`/citas/cliente/${client.id}`)
-            console.log("Citas normales obtenidas:", citasNormales)
-
-            let citasArray = []
-            if (Array.isArray(citasNormales)) {
-              citasArray = citasNormales
-            } else if (citasNormales && typeof citasNormales === "object") {
-              const possibleArrays = Object.values(citasNormales).filter((value) => Array.isArray(value))
-              if (possibleArrays.length > 0) {
-                citasArray = possibleArrays[0]
-              }
-            }
-
-            const citasValidas = citasArray.filter((c) => c.estado_cita_id === 1 && esFechaValida(c.fecha))
-
-            if (citasValidas.length > 0) {
-              setCitaProgramada(citasValidas[0])
-              setShowCitaModal(true)
-              console.log("✅ Cita encontrada con endpoint normal")
-            }
-          } catch (errorNormal) {
-            console.error("Error también con endpoint normal:", errorNormal)
-          }
-
           setCitaProgramada(null)
           setShowCitaModal(false)
           setSelectedVehiculo(null)
@@ -690,8 +557,6 @@ const CrearVenta = () => {
           ...(formData.mecanico_id ? { mecanico_id: formData.mecanico_id } : {}),
           ...(formData.vehiculo_id ? { vehiculo_id: formData.vehiculo_id } : {}),
         }
-
-        console.log("Enviando datos de venta:", ventaData)
 
         await makeRequest("/ventas", {
           method: "POST",
@@ -1134,13 +999,12 @@ const CrearVenta = () => {
                                       }}
                                     />
                                   </div>
-                                </div>
-                                <div className="crearVenta-info-item crearVenta-subtotal-item">
                                   <span className="crearVenta-info-label">Subtotal:</span>
                                   <span className="crearVenta-subtotal">
                                     {formatCurrency(item.price * item.quantity)}
                                   </span>
                                 </div>
+                                
                               </>
                             ) : (
                               <>
@@ -1345,8 +1209,6 @@ const ClientModal = ({ closeModal, selectClient, clientes }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(5)
 
-  console.log("CLIENTES EN MODAL:", clientes)
-
   const filteredClientes = search.trim()
     ? clientes.filter(
         (c) =>
@@ -1453,7 +1315,7 @@ const ClientModal = ({ closeModal, selectClient, clientes }) => {
           ) : (
             <>
               <div className="crearCompra-supplier-table-container">
-                <table className="crearCompra-supplier-table">
+                <table className="crearCompra-suppliers-table">
                   <thead>
                     <tr>
                       <th>Nombre</th>
@@ -1465,7 +1327,7 @@ const ClientModal = ({ closeModal, selectClient, clientes }) => {
                   </thead>
                   <tbody>
                     {currentItems.map((cliente) => (
-                      <tr key={cliente.id}>
+                      <tr key={cliente.id} className="crearCompra-supplier-row">
                         <td>{cliente.nombre}</td>
                         <td>{cliente.apellido}</td>
                         <td>{cliente.documento}</td>
@@ -1517,8 +1379,6 @@ const VehiculoClienteModal = ({ closeModal, clienteId, selectVehiculo, vehiculos
   const [search, setSearch] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(5)
-
-  console.log("VEHÍCULOS EN MODAL:", vehiculosCliente)
 
   const filteredVehiculos = search.trim()
     ? vehiculosCliente.filter(
@@ -1649,8 +1509,6 @@ const MecanicoModal = ({ closeModal, selectMecanico, mecanicos }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(5)
 
-  console.log("MECÁNICOS EN MODAL:", mecanicos)
-
   const filteredMecanicos = search.trim()
     ? mecanicos.filter(
         (m) =>
@@ -1715,7 +1573,7 @@ const MecanicoModal = ({ closeModal, selectMecanico, mecanicos }) => {
           ) : (
             <>
               <div className="crearCompra-supplier-table-container">
-                <table className="crearCompra-supplier-table">
+                <table className="crearCompra-suppliers-table">
                   <thead>
                     <tr>
                       <th>Nombre</th>
@@ -1727,7 +1585,7 @@ const MecanicoModal = ({ closeModal, selectMecanico, mecanicos }) => {
                   </thead>
                   <tbody>
                     {currentItems.map((mecanico) => (
-                      <tr key={mecanico.id}>
+                      <tr key={mecanico.id} className="crearCompra-supplier-row">
                         <td>{mecanico.nombre}</td>
                         <td>{mecanico.apellido}</td>
                         <td>{mecanico.documento}</td>

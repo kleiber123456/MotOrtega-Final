@@ -655,7 +655,6 @@
 }
 
 .crearVenta-item-card-details {
-  margin-top: 12px;
 }
 
 .crearVenta-item-info-grid {
@@ -671,11 +670,13 @@
 }
 
 .crearVenta-info-label {
+  
   font-size: 12px;
   color: #6b7280;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  
 }
 
 .crearVenta-info-value {
@@ -713,14 +714,10 @@
 }
 
 .crearVenta-subtotal-item {
-  grid-column: span 2;
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: center;
   gap: 8px;
-  border-top: 1px solid #e2e8f0;
-  padding-top: 12px;
-  margin-top: 8px;
 }
 
 .crearVenta-subtotal-item .crearVenta-info-label {
@@ -734,11 +731,6 @@
   text-align: right;
 }
 
-.crearVenta-stock-info {
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid #e2e8f0;
-}
 
 .text-gray-600 {
   color: #6b7280;
@@ -776,8 +768,8 @@
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  padding: 24px;
-  background-color: #f8fafc;
+  padding-top: 24px;
+  padding-bottom: 24px;
 }
 
 .crearVenta-cancel-button {
@@ -1536,5 +1528,295 @@ input[type="number"] {
 
   .crearVenta-empty-cart-icon {
     font-size: 36px;
+  }
+}
+
+/* Estilos adicionales para que coincidan con CrearCompras */
+.crearCompra-selected-products-container {
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.crearCompra-product-card-selected-compact {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+}
+
+.crearCompra-product-card-selected-compact:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.crearCompra-product-card-selected-compact.service {
+  background: linear-gradient(135deg, #fef7ff 0%, #faf5ff 100%);
+  border-color: #e9d5ff;
+}
+
+.crearCompra-product-card-selected-compact.service:hover {
+  border-color: #d8b4fe;
+}
+
+.crearCompra-product-card-header-compact {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.crearCompra-product-name-compact {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crearCompra-remove-button-compact {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  min-width: 28px;
+  height: 28px;
+}
+
+.crearCompra-remove-button-compact:hover {
+  background-color: #dc2626;
+  transform: scale(1.05);
+}
+
+.crearCompra-product-inputs-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 8px;
+  align-items: end;
+}
+
+.crearCompra-input-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.crearCompra-input-compact label {
+  font-size: 10px;
+  color: #6b7280;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.crearCompra-input-field-compact {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: white;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.crearCompra-input-field-compact:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.crearCompra-input-field-compact.crearCompra-readonly {
+  background-color: #f3f4f6;
+  color: #374151;
+  cursor: default;
+}
+
+.crearCompra-subtotal-compact {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2563eb;
+  text-align: center;
+  grid-column: span 4;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.crearCompra-selected-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  margin-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.crearCompra-pagination-button-small {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+}
+
+.crearCompra-pagination-button-small:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.crearCompra-pagination-button-small:disabled {
+  background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.crearCompra-page-info-small {
+  font-size: 12px;
+  color: #374151;
+  font-weight: 500;
+  min-width: 40px;
+  text-align: center;
+}
+
+.crearCompra-total-section-compact {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.crearCompra-total-card-compact {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 2px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.crearCompra-total-label-compact {
+  font-size: 12px;
+  color: #1e40af;
+  font-weight: 600;
+}
+
+.crearCompra-total-amount-compact {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e40af;
+}
+
+.crearCompra-empty-cart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #6b7280;
+  height: 100%;
+  min-height: 300px;
+}
+
+.crearCompra-empty-cart-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+  color: #d1d5db;
+}
+
+.crearCompra-empty-cart h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 8px 0;
+}
+
+.crearCompra-empty-cart p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.crearCompra-products-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.crearCompra-products-header h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.crearCompra-products-count {
+  background-color: #eff6ff;
+  color: #2563eb;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.crearCompra-supplier-table-container {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+/* Responsive para productos seleccionados compactos */
+@media (max-width: 768px) {
+  .crearCompra-product-inputs-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .crearCompra-subtotal-compact {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 480px) {
+  .crearCompra-product-inputs-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .crearCompra-subtotal-compact {
+    grid-column: span 1;
   }
 }
