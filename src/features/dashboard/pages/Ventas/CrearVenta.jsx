@@ -814,6 +814,8 @@ const CrearVenta = () => {
                             activeTab === "productos"
                               ? (values.precio ?? item.precio_venta ?? 0)
                               : (values.precio ?? item.precio ?? 0)
+                          const maxCantidad = item.cantidad || 1
+                          const cantidadValida = cantidad >= 1 && cantidad <= maxCantidad
                           return (
                             <div key={item.id} className="crearVenta-card-compact">
                               <div className="crearVenta-card-header-compact">
@@ -837,19 +839,24 @@ const CrearVenta = () => {
                                       type="number"
                                       className="crearVenta-input-field-compact"
                                       min="1"
+                                      max={maxCantidad}
                                       value={cantidad === undefined ? "" : cantidad}
                                       onChange={(e) =>
                                         handleInputChange2(
                                           item.id,
                                           "cantidad",
-                                          e.target.value === "" ? "" : Number.parseInt(e.target.value),
+                                          e.target.value === "" ? "" : Math.min(Number.parseInt(e.target.value), maxCantidad),
                                         )
                                       }
                                       onKeyDown={(e) => e.key === "-" && e.preventDefault()}
                                       placeholder="1"
+                                      disabled={maxCantidad === 0}
                                     />
                                     {inputErrors[item.id]?.cantidad && (
                                       <span className="crearVenta-error-hint">{inputErrors[item.id].cantidad}</span>
+                                    )}
+                                    {maxCantidad === 0 && (
+                                      <span className="crearVenta-error-hint">Sin stock</span>
                                     )}
                                   </div>
                                 )}
@@ -884,6 +891,9 @@ const CrearVenta = () => {
                                     type="button"
                                     className="crearVenta-add-button-compact"
                                     onClick={() => handleAddItem(item, cantidad, precio)}
+                                    disabled={
+                                      (activeTab === "productos" && (!cantidadValida || maxCantidad === 0))
+                                    }
                                   >
                                     <Plus size={16} />
                                   </button>

@@ -379,6 +379,7 @@
   padding: 12px;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  width: 100%;
 }
 
 .crearVenta-card-compact:hover {
@@ -435,9 +436,10 @@
 
 .crearVenta-card-inputs-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 0.8fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr ;
   gap: 8px;
   align-items: end;
+  width: 100%;
 }
 
 .crearVenta-input-compact {
@@ -486,7 +488,8 @@
 }
 
 .crearVenta-add-button-container {
-  display: flex;
+  width: 100%;
+  max-width: unset;
   align-items: center;
   justify-content: center;
 }
@@ -504,7 +507,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 100px;
+  min-width: 94%;
+  margin-right: 20px;
   height: 30px;
 }
 
