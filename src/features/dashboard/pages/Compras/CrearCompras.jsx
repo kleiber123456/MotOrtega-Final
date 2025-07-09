@@ -134,6 +134,45 @@ const CrearCompra = () => {
   const [selectedProductsCurrentPage, setSelectedProductsCurrentPage] = useState(1)
   const [selectedProductsItemsPerPage] = useState(4) // Configurable desde aquí
 
+  // Función para guardar el estado actual de la compra
+  const saveCurrentState = useCallback(() => {
+    const currentState = {
+      selectedProducts,
+      selectedSupplier,
+      formData,
+      searchTerm,
+      inputValues,
+      timestamp: Date.now(),
+    }
+    localStorage.setItem("compra_temp_state", JSON.stringify(currentState))
+  }, [selectedProducts, selectedSupplier, formData, searchTerm, inputValues])
+
+  // Función para restaurar el estado guardado
+  const restoreState = useCallback(() => {
+    try {
+      const savedState = localStorage.getItem("compra_temp_state")
+      if (savedState) {
+        const state = JSON.parse(savedState)
+        // Solo restaurar si no ha pasado más de 1 hora
+        if (Date.now() - state.timestamp < 3600000) {
+          setSelectedProducts(state.selectedProducts || [])
+          setSelectedSupplier(state.selectedSupplier || null)
+          setFormData(state.formData || { fecha: new Date().toISOString().substr(0, 10) })
+          setSearchTerm(state.searchTerm || "")
+          setInputValues(state.inputValues || {})
+        }
+        localStorage.removeItem("compra_temp_state")
+      }
+    } catch (error) {
+      console.error("Error al restaurar estado:", error)
+    }
+  }, [])
+
+  // Restaurar estado al cargar el componente
+  useEffect(() => {
+    restoreState()
+  }, [restoreState])
+
   // Cargar productos desde la API
   useEffect(() => {
     const fetchProducts = async () => {
@@ -436,6 +475,8 @@ const CrearCompra = () => {
           timer: 2000,
         })
 
+        localStorage.removeItem("compra_temp_state")
+
         navigate("/ListarCompras")
       } catch (error) {
         console.error("Error al crear compra:", error)
@@ -467,6 +508,7 @@ const CrearCompra = () => {
       })
 
       if (result.isConfirmed) {
+        localStorage.removeItem("compra_temp_state")
         navigate("/ListarCompras")
       }
     } else {
@@ -521,7 +563,10 @@ const CrearCompra = () => {
                   type="button"
                   className="crearCompra-create-button crearCompra-nuevo-proveedor-btn"
                   title="Crear nuevo proveedor"
-                  onClick={() => navigate("/CrearProveedor")}
+                  onClick={() => {
+                    saveCurrentState()
+                    navigate("/CrearProveedor")
+                  }}
                 >
                   <FaPlus /> Nuevo
                 </button>
@@ -896,25 +941,30 @@ const CrearCompra = () => {
 
                   <div className="crearCompra-total-section-compact">
                     {/* Acciones del formulario */}
-        <div className="crearCompra-form-actions">
-          <button type="button" className="crearCompra-cancel-button" onClick={handleCancel} disabled={isSubmitting}>
-            <FaTimes className="crearCompra-button-icon" />
-            Cancelar
-          </button>
-          <button type="submit" className="crearCompra-submit-button" disabled={isSubmitting || apiLoading}>
-            {isSubmitting ? (
-              <>
-                <FaSpinner className="crearCompra-button-icon spinning" />
-                Guardando...
-              </>
-            ) : (
-              <>
-                <FaSave className="crearCompra-button-icon" />
-                Guardar Compra
-              </>
-            )}
-          </button>
-        </div>
+                    <div className="crearCompra-form-actions">
+                      <button
+                        type="button"
+                        className="crearCompra-cancel-button"
+                        onClick={handleCancel}
+                        disabled={isSubmitting}
+                      >
+                        <FaTimes className="crearCompra-button-icon" />
+                        Cancelar
+                      </button>
+                      <button type="submit" className="crearCompra-submit-button" disabled={isSubmitting || apiLoading}>
+                        {isSubmitting ? (
+                          <>
+                            <FaSpinner className="crearCompra-button-icon spinning" />
+                            Guardando...
+                          </>
+                        ) : (
+                          <>
+                            <FaSave className="crearCompra-button-icon" />
+                            Guardar Compra
+                          </>
+                        )}
+                      </button>
+                    </div>
                     <div className="crearCompra-total-card-compact">
                       <span className="crearCompra-total-label-compact">Total:</span>
                       <span className="crearCompra-total-amount-compact">${formatNumber(total)}</span>

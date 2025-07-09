@@ -43,8 +43,16 @@ const ListarCitas = () => {
     fetchCitas()
   }, [])
 
-  // 1. FETCH Y TRANSFORMACIÓN DE CITAS
-  const token = localStorage.getItem("token")
+  // Función para determinar si se puede eliminar una cita según las reglas de negocio
+  const canDeleteCita = (estadoId) => {
+    // Solo se puede eliminar si está en estado:
+    // 1 = Programada
+    // 4 = Cancelada
+    // NO se puede eliminar si está en estado:
+    // 2 = En Proceso
+    // 3 = Completada
+    return estadoId === 1 || estadoId === 4
+  }
 
   const fetchCitas = async () => {
     setLoading(true)
@@ -165,6 +173,28 @@ const ListarCitas = () => {
     setCalendarView(view)
   }
 
+  // Función para obtener el nombre del estado
+  const getEstadoNombre = (estadoId, estadoObj) => {
+    // Primero intentar usar el objeto estado si existe
+    if (estadoObj && estadoObj.nombre) {
+      return estadoObj.nombre
+    }
+
+    // Fallback basado en el ID real de la base de datos
+    switch (estadoId) {
+      case 1:
+        return "Programada"
+      case 2:
+        return "En Proceso"
+      case 3:
+        return "Completada"
+      case 4:
+        return "Cancelada"
+      default:
+        return "Desconocido"
+    }
+  }
+
   // MEJORAR LA TRANSFORMACIÓN DE EVENTOS PARA EL CALENDARIO
   const calendarEvents = Array.isArray(citas)
     ? citas
@@ -245,11 +275,11 @@ const ListarCitas = () => {
     }
 
     switch (estado) {
-      case 1: // Pendiente
+      case 1: // Programada
         style.backgroundColor = "#2563eb" // Azul principal
         style.borderLeft = "4px solid #1d4ed8"
         break
-      case 2: // Confirmada
+      case 2: // En Proceso
         style.backgroundColor = "#f59e0b" // Amarillo
         style.borderLeft = "4px solid #d97706"
         break
@@ -357,11 +387,11 @@ const ListarCitas = () => {
               <div className="listarCitas-calendar-legend">
                 <div className="listarCitas-legend-item listarCitas-legend-pendiente">
                   <span className="listarCitas-legend-color listarCitas-color-pendiente"></span>
-                  <span className="listarCitas-legend-text">Pendiente</span>
+                  <span className="listarCitas-legend-text">Programada</span>
                 </div>
                 <div className="listarCitas-legend-item listarCitas-legend-confirmada">
                   <span className="listarCitas-legend-color listarCitas-color-confirmada"></span>
-                  <span className="listarCitas-legend-text">Confirmada</span>
+                  <span className="listarCitas-legend-text">En Proceso</span>
                 </div>
                 <div className="listarCitas-legend-item listarCitas-legend-completada">
                   <span className="listarCitas-legend-color listarCitas-color-completada"></span>
@@ -492,7 +522,7 @@ const ListarCitas = () => {
                             </td>
                             <td className="listarCitas-td listarCitas-td-estado">
                               <span className={`listarCitas-estado-badge listarCitas-estado-${cita.estado_cita_id}`}>
-                                {cita.estado_nombre || "Pendiente"}
+                                {getEstadoNombre(cita.estado_cita_id, cita.estado_cita)}
                               </span>
                             </td>
                             <td className="listarCitas-td listarCitas-actions-cell">
@@ -504,13 +534,16 @@ const ListarCitas = () => {
                                 >
                                   <FaEye className="listarCitas-action-icon" />
                                 </Link>
-                                <button
-                                  className="listarCitas-btn-action listarCitas-btn-delete"
-                                  onClick={() => handleDeleteCita(cita.id)}
-                                  title="Eliminar cita"
-                                >
-                                  <FaTrash className="listarCitas-action-icon" />
-                                </button>
+                                {/* Solo mostrar botón eliminar según las reglas de negocio */}
+                                {canDeleteCita(cita.estado_cita_id) && (
+                                  <button
+                                    className="listarCitas-btn-action listarCitas-btn-delete"
+                                    onClick={() => handleDeleteCita(cita.id)}
+                                    title={`Eliminar cita (Estado: ${getEstadoNombre(cita.estado_cita_id, cita.estado_cita)})`}
+                                  >
+                                    <FaTrash className="listarCitas-action-icon" />
+                                  </button>
+                                )}
                               </div>
                             </td>
                           </tr>
@@ -609,7 +642,7 @@ const ListarCitas = () => {
                   <span
                     className={`listarCitas-estado-badge listarCitas-estado-${selectedCita.resource.estado_cita_id}`}
                   >
-                    {selectedCita.resource.estado_nombre || "Pendiente"}
+                    {getEstadoNombre(selectedCita.resource.estado_cita_id, selectedCita.resource.estado_cita)}
                   </span>
                 </div>
                 <div className="listarCitas-info-group listarCitas-info-observaciones">

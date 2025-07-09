@@ -86,41 +86,6 @@ const DetalleCita = () => {
     }
   }
 
-  const handleCambiarEstado = async (estadoId) => {
-    try {
-      // Obtener el token de autenticación
-      const token = localStorage.getItem("token") || sessionStorage.getItem("token")
-
-      if (!token) {
-        console.error("No hay token disponible")
-        toast.error("No hay sesión activa. Por favor inicie sesión nuevamente.")
-        return
-      }
-
-      await axios.put(
-        `${API_BASE_URL}/citas/${id}/cambiar-estado`,
-        { estado_cita_id: estadoId },
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        },
-      )
-
-      toast.success("Estado de la cita actualizado correctamente")
-      fetchCita()
-    } catch (error) {
-      console.error("Error al cambiar el estado de la cita:", error)
-
-      if (error.response && error.response.data && error.response.data.message) {
-        toast.error(`Error: ${error.response.data.message}`)
-      } else {
-        toast.error("Error al cambiar el estado de la cita")
-      }
-    }
-  }
-
   // Función para obtener información del cliente
   const getClienteInfo = () => {
     // Priorizar información del vehículo.cliente si está disponible
@@ -149,6 +114,71 @@ const DetalleCita = () => {
       tipo_vehiculo: cita.vehiculo_tipo || "",
       color: cita.vehiculo_color || "",
       referencia: null,
+    }
+  }
+
+  // Función para formatear fecha correctamente sin problemas de zona horaria
+  const formatearFecha = (fecha) => {
+    if (!fecha) return "N/A"
+
+    try {
+      // Si la fecha viene en formato ISO (YYYY-MM-DD), usar directamente
+      if (fecha.includes("-") && !fecha.includes("T")) {
+        const [year, month, day] = fecha.split("-")
+        return `${day}/${month}/${year}`
+      }
+
+      // Si viene con timestamp, extraer solo la fecha
+      if (fecha.includes("T")) {
+        const fechaSolo = fecha.split("T")[0]
+        const [year, month, day] = fechaSolo.split("-")
+        return `${day}/${month}/${year}`
+      }
+
+      // Fallback usando moment pero sin conversión de zona horaria
+      return moment(fecha, "YYYY-MM-DD").format("DD/MM/YYYY")
+    } catch (error) {
+      console.error("Error formateando fecha:", error)
+      return "Fecha inválida"
+    }
+  }
+
+  // Función para formatear hora correctamente
+  const formatearHora = (hora) => {
+    if (!hora) return "N/A"
+
+    try {
+      // Si la hora viene con segundos, extraer solo HH:MM
+      if (hora.includes(":") && hora.length > 5) {
+        return hora.substring(0, 5)
+      }
+
+      return hora
+    } catch (error) {
+      console.error("Error formateando hora:", error)
+      return "Hora inválida"
+    }
+  }
+
+  // Función para obtener el nombre del estado basado en los estados reales de la BD
+  const getEstadoNombre = (estadoId, estadoObj) => {
+    // Primero intentar usar el objeto estado si existe
+    if (estadoObj && estadoObj.nombre) {
+      return estadoObj.nombre
+    }
+
+    // Fallback basado en el ID real de la base de datos
+    switch (estadoId) {
+      case 1:
+        return "Programada"
+      case 2:
+        return "En Proceso"
+      case 3:
+        return "Completada"
+      case 4:
+        return "Cancelada"
+      default:
+        return "Desconocido"
     }
   }
 
@@ -211,14 +241,14 @@ const DetalleCita = () => {
                   <FaCalendarAlt />
                   Fecha
                 </label>
-                <span className="detalleCita-value">{moment(cita.fecha).format("DD/MM/YYYY")}</span>
+                <span className="detalleCita-value">{formatearFecha(cita.fecha)}</span>
               </div>
               <div className="detalleCita-field">
                 <label className="detalleCita-label">
                   <FaClock />
                   Hora
                 </label>
-                <span className="detalleCita-value">{moment(cita.hora, "HH:mm:ss").format("HH:mm")} horas</span>
+                <span className="detalleCita-value">{formatearHora(cita.hora)} horas</span>
               </div>
               <div className="detalleCita-field">
                 <label className="detalleCita-label">
@@ -226,43 +256,8 @@ const DetalleCita = () => {
                   Estado
                 </label>
                 <span className={`detalleCita-badge estado-${cita.estado_cita_id}`}>
-                  {cita.estado_cita?.nombre || "Pendiente"}
+                  {getEstadoNombre(cita.estado_cita_id, cita.estado_cita)}
                 </span>
-              </div>
-            </div>
-
-            {/* Cambiar Estado */}
-            <div className="detalleCita-estado-section">
-              <h3>Cambiar Estado de la Cita</h3>
-              <div className="detalleCita-estado-buttons">
-                <button
-                  className="detalleCita-btn-estado btn-pendiente"
-                  onClick={() => handleCambiarEstado(1)}
-                  disabled={cita.estado_cita_id === 1}
-                >
-                  Pendiente
-                </button>
-                <button
-                  className="detalleCita-btn-estado btn-confirmada"
-                  onClick={() => handleCambiarEstado(2)}
-                  disabled={cita.estado_cita_id === 2}
-                >
-                  Confirmada
-                </button>
-                <button
-                  className="detalleCita-btn-estado btn-cancelada"
-                  onClick={() => handleCambiarEstado(3)}
-                  disabled={cita.estado_cita_id === 3}
-                >
-                  Cancelada
-                </button>
-                <button
-                  className="detalleCita-btn-estado btn-completada"
-                  onClick={() => handleCambiarEstado(4)}
-                  disabled={cita.estado_cita_id === 4}
-                >
-                  Completada
-                </button>
               </div>
             </div>
           </div>

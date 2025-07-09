@@ -585,6 +585,20 @@ const HoraModal = ({
   // Filtrar horas según novedades (horarios) y citas
   const todasLasHoras = generarHoras()
   const horasBloqueadas = []
+
+  // Si es el día de hoy, bloquear horas que ya pasaron
+  const esHoy = fechaSeleccionada === new Date().toISOString().split("T")[0]
+  const now = new Date().getHours()
+
+  if (esHoy) {
+    todasLasHoras.forEach((hora) => {
+      const horaNumero = Number.parseInt(hora.hora.split(":")[0])
+      if (horaNumero <= now) {
+        horasBloqueadas.push(hora.hora)
+      }
+    })
+  }
+
   novedadesFiltradas.forEach((novedad) => {
     if (novedad.tipo_novedad === "Ausencia") {
       todasLasHoras.forEach((h) => horasBloqueadas.push(h.hora))
@@ -884,8 +898,8 @@ function CrearCita() {
       const hoy = new Date()
       hoy.setHours(0, 0, 0, 0) // Reset time to start of day
 
-      if (fechaSeleccionada <= hoy) {
-        errorMsg = "Solo se pueden programar citas para fechas futuras"
+      if (fechaSeleccionada < hoy) {
+        errorMsg = "No se pueden programar citas para fechas pasadas"
       } else if (fechaSeleccionada.getDay() === 0) {
         errorMsg = "No se pueden programar citas los domingos (día no laborable)"
       }
@@ -918,8 +932,8 @@ function CrearCita() {
       const hoy = new Date()
       hoy.setHours(0, 0, 0, 0)
 
-      if (fechaSeleccionada <= hoy) {
-        newErrors.fecha = "Solo se pueden programar citas para fechas futuras"
+      if (fechaSeleccionada < hoy) {
+        newErrors.fecha = "No se pueden programar citas para fechas pasadas"
       } else if (fechaSeleccionada.getDay() === 0) {
         newErrors.fecha = "No se pueden programar citas los domingos"
       }
@@ -1127,7 +1141,7 @@ function CrearCita() {
                       name="fecha"
                       value={formData.fecha}
                       onChange={handleFechaChange}
-                      min={new Date(Date.now() + 86400000).toISOString().split("T")[0]} // Tomorrow's date
+                      min={new Date().toISOString().split("T")[0]} // Today's date
                       className={`crearCita-form-input ${errors.fecha ? "error" : ""}`}
                     />
                     {errors.fecha && (
