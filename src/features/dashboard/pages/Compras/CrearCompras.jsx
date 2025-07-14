@@ -132,7 +132,7 @@ const CrearCompra = () => {
 
   // Estados para la paginación de productos seleccionados
   const [selectedProductsCurrentPage, setSelectedProductsCurrentPage] = useState(1)
-  const [selectedProductsItemsPerPage] = useState(4) // Configurable desde aquí
+  const [selectedProductsItemsPerPage] = useState(3) // Configurable desde aquí
 
   // Función para guardar el estado actual de la compra
   const saveCurrentState = useCallback(() => {

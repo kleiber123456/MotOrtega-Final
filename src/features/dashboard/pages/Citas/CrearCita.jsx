@@ -1094,6 +1094,17 @@ function CrearCita() {
     })
   }
 
+  // Calcular fecha máxima permitida (3 meses desde hoy)
+  const hoy = new Date()
+  const fechaMaxima = new Date(hoy)
+  fechaMaxima.setMonth(hoy.getMonth() + 3)
+  // Ajuste si el mes se pasa de diciembre
+  if (fechaMaxima.getMonth() > 11) {
+    fechaMaxima.setFullYear(fechaMaxima.getFullYear() + 1)
+    fechaMaxima.setMonth(fechaMaxima.getMonth() % 12)
+  }
+  const fechaMaximaStr = fechaMaxima.toISOString().split("T")[0]
+
   return (
     <div className="crearCita-container">
       {/* Header */}
@@ -1142,6 +1153,7 @@ function CrearCita() {
                       value={formData.fecha}
                       onChange={handleFechaChange}
                       min={new Date().toISOString().split("T")[0]} // Today's date
+                      max={fechaMaximaStr} // Limita a 3 meses desde hoy
                       className={`crearCita-form-input ${errors.fecha ? "error" : ""}`}
                     />
                     {errors.fecha && (

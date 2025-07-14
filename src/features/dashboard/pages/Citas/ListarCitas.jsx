@@ -10,6 +10,7 @@ import axios from "axios"
 import { toast } from "react-toastify"
 import "../../../../shared/styles/Citas/ListarCitas.css"
 import { FaPlus, FaEye, FaTrash, FaCalendarAlt, FaList } from "react-icons/fa"
+import Swal from "sweetalert2"
 
 // Configurar localización en español
 moment.locale("es")
@@ -119,17 +120,23 @@ const ListarCitas = () => {
   }
 
   const handleDeleteCita = async (id) => {
-    // Encontrar la cita para mostrar información en la confirmación
     const cita = citas.find((c) => c.id === id)
     const citaInfo = cita
       ? `${cita.documento || cita.cliente_documento || "N/A"} - ${cita.cliente_nombre || "N/A"}`
       : "esta cita"
 
-    if (
-      window.confirm(
-        `⚠️ CONFIRMAR ELIMINACIÓN\n\n¿Está seguro que desea eliminar la cita de:\n${citaInfo}?\n\nEsta acción no se puede deshacer.`,
-      )
-    ) {
+    const result = await Swal.fire({
+      title: "¿Eliminar cita?",
+      text: `¿Está seguro que desea eliminar la cita de:\n${citaInfo}? Esta acción no se puede deshacer.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    })
+
+    if (result.isConfirmed) {
       try {
         const token = localStorage.getItem("token") || sessionStorage.getItem("token")
         if (!token) {
@@ -139,7 +146,7 @@ const ListarCitas = () => {
 
         await axios.delete(`${API_BASE_URL}/citas/${id}`, {
           headers: {
-            Authorization: token, // Usar el mismo formato que funcionó para GET
+            Authorization: token,
           },
         })
         toast.success("Cita eliminada correctamente")
