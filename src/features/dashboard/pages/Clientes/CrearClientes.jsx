@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import {
   FaUser,
@@ -100,6 +100,8 @@ const CrearCliente = () => {
   const [errores, setErrores] = useState({})
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [documentoDuplicado, setDocumentoDuplicado] = useState(false)
+  const debounceTimeout = useRef(null)
 
   // Validar campo individual
   const validarCampo = useCallback((name, value) => {
@@ -199,14 +201,45 @@ const CrearCliente = () => {
     [validarCampo],
   )
 
+  // Validar documento duplicado instantáneamente
+  const validarDocumentoDuplicado = useCallback(
+    async (valor) => {
+      if (!valor.trim()) {
+        setDocumentoDuplicado(false)
+        return
+      }
+      try {
+        const data = await makeRequest(`/clientes?documento=${valor.trim()}`, { method: "GET" })
+        if (Array.isArray(data) && data.length > 0) {
+          setDocumentoDuplicado(true)
+          setErrores((prev) => ({
+            ...prev,
+            documento: "Este número de documento ya está registrado.",
+          }))
+        } else {
+          setDocumentoDuplicado(false)
+          setErrores((prev) => ({ ...prev, documento: "" }))
+        }
+      } catch (error) {
+        setDocumentoDuplicado(false)
+      }
+    },
+    [makeRequest],
+  )
+
+  // Modifica handleDocumentoChange para validar documento duplicado con debounce
   const handleDocumentoChange = useCallback(
     (e) => {
-      let value = e.target.value.replace(/^\s+/, "") // Elimina espacios al inicio
-      value = value.replace(/[^\d]/g, "")
+      const value = e.target.value.replace(/^\s+/, "")
       setFormData((prev) => ({ ...prev, documento: value }))
       validarCampo("documento", value)
+
+      if (debounceTimeout.current) clearTimeout(debounceTimeout.current)
+      debounceTimeout.current = setTimeout(() => {
+        validarDocumentoDuplicado(value)
+      }, 400)
     },
-    [validarCampo],
+    [validarCampo, validarDocumentoDuplicado],
   )
 
   const handleTelefonoChange = useCallback(
@@ -280,6 +313,16 @@ const CrearCliente = () => {
     async (e) => {
       e.preventDefault()
 
+      if (documentoDuplicado) {
+        await Swal.fire({
+          icon: "error",
+          title: "Documento duplicado",
+          text: "Este número de documento ya está registrado. Por favor ingresa uno diferente.",
+          confirmButtonColor: "#ef4444",
+        })
+        return
+      }
+
       if (!validarFormulario()) {
         await Swal.fire({
           icon: "warning",
@@ -332,7 +375,7 @@ const CrearCliente = () => {
         setIsSubmitting(false)
       }
     },
-    [formData, validarFormulario, makeRequest, navigate],
+    [formData, validarFormulario, makeRequest, navigate, documentoDuplicado],
   )
 
   // Manejador para cancelar
@@ -629,7 +672,7 @@ const CrearCliente = () => {
             <FaTimes className="crearCliente-button-icon" />
             Cancelar
           </button>
-          <button type="submit" className="crearCliente-submit-button" disabled={isSubmitting || apiLoading}>
+          <button type="submit" className="crearCliente-submit-button" disabled={isSubmitting || apiLoading || documentoDuplicado}>
             {isSubmitting ? (
               <>
                 <FaSpinner className="crearCliente-button-icon spinning" />
