@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import {
   FaCar,
@@ -97,6 +97,8 @@ const CrearVehiculo = () => {
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null)
   const [busquedaReferencia, setBusquedaReferencia] = useState("")
   const [busquedaCliente, setBusquedaCliente] = useState("")
+  const [placaDuplicada, setPlacaDuplicada] = useState(false)
+  const debounceTimeout = useRef(null)
 
   // Cargar datos iniciales
   useEffect(() => {
@@ -231,6 +233,50 @@ const CrearVehiculo = () => {
     )
   })
 
+  // Validar placa duplicada con debounce
+  const validarPlacaDuplicada = useCallback(
+    async (valor) => {
+      if (!valor.trim() || valor.length !== 6) {
+        setPlacaDuplicada(false)
+        return
+      }
+      try {
+        const vehiculosExistentes = await makeRequest("/vehiculos")
+        const placaExiste = vehiculosExistentes?.some(
+          (v) => v.placa.toUpperCase() === valor.toUpperCase()
+        )
+        if (placaExiste) {
+          setPlacaDuplicada(true)
+          setErrores((prev) => ({
+            ...prev,
+            placa: "Ya existe un vehículo con esta placa.",
+          }))
+        } else {
+          setPlacaDuplicada(false)
+          setErrores((prev) => ({ ...prev, placa: "" }))
+        }
+      } catch (error) {
+        setPlacaDuplicada(false)
+      }
+    },
+    [makeRequest]
+  )
+
+  // Handler para placa con debounce
+  const handlePlacaChange = useCallback(
+    (e) => {
+      const value = e.target.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase()
+      setFormulario((prev) => ({ ...prev, placa: value }))
+      validarCampo("placa", value)
+
+      if (debounceTimeout.current) clearTimeout(debounceTimeout.current)
+      debounceTimeout.current = setTimeout(() => {
+        validarPlacaDuplicada(value)
+      }, 400)
+    },
+    [validarCampo, validarPlacaDuplicada]
+  )
+
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault()
@@ -364,7 +410,7 @@ const CrearVehiculo = () => {
                 id="placa"
                 name="placa"
                 value={formulario.placa}
-                onChange={handleChange}
+                onChange={handlePlacaChange}
                 onInput={soloLetrasYNumeros}
                 maxLength={6}
                 autoComplete="off"
@@ -511,7 +557,7 @@ const CrearVehiculo = () => {
             <FaTimes className="crearVehiculo-button-icon" />
             Cancelar
           </button>
-          <button type="submit" className="crearVehiculo-submit-button" disabled={isSubmitting || apiLoading}>
+          <button type="submit" className="crearVehiculo-submit-button" disabled={isSubmitting || apiLoading || placaDuplicada}>
             {isSubmitting ? (
               <>
                 <FaSpinner className="crearVehiculo-button-icon spinning" />

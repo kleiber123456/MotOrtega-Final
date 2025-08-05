@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import {
   FaUser,
@@ -102,6 +102,8 @@ const CrearUsuario = () => {
   const [errores, setErrores] = useState({})
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [documentoDuplicado, setDocumentoDuplicado] = useState(false)
+  const debounceTimeout = useRef(null)
 
   // Cargar roles al montar el componente
   useEffect(() => {
@@ -211,6 +213,35 @@ const CrearUsuario = () => {
     [formulario.rol_id],
   )
 
+  // Validar documento duplicado instantáneamente
+  const validarDocumentoDuplicado = useCallback(
+    async (valor) => {
+      if (!valor.trim()) {
+        setDocumentoDuplicado(false)
+        return
+      }
+      try {
+        const data = await makeRequest(`/usuarios?documento=${valor.trim()}`, { method: "GET" })
+        // Si la API retorna usuarios, el documento ya existe
+        if (Array.isArray(data) && data.length > 0) {
+          setDocumentoDuplicado(true)
+          setErrores((prev) => ({
+            ...prev,
+            documento: "Este número de documento ya está registrado.",
+          }))
+        } else {
+          setDocumentoDuplicado(false)
+          setErrores((prev) => ({ ...prev, documento: "" }))
+        }
+      } catch (error) {
+        // Si hay error, no bloquear por defecto
+        setDocumentoDuplicado(false)
+      }
+    },
+    [makeRequest],
+  )
+
+  // Modifica handleChange para validar documento duplicado con debounce
   const handleChange = useCallback(
     (e) => {
       const { name, value } = e.target
@@ -218,8 +249,15 @@ const CrearUsuario = () => {
       const cleanValue = typeof value === "string" ? value.replace(/^\s+/, "") : value
       setFormulario((prev) => ({ ...prev, [name]: cleanValue }))
       validarCampo(name, cleanValue)
+
+      if (name === "documento") {
+        if (debounceTimeout.current) clearTimeout(debounceTimeout.current)
+        debounceTimeout.current = setTimeout(() => {
+          validarDocumentoDuplicado(cleanValue)
+        }, 400)
+      }
     },
-    [validarCampo],
+    [validarCampo, validarDocumentoDuplicado],
   )
 
   const validarFormulario = useCallback(() => {
@@ -677,7 +715,7 @@ const CrearUsuario = () => {
             <FaTimes className="crearUsuario-button-icon" />
             Cancelar
           </button>
-          <button type="submit" className="crearUsuario-submit-button" disabled={isSubmitting || apiLoading}>
+          <button type="submit" className="crearUsuario-submit-button" disabled={isSubmitting || apiLoading || documentoDuplicado}>
             {isSubmitting ? (
               <>
                 <FaSpinner className="crearUsuario-button-icon spinning" />

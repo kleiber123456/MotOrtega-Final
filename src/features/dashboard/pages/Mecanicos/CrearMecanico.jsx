@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import {
   FaUser,
@@ -98,6 +98,8 @@ const CrearMecanico = () => {
   const [horarios, setHorarios] = useState([])
   const [errores, setErrores] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [documentoDuplicado, setDocumentoDuplicado] = useState(false)
+  const debounceTimeout = useRef(null)
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target
@@ -205,6 +207,47 @@ const CrearMecanico = () => {
   const soloLetras = useCallback((e) => {
     e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, "")
   }, [])
+
+  // Validar documento duplicado
+  const validarDocumentoDuplicado = useCallback(
+    async (valor) => {
+      if (!valor.trim()) {
+        setDocumentoDuplicado(false)
+        return
+      }
+      try {
+        const data = await makeRequest(`/mecanicos?documento=${valor.trim()}`, { method: "GET" })
+        if (Array.isArray(data) && data.length > 0) {
+          setDocumentoDuplicado(true)
+          setErrores((prev) => ({
+            ...prev,
+            documento: "Este número de documento ya está registrado.",
+          }))
+        } else {
+          setDocumentoDuplicado(false)
+          setErrores((prev) => ({ ...prev, documento: "" }))
+        }
+      } catch (error) {
+        setDocumentoDuplicado(false)
+      }
+    },
+    [makeRequest],
+  )
+
+  // Handler para documento con debounce
+  const handleDocumentoChange = useCallback(
+    (e) => {
+      const value = e.target.value.replace(/^\s+/, "")
+      setFormulario((prev) => ({ ...prev, documento: value }))
+      validarCampo("documento", value)
+
+      if (debounceTimeout.current) clearTimeout(debounceTimeout.current)
+      debounceTimeout.current = setTimeout(() => {
+        validarDocumentoDuplicado(value)
+      }, 400)
+    },
+    [validarCampo, validarDocumentoDuplicado],
+  )
 
   const handleSubmit = useCallback(
     async (e) => {
@@ -390,7 +433,7 @@ const CrearMecanico = () => {
                 id="documento"
                 name="documento"
                 value={formulario.documento}
-                onChange={handleChange}
+                onChange={handleDocumentoChange}
                 onInput={soloNumeros}
                 maxLength={15}
                 autoComplete="off"
@@ -522,7 +565,7 @@ const CrearMecanico = () => {
             <FaTimes className="crearUsuario-button-icon" />
             Cancelar
           </button>
-          <button type="submit" className="crearUsuario-submit-button" disabled={isSubmitting || apiLoading}>
+          <button type="submit" className="crearUsuario-submit-button" disabled={isSubmitting || apiLoading || documentoDuplicado}>
             {isSubmitting ? (
               <>
                 <FaSpinner className="crearUsuario-button-icon spinning" />
