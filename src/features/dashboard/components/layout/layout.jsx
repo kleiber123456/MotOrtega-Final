@@ -62,7 +62,11 @@ const Dropdown = ({ title, icon, options, isOpen, toggleDropdown, id, collapsed 
         className={`mo-dropdown__content ${isOpen ? "mo-dropdown__content--show" : ""} ${collapsed ? "mo-dropdown__content--collapsed" : ""}`}
       >
         {options.map((opt, idx) => (
-          <Link key={idx} to={opt.link} className="mo-dropdown__option" onClick={() => toggleDropdown(id)}>
+          <Link
+            key={idx}
+            to={opt.link}
+            className="mo-dropdown__option"
+          >
             {opt.label}
           </Link>
         ))}
@@ -192,7 +196,7 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
         </div>
 
         <div className="mo-sidebar__menu">
-          {/* Botón Dashboard directo en HTML */}
+          {/* 1. Dashboard */}
           <a
             href="/dashboard"
             className={`mo-dashboard-btn ${activePath === "/dashboard" ? "mo-dashboard-btn--active" : ""} ${collapsed ? "mo-dashboard-btn--collapsed" : ""}`}
@@ -203,32 +207,23 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
             {!collapsed && <span className="mo-dashboard-btn__title">Dashboard</span>}
           </a>
 
-          
-
+          {/* 2. Operaciones */}
           <Dropdown
-            id="configuracion"
-            title="Configuración"
-            icon={<FaUserCog />}
+            id="operaciones"
+            title="Operaciones"
+            icon={<FaShoppingCart />}
             options={[
-              { label: "Roles", link: "/ListarRoles" },
-              { label: "Usuarios", link: "/listarUsuarios" },
-              { label: "Clientes", link: "/ListarClientes" },
-              { label: "Mecánicos", link: "/ListarMecanicos" },
+              { label: "Compras", link: "/ListarCompras" },
+              { label: "Proveedores", link: "/ListarProveedores" },
+              { label: "Ventas", link: "/ListarVentas" },
+              { label: "Citas", link: "/citas" },
             ]}
-            isOpen={activeDropdown === "configuracion"}
+            isOpen={activeDropdown === "operaciones"}
             toggleDropdown={toggleDropdown}
             collapsed={collapsed}
           />
-{/* Botón Vehículos directo en HTML */}
-          <a
-            href="/vehiculos"
-            className={`mo-dashboard-btn ${activePath === "/vehiculos" ? "mo-dashboard-btn--active" : ""} ${collapsed ? "mo-dashboard-btn--collapsed" : ""}`}
-            onClick={handleLinkClick}
-            aria-current={activePath === "/vehiculos" ? "page" : undefined}
-          >
-            <span className="mo-dashboard-btn__icon"><FaCar /></span>
-            {!collapsed && <span className="mo-dashboard-btn__title">Vehículos</span>}
-          </a>
+
+          {/* 3. Servicios & Repuestos */}
           <Dropdown
             id="servicios"
             title="Servicios & Repuestos"
@@ -244,17 +239,29 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
             collapsed={collapsed}
           />
 
+          {/* 4. Vehículos */}
+          <a
+            href="/vehiculos"
+            className={`mo-dashboard-btn ${activePath === "/vehiculos" ? "mo-dashboard-btn--active" : ""} ${collapsed ? "mo-dashboard-btn--collapsed" : ""}`}
+            onClick={handleLinkClick}
+            aria-current={activePath === "/vehiculos" ? "page" : undefined}
+          >
+            <span className="mo-dashboard-btn__icon"><FaCar /></span>
+            {!collapsed && <span className="mo-dashboard-btn__title">Vehículos</span>}
+          </a>
+
+          {/* 5. Configuración */}
           <Dropdown
-            id="operaciones"
-            title="Operaciones"
-            icon={<FaShoppingCart />}
+            id="configuracion"
+            title="Configuración"
+            icon={<FaUserCog />}
             options={[
-              { label: "Compras", link: "/ListarCompras" },
-              { label: "Proveedores", link: "/ListarProveedores" },
-              { label: "Ventas", link: "/ListarVentas" },
-              { label: "Citas", link: "/citas" },
+              { label: "Roles", link: "/ListarRoles" },
+              { label: "Usuarios", link: "/listarUsuarios" },
+              { label: "Clientes", link: "/ListarClientes" },
+              { label: "Mecánicos", link: "/ListarMecanicos" },
             ]}
-            isOpen={activeDropdown === "operaciones"}
+            isOpen={activeDropdown === "configuracion"}
             toggleDropdown={toggleDropdown}
             collapsed={collapsed}
           />

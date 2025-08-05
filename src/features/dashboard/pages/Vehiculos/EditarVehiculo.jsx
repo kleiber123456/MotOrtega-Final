@@ -249,14 +249,19 @@ const EditarVehiculo = () => {
     return coincideTipo && coincideBusqueda
   })
 
+  // Filtrar solo clientes activos y por búsqueda
   const clientesFiltrados = clientes.filter((cliente) => {
     const textoBusqueda = busquedaCliente.toLowerCase()
+    const esActivo = cliente.estado?.toLowerCase() === "activo"
     return (
-      cliente.nombre?.toLowerCase().includes(textoBusqueda) ||
-      cliente.apellido?.toLowerCase().includes(textoBusqueda) ||
-      cliente.documento?.toLowerCase().includes(textoBusqueda) ||
-      cliente.telefono?.toLowerCase().includes(textoBusqueda) ||
-      cliente.correo?.toLowerCase().includes(textoBusqueda)
+      esActivo &&
+      (
+        cliente.nombre?.toLowerCase().includes(textoBusqueda) ||
+        cliente.apellido?.toLowerCase().includes(textoBusqueda) ||
+        cliente.documento?.toLowerCase().includes(textoBusqueda) ||
+        cliente.telefono?.toLowerCase().includes(textoBusqueda) ||
+        cliente.correo?.toLowerCase().includes(textoBusqueda)
+      )
     )
   })
 
@@ -341,6 +346,14 @@ const EditarVehiculo = () => {
       navigate("/vehiculos")
     }
   }, [navigate])
+
+  // Cuando se cargan los clientes, setear clienteSeleccionado si existe el id
+  useEffect(() => {
+    if (vehiculo.cliente_id && clientes.length > 0) {
+      const cliente = clientes.find((c) => c.id === vehiculo.cliente_id)
+      if (cliente) setClienteSeleccionado(cliente)
+    }
+  }, [vehiculo.cliente_id, clientes])
 
   if (cargando) {
     return (
@@ -494,6 +507,7 @@ const EditarVehiculo = () => {
                   className={`editarVehiculo-form-input ${errores.cliente_id ? "error" : ""}`}
                   required
                 />
+                <input type="hidden" name="cliente_id" value={vehiculo.cliente_id} />
                 <button type="button" className="editarVehiculo-search-button" onClick={() => setModalCliente(true)}>
                   <FaSearch />
                 </button>

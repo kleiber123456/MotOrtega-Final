@@ -215,14 +215,19 @@ const CrearVehiculo = () => {
     return coincideTipo && coincideBusqueda
   })
 
+  // Filtrar solo clientes activos y por búsqueda
   const clientesFiltrados = clientes.filter((cliente) => {
     const textoBusqueda = busquedaCliente.toLowerCase()
+    const esActivo = cliente.estado?.toLowerCase() === "activo"
     return (
-      cliente.nombre?.toLowerCase().includes(textoBusqueda) ||
-      cliente.apellido?.toLowerCase().includes(textoBusqueda) ||
-      cliente.documento?.toLowerCase().includes(textoBusqueda) ||
-      cliente.telefono?.toLowerCase().includes(textoBusqueda) ||
-      cliente.correo?.toLowerCase().includes(textoBusqueda)
+      esActivo &&
+      (
+        cliente.nombre?.toLowerCase().includes(textoBusqueda) ||
+        cliente.apellido?.toLowerCase().includes(textoBusqueda) ||
+        cliente.documento?.toLowerCase().includes(textoBusqueda) ||
+        cliente.telefono?.toLowerCase().includes(textoBusqueda) ||
+        cliente.correo?.toLowerCase().includes(textoBusqueda)
+      )
     )
   })
 
@@ -311,6 +316,14 @@ const CrearVehiculo = () => {
       navigate(-1)
     }
   }, [formulario, navigate])
+
+  // Cuando se monta el componente, si hay clienteId y clienteNombre, setear clienteSeleccionado
+  useEffect(() => {
+    if (clienteId && clienteNombre && clientes.length > 0) {
+      const cliente = clientes.find((c) => c.id === clienteId)
+      if (cliente) setClienteSeleccionado(cliente)
+    }
+  }, [clienteId, clienteNombre, clientes])
 
   return (
     <div className="crearVehiculo-container">
@@ -452,13 +465,17 @@ const CrearVehiculo = () => {
               <div className="crearVehiculo-input-with-button">
                 <input
                   type="text"
-                  value={clienteNombre}
+                  value={
+                    clienteSeleccionado
+                      ? `${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}`
+                      : clienteNombre || ""
+                  }
                   placeholder="Seleccionar cliente"
                   readOnly
                   className={`crearVehiculo-form-input ${errores.cliente_id ? "error" : ""}`}
                   required
                 />
-                <input type="hidden" name="cliente_id" value={clienteId} />
+                <input type="hidden" name="cliente_id" value={formulario.cliente_id} />
                 <button type="button" className="crearVehiculo-search-button" onClick={() => setModalCliente(true)}>
                   <FaSearch />
                 </button>
