@@ -205,42 +205,42 @@ const CrearCliente = () => {
   const validarDocumentoDuplicado = useCallback(
     async (valor) => {
       if (!valor.trim()) {
-        setDocumentoDuplicado(false)
-        return
+        setDocumentoDuplicado(false);
+        return;
       }
       try {
-        const data = await makeRequest(`/clientes?documento=${valor.trim()}`, { method: "GET" })
-        if (Array.isArray(data) && data.length > 0) {
-          setDocumentoDuplicado(true)
+        const data = await makeRequest(`/usuarios?documento=${valor.trim()}`, { method: "GET" });
+        const existe = Array.isArray(data) && data.some((u) => u.documento?.toString().trim() === valor.trim());
+        if (existe) {
+          setDocumentoDuplicado(true);
           setErrores((prev) => ({
             ...prev,
-            documento: "Este número de documento ya está registrado.",
-          }))
+            documento: "Este número de documento ya está registrado."
+          }));
         } else {
-          setDocumentoDuplicado(false)
-          setErrores((prev) => ({ ...prev, documento: "" }))
+          setDocumentoDuplicado(false);
+          setErrores((prev) => ({ ...prev, documento: "" }));
         }
       } catch (error) {
-        setDocumentoDuplicado(false)
+        setDocumentoDuplicado(false);
       }
     },
     [makeRequest],
-  )
+  );
 
   // Modifica handleDocumentoChange para validar documento duplicado con debounce
   const handleDocumentoChange = useCallback(
     (e) => {
-      const value = e.target.value.replace(/^\s+/, "")
-      setFormData((prev) => ({ ...prev, documento: value }))
-      validarCampo("documento", value)
-
-      if (debounceTimeout.current) clearTimeout(debounceTimeout.current)
+      const value = e.target.value.replace(/^\s+/, "");
+      setFormData((prev) => ({ ...prev, documento: value }));
+      validarCampo("documento", value);
+      if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
       debounceTimeout.current = setTimeout(() => {
-        validarDocumentoDuplicado(value)
-      }, 400)
+        validarDocumentoDuplicado(value);
+      }, 400);
     },
     [validarCampo, validarDocumentoDuplicado],
-  )
+  );
 
   const handleTelefonoChange = useCallback(
     (e) => {
@@ -535,6 +535,8 @@ const CrearCliente = () => {
                 maxLength={15}
                 autoComplete="off"
                 required
+                onKeyDown={e => { if (e.key === 'Enter') e.preventDefault(); }}
+                
               />
               {errores.documento && (
                 <span className="crearCliente-error-text">

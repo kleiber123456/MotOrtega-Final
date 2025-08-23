@@ -217,29 +217,29 @@ const CrearUsuario = () => {
   const validarDocumentoDuplicado = useCallback(
     async (valor) => {
       if (!valor.trim()) {
-        setDocumentoDuplicado(false)
-        return
+        setDocumentoDuplicado(false);
+        return;
       }
       try {
-        const data = await makeRequest(`/usuarios?documento=${valor.trim()}`, { method: "GET" })
-        // Si la API retorna usuarios, el documento ya existe
-        if (Array.isArray(data) && data.length > 0) {
-          setDocumentoDuplicado(true)
+        const data = await makeRequest(`/usuarios?documento=${valor.trim()}`, { method: "GET" });
+        // Solo marcar como duplicado si hay coincidencia exacta
+        const existe = Array.isArray(data) && data.some((u) => u.documento?.toString().trim() === valor.trim());
+        if (existe) {
+          setDocumentoDuplicado(true);
           setErrores((prev) => ({
             ...prev,
-            documento: "Este número de documento ya está registrado.",
-          }))
+            documento: "Este número de documento ya está registrado."
+          }));
         } else {
-          setDocumentoDuplicado(false)
-          setErrores((prev) => ({ ...prev, documento: "" }))
+          setDocumentoDuplicado(false);
+          setErrores((prev) => ({ ...prev, documento: "" }));
         }
       } catch (error) {
-        // Si hay error, no bloquear por defecto
-        setDocumentoDuplicado(false)
+        setDocumentoDuplicado(false);
       }
     },
     [makeRequest],
-  )
+  );
 
   // Modifica handleChange para validar documento duplicado con debounce
   const handleChange = useCallback(

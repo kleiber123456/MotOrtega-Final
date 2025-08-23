@@ -212,42 +212,42 @@ const CrearMecanico = () => {
   const validarDocumentoDuplicado = useCallback(
     async (valor) => {
       if (!valor.trim()) {
-        setDocumentoDuplicado(false)
-        return
+        setDocumentoDuplicado(false);
+        return;
       }
       try {
-        const data = await makeRequest(`/mecanicos?documento=${valor.trim()}`, { method: "GET" })
-        if (Array.isArray(data) && data.length > 0) {
-          setDocumentoDuplicado(true)
+        const data = await makeRequest(`/usuarios?documento=${valor.trim()}`, { method: "GET" });
+        const existe = Array.isArray(data) && data.some((u) => u.documento?.toString().trim() === valor.trim());
+        if (existe) {
+          setDocumentoDuplicado(true);
           setErrores((prev) => ({
             ...prev,
-            documento: "Este número de documento ya está registrado.",
-          }))
+            documento: "Este número de documento ya está registrado."
+          }));
         } else {
-          setDocumentoDuplicado(false)
-          setErrores((prev) => ({ ...prev, documento: "" }))
+          setDocumentoDuplicado(false);
+          setErrores((prev) => ({ ...prev, documento: "" }));
         }
       } catch (error) {
-        setDocumentoDuplicado(false)
+        setDocumentoDuplicado(false);
       }
     },
     [makeRequest],
-  )
+  );
 
   // Handler para documento con debounce
   const handleDocumentoChange = useCallback(
-    (e) => {
-      const value = e.target.value.replace(/^\s+/, "")
-      setFormulario((prev) => ({ ...prev, documento: value }))
-      validarCampo("documento", value)
-
-      if (debounceTimeout.current) clearTimeout(debounceTimeout.current)
+    (e) => {z
+      const value = e.target.value.replace(/^\s+/, "");
+      setFormulario((prev) => ({ ...prev, documento: value }));
+      validarCampo("documento", value);
+      if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
       debounceTimeout.current = setTimeout(() => {
-        validarDocumentoDuplicado(value)
-      }, 400)
+        validarDocumentoDuplicado(value);
+      }, 400);
     },
     [validarCampo, validarDocumentoDuplicado],
-  )
+  );
 
   const handleSubmit = useCallback(
     async (e) => {
