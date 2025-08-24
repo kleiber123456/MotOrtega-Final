@@ -78,6 +78,13 @@ const CrearVehiculo = () => {
   const clienteId = location.state?.clienteId
   const clienteNombre = location.state?.clienteNombre
 
+  const returnTo = location.state?.returnTo
+  const shouldReturnData = location.state?.returnData
+
+  console.log("[v0] CrearVehiculo - returnTo:", returnTo)
+  console.log("[v0] CrearVehiculo - shouldReturnData:", shouldReturnData)
+  console.log("[v0] CrearVehiculo - location.state:", location.state)
+
   const [formulario, setFormulario] = useState({
     placa: "",
     color: "",
@@ -223,13 +230,11 @@ const CrearVehiculo = () => {
     const esActivo = cliente.estado?.toLowerCase() === "activo"
     return (
       esActivo &&
-      (
-        cliente.nombre?.toLowerCase().includes(textoBusqueda) ||
+      (cliente.nombre?.toLowerCase().includes(textoBusqueda) ||
         cliente.apellido?.toLowerCase().includes(textoBusqueda) ||
         cliente.documento?.toLowerCase().includes(textoBusqueda) ||
         cliente.telefono?.toLowerCase().includes(textoBusqueda) ||
-        cliente.correo?.toLowerCase().includes(textoBusqueda)
-      )
+        cliente.correo?.toLowerCase().includes(textoBusqueda))
     )
   })
 
@@ -242,9 +247,7 @@ const CrearVehiculo = () => {
       }
       try {
         const vehiculosExistentes = await makeRequest("/vehiculos")
-        const placaExiste = vehiculosExistentes?.some(
-          (v) => v.placa.toUpperCase() === valor.toUpperCase()
-        )
+        const placaExiste = vehiculosExistentes?.some((v) => v.placa.toUpperCase() === valor.toUpperCase())
         if (placaExiste) {
           setPlacaDuplicada(true)
           setErrores((prev) => ({
@@ -259,7 +262,7 @@ const CrearVehiculo = () => {
         setPlacaDuplicada(false)
       }
     },
-    [makeRequest]
+    [makeRequest],
   )
 
   // Handler para placa con debounce
@@ -274,7 +277,7 @@ const CrearVehiculo = () => {
         validarPlacaDuplicada(value)
       }, 400)
     },
-    [validarCampo, validarPlacaDuplicada]
+    [validarCampo, validarPlacaDuplicada],
   )
 
   const handleSubmit = useCallback(
@@ -308,7 +311,7 @@ const CrearVehiculo = () => {
           return
         }
 
-        await makeRequest("/vehiculos", {
+        const result = await makeRequest("/vehiculos", {
           method: "POST",
           data: {
             ...formulario,
@@ -324,7 +327,37 @@ const CrearVehiculo = () => {
           timer: 2000,
         })
 
-        navigate(-1)
+        console.log("[v0] CrearVehiculo - Verificando condiciones de retorno:")
+        console.log("[v0] CrearVehiculo - returnTo === '/CrearVenta':", returnTo === "/CrearVenta")
+        console.log("[v0] CrearVehiculo - shouldReturnData:", shouldReturnData)
+
+        if (returnTo === "/CrearVenta" && shouldReturnData) {
+          // Crear objeto con los datos del vehículo para enviar de vuelta
+          const vehiculoCreado = {
+            id: result?.id || Date.now(), // Usar ID del resultado o timestamp como fallback
+            placa: formulario.placa,
+            color: formulario.color,
+            tipo_vehiculo: formulario.tipo_vehiculo,
+            referencia_id: formulario.referencia_id,
+            cliente_id: formulario.cliente_id,
+            estado: formulario.estado,
+            // Agregar información de la referencia si está disponible
+            marca_nombre: referenciaSeleccionada?.marca_nombre || "",
+            referencia_nombre: referenciaSeleccionada?.nombre || "",
+          }
+
+          console.log("[v0] CrearVehiculo - Navegando de vuelta a CrearVenta con datos:", vehiculoCreado)
+
+          navigate("/CrearVenta", {
+            state: {
+              fromComponent: "CrearVehiculo",
+              data: vehiculoCreado,
+            },
+          })
+        } else {
+          console.log("[v0] CrearVehiculo - Navegando hacia atrás")
+          navigate(-1)
+        }
       } catch (error) {
         console.error("Error al crear vehículo:", error)
         await Swal.fire({
@@ -337,7 +370,7 @@ const CrearVehiculo = () => {
         setIsSubmitting(false)
       }
     },
-    [formulario, validarFormulario, makeRequest, navigate],
+    [formulario, validarFormulario, makeRequest, navigate, returnTo, shouldReturnData, referenciaSeleccionada],
   )
 
   const handleCancel = useCallback(async () => {
@@ -356,12 +389,22 @@ const CrearVehiculo = () => {
       })
 
       if (result.isConfirmed) {
-        navigate(-1)
+        if (returnTo === "/CrearVenta") {
+          console.log("[v0] CrearVehiculo - Cancelando y regresando a CrearVenta")
+          navigate("/CrearVenta")
+        } else {
+          navigate(-1)
+        }
       }
     } else {
-      navigate(-1)
+      if (returnTo === "/CrearVenta") {
+        console.log("[v0] CrearVehiculo - Cancelando y regresando a CrearVenta")
+        navigate("/CrearVenta")
+      } else {
+        navigate(-1)
+      }
     }
-  }, [formulario, navigate])
+  }, [formulario, navigate, returnTo])
 
   // Cuando se monta el componente, si hay clienteId y clienteNombre, setear clienteSeleccionado
   useEffect(() => {
@@ -375,11 +418,7 @@ const CrearVehiculo = () => {
     <div className="crearVehiculo-container">
       <div className="editarUsuario-header">
         <div className="editarUsuario-header-left">
-          <button
-            className="editarUsuario-btn-back"
-            onClick={() => navigate(-1)}
-            type="button"
-          >
+          <button className="editarUsuario-btn-back" onClick={() => navigate(-1)} type="button">
             <FaArrowLeft />
             Volver
           </button>
@@ -557,7 +596,11 @@ const CrearVehiculo = () => {
             <FaTimes className="crearVehiculo-button-icon" />
             Cancelar
           </button>
-          <button type="submit" className="crearVehiculo-submit-button" disabled={isSubmitting || apiLoading || placaDuplicada}>
+          <button
+            type="submit"
+            className="crearVehiculo-submit-button"
+            disabled={isSubmitting || apiLoading || placaDuplicada}
+          >
             {isSubmitting ? (
               <>
                 <FaSpinner className="crearVehiculo-button-icon spinning" />
