@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback, useRef } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import {
   FaUser,
   FaIdCard,
@@ -83,7 +83,15 @@ const useApi = () => {
 
 const CrearCliente = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { makeRequest, loading: apiLoading } = useApi()
+
+  const returnTo = location.state?.returnTo
+  const shouldReturnData = location.state?.returnData
+
+  console.log("[v0] CrearClientes - location.state:", location.state)
+  console.log("[v0] CrearClientes - returnTo:", returnTo)
+  console.log("[v0] CrearClientes - shouldReturnData:", shouldReturnData)
 
   const [formData, setFormData] = useState({
     nombre: "",
@@ -209,8 +217,9 @@ const CrearCliente = () => {
         return
       }
       try {
-        const data = await makeRequest(`/clientes?documento=${valor.trim()}`, { method: "GET" })
-        if (Array.isArray(data) && data.length > 0) {
+        const data = await makeRequest(`/usuarios?documento=${valor.trim()}`, { method: "GET" })
+        const existe = Array.isArray(data) && data.some((u) => u.documento?.toString().trim() === valor.trim())
+        if (existe) {
           setDocumentoDuplicado(true)
           setErrores((prev) => ({
             ...prev,
@@ -233,7 +242,6 @@ const CrearCliente = () => {
       const value = e.target.value.replace(/^\s+/, "")
       setFormData((prev) => ({ ...prev, documento: value }))
       validarCampo("documento", value)
-
       if (debounceTimeout.current) clearTimeout(debounceTimeout.current)
       debounceTimeout.current = setTimeout(() => {
         validarDocumentoDuplicado(value)
@@ -246,7 +254,10 @@ const CrearCliente = () => {
     (e) => {
       let value = e.target.value.replace(/^\s+/, "") // Elimina espacios al inicio
       value = value.replace(/[^\d\s]/g, "")
-      setFormData((prev) => ({ ...prev, telefono: value }))
+      setFormData((prev) => ({
+        ...prev,
+        telefono: value,
+      }))
       validarCampo("telefono", value)
     },
     [validarCampo],
@@ -348,7 +359,7 @@ const CrearCliente = () => {
           password: formData.password,
         }
 
-        await makeRequest("/clientes", {
+        const result = await makeRequest("/clientes", {
           method: "POST",
           body: JSON.stringify(clienteData),
         })
@@ -361,8 +372,37 @@ const CrearCliente = () => {
           timer: 2000,
         })
 
-        // Redirigir al listado de clientes
-        navigate("/ListarClientes")
+        console.log("[v0] CrearClientes - Verificando condiciones de retorno:")
+        console.log("[v0] CrearClientes - returnTo === '/CrearVenta':", returnTo === "/CrearVenta")
+        console.log("[v0] CrearClientes - shouldReturnData:", shouldReturnData)
+
+        if (returnTo === "/CrearVenta" && shouldReturnData) {
+          // Crear objeto con los datos del cliente para enviar de vuelta
+          const clienteCreado = {
+            id: result?.id || Date.now(), // Usar ID del resultado o timestamp como fallback
+            nombre: formData.nombre.trim(),
+            apellido: formData.apellido.trim(),
+            documento: formData.documento.trim(),
+            correo: formData.correo.trim() || "",
+            telefono: formData.telefono.trim() || "",
+            direccion: formData.direccion.trim() || "",
+            tipo_documento: formData.tipo_documento,
+            estado: formData.estado,
+          }
+
+          console.log("[v0] CrearClientes - Navegando de vuelta a CrearVenta con datos:", clienteCreado)
+
+          navigate("/CrearVenta", {
+            state: {
+              fromComponent: "CrearClientes",
+              data: clienteCreado,
+            },
+          })
+        } else {
+          console.log("[v0] CrearClientes - Navegando a ListarClientes")
+          // Redirigir al listado de clientes normalmente
+          navigate("/ListarClientes")
+        }
       } catch (error) {
         console.error("Error:", error)
         await Swal.fire({
@@ -375,7 +415,7 @@ const CrearCliente = () => {
         setIsSubmitting(false)
       }
     },
-    [formData, validarFormulario, makeRequest, navigate, documentoDuplicado],
+    [formData, validarFormulario, makeRequest, navigate, documentoDuplicado, returnTo, shouldReturnData],
   )
 
   // Manejador para cancelar
@@ -397,12 +437,20 @@ const CrearCliente = () => {
       })
 
       if (result.isConfirmed) {
-        navigate("/ListarClientes")
+        if (returnTo === "/CrearVenta") {
+          navigate("/CrearVenta")
+        } else {
+          navigate("/ListarClientes")
+        }
       }
     } else {
-      navigate("/ListarClientes")
+      if (returnTo === "/CrearVenta") {
+        navigate("/CrearVenta")
+      } else {
+        navigate("/ListarClientes")
+      }
     }
-  }, [formData, navigate])
+  }, [formData, navigate, returnTo])
 
   if (apiLoading) {
     return (
@@ -419,11 +467,7 @@ const CrearCliente = () => {
     <div className="crearCliente-container">
       <div className="editarUsuario-header">
         <div className="editarUsuario-header-left">
-          <button
-            className="editarUsuario-btn-back"
-            onClick={() => navigate(-1)}
-            type="button"
-          >
+          <button className="editarUsuario-btn-back" onClick={() => navigate(-1)} type="button">
             <FaArrowLeft />
             Volver
           </button>
@@ -535,6 +579,9 @@ const CrearCliente = () => {
                 maxLength={15}
                 autoComplete="off"
                 required
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") e.preventDefault()
+                }}
               />
               {errores.documento && (
                 <span className="crearCliente-error-text">
@@ -672,7 +719,11 @@ const CrearCliente = () => {
             <FaTimes className="crearCliente-button-icon" />
             Cancelar
           </button>
-          <button type="submit" className="crearCliente-submit-button" disabled={isSubmitting || apiLoading || documentoDuplicado}>
+          <button
+            type="submit"
+            className="crearCliente-submit-button"
+            disabled={isSubmitting || apiLoading || documentoDuplicado}
+          >
             {isSubmitting ? (
               <>
                 <FaSpinner className="crearCliente-button-icon spinning" />

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback, useEffect, useRef } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import {
   FaUser,
   FaIdCard,
@@ -13,7 +13,6 @@ import {
   FaSpinner,
   FaExclamationTriangle,
   FaSave,
-  FaClock,
   FaArrowLeft, // <-- Agrega este icono
 } from "react-icons/fa"
 import Swal from "sweetalert2"
@@ -81,7 +80,15 @@ const useApi = () => {
 
 const CrearMecanico = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { makeRequest, loading: apiLoading } = useApi()
+
+  const returnTo = location.state?.returnTo
+  const shouldReturnData = location.state?.returnData
+
+  console.log("[v0] CrearMecanico - returnTo:", returnTo)
+  console.log("[v0] CrearMecanico - shouldReturnData:", shouldReturnData)
+  console.log("[v0] CrearMecanico - location.state:", location.state)
 
   const [formulario, setFormulario] = useState({
     nombre: "",
@@ -216,8 +223,9 @@ const CrearMecanico = () => {
         return
       }
       try {
-        const data = await makeRequest(`/mecanicos?documento=${valor.trim()}`, { method: "GET" })
-        if (Array.isArray(data) && data.length > 0) {
+        const data = await makeRequest(`/usuarios?documento=${valor.trim()}`, { method: "GET" })
+        const existe = Array.isArray(data) && data.some((u) => u.documento?.toString().trim() === valor.trim())
+        if (existe) {
           setDocumentoDuplicado(true)
           setErrores((prev) => ({
             ...prev,
@@ -240,7 +248,6 @@ const CrearMecanico = () => {
       const value = e.target.value.replace(/^\s+/, "")
       setFormulario((prev) => ({ ...prev, documento: value }))
       validarCampo("documento", value)
-
       if (debounceTimeout.current) clearTimeout(debounceTimeout.current)
       debounceTimeout.current = setTimeout(() => {
         validarDocumentoDuplicado(value)
@@ -266,7 +273,7 @@ const CrearMecanico = () => {
       setIsSubmitting(true)
 
       try {
-        await makeRequest("/mecanicos", {
+        const result = await makeRequest("/mecanicos", {
           method: "POST",
           body: JSON.stringify(formulario),
         })
@@ -279,7 +286,37 @@ const CrearMecanico = () => {
           timer: 2000,
         })
 
-        navigate("/ListarMecanicos")
+        console.log("[v0] CrearMecanico - Verificando condiciones de retorno:")
+        console.log("[v0] CrearMecanico - returnTo === '/CrearVenta':", returnTo === "/CrearVenta")
+        console.log("[v0] CrearMecanico - shouldReturnData:", shouldReturnData)
+
+        if (returnTo === "/CrearVenta" && shouldReturnData) {
+          // Crear objeto con los datos del mecánico para enviar de vuelta
+          const mecanicoCreado = {
+            id: result?.id || Date.now(), // Usar ID del resultado o timestamp como fallback
+            nombre: formulario.nombre.trim(),
+            apellido: formulario.apellido.trim(),
+            documento: formulario.documento.trim(),
+            correo: formulario.correo.trim(),
+            telefono: formulario.telefono.trim(),
+            direccion: formulario.direccion.trim(),
+            tipo_documento: formulario.tipo_documento,
+            telefono_emergencia: formulario.telefono_emergencia.trim(),
+            estado: formulario.estado,
+          }
+
+          console.log("[v0] CrearMecanico - Navegando de vuelta a CrearVenta con datos:", mecanicoCreado)
+
+          navigate("/CrearVenta", {
+            state: {
+              fromComponent: "CrearMecanico",
+              data: mecanicoCreado,
+            },
+          })
+        } else {
+          console.log("[v0] CrearMecanico - Navegando a ListarMecanicos")
+          navigate("/ListarMecanicos")
+        }
       } catch (error) {
         console.error("Error al crear mecánico:", error)
         await Swal.fire({
@@ -292,7 +329,7 @@ const CrearMecanico = () => {
         setIsSubmitting(false)
       }
     },
-    [formulario, validarFormulario, makeRequest, navigate],
+    [formulario, validarFormulario, makeRequest, navigate, returnTo, shouldReturnData],
   )
 
   const handleCancel = useCallback(async () => {
@@ -313,22 +350,28 @@ const CrearMecanico = () => {
       })
 
       if (result.isConfirmed) {
-        navigate("/ListarMecanicos")
+        if (returnTo === "/CrearVenta") {
+          console.log("[v0] CrearMecanico - Cancelando y regresando a CrearVenta")
+          navigate("/CrearVenta")
+        } else {
+          navigate("/ListarMecanicos")
+        }
       }
     } else {
-      navigate("/ListarMecanicos")
+      if (returnTo === "/CrearVenta") {
+        console.log("[v0] CrearMecanico - Cancelando y regresando a CrearVenta")
+        navigate("/CrearVenta")
+      } else {
+        navigate("/ListarMecanicos")
+      }
     }
-  }, [formulario, navigate])
+  }, [formulario, navigate, returnTo])
 
   return (
     <div className="crearUsuario-container">
       <div className="editarUsuario-header">
         <div className="editarUsuario-header-left">
-          <button
-            className="editarUsuario-btn-back"
-            onClick={() => navigate(-1)}
-            type="button"
-          >
+          <button className="editarUsuario-btn-back" onClick={() => navigate(-1)} type="button">
             <FaArrowLeft />
             Volver
           </button>
@@ -565,7 +608,11 @@ const CrearMecanico = () => {
             <FaTimes className="crearUsuario-button-icon" />
             Cancelar
           </button>
-          <button type="submit" className="crearUsuario-submit-button" disabled={isSubmitting || apiLoading || documentoDuplicado}>
+          <button
+            type="submit"
+            className="crearUsuario-submit-button"
+            disabled={isSubmitting || apiLoading || documentoDuplicado}
+          >
             {isSubmitting ? (
               <>
                 <FaSpinner className="crearUsuario-button-icon spinning" />

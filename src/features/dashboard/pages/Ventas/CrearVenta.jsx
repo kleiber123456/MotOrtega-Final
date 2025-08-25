@@ -19,6 +19,9 @@ import {
   ChevronRight,
   CheckCircle,
   Calendar,
+  UserPlus,
+  UserCog,
+  CarFront,
 } from "lucide-react"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Ventas/CrearVenta.css"
@@ -173,6 +176,43 @@ const CrearVenta = () => {
   // Nuevos estados para citas
   const [citaProgramada, setCitaProgramada] = useState(null)
   const [showCitaModal, setShowCitaModal] = useState(false)
+
+  useEffect(() => {
+    console.log("[v0] CrearVenta - useEffect ejecutado")
+    console.log("[v0] CrearVenta - location.state:", location.state)
+
+    if (location.state) {
+      const { fromComponent, data } = location.state
+
+      console.log("[v0] CrearVenta - fromComponent:", fromComponent)
+      console.log("[v0] CrearVenta - data:", data)
+
+      if (fromComponent === "CrearClientes" && data) {
+        console.log("[v0] CrearVenta - Procesando datos de cliente:", data)
+        // Datos del cliente recién creado
+        setSelectedClient(data)
+        if (formErrors.client) {
+          setFormErrors((prev) => ({ ...prev, client: "" }))
+        }
+        // Limpiar el state para evitar que se ejecute múltiples veces
+        navigate(location.pathname, { replace: true, state: null })
+      } else if (fromComponent === "CrearMecanico" && data) {
+        console.log("[v0] CrearVenta - Procesando datos de mecánico:", data)
+        // Datos del mecánico recién creado
+        setSelectedMecanico(data)
+        setFormData((prev) => ({ ...prev, mecanico_id: data.id }))
+        // Limpiar el state
+        navigate(location.pathname, { replace: true, state: null })
+      } else if (fromComponent === "CrearVehiculo" && data) {
+        console.log("[v0] CrearVenta - Procesando datos de vehículo:", data)
+        // Datos del vehículo recién creado
+        setSelectedVehiculo(data)
+        setFormData((prev) => ({ ...prev, vehiculo_id: data.id }))
+        // Limpiar el state
+        navigate(location.pathname, { replace: true, state: null })
+      }
+    }
+  }, [location.state, navigate, location.pathname, formErrors.client])
 
   // --- Cargar productos y servicios ---
   useEffect(() => {
@@ -444,6 +484,36 @@ const CrearVenta = () => {
   const [showClientModal, setShowClientModal] = useState(false)
   const [showVehiculoClienteModal, setShowVehiculoClienteModal] = useState(false)
   const [showMecanicoModal, setShowMecanicoModal] = useState(false)
+
+  const handleCreateClient = () => {
+    console.log("[v0] CrearVenta - Navegando a CrearClientes")
+    navigate("/CrearClientes", {
+      state: {
+        returnTo: "/CrearVenta",
+        returnData: true,
+      },
+    })
+  }
+
+  const handleCreateMecanico = () => {
+    console.log("[v0] CrearVenta - Navegando a CrearMecanico")
+    navigate("/CrearMecanicos", {
+      state: {
+        returnTo: "/CrearVenta",
+        returnData: true,
+      },
+    })
+  }
+
+  const handleCreateVehiculo = () => {
+    console.log("[v0] CrearVenta - Navegando a CrearVehiculo")
+    navigate("/vehiculos/crear", {
+      state: {
+        returnTo: "/CrearVenta",
+        returnData: true,
+      },
+    })
+  }
 
   // Función mejorada para obtener la fecha actual en formato YYYY-MM-DD
   const getFechaHoy = () => {
@@ -777,6 +847,14 @@ const CrearVenta = () => {
                     <X size={16} />
                   </button>
                 )}
+                <button
+                  type="button"
+                  className="crearVenta-create-button"
+                  onClick={handleCreateClient}
+                  title="Crear nuevo cliente"
+                >
+                  <UserPlus size={16} />
+                </button>
               </div>
               {selectedClient && (
                 <div className="crearVenta-client-info">
@@ -814,6 +892,14 @@ const CrearVenta = () => {
                       <X size={16} />
                     </button>
                   )}
+                  <button
+                    type="button"
+                    className="crearVenta-create-button"
+                    onClick={handleCreateVehiculo}
+                    title="Crear nuevo vehículo"
+                  >
+                    <CarFront size={16} />
+                  </button>
                 </div>
               </div>
             )}
@@ -838,6 +924,14 @@ const CrearVenta = () => {
                     <X size={16} />
                   </button>
                 )}
+                <button
+                  type="button"
+                  className="crearVenta-create-button"
+                  onClick={handleCreateMecanico}
+                  title="Crear nuevo mecánico"
+                >
+                  <UserCog size={16} />
+                </button>
               </div>
             </div>
           </div>
@@ -930,7 +1024,9 @@ const CrearVenta = () => {
                                     )}
                                   </div>
                                   {item.descripcion && (
-                                    <span className="crearVenta-card-description-compact">{item.descripcion}</span>
+                                    <>
+                                      <span className="crearVenta-card-description-compact">{item.descripcion}</span>
+                                    </>
                                   )}
                                 </div>
                               </div>
