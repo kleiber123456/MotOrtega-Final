@@ -12,6 +12,8 @@ import {
   FaToggleOn,
   FaToggleOff,
   FaUsers,
+  FaSortAlphaDown,
+  FaSortAlphaUp,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Clientes/ListarClientes.css"
@@ -87,6 +89,11 @@ const ListarClientes = () => {
   const [paginaActual, setPaginaActual] = useState(1)
   const [clientesPorPagina] = useState(4)
   const [cargando, setCargando] = useState(true)
+  const [ordenAscendente, setOrdenAscendente] = useState(true)
+  const toggleOrden = useCallback(() => {
+    setOrdenAscendente((prev) => !prev)
+    setPaginaActual(1)
+  }, [])
 
   useEffect(() => {
     document.body.style.backgroundColor = "#f9fafb"
@@ -213,11 +220,22 @@ const ListarClientes = () => {
     return matchBusqueda && matchEstado && matchTipoDocumento
   })
 
+  // Ordenar clientes
+  const clientesOrdenados = [...clientesFiltrados].sort((a, b) => {
+    const nombreA = `${a.nombre || ""} ${a.apellido || ""}`.toLowerCase()
+    const nombreB = `${b.nombre || ""} ${b.apellido || ""}`.toLowerCase()
+    if (ordenAscendente) {
+      return nombreA.localeCompare(nombreB)
+    } else {
+      return nombreB.localeCompare(nombreA)
+    }
+  })
+
   // Paginación
   const indiceUltimoCliente = paginaActual * clientesPorPagina
   const indicePrimerCliente = indiceUltimoCliente - clientesPorPagina
-  const clientesActuales = clientesFiltrados.slice(indicePrimerCliente, indiceUltimoCliente)
-  const totalPaginas = Math.ceil(clientesFiltrados.length / clientesPorPagina)
+  const clientesActuales = clientesOrdenados.slice(indicePrimerCliente, indiceUltimoCliente)
+  const totalPaginas = Math.ceil(clientesOrdenados.length / clientesPorPagina)
 
   // Obtener tipos de documento únicos para el filtro
   const tiposDocumentoUnicos = [...new Set(clientes.map((c) => c.tipo_documento).filter(Boolean))]
@@ -299,6 +317,27 @@ const ListarClientes = () => {
             ))}
           </select>
         </div>
+
+        <div className="listarClientes-filter-item">
+          <label className="listarClientes-filter-label">Ordenar:</label>
+          <button
+            onClick={toggleOrden}
+            className="listarClientes-sort-button"
+            title={`Ordenar ${ordenAscendente ? "descendente" : "ascendente"}`}
+          >
+            {ordenAscendente ? (
+              <>
+                <FaSortAlphaDown className="listarClientes-sort-icon" />
+                Ascendente
+              </>
+            ) : (
+              <>
+                <FaSortAlphaUp className="listarClientes-sort-icon" />
+                Descendente
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Tabla */}
@@ -379,7 +418,7 @@ const ListarClientes = () => {
           </tbody>
         </table>
 
-        {clientesFiltrados.length === 0 && (
+        {clientesOrdenados.length === 0 && (
           <div className="listarClientes-no-results">
             <FaExclamationTriangle className="listarClientes-no-results-icon" />
             <p>No se encontraron clientes con los criterios de búsqueda.</p>
@@ -387,7 +426,7 @@ const ListarClientes = () => {
         )}
 
         {/* Paginación */}
-        {clientesFiltrados.length > clientesPorPagina && (
+        {clientesOrdenados.length > clientesPorPagina && (
           <div className="listarClientes-pagination">
             <button
               onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}

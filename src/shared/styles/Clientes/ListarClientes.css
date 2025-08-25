@@ -33,32 +33,42 @@
   gap: 12px;
 }
 
-.listarClientes-title-icon {
-  color: #2563eb;
-  font-size: 24px;
-}
-
-.listarClientes-subtitle {
-  color: #6b7280;
-  font-size: 16px;
-  margin: 0;
-}
-
-.listarClientes-create-button {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+/* Botón de orden ascendente/descendente con estilo moderno igual a proveedores */
+.listarClientes-sort-button {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 140px;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
+
+.listarClientes-sort-button:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  border-color: #2563eb;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.listarClientes-sort-icon {
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.listarClientes-sort-button:hover .listarClientes-sort-icon {
+  color: white;
+}
+
 
 .listarClientes-create-button:hover {
   transform: translateY(-2px);

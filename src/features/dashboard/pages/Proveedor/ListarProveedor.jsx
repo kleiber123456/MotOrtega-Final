@@ -16,6 +16,8 @@ import {
   FaIdCard,
   FaMapMarkerAlt,
   FaEnvelope,
+  FaSortAlphaDown,
+  FaSortAlphaUp,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Proveedores/ListarProveedor.css"
@@ -38,6 +40,7 @@ const ListarProveedor = () => {
   const [proveedores, setProveedores] = useState([])
   const [busqueda, setBusqueda] = useState("")
   const [estadoFiltro, setEstadoFiltro] = useState("")
+  const [ordenAscendente, setOrdenAscendente] = useState(true)
   const [paginaActual, setPaginaActual] = useState(1)
   const [proveedoresPorPagina] = useState(4)
   const [cargando, setCargando] = useState(true)
@@ -224,13 +227,29 @@ const ListarProveedor = () => {
     setPaginaActual(1)
   }, [])
 
+  const toggleOrden = useCallback(() => {
+    setOrdenAscendente((prev) => !prev)
+    setPaginaActual(1)
+  }, [])
+
   const getProveedorId = (proveedor) => proveedor._id || proveedor.id || null
 
-  const proveedoresFiltrados = proveedores.filter((proveedor) => {
-    const matchBusqueda = Object.values(proveedor).some((val) => String(val).toLowerCase().includes(busqueda))
-    const matchEstado = estadoFiltro === "" || proveedor.estado === estadoFiltro
-    return matchBusqueda && matchEstado
-  })
+  const proveedoresFiltrados = proveedores
+    .filter((proveedor) => {
+      const matchBusqueda = Object.values(proveedor).some((val) => String(val).toLowerCase().includes(busqueda))
+      const matchEstado = estadoFiltro === "" || proveedor.estado === estadoFiltro
+      return matchBusqueda && matchEstado
+    })
+    .sort((a, b) => {
+      const nombreA = (a.nombre || "").toLowerCase()
+      const nombreB = (b.nombre || "").toLowerCase()
+
+      if (ordenAscendente) {
+        return nombreA.localeCompare(nombreB)
+      } else {
+        return nombreB.localeCompare(nombreA)
+      }
+    })
 
   const indiceUltimoProveedor = paginaActual * proveedoresPorPagina
   const indicePrimerProveedor = indiceUltimoProveedor - proveedoresPorPagina
@@ -294,6 +313,27 @@ const ListarProveedor = () => {
             <option value="activo">Activo</option>
             <option value="inactivo">Inactivo</option>
           </select>
+        </div>
+
+        <div className="listarProveedor-filter-item">
+          <label className="listarProveedor-filter-label">Ordenar:</label>
+          <button
+            onClick={toggleOrden}
+            className="listarProveedor-sort-button"
+            title={`Ordenar ${ordenAscendente ? "descendente" : "ascendente"}`}
+          >
+            {ordenAscendente ? (
+              <>
+                <FaSortAlphaDown className="listarProveedor-sort-icon" />
+                Ascendente
+              </>
+            ) : (
+              <>
+                <FaSortAlphaUp className="listarProveedor-sort-icon" />
+                Descendente
+              </>
+            )}
+          </button>
         </div>
       </div>
 

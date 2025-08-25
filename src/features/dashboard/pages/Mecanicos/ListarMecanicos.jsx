@@ -12,9 +12,11 @@ import {
   FaToggleOn,
   FaToggleOff,
   FaTools,
+  FaSortAlphaDown,
+  FaSortAlphaUp,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/Usuarios/ListarUsuarios.css"
+import "../../../../shared/styles/Mecanicos/ListarMecanicos.css"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
@@ -86,6 +88,11 @@ const ListarMecanicos = () => {
   const [paginaActual, setPaginaActual] = useState(1)
   const [mecanicosPorPagina] = useState(4)
   const [cargando, setCargando] = useState(true)
+  const [ordenAscendente, setOrdenAscendente] = useState(true)
+  const toggleOrden = useCallback(() => {
+    setOrdenAscendente((prev) => !prev)
+    setPaginaActual(1)
+  }, [])
 
   useEffect(() => {
     document.body.style.backgroundColor = "#f9fafb"
@@ -207,11 +214,22 @@ const ListarMecanicos = () => {
     return matchBusqueda && matchEstado
   })
 
+  // Ordenar mecánicos
+  const mecanicosOrdenados = [...mecanicosFiltrados].sort((a, b) => {
+    const nombreA = `${a.nombre || ""} ${a.apellido || ""}`.toLowerCase()
+    const nombreB = `${b.nombre || ""} ${b.apellido || ""}`.toLowerCase()
+    if (ordenAscendente) {
+      return nombreA.localeCompare(nombreB)
+    } else {
+      return nombreB.localeCompare(nombreA)
+    }
+  })
+
   // Paginación
   const indiceUltimoMecanico = paginaActual * mecanicosPorPagina
   const indicePrimerMecanico = indiceUltimoMecanico - mecanicosPorPagina
-  const mecanicosActuales = mecanicosFiltrados.slice(indicePrimerMecanico, indiceUltimoMecanico)
-  const totalPaginas = Math.ceil(mecanicosFiltrados.length / mecanicosPorPagina)
+  const mecanicosActuales = mecanicosOrdenados.slice(indicePrimerMecanico, indiceUltimoMecanico)
+  const totalPaginas = Math.ceil(mecanicosOrdenados.length / mecanicosPorPagina)
 
   if (cargando) {
     return (
@@ -241,14 +259,14 @@ const ListarMecanicos = () => {
       </div>
 
       {/* Filtros */}
-      <div className="listarUsuarios-filters-container">
-        <div className="listarUsuarios-filter-item">
-          <label className="listarUsuarios-filter-label">Buscar:</label>
-          <div className="listarUsuarios-search-container">
-            <FaSearch className="listarUsuarios-search-icon" />
+      <div className="listarMecanicos-filters-container">
+        <div className="listarMecanicos-filter-item">
+          <label className="listarMecanicos-filter-label">Buscar:</label>
+          <div className="listarMecanicos-search-container">
+            <FaSearch className="listarMecanicos-search-icon" />
             <input
               type="text"
-              className="listarUsuarios-search-input"
+              className="listarMecanicos-search-input"
               placeholder="Buscar por cualquier campo..."
               value={busqueda}
               onChange={handleSearch}
@@ -256,26 +274,47 @@ const ListarMecanicos = () => {
           </div>
         </div>
 
-        <div className="listarUsuarios-filter-item">
-          <label className="listarUsuarios-filter-label">Estado:</label>
+        <div className="listarMecanicos-filter-item">
+          <label className="listarMecanicos-filter-label">Estado:</label>
           <select
             value={estadoFiltro}
             onChange={(e) => {
               setEstadoFiltro(e.target.value)
               setPaginaActual(1)
             }}
-            className="listarUsuarios-filter-select"
+            className="listarMecanicos-filter-select"
           >
             <option value="">Todos los estados</option>
             <option value="Activo">Activo</option>
             <option value="Inactivo">Inactivo</option>
           </select>
         </div>
+
+        <div className="listarMecanicos-filter-item">
+          <label className="listarMecanicos-filter-label">Ordenar:</label>
+          <button
+            onClick={toggleOrden}
+            className="listarMecanicos-sort-button"
+            title={`Ordenar ${ordenAscendente ? "descendente" : "ascendente"}`}
+          >
+            {ordenAscendente ? (
+              <>
+                <FaSortAlphaDown className="listarMecanicos-sort-icon" />
+                Ascendente
+              </>
+            ) : (
+              <>
+                <FaSortAlphaUp className="listarMecanicos-sort-icon" />
+                Descendente
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Tabla */}
-      <div className="listarUsuarios-table-container">
-        <table className="listarUsuarios-table">
+      <div className="listarMecanicos-table-container">
+        <table className="listarMecanicos-table">
           <thead>
             <tr>
               <th>Nombre Completo</th>
@@ -347,7 +386,7 @@ const ListarMecanicos = () => {
           </tbody>
         </table>
 
-        {mecanicosFiltrados.length === 0 && (
+        {mecanicosOrdenados.length === 0 && (
           <div className="listarUsuarios-no-results">
             <FaExclamationTriangle className="listarUsuarios-no-results-icon" />
             <p>No se encontraron mecánicos con los criterios de búsqueda.</p>
@@ -355,7 +394,7 @@ const ListarMecanicos = () => {
         )}
 
         {/* Paginación */}
-        {mecanicosFiltrados.length > mecanicosPorPagina && (
+        {mecanicosOrdenados.length > mecanicosPorPagina && (
           <div className="listarUsuarios-pagination">
             <button
               onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}

@@ -12,6 +12,8 @@ import {
   FaPlus,
   FaToggleOn,
   FaToggleOff,
+  FaSortAlphaDown,
+  FaSortAlphaUp,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Usuarios/ListarUsuarios.css"
@@ -77,6 +79,8 @@ const useApi = () => {
 }
 
 const ListarUsuarios = () => {
+  // Estado para orden ascendente/descendente
+  const [ordenAscendente, setOrdenAscendente] = useState(true)
   const navigate = useNavigate()
   const { makeRequest, loading: apiLoading } = useApi()
 
@@ -214,12 +218,18 @@ const ListarUsuarios = () => {
   }, [])
 
   // Filtrar usuarios
-  const usuariosFiltrados = usuarios.filter((usuario) => {
+  let usuariosFiltrados = usuarios.filter((usuario) => {
     const matchBusqueda = Object.values(usuario).some((val) => String(val).toLowerCase().includes(busqueda))
     const matchEstado = estadoFiltro === "" || usuario.estado === estadoFiltro
     const matchRol = rolFiltro === "" || usuario.rol_nombre === rolFiltro
-
     return matchBusqueda && matchEstado && matchRol
+  })
+  // Ordenar por nombre
+  usuariosFiltrados = usuariosFiltrados.sort((a, b) => {
+    if (!a.nombre || !b.nombre) return 0
+    return ordenAscendente
+      ? a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })
+      : b.nombre.localeCompare(a.nombre, 'es', { sensitivity: 'base' })
   })
 
   // Paginación
@@ -307,6 +317,26 @@ const ListarUsuarios = () => {
               </option>
             ))}
           </select>
+        </div>
+        <div className="listarUsuarios-filter-item">
+          <label className="listarUsuarios-filter-label">Ordenar:</label>
+          <button
+            className="listarUsuarios-sort-button"
+            onClick={() => setOrdenAscendente((prev) => !prev)}
+            title={`Ordenar ${ordenAscendente ? "descendente" : "ascendente"}`}
+          >
+            {ordenAscendente ? (
+              <>
+                <FaSortAlphaDown className="listarUsuarios-sort-icon" />
+                Ascendente
+              </>
+            ) : (
+              <>
+                <FaSortAlphaUp className="listarUsuarios-sort-icon" />
+                Descendente
+              </>
+            )}
+          </button>
         </div>
       </div>
 

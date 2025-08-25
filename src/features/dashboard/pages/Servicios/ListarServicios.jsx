@@ -12,6 +12,8 @@ import {
   FaPlus,
   FaToggleOn,
   FaToggleOff,
+  FaSortAlphaDown,
+  FaSortAlphaUp,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Servicios/ListarServicios.css"
@@ -23,6 +25,7 @@ const ListarServicios = () => {
   const [servicios, setServicios] = useState([])
   const [busqueda, setBusqueda] = useState("")
   const [estadoFiltro, setEstadoFiltro] = useState("")
+    const [ordenAscendente, setOrdenAscendente] = useState(true)
   const [paginaActual, setPaginaActual] = useState(1)
   const [serviciosPorPagina] = useState(5)
   const [cargando, setCargando] = useState(true)
@@ -166,11 +169,18 @@ const ListarServicios = () => {
   }, [])
 
   // Filtrar servicios
-  const serviciosFiltrados = servicios.filter((servicio) => {
+  let serviciosFiltrados = servicios.filter((servicio) => {
     const matchBusqueda = Object.values(servicio).some((val) => String(val).toLowerCase().includes(busqueda))
     const matchEstado = estadoFiltro === "" || servicio.estado === estadoFiltro
-
     return matchBusqueda && matchEstado
+  })
+
+  // Ordenar servicios por nombre
+  serviciosFiltrados = serviciosFiltrados.sort((a, b) => {
+    if (!a.nombre || !b.nombre) return 0
+    return ordenAscendente
+      ? a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })
+      : b.nombre.localeCompare(a.nombre, 'es', { sensitivity: 'base' })
   })
 
   // Paginación
@@ -236,6 +246,26 @@ const ListarServicios = () => {
             <option value="Activo">Activo</option>
             <option value="Inactivo">Inactivo</option>
           </select>
+        </div>
+        <div className="listarServicios-filter-item">
+          <label className="listarServicios-filter-label">Ordenar:</label>
+          <button
+            className="listarServicios-sort-button"
+            onClick={() => setOrdenAscendente((prev) => !prev)}
+            title={`Ordenar ${ordenAscendente ? "descendente" : "ascendente"}`}
+          >
+            {ordenAscendente ? (
+              <>
+                <FaSortAlphaDown className="listarServicios-sort-icon" />
+                Ascendente
+              </>
+            ) : (
+              <>
+                <FaSortAlphaUp className="listarServicios-sort-icon" />
+                Descendente
+              </>
+            )}
+          </button>
         </div>
       </div>
 

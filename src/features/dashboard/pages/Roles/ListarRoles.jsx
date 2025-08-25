@@ -15,6 +15,8 @@ import {
   FaAngleDoubleRight,
   FaToggleOn,
   FaToggleOff,
+  FaSortAlphaDown,
+  FaSortAlphaUp,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Roles/ListarRoles.css"
@@ -91,6 +93,7 @@ const ListarRoles = () => {
   // Estados para filtros y búsqueda
   const [busqueda, setBusqueda] = useState("")
   const [filtroEstado, setFiltroEstado] = useState("Todos")
+    const [ordenAscendente, setOrdenAscendente] = useState(true)
 
   // Estados para paginación - CAMBIÉ A 3 PARA QUE SE VEA LA PAGINACIÓN
   const [paginaActual, setPaginaActual] = useState(1)
@@ -143,16 +146,21 @@ const ListarRoles = () => {
 
   // Filtrar roles según búsqueda y estado
   const rolesFiltrados = useMemo(() => {
-    return roles.filter((rol) => {
+    let filtrados = roles.filter((rol) => {
       const coincideBusqueda =
         rol.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
         rol.descripcion?.toLowerCase().includes(busqueda.toLowerCase())
-
       const coincideEstado = filtroEstado === "Todos" || rol.estado === filtroEstado
-
       return coincideBusqueda && coincideEstado
     })
-  }, [roles, busqueda, filtroEstado])
+    filtrados = filtrados.sort((a, b) => {
+      if (!a.nombre || !b.nombre) return 0
+      return ordenAscendente
+        ? a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })
+        : b.nombre.localeCompare(a.nombre, 'es', { sensitivity: 'base' })
+    })
+    return filtrados
+  }, [roles, busqueda, filtroEstado, ordenAscendente])
 
   // Calcular paginación
   const totalElementos = rolesFiltrados.length
@@ -347,6 +355,26 @@ const ListarRoles = () => {
             <option value="Inactivo">Inactivos</option>
           </select>
         </div>
+          <div className="listarRoles-filter-item">
+            <label className="listarRoles-filter-label">Ordenar:</label>
+            <button
+              className="listarRoles-sort-button"
+              onClick={() => setOrdenAscendente((prev) => !prev)}
+              title={`Ordenar ${ordenAscendente ? "descendente" : "ascendente"}`}
+            >
+              {ordenAscendente ? (
+                <>
+                  <FaSortAlphaDown className="listarRoles-sort-icon" />
+                  Ascendente
+                </>
+              ) : (
+                <>
+                  <FaSortAlphaUp className="listarRoles-sort-icon" />
+                  Descendente
+                </>
+              )}
+            </button>
+          </div>
       </div>
 
       {/* Tabla */}

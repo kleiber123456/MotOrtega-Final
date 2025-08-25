@@ -243,33 +243,44 @@
 
 .listarMecanicos-action-button {
   padding: 8px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  transform: translateY(-2px);
+}
+
+/* Botón de orden ascendente/descendente con estilo moderno igual a proveedores */
+/* Botón de orden ascendente/descendente igual que clientes */
+.listarMecanicos-sort-button {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  color: #374151;
   font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 140px;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.listarMecanicos-action-button.edit {
-  background-color: #dbeafe;
-  color: #2563eb;
+.listarMecanicos-sort-button:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  border-color: #2563eb;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
-.listarMecanicos-action-button.delete {
-  background-color: #fee2e2;
-  color: #dc2626;
+.listarMecanicos-sort-icon {
+  font-size: 16px;
+  transition: all 0.3s ease;
 }
 
-.listarMecanicos-action-button.detail {
-  background-color: #f3e8ff;
-  color: #7c3aed;
-}
-
-.listarMecanicos-action-button:hover {
-  transform: translateY(-2px);
+.listarMecanicos-sort-button:hover .listarMecanicos-sort-icon {
+  color: white;
 }
 
 .listarMecanicos-no-results {

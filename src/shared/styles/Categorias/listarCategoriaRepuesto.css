@@ -1,3 +1,4 @@
+/* Replacing entire CSS file with beautiful modern styles including Montserrat font, gradients, and enhanced visual design */
 .listarCategoriaRepuesto-container {
   padding: 25px;
   background-color: #f9fafb;
@@ -148,6 +149,43 @@
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+/* Enhanced sort button with gradient background and modern styling */
+/* Botón de orden ascendente/descendente igual que clientes */
+.listarCategoriaRepuesto-sort-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 140px;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.listarCategoriaRepuesto-sort-button:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  border-color: #2563eb;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.listarCategoriaRepuesto-sort-icon {
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.listarCategoriaRepuesto-sort-button:hover .listarCategoriaRepuesto-sort-icon {
+  color: white;
+}
+
 /* Tabla */
 .listarCategoriaRepuesto-table-container {
   background-color: white;
@@ -155,12 +193,15 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   border: 1px solid #e2e8f0;
   overflow: hidden;
+  width: 100%;
+  max-width: 100%;
 }
 
 .listarCategoriaRepuesto-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
+  table-layout: fixed;
 }
 
 .listarCategoriaRepuesto-table th {
@@ -182,6 +223,9 @@
   padding: 16px 12px;
   font-size: 14px;
   color: #1a202c;
+  word-wrap: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .listarCategoriaRepuesto-table tr:hover {
@@ -398,7 +442,7 @@
   }
 
   .listarCategoriaRepuesto-table {
-    min-width: 600px;
+    min-width: 800px;
   }
 
   .listarCategoriaRepuesto-pagination {
@@ -418,4 +462,176 @@
   .listarCategoriaRepuesto-filters-container {
     padding: 16px;
   }
+}
+
+/* Botón de expandir */
+.listarCategoriaRepuesto-expand-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.listarCategoriaRepuesto-expand-button:hover {
+  background-color: #f3f4f6;
+  color: #2563eb;
+}
+
+/* Fila expandida */
+.listarCategoriaRepuesto-expanded-row {
+  background-color: #f8fafc !important;
+}
+
+.listarCategoriaRepuesto-expanded-row:hover {
+  background-color: #f8fafc !important;
+}
+
+.listarCategoriaRepuesto-expanded-content {
+  padding: 16px 24px;
+  border-top: 1px solid #e2e8f0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.listarCategoriaRepuesto-expanded-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  max-width: 100%;
+}
+
+.listarCategoriaRepuesto-expanded-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background-color: white;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.listarCategoriaRepuesto-expanded-icon {
+  color: #2563eb;
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.listarCategoriaRepuesto-expanded-item > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.listarCategoriaRepuesto-expanded-label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.listarCategoriaRepuesto-expanded-value {
+  font-size: 14px;
+  color: #1a202c;
+  font-weight: 600;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  line-height: 1.4;
+  max-width: 100%;
+}
+
+/* Responsive para filas expandidas */
+@media (max-width: 1024px) {
+  .listarCategoriaRepuesto-expanded-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .listarCategoriaRepuesto-expanded-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .listarCategoriaRepuesto-expanded-content {
+    padding: 12px 16px;
+  }
+
+  .listarCategoriaRepuesto-expanded-item {
+    padding: 10px;
+  }
+
+  .listarCategoriaRepuesto-expanded-value {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .listarCategoriaRepuesto-expanded-grid {
+    gap: 8px;
+  }
+
+  .listarCategoriaRepuesto-expanded-content {
+    padding: 8px 12px;
+  }
+
+  .listarCategoriaRepuesto-expanded-item {
+    padding: 8px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .listarCategoriaRepuesto-expanded-icon {
+    align-self: flex-start;
+  }
+
+  .listarCategoriaRepuesto-expanded-item > div {
+    width: 100%;
+  }
+}
+
+/* Ajustar anchos de columnas */
+.listarCategoriaRepuesto-table th:nth-child(1) {
+  width: 80px;
+} /* Expandir */
+.listarCategoriaRepuesto-table th:nth-child(2) {
+  width: 20%;
+} /* Nombre */
+.listarCategoriaRepuesto-table th:nth-child(3) {
+  width: 25%;
+} /* Descripción */
+.listarCategoriaRepuesto-table th:nth-child(4) {
+  width: 15%;
+} /* Estado */
+.listarCategoriaRepuesto-table th:nth-child(5) {
+  width: 25%;
+} /* Acciones */
+
+.listarCategoriaRepuesto-table td {
+  border: none;
+  border-bottom: 1px solid #f1f5f9;
+  padding: 16px 12px;
+  font-size: 14px;
+  color: #1a202c;
+  word-wrap: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

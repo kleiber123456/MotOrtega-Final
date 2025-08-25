@@ -12,6 +12,8 @@ import {
   FaPlus,
   FaToggleOn,
   FaToggleOff,
+  FaSortAlphaDown,
+  FaSortAlphaUp,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import axios from "axios"
@@ -77,6 +79,7 @@ const ListarVehiculos = () => {
   const [busqueda, setBusqueda] = useState("")
   const [tipoFiltro, setTipoFiltro] = useState("")
   const [estadoFiltro, setEstadoFiltro] = useState("")
+    const [ordenAscendente, setOrdenAscendente] = useState(true)
   const [paginaActual, setPaginaActual] = useState(1)
   const [vehiculosPorPagina] = useState(4)
   const [cargando, setCargando] = useState(true)
@@ -194,12 +197,18 @@ const ListarVehiculos = () => {
   }, [])
 
   // Filtrar vehículos
-  const vehiculosFiltrados = vehiculos.filter((vehiculo) => {
+  let vehiculosFiltrados = vehiculos.filter((vehiculo) => {
     const matchBusqueda = Object.values(vehiculo).some((val) => String(val).toLowerCase().includes(busqueda))
     const matchTipo = tipoFiltro === "" || vehiculo.tipo_vehiculo === tipoFiltro
     const matchEstado = estadoFiltro === "" || vehiculo.estado === estadoFiltro
-
     return matchBusqueda && matchTipo && matchEstado
+  })
+  // Ordenar por placa
+  vehiculosFiltrados = vehiculosFiltrados.sort((a, b) => {
+    if (!a.placa || !b.placa) return 0
+    return ordenAscendente
+      ? a.placa.localeCompare(b.placa, 'es', { sensitivity: 'base' })
+      : b.placa.localeCompare(a.placa, 'es', { sensitivity: 'base' })
   })
 
   // Paginación
@@ -287,6 +296,26 @@ const ListarVehiculos = () => {
             <option value="Activo">Activo</option>
             <option value="Inactivo">Inactivo</option>
           </select>
+        </div>
+        <div className="listarVehiculos-filter-item">
+          <label className="listarVehiculos-filter-label">Ordenar:</label>
+          <button
+            className="listarVehiculos-sort-button"
+            onClick={() => setOrdenAscendente((prev) => !prev)}
+            title={`Ordenar ${ordenAscendente ? "descendente" : "ascendente"}`}
+          >
+            {ordenAscendente ? (
+              <>
+                <FaSortAlphaDown className="listarVehiculos-sort-icon" />
+                Ascendente
+              </>
+            ) : (
+              <>
+                <FaSortAlphaUp className="listarVehiculos-sort-icon" />
+                Descendente
+              </>
+            )}
+          </button>
         </div>
       </div>
 

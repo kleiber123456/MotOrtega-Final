@@ -15,6 +15,8 @@ import {
   FaTimes,
   FaTag,
   FaCheckCircle,
+  FaSortAlphaDown,
+  FaSortAlphaUp,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Repuestos/ListarRepuesto.css"
@@ -271,6 +273,12 @@ function ListarRepuestos() {
 
   // Estado del modal de categorías
   const [mostrarModalCategorias, setMostrarModalCategorias] = useState(false)
+  // Estado de orden
+  const [ordenAscendente, setOrdenAscendente] = useState(true)
+  const toggleOrden = useCallback(() => {
+    setOrdenAscendente((prev) => !prev)
+    setPaginaActual(1)
+  }, [])
 
   // Cargar datos iniciales
   useEffect(() => {
@@ -326,11 +334,22 @@ function ListarRepuestos() {
     return matchBusqueda && matchCategoria && matchEstado
   })
 
+  // Ordenar repuestos
+  const repuestosOrdenados = [...repuestosFiltrados].sort((a, b) => {
+    const nombreA = a.nombre.toLowerCase()
+    const nombreB = b.nombre.toLowerCase()
+    if (ordenAscendente) {
+      return nombreA.localeCompare(nombreB)
+    } else {
+      return nombreB.localeCompare(nombreA)
+    }
+  })
+
   // Paginación
   const indiceUltimoRepuesto = paginaActual * repuestosPorPagina
   const indicePrimerRepuesto = indiceUltimoRepuesto - repuestosPorPagina
-  const repuestosActuales = repuestosFiltrados.slice(indicePrimerRepuesto, indiceUltimoRepuesto)
-  const totalPaginas = Math.ceil(repuestosFiltrados.length / repuestosPorPagina)
+  const repuestosActuales = repuestosOrdenados.slice(indicePrimerRepuesto, indiceUltimoRepuesto)
+  const totalPaginas = Math.ceil(repuestosOrdenados.length / repuestosPorPagina)
 
   // Manejadores
   const handleSearch = useCallback((e) => {
@@ -543,6 +562,27 @@ function ListarRepuestos() {
             <option value="Activo">Activo</option>
             <option value="Inactivo">Inactivo</option>
           </select>
+        </div>
+
+        <div className="listarRepuesto-filter-item">
+          <label className="listarRepuesto-filter-label">Ordenar:</label>
+          <button
+            onClick={toggleOrden}
+            className="listarRepuesto-sort-button"
+            title={`Ordenar ${ordenAscendente ? "descendente" : "ascendente"}`}
+          >
+            {ordenAscendente ? (
+              <>
+                <FaSortAlphaDown className="listarRepuesto-sort-icon" />
+                Ascendente
+              </>
+            ) : (
+              <>
+                <FaSortAlphaUp className="listarRepuesto-sort-icon" />
+                Descendente
+              </>
+            )}
+          </button>
         </div>
       </div>
 

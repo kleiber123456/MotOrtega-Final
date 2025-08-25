@@ -12,6 +12,8 @@ import {
   FaPlus,
   FaToggleOn,
   FaToggleOff,
+  FaSortAlphaDown,
+  FaSortAlphaUp,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Categorias/ListarCategoriaRepuesto.css"
@@ -23,6 +25,7 @@ const ListarCategoriasRepuesto = () => {
   const [categorias, setCategorias] = useState([])
   const [busqueda, setBusqueda] = useState("")
   const [estadoFiltro, setEstadoFiltro] = useState("")
+  const [ordenAscendente, setOrdenAscendente] = useState(true)
   const [paginaActual, setPaginaActual] = useState(1)
   const [categoriasPorPagina] = useState(4)
   const [cargando, setCargando] = useState(true)
@@ -60,7 +63,6 @@ const ListarCategoriasRepuesto = () => {
 
   const cambiarEstadoCategoria = useCallback(
     async (id, estadoActual) => {
-      // Buscar la categoría por id para obtener su nombre
       const categoria = categorias.find((c) => c.id === id)
       const nombreCategoria = categoria ? categoria.nombre : "la categoría"
       try {
@@ -159,7 +161,11 @@ const ListarCategoriasRepuesto = () => {
     setPaginaActual(1)
   }, [])
 
-  // Filtrar categorías
+  const toggleOrden = useCallback(() => {
+    setOrdenAscendente((prev) => !prev)
+    setPaginaActual(1)
+  }, [])
+
   const categoriasFiltradas = categorias.filter((categoria) => {
     const matchBusqueda = Object.values(categoria).some((val) => String(val).toLowerCase().includes(busqueda))
     const matchEstado = estadoFiltro === "" || categoria.estado === estadoFiltro
@@ -167,11 +173,21 @@ const ListarCategoriasRepuesto = () => {
     return matchBusqueda && matchEstado
   })
 
-  // Paginación
+  const categoriasOrdenadas = [...categoriasFiltradas].sort((a, b) => {
+    const nombreA = a.nombre.toLowerCase()
+    const nombreB = b.nombre.toLowerCase()
+
+    if (ordenAscendente) {
+      return nombreA.localeCompare(nombreB)
+    } else {
+      return nombreB.localeCompare(nombreA)
+    }
+  })
+
   const indiceUltimaCategoria = paginaActual * categoriasPorPagina
   const indicePrimeraCategoria = indiceUltimaCategoria - categoriasPorPagina
-  const categoriasActuales = categoriasFiltradas.slice(indicePrimeraCategoria, indiceUltimaCategoria)
-  const totalPaginas = Math.ceil(categoriasFiltradas.length / categoriasPorPagina)
+  const categoriasActuales = categoriasOrdenadas.slice(indicePrimeraCategoria, indiceUltimaCategoria)
+  const totalPaginas = Math.ceil(categoriasOrdenadas.length / categoriasPorPagina)
 
   if (cargando) {
     return (
@@ -200,7 +216,6 @@ const ListarCategoriasRepuesto = () => {
         </button>
       </div>
 
-      {/* Filtros */}
       <div className="listarCategoriaRepuesto-filters-container">
         <div className="listarCategoriaRepuesto-filter-item">
           <label className="listarCategoriaRepuesto-filter-label">Buscar:</label>
@@ -231,9 +246,29 @@ const ListarCategoriasRepuesto = () => {
             <option value="Inactivo">Inactivo</option>
           </select>
         </div>
+
+        <div className="listarCategoriaRepuesto-filter-item">
+          <label className="listarCategoriaRepuesto-filter-label">Ordenar:</label>
+          <button
+            onClick={toggleOrden}
+            className="listarCategoriaRepuesto-sort-button"
+            title={`Ordenar ${ordenAscendente ? "descendente" : "ascendente"}`}
+          >
+            {ordenAscendente ? (
+              <>
+                <FaSortAlphaDown className="listarCategoriaRepuesto-sort-icon" />
+                Ascendente
+              </>
+            ) : (
+              <>
+                <FaSortAlphaUp className="listarCategoriaRepuesto-sort-icon" />
+                Descendente
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
-      {/* Tabla */}
       <div className="listarCategoriaRepuesto-table-container">
         <table className="listarCategoriaRepuesto-table">
           <thead>
@@ -268,7 +303,7 @@ const ListarCategoriasRepuesto = () => {
                   </button>
                 </td>
                 <td className="listarCategoriaRepuesto-actions">
-                   <button
+                  <button
                     className="listarCategoriaRepuesto-action-button detail"
                     onClick={() => navigate(`/categorias-repuesto/detalle/${categoria.id}`)}
                     title="Ver detalle"
@@ -295,15 +330,14 @@ const ListarCategoriasRepuesto = () => {
           </tbody>
         </table>
 
-        {categoriasFiltradas.length === 0 && (
+        {categoriasOrdenadas.length === 0 && (
           <div className="listarCategoriaRepuesto-no-results">
             <FaExclamationTriangle className="listarCategoriaRepuesto-no-results-icon" />
             <p>No se encontraron categorías con los criterios de búsqueda.</p>
           </div>
         )}
 
-        {/* Paginación */}
-        {categoriasFiltradas.length > categoriasPorPagina && (
+        {categoriasOrdenadas.length > categoriasPorPagina && (
           <div className="listarCategoriaRepuesto-pagination">
             <button
               onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
