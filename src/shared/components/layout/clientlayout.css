@@ -1,0 +1,165 @@
+.layC-layout {
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f8fafc;
+}
+
+.layC-header {
+  width: 100%;
+  background: #0ea5e9;
+  padding: 1.5rem 0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.layC-header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0 2rem;
+}
+
+.layC-logo {
+  height: 50px;
+  width: auto;
+}
+
+.layC-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.layC-main {
+  flex: 1;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.layC-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(180deg, #1E2A47 0%, #23395D 100%);
+  box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 0.75rem 0;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  z-index: 50;
+  overflow: visible;
+}
+
+/* Botón flotante para agendar cita */
+.layC-float-button {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  background: #0ea5e9;
+  border: none;
+  color: white;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px -1px rgba(0, 0, 0, 0.15), 0 2px 8px -1px rgba(0, 0, 0, 0.10);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 100;
+  top: calc(100vh - 110px);
+}
+
+.layC-float-button:hover {
+  background: #0284c7;
+  transform: translateX(-50%) scale(1.1);
+  box-shadow: 0 8px 12px -1px rgba(0, 0, 0, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Espaciador para el centro */
+.layC-nav-spacer {
+  width: 60px; /* Mismo ancho que el botón flotante */
+}
+
+.layC-nav-btn {
+  text-decoration: none;
+  color: #64748b;
+  font-size: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 70px;
+}
+
+.layC-nav-btn:hover {
+  color: #0ea5e9;
+}
+
+.layC-nav-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+.layC-nav-label-C{
+  padding-top: 25px;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+@media (max-width: 600px) {
+  .layC-header-content {
+    padding: 0 1rem;
+  }
+  
+  .layC-title {
+    font-size: 1.4rem;
+  }
+  
+  .layC-nav {
+    gap: 1rem;
+    padding: 0.5rem 0;
+  }
+  
+  .layC-nav-btn {
+    min-width: 60px;
+    font-size: 1.3rem;
+    padding: 0.4rem 0rem;
+  }
+  
+  .layC-nav-label {
+    font-size: 0.75rem;
+  }
+  .layC-nav-label-C{
+  padding-top: 26px;
+  color: #64748b;
+  font-size: 0.80rem;
+  font-weight: 500;
+  padding: 26px 0.4rem 0rem;
+  }
+  .layC-float-button {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+    top: unset;
+    bottom: 40px;
+  }
+  
+  .layC-nav-spacer {
+    width: 50px;
+  }
+}

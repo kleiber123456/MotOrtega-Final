@@ -6,6 +6,7 @@ import { MdLocalCarWash } from "react-icons/md";
 
 function MotOrtega(){
     const usuario = JSON.parse(localStorage.getItem('usuario') || sessionStorage.getItem('usuario'));
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
     const [scrollPosition, setScrollPosition] = useState(0);
     const [activeSection, setActiveSection] = useState('inicio');
 
@@ -29,39 +30,65 @@ function MotOrtega(){
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 600);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     return(
         <div className="contenedor-MotOrtega">
             {/* Sección Hero */}
             <section id="inicio" className="ini-section ini-section1">
                 <div className="imgF">
                     <nav className="menu animate__animated animate__fadeInDown">
-                        <Link className="opc" to="#servicios" onClick={(e) => {
-                            e.preventDefault();
-                            document.getElementById('servicios').scrollIntoView({behavior: 'smooth'});
-                        }}>Servicios</Link>
-                        <Link className="opc" to="#galeria" onClick={(e) => {
-                            e.preventDefault();
-                            document.getElementById('galeria').scrollIntoView({behavior: 'smooth'});
-                        }}>Galería</Link>
-                        <Link className="opc" to="#testimonios" onClick={(e) => {
-                            e.preventDefault();
-                            document.getElementById('testimonios').scrollIntoView({behavior: 'smooth'});
-                        }}>Testimonios</Link>
-                        <Link className="alogo" to="/"><img className="logoMotOrtega" src="/Logo.png" alt="Logo de MotOrtega"/></Link>
-                        <Link className="opc" to="#contacto" onClick={(e) => {
-                            e.preventDefault();
-                            document.getElementById('contacto').scrollIntoView({behavior: 'smooth'});
-                        }}>Contacto</Link>
-
-                        {usuario ? (
-                            <>
-                                <Link className="opcR" to="/agendar-cita">Agendar Citas</Link>
-                                <Link className="opcR" to="/dashboard">Ir al Panel</Link>
-                            </>
+                        {isMobile ? (
+                            usuario ? (
+                                <>
+                                    <Link className="opc" to="#galeria" onClick={(e) => {
+                                        e.preventDefault();
+                                        document.getElementById('galeria').scrollIntoView({behavior: 'smooth'});
+                                    }}>Galería</Link>
+                                    <Link className="alogo" to="/"><img className="logoMotOrtega" src="/Logo.png" alt="Logo de MotOrtega"/></Link>
+                                    <Link className="opcR" to="/dashboard">Ir al Panel</Link>
+                                </>
+                            ) : (
+                                <>
+                                    <Link className="opcR" to="/register">Registrarse</Link>
+                                    <Link className="alogo" to="/"><img className="logoMotOrtega" src="/Logo.png" alt="Logo de MotOrtega"/></Link>
+                                    <Link className="opcR" to="/login">Iniciar sesión</Link>
+                                </>
+                            )
                         ) : (
                             <>
-                                <Link className="opcR" to="/register">Registrarse</Link>
-                                <Link className="opcR" to="/login">Iniciar sesión</Link>
+                                <Link className="opc" to="#servicios" onClick={(e) => {
+                                    e.preventDefault();
+                                    document.getElementById('servicios').scrollIntoView({behavior: 'smooth'});
+                                }}>Servicios</Link>
+                                <Link className="opc" to="#galeria" onClick={(e) => {
+                                    e.preventDefault();
+                                    document.getElementById('galeria').scrollIntoView({behavior: 'smooth'});
+                                }}>Galería</Link>
+                                <Link className="opc" to="#testimonios" onClick={(e) => {
+                                    e.preventDefault();
+                                    document.getElementById('testimonios').scrollIntoView({behavior: 'smooth'});
+                                }}>Testimonios</Link>
+                                <Link className="alogo" to="/"><img className="logoMotOrtega" src="/Logo.png" alt="Logo de MotOrtega"/></Link>
+                                <Link className="opc" to="#contacto" onClick={(e) => {
+                                    e.preventDefault();
+                                    document.getElementById('contacto').scrollIntoView({behavior: 'smooth'});
+                                }}>Contacto</Link>
+                                {usuario ? (
+                                    <>
+                                        <Link className="opcR" to="/agendar-cita">Agendar Citas</Link>
+                                        <Link className="opcR" to="/dashboard">Ir al Panel</Link>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Link className="opcR" to="/register">Registrarse</Link>
+                                        <Link className="opcR" to="/login">Iniciar sesión</Link>
+                                    </>
+                                )}
                             </>
                         )}
                     </nav>
@@ -244,7 +271,7 @@ function MotOrtega(){
                                 "Excelente servicio, mi carro quedó como nuevo. El equipo de MotOrtega es muy profesional y cumple con los tiempos prometidos."
                             </p>
                             <div className="ini-testimonio-autor">
-                                <img src="/placeholder.svg?height=50&width=50" alt="Cliente" />
+                                <img src="/perfil.jpg" alt="Cliente" />
                                 <div>
                                     <h4>Carlos Rodríguez</h4>
                                     <span>Cliente desde 2020</span>
@@ -264,7 +291,7 @@ function MotOrtega(){
                                 "La mejor inversión para mi vehículo. La pintura quedó perfecta y el servicio al cliente es excepcional. Totalmente recomendado."
                             </p>
                             <div className="ini-testimonio-autor">
-                                <img src="/placeholder.svg?height=50&width=50" alt="Cliente" />
+                                <img src="/perfil.jpg" alt="Cliente" />
                                 <div>
                                     <h4>María González</h4>
                                     <span>Cliente desde 2019</span>
@@ -284,7 +311,7 @@ function MotOrtega(){
                                 "Servicio de grúa 24/7 salvó mi día. Llegaron rápido y solucionaron todo de manera profesional. MotOrtega es sinónimo de confianza."
                             </p>
                             <div className="ini-testimonio-autor">
-                                <img src="/placeholder.svg?height=50&width=50" alt="Cliente" />
+                                <img src="/perfil.jpg" alt="Cliente" />
                                 <div>
                                     <h4>Andrés Martínez</h4>
                                     <span>Cliente desde 2021</span>

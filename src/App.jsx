@@ -49,6 +49,7 @@ import ListarCompras from "./features/dashboard/pages/Compras/ListarCompras"
 import CrearCompras from "./features/dashboard/pages/Compras/CrearCompras"
 import DetalleCompra from "./features/dashboard/pages/Compras/DetalleCompras"
 // ----------------------------------------------------------------------
+
 // ------------------------------VENTAS-----------------------------
 import ListarVentas from "./features/dashboard/pages/Ventas/ListarVentas"
 import CrearVenta from "./features/dashboard/pages/Ventas/CrearVenta"
@@ -75,6 +76,7 @@ import CrearClientes from "./features/dashboard/pages/Clientes/CrearClientes"
 import DetalleCliente from "./features/dashboard/pages/Clientes/DetalleCliente"
 import EditarClientes from "./features/dashboard/pages/Clientes/EditarCliente"
 // ----------------------------------------------------------------------
+
 // ------------------------------MECANICOS-----------------------------
 import ListarMecanicos from "./features/dashboard/pages/Mecanicos/ListarMecanicos"
 import CrearMecanicos from "./features/dashboard/pages/Mecanicos/CrearMecanico"
@@ -101,6 +103,8 @@ import EditarRol from "./features/dashboard/pages/Roles/EditarRol"
 import DetalleRol from "./features/dashboard/pages/Roles/DetalleRol"
 // ----------------------------------------------------------------------
 
+import AgendarCita from "./features/client/pages/AgendarCita"
+
 function App() {
   return (
     <Routes>
@@ -113,7 +117,7 @@ function App() {
       <Route path="/recuperarContraseña" element={<RecuperarPassword />} />
       <Route path="/cambiarContraseña" element={<CambiarContraseña />} />
 
-      {/* RUTAS ESPECÍFICAS PARA CLIENTES */}
+      {/* RUTA ÚNICA DEL CLIENTE */}
       <Route
         path="/client/dashboard"
         element={
@@ -126,13 +130,14 @@ function App() {
           </PrivateRoute>
         }
       />
+
       <Route
-        path="/client/perfil"
+        path="/client/agendar-cita"
         element={
           <PrivateRoute>
             <RoleBasedRoute allowedRoles={["cliente"]}>
               <ClientLayout>
-                <Perfil />
+                <AgendarCita />
               </ClientLayout>
             </RoleBasedRoute>
           </PrivateRoute>

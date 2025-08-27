@@ -33,7 +33,7 @@
 /* -------------------------------------- Nav -------------------------------------- */
 .menu {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
   flex-wrap: wrap;
   padding: 10px;
@@ -41,7 +41,7 @@
   left: 0;
   width: 100%;
   z-index: 999;
-  gap: 5px;
+  gap: 50px;
 }
 
 .opc,
@@ -55,7 +55,7 @@
   text-align: center;
   transition: 0.6s;
   border-bottom: 3px solid transparent;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
   position: relative;
 }
 
@@ -656,6 +656,7 @@
   color: white;
   border-radius: 50%;
   transition: transform 0.3s ease, background-color 0.3s ease;
+  text-decoration: none;
 }
 
 .ini-contacto-redes a:hover {
@@ -801,6 +802,7 @@
   color: white;
   border-radius: 50%;
   transition: background-color 0.3s ease, transform 0.3s ease;
+  text-decoration: none;
 }
 
 .ini-footer-redes a:hover {
@@ -839,6 +841,7 @@
   justify-content: center;
   transition: all 0.3s ease;
   animation: pulse-whatsapp 2s infinite;
+  text-decoration: none;
 }
 
 @keyframes pulse-whatsapp {
@@ -898,50 +901,31 @@
 }
 
 /* Media Queries para pantallas más grandes */
-@media (min-width: 768px) {
+@media (max-width: 600px) {
   .menu {
     justify-content: center;
-    gap: 10px;
+    gap: 20px;
     padding: 10px 0px;
   }
-
-  .opc,
-  .opcR,
-  .opcIs {
-    padding: 6px 20px;
-    width: 100px;
-    font-size: 1rem;
+  .ch h1 {
+    font-size: 3.5rem;
+    padding: 6px 10px;
   }
-
-  .logoMotOrtega {
-    width: 60px;
-  }
-
+  .ch h2 {
+    font-size: 1.2rem;  }
   .alogo {
-    margin-left: 10px;
-    margin-right: 10px;
+    background-color: #fff;
+    border-radius: 50%;
+    padding-top: 3px;
+    padding-left: 2px;
+    padding-right: 4px;
+    margin-left: 5px;
+    margin-right: 5px;
+    border: 1px solid black;
+    transition: transform 0.3s ease;
   }
-
-  .trabaja-con-nosotros {
-    font-size: 1.3rem;
-    margin-bottom: 30px;
-  }
-
-  .btn-unete.creativo {
-    font-size: 1.4rem;
-    padding: 20px 40px;
-  }
-
-  .icono-unete {
-    font-size: 1.6rem;
-  }
-
-  .ini-section-title {
-    font-size: 3rem;
-  }
-
-  .ini-section-subtitle {
-    font-size: 1.4rem;
+  .encabezado{
+    height: 90vh;
   }
 }
 
