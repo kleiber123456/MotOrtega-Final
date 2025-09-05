@@ -357,17 +357,6 @@ const Header = ({ sidebarCollapsed, onToggleSidebar }) => {
       <div className="mo-header__actions">
         <div className="mo-header__notifications">
           <button
-            className={`mo-header__icon-btn mo-header__icon-btn--notification ${notifications > 0 ? "has-notifications" : ""}`}
-            aria-label={`${notifications} notificaciones`}
-          >
-            <FaBell />
-          </button>
-          <button className="mo-header__icon-btn" aria-label="Calendario"
-            onClick={() => navigate("/citas")}
-          >
-            <FaCalendarAlt />
-          </button>
-          <button
             className="mo-header__icon-btn mo-header__icon-btn--logout"
             onClick={handleLogout}
             title="Cerrar sesión"

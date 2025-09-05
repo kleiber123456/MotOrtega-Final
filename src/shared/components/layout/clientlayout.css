@@ -44,7 +44,7 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  background: linear-gradient(180deg, #1E2A47 0%, #23395D 100%);
+  background: linear-gradient(135deg, #0066ff 0%, #004db3 100%);
   box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
   padding: 0.75rem 0;
   border-radius: 20px 20px 0 0;
@@ -91,7 +91,7 @@
 
 .layC-nav-btn {
   text-decoration: none;
-  color: #64748b;
+  color: #fff;
   font-size: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -116,7 +116,7 @@
 }
 .layC-nav-label-C{
   padding-top: 25px;
-  color: #64748b;
+  color: #fff;
   font-size: 0.85rem;
   font-weight: 500;
 }

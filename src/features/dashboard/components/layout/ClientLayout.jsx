@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { FaHome, FaHistory, FaFileInvoiceDollar, FaBars } from "react-icons/fa"
+import { FaHome, FaHistory, FaFileInvoiceDollar, FaCar } from "react-icons/fa"
 import "../../../../shared/components/layout/clientlayout.css"
 
 const ClientLayout = ({ children }) => {
@@ -56,8 +56,8 @@ const ClientLayout = ({ children }) => {
           <span className="layC-nav-label">Facturas</span>
         </Link>
         <Link to="/client/vehiculos" className="layC-nav-btn" aria-label="Vehículos">
-          <FaBars />
-          <span className="layC-nav-label">Mas</span>
+          <FaCar />
+          <span className="layC-nav-label">Vehículos</span>
         </Link>
       </nav>
     </div>

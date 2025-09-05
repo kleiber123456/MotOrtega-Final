@@ -1,0 +1,387 @@
+/* CSS específico para DetalleVehiculo del cliente */
+.cvc-detalle-body {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.cvc-detalle-header {
+  background: white;
+  border-radius: 12px;
+  margin: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cvc-detalle-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.cvc-detalle-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.cvc-detalle-title-container h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.cvc-detalle-subtitle {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.cvc-detalle-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.cvc-detalle-action-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.cvc-detalle-action-btn:hover {
+  opacity: 0.9;
+}
+
+.cvc-detalle-action-btn.edit {
+  background: #f59e0b;
+  color: white;
+}
+
+.cvc-detalle-action-btn.back {
+  background: #6b7280;
+  color: white;
+}
+
+.cvc-detalle-section {
+  margin: 1rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cvc-detalle-section-header {
+  margin-bottom: 1.5rem;
+}
+
+.cvc-detalle-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.cvc-detalle-section-icon {
+  color: #0ea5e9;
+}
+
+.cvc-detalle-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.cvc-detalle-info-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+.cvc-detalle-card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.cvc-detalle-card-icon {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+}
+
+.cvc-detalle-card-icon.primary {
+  color: #0ea5e9;
+}
+
+.cvc-detalle-card-icon.success {
+  color: #10b981;
+}
+
+.cvc-detalle-card-header h3 {
+  margin: 0;
+  color: #1f2937;
+}
+
+.cvc-detalle-card-content {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.cvc-detalle-info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cvc-detalle-info-icon {
+  color: #6b7280;
+}
+
+.cvc-detalle-info-item strong {
+  color: #374151;
+}
+
+.cvc-detalle-info-item span {
+  color: #6b7280;
+}
+
+.cvc-detalle-status {
+  font-weight: 500;
+}
+
+.cvc-detalle-status.active {
+  color: #10b981;
+}
+
+.cvc-detalle-status.inactive {
+  color: #ef4444;
+}
+
+.cvc-detalle-historial {
+  display: grid;
+  gap: 1rem;
+}
+
+.cvc-detalle-historial-item {
+  background: white;
+  border-radius: 8px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid;
+}
+
+.cvc-detalle-historial-item.recent {
+  border-left-color: #10b981;
+}
+
+.cvc-detalle-historial-item.normal {
+  border-left-color: #0ea5e9;
+}
+
+.cvc-detalle-historial-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.cvc-detalle-historial-title {
+  margin: 0 0 0.25rem 0;
+  color: #1f2937;
+}
+
+.cvc-detalle-historial-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.cvc-detalle-historial-meta span {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.cvc-detalle-historial-status {
+  background: #dcfce7;
+  color: #166534;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.cvc-detalle-historial-services {
+  background: #f8fafc;
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.cvc-detalle-historial-services strong {
+  color: #1f2937;
+}
+
+.cvc-detalle-historial-services p {
+  margin: 0.25rem 0 0 0;
+}
+
+.cvc-detalle-empty-historial {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6b7280;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.cvc-detalle-empty-historial svg {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.cvc-detalle-empty-historial h3 {
+  margin: 0 0 0.5rem 0;
+  color: #374151;
+}
+
+.cvc-detalle-empty-historial p {
+  margin: 0 0 1rem 0;
+}
+
+.cvc-detalle-empty-btn {
+  background: #0ea5e9;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.cvc-detalle-actions-section {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.cvc-detalle-action-button {
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.cvc-detalle-action-button:hover {
+  opacity: 0.9;
+}
+
+.cvc-detalle-action-button.edit {
+  background: #f59e0b;
+  color: white;
+}
+
+.cvc-detalle-action-button.schedule {
+  background: #10b981;
+  color: white;
+}
+
+.cvc-detalle-action-button.delete {
+  background: #ef4444;
+  color: white;
+}
+
+.cvc-detalle-loading {
+  text-align: center;
+  padding: 3rem;
+}
+
+.cvc-detalle-loading-spinner {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #0ea5e9;
+  animation: spin 1s linear infinite;
+}
+
+.cvc-detalle-error {
+  text-align: center;
+  padding: 3rem;
+}
+
+.cvc-detalle-error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #ef4444;
+}
+
+.cvc-detalle-error h3 {
+  margin: 0 0 0.5rem 0;
+  color: #1f2937;
+}
+
+.cvc-detalle-error p {
+  margin: 0 0 1rem 0;
+  color: #6b7280;
+}
+
+.cvc-detalle-error-btn {
+  background: #0ea5e9;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .cvc-detalle-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cvc-detalle-actions-section {
+    flex-direction: column;
+  }
+
+  .cvc-detalle-historial-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .cvc-detalle-historial-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}

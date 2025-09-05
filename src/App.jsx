@@ -63,6 +63,13 @@ import EditarVehiculo from "./features/dashboard/pages/Vehiculos/EditarVehiculo"
 import DetalleVehiculo from "./features/dashboard/pages/Vehiculos/DetalleVehiculo"
 // ----------------------------------------------------------------------
 
+// ------------------------------VEHÍCULOS CLIENTE-----------------------
+import MisVehiculos from "./features/client/pages/MisVehiculos"
+import CrearVehiculoCliente from "./features/client/pages/CrearVehiculo"
+import EditarVehiculoCliente from "./features/client/pages/EditarVehiculo"
+import DetalleVehiculoCliente from "./features/client/pages/DetalleVehiculo"
+// ----------------------------------------------------------------------
+
 // ------------------------------------servicios----------------------------------
 import ListarServicios from "./features/dashboard/pages/Servicios/ListarServicios"
 import CrearServicios from "./features/dashboard/pages/Servicios/CrearServicios"
@@ -814,6 +821,59 @@ function App() {
               <Layout>
                 <DetalleRol />
               </Layout>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+
+      {/* VEHÍCULOS CLIENTE */}
+      <Route
+        path="/client/vehiculos"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["cliente"]}>
+              <ClientLayout>
+                <MisVehiculos />
+              </ClientLayout>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/client/vehiculos/crear"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["cliente"]}>
+              <ClientLayout>
+                <CrearVehiculoCliente />
+              </ClientLayout>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/client/vehiculos/editar/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["cliente"]}>
+              <ClientLayout>
+                <EditarVehiculoCliente />
+              </ClientLayout>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/client/vehiculos/detalle/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["cliente"]}>
+              <ClientLayout>
+                <DetalleVehiculoCliente />
+              </ClientLayout>
             </RoleBasedRoute>
           </PrivateRoute>
         }

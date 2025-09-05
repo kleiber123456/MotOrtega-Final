@@ -67,22 +67,41 @@ const MOCK_DATA = {
     {
       id: 1,
       placa: "ABC123",
+      color: "Blanco",
+      tipo_vehiculo: "Automóvil",
+      referencia_id: 1,
+      cliente_id: 24,
+      estado: "Activo",
+      referencia_nombre: "Corolla",
+      marca_nombre: "Toyota",
       año: 2020,
-      referencia: {
-        marca: { nombre: "Toyota" },
-        nombre: "Corolla",
-      },
-      ultimo_servicio: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // Hace 30 días
+      ultimo_servicio: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
     },
     {
       id: 2,
       placa: "XYZ789",
+      color: "Azul",
+      tipo_vehiculo: "Automóvil",
+      referencia_id: 2,
+      cliente_id: 24,
+      estado: "Activo",
+      referencia_nombre: "Civic",
+      marca_nombre: "Honda",
       año: 2019,
-      referencia: {
-        marca: { nombre: "Honda" },
-        nombre: "Civic",
-      },
-      ultimo_servicio: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString(), // Hace 45 días
+      ultimo_servicio: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: 4,
+      placa: "ABC55H",
+      color: "Amarillo",
+      tipo_vehiculo: "Moto",
+      referencia_id: 9,
+      cliente_id: 24,
+      estado: "Activo",
+      referencia_nombre: "YBR 125",
+      marca_nombre: "Yamaha",
+      año: 2021,
+      ultimo_servicio: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
     },
   ],
   facturas: [
@@ -195,13 +214,15 @@ const ClientDashboard = () => {
 
     setProximasCitas(proximasCitasFormateadas)
 
-    // Formatear vehículos
     const vehiculosFormateados = vehiculosData.map((vehiculo) => ({
       id: vehiculo.id,
-      marca: vehiculo.referencia?.marca?.nombre || vehiculo.marca_nombre || "N/A",
-      modelo: vehiculo.referencia?.nombre || vehiculo.referencia_nombre || "N/A",
+      marca: vehiculo.marca_nombre || vehiculo.referencia?.marca?.nombre || "N/A",
+      modelo: vehiculo.referencia_nombre || vehiculo.referencia?.nombre || "N/A",
       año: vehiculo.año || new Date().getFullYear(),
       placa: vehiculo.placa || "N/A",
+      color: vehiculo.color || "N/A",
+      tipo: vehiculo.tipo_vehiculo || "N/A",
+      estado: vehiculo.estado || "Activo",
       ultimoServicio: vehiculo.ultimo_servicio || vehiculo.created_at || new Date().toISOString(),
     }))
 
@@ -241,7 +262,7 @@ const ClientDashboard = () => {
         )
 
         // Obtener vehículos del cliente
-        const vehiculosResponse = await makeRequest(`/vehiculos?cliente_id=${user.id}`)
+        const vehiculosResponse = await makeRequest(`/vehiculos/cliente/${user.id}`)
         const vehiculosData = Array.isArray(vehiculosResponse) ? vehiculosResponse : vehiculosResponse?.data || []
 
         // Obtener facturas pendientes (si existe el endpoint)
@@ -276,13 +297,15 @@ const ClientDashboard = () => {
 
         setProximasCitas(proximasCitasFormateadas)
 
-        // Formatear vehículos
         const vehiculosFormateados = vehiculosData.map((vehiculo) => ({
           id: vehiculo.id,
-          marca: vehiculo.referencia?.marca?.nombre || vehiculo.marca_nombre || "N/A",
-          modelo: vehiculo.referencia?.nombre || vehiculo.referencia_nombre || "N/A",
+          marca: vehiculo.marca_nombre || vehiculo.referencia?.marca?.nombre || "N/A",
+          modelo: vehiculo.referencia_nombre || vehiculo.referencia?.nombre || "N/A",
           año: vehiculo.año || new Date().getFullYear(),
           placa: vehiculo.placa || "N/A",
+          color: vehiculo.color || "N/A",
+          tipo: vehiculo.tipo_vehiculo || "N/A",
+          estado: vehiculo.estado || "Activo",
           ultimoServicio: vehiculo.ultimo_servicio || vehiculo.created_at || new Date().toISOString(),
         }))
 
@@ -452,10 +475,13 @@ const ClientDashboard = () => {
               <h2 className="dashC-section-title">
                 <FaCar className="dashC-section-icon" /> Mis Vehículos
               </h2>
+              <button className="dashC-view-all-btn" onClick={() => navigate("/client/vehiculos")}>
+                Ver todos
+              </button>
             </div>
             <div className="dashC-vehiculos-grid">
               {vehiculos.length > 0 ? (
-                vehiculos.map((vehiculo) => (
+                vehiculos.slice(0, 3).map((vehiculo) => (
                   <div key={vehiculo.id} className="dashC-vehiculo-card">
                     <div className="dashC-vehiculo-header">
                       <h4>
@@ -468,8 +494,28 @@ const ClientDashboard = () => {
                         <strong>Placa:</strong> {vehiculo.placa}
                       </p>
                       <p>
+                        <strong>Tipo:</strong> {vehiculo.tipo}
+                      </p>
+                      <p>
+                        <strong>Color:</strong> {vehiculo.color}
+                      </p>
+                      <p>
                         <strong>Último servicio:</strong> {formatearFecha(vehiculo.ultimoServicio)}
                       </p>
+                    </div>
+                    <div className="dashC-vehiculo-actions">
+                      <button
+                        className="dashC-action-btn dashC-btn-primary"
+                        onClick={() => navigate(`/client/vehiculos/detalle/${vehiculo.id}`)}
+                      >
+                        Ver detalle
+                      </button>
+                      <button
+                        className="dashC-action-btn dashC-btn-secondary"
+                        onClick={() => navigate("/client/agendar-cita", { state: { vehiculoId: vehiculo.id } })}
+                      >
+                        Agendar cita
+                      </button>
                     </div>
                   </div>
                 ))
@@ -477,9 +523,19 @@ const ClientDashboard = () => {
                 <div className="dashC-empty-state">
                   <FaCar />
                   <p>No tienes vehículos registrados</p>
+                  <button className="dashC-empty-action-btn" onClick={() => navigate("/client/vehiculos/crear")}>
+                    Registrar mi primer vehículo
+                  </button>
                 </div>
               )}
             </div>
+            {vehiculos.length > 3 && (
+              <div className="dashC-more-items">
+                <p>
+                  Y {vehiculos.length - 3} vehículo{vehiculos.length - 3 > 1 ? "s" : ""} más...
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

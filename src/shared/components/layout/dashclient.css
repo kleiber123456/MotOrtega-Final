@@ -1,5 +1,5 @@
 .dashC-body{
-background: linear-gradient(180deg, #1E2A47 0%, #23395D 100%);
+background: linear-gradient(135deg, #0066ff 0%, #004db3 100%);
 }
 .dashC-header {
   padding: 2rem 2rem;
@@ -35,7 +35,7 @@ background: linear-gradient(180deg, #1E2A47 0%, #23395D 100%);
 }
 
 .dashC-subtitle {
-  color: #64748b;
+  color: #fff;
   margin: 0;
   font-size: 0.95rem;
 }
