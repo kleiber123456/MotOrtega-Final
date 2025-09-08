@@ -7,7 +7,7 @@ import Swal from "sweetalert2"
 import "../../../shared/styles/Client/CrearVehiculo.css"
 
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
-
+ 
 const CrearVehiculo = () => {
   const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState(1)
@@ -338,11 +338,9 @@ const CrearVehiculo = () => {
                     className={`cvc-crear-form-input ${errors.tipo_vehiculo ? "error" : ""}`}
                   >
                     <option value="">Seleccione el tipo</option>
-                    <option value="Automóvil">Automóvil</option>
-                    <option value="Moto">Motocicleta</option>
-                    <option value="SUV">SUV</option>
+                    <option value="Carro">Carro</option>
+                    <option value="Moto">Moto</option>
                     <option value="Camioneta">Camioneta</option>
-                    <option value="Híbrido">Híbrido</option>
                   </select>
                   {errors.tipo_vehiculo && (
                     <span className="cvc-crear-error-text">
