@@ -264,6 +264,9 @@ function EditarRepuesto() {
     nombre: "",
     descripcion: "",
     categoria_repuesto_id: "",
+    precio_venta: "",
+    cantidad: "",
+    precio_compra: "",
   })
 
   const [categorias, setCategorias] = useState([])
@@ -293,6 +296,9 @@ function EditarRepuesto() {
             nombre: dataRepuesto.nombre || "",
             descripcion: dataRepuesto.descripcion || "",
             categoria_repuesto_id: dataRepuesto.categoria_repuesto_id?.toString() || "",
+            precio_venta: dataRepuesto.precio_venta !== undefined ? dataRepuesto.precio_venta.toString() : "",
+            cantidad: dataRepuesto.cantidad !== undefined ? dataRepuesto.cantidad.toString() : "",
+            precio_compra: dataRepuesto.precio_compra !== undefined ? dataRepuesto.precio_compra.toString() : "",
           })
 
           // Establecer la categoría seleccionada
@@ -340,6 +346,9 @@ function EditarRepuesto() {
       errors.categoria_repuesto_id = "Debe seleccionar una categoría"
     }
 
+    if (!repuesto.precio_venta || isNaN(Number(repuesto.precio_venta)) || Number(repuesto.precio_venta) <= 0) {
+      errors.precio_venta = "El precio debe ser mayor que 0"
+    }
     setErrores(errors)
     return Object.keys(errors).length === 0
   }, [repuesto])
@@ -392,6 +401,9 @@ function EditarRepuesto() {
         const datosRepuesto = {
           ...repuesto,
           categoria_repuesto_id: Number.parseInt(repuesto.categoria_repuesto_id),
+          precio_venta: Number(repuesto.precio_venta),
+          cantidad: Number(repuesto.cantidad),
+          precio_compra: Number(repuesto.precio_compra),
         }
 
         await makeRequest(`/repuestos/${id}`, {
@@ -482,6 +494,7 @@ function EditarRepuesto() {
             Información General
           </h3>
 
+
           <div className="crearRepuesto-form-grid">
             <div className="crearRepuesto-form-group">
               <label htmlFor="nombre" className="crearRepuesto-label">
@@ -537,6 +550,62 @@ function EditarRepuesto() {
                   <FaExclamationTriangle /> {errores.categoria_repuesto_id}
                 </span>
               )}
+            </div>
+
+            <div className="crearRepuesto-form-group">
+              <label htmlFor="precio_venta" className="crearRepuesto-label">
+                <FaTag className="crearRepuesto-label-icon" />
+                Precio del Repuesto *
+              </label>
+              <input
+                type="number"
+                id="precio_venta"
+                name="precio_venta"
+                value={repuesto.precio_venta}
+                onChange={handleChange}
+                min="0"
+                step="0.01"
+                className={`crearRepuesto-form-input ${errores.precio_venta ? "error" : ""}`}
+                placeholder="Ingrese el precio del repuesto"
+                required
+              />
+              {errores.precio_venta && (
+                <span className="crearRepuesto-error-text">
+                  <FaExclamationTriangle /> {errores.precio_venta}
+                </span>
+              )}
+            </div>
+            <div className="crearRepuesto-form-group">
+              <label htmlFor="cantidad" className="crearRepuesto-label">
+                <FaBox className="crearRepuesto-label-icon" />
+                Cantidad en Stock
+              </label>
+              <input
+                type="number"
+                id="cantidad"
+                name="cantidad"
+                value={repuesto.cantidad}
+                readOnly
+                className="crearRepuesto-form-input"
+                placeholder="Cantidad en stock"
+                style={{ backgroundColor: "#f3f4f6", color: "#6b7280" }}
+              />
+            </div>
+            <div className="crearRepuesto-form-group">
+              <label htmlFor="precio_compra" className="crearRepuesto-label">
+                <FaTag className="crearRepuesto-label-icon" />
+                Precio de Compra
+              </label>
+              <input
+                type="number"
+                id="precio_compra"
+                name="precio_compra"
+                value={repuesto.precio_compra}
+                readOnly
+                className="crearRepuesto-form-input"
+                placeholder="Precio de compra"
+                style={{ backgroundColor: "#f3f4f6", color: "#6b7280" }}
+              />
             </div>
           </div>
 

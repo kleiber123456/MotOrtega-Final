@@ -96,10 +96,11 @@ function DetalleVenta() {
             try {
               let nombreRepuesto = repuesto.repuesto_nombre || `Repuesto ID: ${repuesto.repuesto_id}`
               let descripcionRepuesto = repuesto.repuesto_descripcion || ""
-              let precioRepuesto = repuesto.repuesto_precio || 0
+              // El precio SIEMPRE debe ser el que está en la venta, si no existe mostrar 0
+              let precioRepuesto = (repuesto.repuesto_precio !== undefined && repuesto.repuesto_precio !== null) ? repuesto.repuesto_precio : 0
 
-              // Si no tenemos el nombre del repuesto, intentar cargarlo
-              if (!repuesto.repuesto_nombre && repuesto.repuesto_id) {
+              // Si no tenemos el nombre o descripción del repuesto, intentar cargarlo
+              if ((!repuesto.repuesto_nombre || !repuesto.repuesto_descripcion) && repuesto.repuesto_id) {
                 try {
                   const responseRepuesto = await fetch(
                     `https://api-final-8rw7.onrender.com/api/repuestos/${repuesto.repuesto_id}`,
@@ -114,13 +115,9 @@ function DetalleVenta() {
                   if (responseRepuesto.ok) {
                     const dataRepuesto = await responseRepuesto.json()
                     console.log(`Repuesto ${repuesto.repuesto_id} cargado:`, dataRepuesto)
-                    
                     nombreRepuesto = dataRepuesto.nombre || nombreRepuesto
                     descripcionRepuesto = dataRepuesto.descripcion || descripcionRepuesto
-                    // Usar el precio de venta del repuesto si no tenemos precio en la venta
-                    if (!precioRepuesto) {
-                      precioRepuesto = dataRepuesto.precio_venta || dataRepuesto.preciounitario || 0
-                    }
+                    // JAMÁS actualizar el precio desde la API
                   } else {
                     console.warn(`Error al cargar repuesto ${repuesto.repuesto_id}:`, responseRepuesto.status)
                   }
@@ -141,7 +138,7 @@ function DetalleVenta() {
                 ...repuesto,
                 repuesto_nombre: repuesto.repuesto_nombre || `Repuesto ID: ${repuesto.repuesto_id}`,
                 repuesto_descripcion: repuesto.repuesto_descripcion || "",
-                repuesto_precio: repuesto.repuesto_precio || 0,
+                repuesto_precio: (repuesto.repuesto_precio !== undefined && repuesto.repuesto_precio !== null) ? repuesto.repuesto_precio : 0,
               }
             }
           }),
@@ -572,16 +569,16 @@ function DetalleVenta() {
             </div>
             <div className="detalleVenta-items-container">
               {venta.servicios.map((servicio, index) => (
-                <div key={`servicio-${servicio.id}-${index}`} className="detalleVenta-item-card service">
+                <div key={`servicio-${servicio.id || servicio.servicio_id}-${index}`} className="detalleVenta-item-card service">
                   <div className="detalleVenta-item-header">
-                    <h4 className="detalleVenta-item-name">{servicio.nombre}</h4>
+                    <h4 className="detalleVenta-item-name">{servicio.servicio_nombre || servicio.nombre}</h4>
                     <span className="detalleVenta-item-subtotal">{formatearPrecio(servicio.subtotal)}</span>
                   </div>
                   <div className="detalleVenta-item-details">
-                    {servicio.descripcion && (
+                    {(servicio.servicio_descripcion || servicio.descripcion) && (
                       <div className="detalleVenta-item-info full-width">
                         <span className="detalleVenta-item-label">Descripción:</span>
-                        <span className="detalleVenta-item-value">{servicio.descripcion}</span>
+                        <span className="detalleVenta-item-value">{servicio.servicio_descripcion || servicio.descripcion}</span>
                       </div>
                     )}
                   </div>

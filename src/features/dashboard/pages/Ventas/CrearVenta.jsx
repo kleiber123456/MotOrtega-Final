@@ -810,6 +810,14 @@ const CrearVenta = () => {
         </div>
       )}
       <div className="crearVenta-header">
+        <button
+          type="button"
+          className="crearVenta-volver-btn"
+          onClick={() => navigate("/ListarVentas")}
+        >
+          <ChevronLeft size={22} />
+          Volver
+        </button>
         <div className="crearVenta-title-section">
           <h1 className="crearVenta-page-title">
             <ShoppingBag className="crearVenta-title-icon" />
