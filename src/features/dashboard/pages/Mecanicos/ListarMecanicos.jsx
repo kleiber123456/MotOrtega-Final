@@ -165,6 +165,30 @@ const ListarMecanicos = () => {
       const mecanico = mecanicos.find((m) => m.id === id)
       const nombreCompleto = mecanico ? `${mecanico.nombre} ${mecanico.apellido}` : "el mecánico"
 
+      // Si está activo y se quiere desactivar, primero consultar si tiene citas agendadas
+      if (estadoActual?.toLowerCase() === "activo") {
+        try {
+          const citas = await makeRequest(`/citas?mecanico_id=${id}`)
+          if (Array.isArray(citas) && citas.length > 0) {
+            await Swal.fire({
+              icon: "warning",
+              title: "No se puede desactivar",
+              text: `El mecánico ${nombreCompleto} tiene citas agendadas y no puede ser desactivado.`,
+              confirmButtonColor: "#ef4444",
+            })
+            return
+          }
+        } catch (error) {
+          await Swal.fire({
+            icon: "error",
+            title: "Error al verificar citas",
+            text: "No se pudo verificar si el mecánico tiene citas agendadas.",
+            confirmButtonColor: "#ef4444",
+          })
+          return
+        }
+      }
+
       try {
         const nuevoEstado = estadoActual?.toLowerCase() === "activo" ? "Inactivo" : "Activo"
 

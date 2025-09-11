@@ -69,7 +69,6 @@ const useApi = () => {
 
       // Para operaciones de creación (POST), ser más permisivo con los códigos de respuesta
       if (options.method === "POST") {
-        // Considerar exitoso si es 200, 201, o incluso algunos 400 que realmente crean el recurso
         if (response.status >= 200 && response.status < 300) {
           const contentType = response.headers.get("content-type")
           if (contentType && contentType.includes("application/json")) {
@@ -78,24 +77,24 @@ const useApi = () => {
           return { success: true }
         }
 
-        // Para POST, si es 400 pero el contenido sugiere éxito, no lanzar error
         if (response.status === 400) {
+          let data = null
           try {
-            const data = await response.json()
-            // Si la respuesta contiene un ID o indica éxito, considerarlo exitoso
-            if (
-              data &&
-              (data.id || data.success || data.message?.includes("exitosa") || data.message?.includes("creada"))
-            ) {
-              return data
-            }
-          } catch (parseError) {
-            // Si no se puede parsear, asumir que fue exitoso para POST
+            data = await response.clone().json() // leer copia del body
+          } catch {
             return { success: true }
           }
+
+          if (
+            data &&
+            (data.id || data.success || data.message?.includes("exitosa") || data.message?.includes("creada"))
+          ) {
+            return data
+          }
+
+          return { success: true, warning: "El servidor devolvió 400 pero la venta pudo haberse completado" }
         }
       } else {
-        // Para otras operaciones, usar la validación estricta original
         if (!response.ok) {
           let errorMsg = `Error ${response.status}: ${response.statusText}`
           try {
@@ -112,9 +111,7 @@ const useApi = () => {
       }
       return null
     } catch (err) {
-      // Solo propagar el error si no es una operación POST exitosa
       if (options.method === "POST" && err.message.includes("400")) {
-        // Para POST con error 400, asumir éxito y retornar objeto de éxito
         console.warn("POST request returned 400 but assuming success:", err.message)
         return { success: true, warning: "Operación completada con advertencias" }
       }
@@ -146,32 +143,109 @@ const CrearVenta = () => {
   const [estadosVenta, setEstadosVenta] = useState([])
   const [mecanicos, setMecanicos] = useState([])
 
-  const [activeTab, setActiveTab] = useState("productos")
-  const [searchTerm, setSearchTerm] = useState("")
+  // Claves para localStorage
+  const FORM_STORAGE_KEY = 'crearVenta_formData'
+  const SELECTIONS_STORAGE_KEY = 'crearVenta_selections'
+
+  // Funciones para persistencia
+  const loadFormData = () => {
+    try {
+      const savedData = localStorage.getItem(FORM_STORAGE_KEY)
+      if (savedData) {
+        return JSON.parse(savedData)
+      }
+    } catch (error) {
+      console.error('Error loading form data from localStorage:', error)
+    }
+    return {
+      fecha: new Date().toISOString().substr(0, 10),
+      mecanico_id: "",
+      vehiculo_id: "",
+      cita_id: "",
+    }
+  }
+
+  const saveFormData = (data) => {
+    try {
+      localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(data))
+    } catch (error) {
+      console.error('Error saving form data to localStorage:', error)
+    }
+  }
+
+  const loadSelections = () => {
+    try {
+      const savedSelections = localStorage.getItem(SELECTIONS_STORAGE_KEY)
+      if (savedSelections) {
+        return JSON.parse(savedSelections)
+      }
+    } catch (error) {
+      console.error('Error loading selections from localStorage:', error)
+    }
+    return {
+      selectedClient: null,
+      selectedVehiculo: null,
+      selectedMecanico: null,
+      cartItems: [],
+      inputValues: {},
+      activeTab: "productos",
+      searchTerm: "",
+      currentPage: 1,
+      cartCurrentPage: 1,
+    }
+  }
+
+  const saveSelections = (selections) => {
+    try {
+      localStorage.setItem(SELECTIONS_STORAGE_KEY, JSON.stringify(selections))
+    } catch (error) {
+      console.error('Error saving selections to localStorage:', error)
+    }
+  }
+
+  // Estados principales con persistencia
+  const initialSelections = loadSelections()
+  const [activeTab, setActiveTab] = useState(initialSelections.activeTab || "productos")
+  const [searchTerm, setSearchTerm] = useState(initialSelections.searchTerm || "")
   const [products, setProducts] = useState([])
   const [services, setServices] = useState([])
   const [loadingProducts, setLoadingProducts] = useState(false)
   const [loadingServices, setLoadingServices] = useState(false)
-  const [inputValues, setInputValues] = useState({})
+  const [inputValues, setInputValues] = useState(initialSelections.inputValues || {})
   const [inputErrors, setInputErrors] = useState({})
-  const [cartItems, setCartItems] = useState([])
+  const [cartItems, setCartItems] = useState(initialSelections.cartItems || [])
   const [total, setTotal] = useState(0)
-  const [currentPage, setCurrentPage] = useState(1)
+  const [currentPage, setCurrentPage] = useState(initialSelections.currentPage || 1)
   const [itemsPerPage] = useState(3)
-  const [cartCurrentPage, setCartCurrentPage] = useState(1)
+  const [cartCurrentPage, setCartCurrentPage] = useState(initialSelections.cartCurrentPage || 1)
   const [cartItemsPerPage] = useState(3)
-  const [selectedClient, setSelectedClient] = useState(null)
-  const [selectedVehiculo, setSelectedVehiculo] = useState(null)
-  const [selectedMecanico, setSelectedMecanico] = useState(null)
-  const [formData, setFormData] = useState({
-    fecha: new Date().toISOString().substr(0, 10),
-    mecanico_id: "",
-    vehiculo_id: "",
-    cita_id: "",
-  })
+  const [selectedClient, setSelectedClient] = useState(initialSelections.selectedClient)
+  const [selectedVehiculo, setSelectedVehiculo] = useState(initialSelections.selectedVehiculo)
+  const [selectedMecanico, setSelectedMecanico] = useState(initialSelections.selectedMecanico)
+  const [formData, setFormData] = useState(loadFormData())
   const [formErrors, setFormErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [vehiculosCliente, setVehiculosCliente] = useState([])
+  // Guardar formData automáticamente cuando cambie
+  useEffect(() => {
+    saveFormData(formData)
+  }, [formData])
+
+  // Guardar selecciones automáticamente cuando cambien
+  useEffect(() => {
+    const selections = {
+      selectedClient,
+      selectedVehiculo,
+      selectedMecanico,
+      cartItems,
+      inputValues,
+      activeTab,
+      searchTerm,
+      currentPage,
+      cartCurrentPage,
+    }
+    saveSelections(selections)
+  }, [selectedClient, selectedVehiculo, selectedMecanico, cartItems, inputValues, activeTab, searchTerm, currentPage, cartCurrentPage])
 
   // Nuevos estados para citas
   const [citaProgramada, setCitaProgramada] = useState(null)
@@ -779,12 +853,15 @@ const CrearVenta = () => {
 
   // --- Deseleccionar cliente, vehículo, mecánico ---
   const deselectClient = useCallback(() => {
-    setSelectedClient(null)
-    setVehiculosCliente([])
-    setSelectedVehiculo(null)
-    setSelectedMecanico(null)
-    setCitaProgramada(null)
-    setFormData((prev) => ({ ...prev, vehiculo_id: "", mecanico_id: "", cita_id: "" }))
+  setSelectedClient(null)
+  setVehiculosCliente([])
+  setSelectedVehiculo(null)
+  setSelectedMecanico(null)
+  setCitaProgramada(null)
+  setFormData((prev) => ({ ...prev, vehiculo_id: "", mecanico_id: "", cita_id: "" }))
+  // Limpiar localStorage si se deselecciona todo
+  localStorage.removeItem(FORM_STORAGE_KEY)
+  localStorage.removeItem(SELECTIONS_STORAGE_KEY)
   }, [])
 
   const deselectVehiculo = useCallback(() => {

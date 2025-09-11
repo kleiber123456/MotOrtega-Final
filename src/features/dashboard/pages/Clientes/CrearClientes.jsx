@@ -732,7 +732,7 @@ const CrearCliente = () => {
             ) : (
               <>
                 <FaSave className="crearCliente-button-icon" />
-                Crear Cliente
+                Guardar Cliente
               </>
             )}
           </button>

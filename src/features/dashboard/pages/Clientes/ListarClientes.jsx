@@ -162,39 +162,69 @@ const ListarClientes = () => {
 
   const cambiarEstado = useCallback(
     async (id, estadoActual, nombreCliente) => {
+      // Si está activo y se quiere desactivar, primero consultar si tiene citas, vehículos o ventas asociadas
+      if (estadoActual?.toLowerCase() === "activo") {
+        try {
+          const [citas, vehiculos, ventas] = await Promise.all([
+            makeRequest(`/citas?cliente_id=${id}`),
+            makeRequest(`/vehiculos/cliente/${id}`),
+            makeRequest(`/ventas?cliente_id=${id}`)
+          ])
+          if ((Array.isArray(citas) && citas.length > 0) ||
+              (Array.isArray(vehiculos) && vehiculos.length > 0) ||
+              (Array.isArray(ventas) && ventas.length > 0)) {
+            await Swal.fire({
+              icon: 'warning',
+              title: 'No se puede desactivar',
+              text: 'El cliente "' + nombreCliente + '" tiene información asociada (citas, vehículos o ventas) y no puede ser desactivado.',
+              confirmButtonColor: '#ef4444'
+            })
+            return
+          }
+        } catch (error) {
+          await Swal.fire({
+            icon: 'error',
+            title: 'Error al verificar información asociada',
+            text: 'No se pudo verificar si el cliente tiene información asociada.',
+            confirmButtonColor: '#ef4444'
+          })
+          return
+        }
+      }
+
       try {
-        const nuevoEstado = estadoActual?.toLowerCase() === "activo" ? "Inactivo" : "Activo"
+        const nuevoEstado = estadoActual?.toLowerCase() === 'activo' ? 'Inactivo' : 'Activo'
 
         const result = await Swal.fire({
-          title: `¿Cambiar estado a ${nuevoEstado}?`,
-          text: `El cliente "${nombreCliente}" será marcado como ${nuevoEstado.toLowerCase()}`,
-          icon: "question",
+          title: '¿Cambiar estado a ' + nuevoEstado + '?',
+          text: 'El cliente "' + nombreCliente + '" será marcado como ' + nuevoEstado.toLowerCase(),
+          icon: 'question',
           showCancelButton: true,
-          confirmButtonColor: "#2563eb",
-          cancelButtonColor: "#6b7280",
-          confirmButtonText: "Sí, cambiar",
-          cancelButtonText: "Cancelar",
+          confirmButtonColor: '#2563eb',
+          cancelButtonColor: '#6b7280',
+          confirmButtonText: 'Sí, cambiar',
+          cancelButtonText: 'Cancelar'
         })
 
         if (!result.isConfirmed) return
 
         await makeRequest(`/clientes/${id}/cambiar-estado`, {
-          method: "PUT",
-          body: JSON.stringify({ estado: nuevoEstado }),
+          method: 'PUT',
+          body: JSON.stringify({ estado: nuevoEstado })
         })
 
         setClientes((prev) => prev.map((c) => (c.id === id ? { ...c, estado: nuevoEstado } : c)))
 
         Swal.fire({
-          icon: "success",
-          title: "Estado actualizado",
-          text: `El cliente ahora está ${nuevoEstado.toLowerCase()}`,
+          icon: 'success',
+          title: 'Estado actualizado',
+          text: 'El cliente ahora está ' + nuevoEstado.toLowerCase(),
           timer: 2000,
-          showConfirmButton: false,
+          showConfirmButton: false
         })
       } catch (error) {
-        console.error("Error al cambiar estado:", error)
-        Swal.fire("Error", "No se pudo cambiar el estado del cliente", "error")
+        console.error('Error al cambiar estado:', error)
+        Swal.fire('Error', 'No se pudo cambiar el estado del cliente', 'error')
       }
     },
     [makeRequest],

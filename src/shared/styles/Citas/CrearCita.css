@@ -434,7 +434,7 @@
 }
 
 /* Estilos para modales */
-.crearCita-modal-overlay {
+.listarCompra-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -459,6 +459,8 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  margin: 0 auto;
+  position: relative;
 }
 
 .listarCompra-proveedor-modal-header {
@@ -547,7 +549,6 @@
 /* Lista */
 .listarCompra-proveedor-list {
   flex: 1;
-  overflow-y: auto;
   padding: 12px;
 }
 
@@ -765,8 +766,6 @@
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
   padding: 24px;
-  overflow-y: auto;
-  max-height: 400px;
 }
 
 .crearCita-hora-card {

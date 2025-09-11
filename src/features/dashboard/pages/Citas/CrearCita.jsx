@@ -698,20 +698,73 @@ const HoraModal = ({
 
 function CrearCita() {
   const navigate = useNavigate()
-  const [formData, setFormData] = useState({
-    fecha: "",
-    hora: "",
-    observaciones: "",
-    estado_cita_id: 1,
-    vehiculo_id: "",
-    mecanico_id: "",
-  })
+  // Claves para localStorage
+  const FORM_STORAGE_KEY = 'crearCita_formData'
+  const SELECTIONS_STORAGE_KEY = 'crearCita_selections'
+
+  // Funciones para persistencia
+  const loadFormData = () => {
+    try {
+      const savedData = localStorage.getItem(FORM_STORAGE_KEY)
+      if (savedData) {
+        return JSON.parse(savedData)
+      }
+    } catch (error) {
+      console.error('Error loading form data from localStorage:', error)
+    }
+    return {
+      fecha: "",
+      hora: "",
+      observaciones: "",
+      estado_cita_id: 1,
+      vehiculo_id: "",
+      mecanico_id: "",
+    }
+  }
+
+  const saveFormData = (data) => {
+    try {
+      localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(data))
+    } catch (error) {
+      console.error('Error saving form data to localStorage:', error)
+    }
+  }
+
+  const loadSelections = () => {
+    try {
+      const savedSelections = localStorage.getItem(SELECTIONS_STORAGE_KEY)
+      if (savedSelections) {
+        return JSON.parse(savedSelections)
+      }
+    } catch (error) {
+      console.error('Error loading selections from localStorage:', error)
+    }
+    return {
+      clienteSeleccionado: null,
+      mecanicoSeleccionado: null,
+      vehiculoSeleccionado: null,
+      horaSeleccionada: null,
+      selectedCliente: ""
+    }
+  }
+
+  const saveSelections = (selections) => {
+    try {
+      localStorage.setItem(SELECTIONS_STORAGE_KEY, JSON.stringify(selections))
+    } catch (error) {
+      console.error('Error saving selections to localStorage:', error)
+    }
+  }
+
+  // Estados principales con persistencia
+  const [formData, setFormData] = useState(loadFormData())
+  const initialSelections = loadSelections()
 
   const [clientes, setClientes] = useState([])
   const [vehiculos, setVehiculos] = useState([])
   const [mecanicos, setMecanicos] = useState([])
   const [estados, setEstados] = useState([])
-  const [selectedCliente, setSelectedCliente] = useState("")
+  const [selectedCliente, setSelectedCliente] = useState(initialSelections.selectedCliente)
   const [vehiculosFiltrados, setVehiculosFiltrados] = useState([])
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
@@ -723,13 +776,29 @@ function CrearCita() {
   const [mostrarModalHoras, setMostrarModalHoras] = useState(false)
 
   // Estados para selecciones
-  const [clienteSeleccionado, setClienteSeleccionado] = useState(null)
-  const [mecanicoSeleccionado, setMecanicoSeleccionado] = useState(null)
-  const [vehiculoSeleccionado, setVehiculoSeleccionado] = useState(null)
-  const [horaSeleccionada, setHoraSeleccionada] = useState(null)
-  const [novedadesDia, setNovedadesDia] = useState([]) // Nuevo estado
-  const [horariosMecanico, setHorariosMecanico] = useState([]) // Novedades del mecánico
-  const [citasMecanico, setCitasMecanico] = useState([]) // Citas del mecánico
+  const [clienteSeleccionado, setClienteSeleccionado] = useState(initialSelections.clienteSeleccionado)
+  const [mecanicoSeleccionado, setMecanicoSeleccionado] = useState(initialSelections.mecanicoSeleccionado)
+  const [vehiculoSeleccionado, setVehiculoSeleccionado] = useState(initialSelections.vehiculoSeleccionado)
+  const [horaSeleccionada, setHoraSeleccionada] = useState(initialSelections.horaSeleccionada)
+  const [novedadesDia, setNovedadesDia] = useState([])
+  const [horariosMecanico, setHorariosMecanico] = useState([])
+  const [citasMecanico, setCitasMecanico] = useState([])
+  // Guardar formData automáticamente cuando cambie
+  useEffect(() => {
+    saveFormData(formData)
+  }, [formData])
+
+  // Guardar selecciones automáticamente cuando cambien
+  useEffect(() => {
+    const selections = {
+      clienteSeleccionado,
+      mecanicoSeleccionado,
+      vehiculoSeleccionado,
+      horaSeleccionada,
+      selectedCliente
+    }
+    saveSelections(selections)
+  }, [clienteSeleccionado, mecanicoSeleccionado, vehiculoSeleccionado, horaSeleccionada, selectedCliente])
 
   // Función para realizar peticiones a la API con el token de autenticación
   const makeRequest = async (endpoint, options = {}) => {
@@ -1320,7 +1389,20 @@ function CrearCita() {
                         type="button"
                         className="crearCita-create-button crearCita-nuevo-vehiculo-btn"
                         title="Crear nuevo vehículo"
-                        onClick={() => navigate("/vehiculos/crear")}
+                        onClick={() => {
+                          // Navega y pasa el nombre del cliente seleccionado
+                          if (selectedCliente && clienteSeleccionado) {
+                            navigate("/vehiculos/crear", {
+                              state: {
+                                clienteId: selectedCliente,
+                                clienteNombre: clienteSeleccionado.nombre,
+                                clienteApellido: clienteSeleccionado.apellido
+                              }
+                            })
+                          } else {
+                            navigate("/vehiculos/crear")
+                          }
+                        }}
                         disabled={!selectedCliente}
                       >
                         <FaPlus /> Nuevo
