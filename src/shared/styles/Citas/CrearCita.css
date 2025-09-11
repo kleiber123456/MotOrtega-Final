@@ -234,7 +234,9 @@
 /* Botón de limpiar */
 .crearCita-clear-button {
   position: absolute;
+  top: 50%;
   right: 12px;
+  transform: translateY(-50%);
   background: none;
   border: none;
   color: #6b7280;
@@ -245,6 +247,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 2;
 }
 
 .crearCita-clear-button:hover {

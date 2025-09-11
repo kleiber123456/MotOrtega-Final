@@ -1,0 +1,250 @@
+.dvc-loading-container, .dvc-error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 80vh;
+  color: #4a5568;
+}
+
+.dvc-spinner {
+  font-size: 3rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.dvc-error-container svg {
+  font-size: 3rem;
+  color: #ef4444;
+  margin-bottom: 1rem;
+}
+
+.dvc-detalle-factura-container {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.dvc-factura-header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 1rem;
+}
+
+.dvc-factura-header-actions h2 {
+  margin: 0;
+  color: #1e293b;
+}
+
+.dvc-header-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.dvc-download-btn, .dvc-share-btn {
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dvc-download-btn {
+  background-color: #10b981;
+}
+
+.dvc-download-btn:hover {
+  background-color: #059669;
+}
+
+.dvc-share-btn {
+  background-color: #3b82f6;
+}
+
+.dvc-share-btn:hover {
+  background-color: #2563eb;
+}
+
+.dvc-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.dvc-info-card {
+  background-color: #f8fafc;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.dvc-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  color: #0ea5e9;
+  font-size: 1.25rem;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 0.75rem;
+}
+
+.dvc-card-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #334155;
+}
+
+.dvc-info-card p {
+  margin: 0.5rem 0;
+  color: #475569;
+}
+
+.dvc-info-card p strong {
+  color: #1e293b;
+}
+
+.dvc-items-section h3 {
+  margin-bottom: 1rem;
+  color: #1e293b;
+  font-size: 1.25rem;
+}
+
+.dvc-items-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dvc-items-table th, .dvc-items-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dvc-items-table th {
+  background-color: #f1f5f9;
+  color: #475569;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+}
+
+.dvc-items-table td {
+  color: #334155;
+}
+
+.dvc-items-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.dvc-total-section {
+  margin-top: 2rem;
+  max-width: 350px;
+  margin-left: auto;
+  padding: 1rem;
+  background-color: #f8fafc;
+  border-radius: 8px;
+}
+
+.dvc-total-line {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  color: #475569;
+}
+
+.dvc-total-line.grand-total {
+  font-weight: bold;
+  font-size: 1.25rem;
+  color: #1e293b;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 2px solid #e2e8f0;
+}
+
+@media (max-width: 768px) {
+  .dvc-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dvc-factura-header-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .dvc-header-buttons {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .dvc-download-btn, .dvc-share-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .dvc-items-table thead {
+    display: none;
+  }
+
+  .dvc-items-table tr {
+    display: block;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+
+  .dvc-items-table td {
+    display: block;
+    text-align: right;
+    border-bottom: 1px dotted #ccc;
+    padding: 0.75rem 0.5rem;
+    position: relative;
+  }
+
+  .dvc-items-table td:last-child {
+    border-bottom: none;
+  }
+
+  .dvc-items-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0.5rem;
+    font-weight: bold;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .dvc-total-section {
+    max-width: none;
+    width: 100%;
+  }
+
+  /* Specific style for Description field on mobile */
+  .dvc-items-table td[data-label="Descripción"] {
+    text-align: left;
+  }
+
+  .dvc-items-table td[data-label="Descripción"]::before {
+    position: static;
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.9em;
+    color: #555;
+  }
+}

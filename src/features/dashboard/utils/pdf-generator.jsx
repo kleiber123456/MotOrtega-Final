@@ -2,7 +2,7 @@ import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
 
 // Función principal para generar PDF de factura compacta (compras y ventas)
-export const generarFacturaPDF = async (documento, clienteOProveedor, detallesConProductos, token) => {
+export const generarFacturaPDF = async (documento, clienteOProveedor, detallesConProductos, token, options = {}) => {
   try {
     const doc = new jsPDF()
     const esVenta = documento.tipo === "venta"
@@ -265,8 +265,13 @@ export const generarFacturaPDF = async (documento, clienteOProveedor, detallesCo
       )
     }
 
-    // Guardar con nombre según el tipo
-    doc.save(`${prefijo}-${documento.id.toString().padStart(6, "0")}.pdf`)
+    const fileName = `${prefijo}-${documento.id.toString().padStart(6, "0")}.pdf`;
+
+    if (options.outputType === 'blob') {
+      return new Blob([doc.output('blob')], { type: 'application/pdf' });
+    } else {
+      doc.save(fileName);
+    }
 
     return true
   } catch (error) {

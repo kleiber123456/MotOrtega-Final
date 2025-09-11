@@ -107,7 +107,7 @@
 }
 
 .layC-nav-btn:hover {
-  color: #0ea5e9;
+  color: #222;
 }
 
 .layC-nav-label {
@@ -119,6 +119,7 @@
   color: #fff;
   font-size: 0.85rem;
   font-weight: 500;
+  width: 20px;
 }
 
 @media (max-width: 600px) {
@@ -145,11 +146,11 @@
     font-size: 0.75rem;
   }
   .layC-nav-label-C{
-  padding-top: 26px;
-  color: #64748b;
-  font-size: 0.80rem;
-  font-weight: 500;
-  padding: 26px 0.4rem 0rem;
+    padding-top: 26px;
+    color: #fff;
+    font-size: 0.80rem;
+    font-weight: 500;
+    padding: 26px 0.4rem 0rem;
   }
   .layC-float-button {
     width: 50px;

@@ -1,0 +1,65 @@
+/* src/shared/styles/MecanicoRepuestos.css */
+
+.lrm-container {
+  padding: 20px;
+  background-color: #f9fafb;
+  min-height: calc(100vh - 60px); /* Adjust based on header height */
+}
+
+.lrm-title {
+  color: #333;
+  font-size: 2em;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.lrm-search-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-sizing: border-box; /* Include padding in width */
+}
+
+.lrm-repuestos-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.lrm-repuesto-card {
+  background-color: #fff;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.lrm-repuesto-card h2 {
+  color: #0056b3;
+  font-size: 1.5em;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.lrm-repuesto-card p {
+  color: #555;
+  font-size: 0.95em;
+  line-height: 1.5;
+  margin-bottom: 5px;
+}
+
+.lrm-repuesto-card strong {
+  color: #333;
+}
+
+.lrm-no-results {
+  text-align: center;
+  color: #777;
+  font-size: 1.1em;
+  margin-top: 30px;
+}

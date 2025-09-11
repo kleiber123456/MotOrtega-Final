@@ -297,7 +297,6 @@ const MecanicoModal = ({ show, onClose, mecanicos, onSelect, mecanicoActual, fec
                   <tr>
                     <th>Nombre</th>
                     <th>Documento</th>
-                    <th>Correo</th>
                     <th>Acción</th>
                   </tr>
                 </thead>
@@ -310,7 +309,6 @@ const MecanicoModal = ({ show, onClose, mecanicos, onSelect, mecanicoActual, fec
                         </div>
                       </td>
                       <td>{mecanico.documento || "N/A"}</td>
-                      <td>{mecanico.correo || "N/A"}</td>
                       <td>
                         <button
                           type="button"
@@ -651,7 +649,7 @@ const HoraModal = ({
   if (!show) return null
 
   return (
-    <div className="crearCita-modal-overlay">
+    <div className="listarCompra-modal-overlay">
       <div className="crearCita-hora-modal" ref={modalRef}>
         <div className="crearCita-modal-header">
           <h2>
@@ -843,11 +841,11 @@ function CrearCita() {
     const fetchHorariosYCitas = async () => {
       if (formData.fecha && formData.mecanico_id) {
         try {
-          // Solo citas del mecánico y fecha seleccionados
-          const horariosRes = await makeRequest(`/horarios?fecha=${formData.fecha}&mecanico_id=${formData.mecanico_id}`)
+          // Carga todos los horarios y citas para la fecha y filtra en el cliente
+          const horariosRes = await makeRequest(`/horarios?fecha=${formData.fecha}`)
           setHorariosMecanico(Array.isArray(horariosRes.data) ? horariosRes.data : horariosRes.data?.data || [])
 
-          const citasRes = await makeRequest(`/citas?fecha=${formData.fecha}&mecanico_id=${formData.mecanico_id}`)
+          const citasRes = await makeRequest(`/citas?fecha=${formData.fecha}`)
           setCitasMecanico(Array.isArray(citasRes.data) ? citasRes.data : citasRes.data?.data || [])
         } catch {
           setHorariosMecanico([])
@@ -1239,8 +1237,8 @@ function CrearCita() {
                         <FaTools className="crearCita-label-icon" />
                         Mecánico *
                       </label>
-                      <div className="crearCita-form-group">
-                        <div className="crearCita-mecanico-input-btn">
+                      <div className="crearCita-mecanico-input-btn">
+                        <div style={{ position: "relative", flexGrow: 1 }}>
                           <input
                             type="text"
                             placeholder="Seleccione un mecánico..."
@@ -1252,28 +1250,27 @@ function CrearCita() {
                             onClick={() => setMostrarModalMecanicos(true)}
                             readOnly
                             className={`crearCita-form-input ${errors.mecanico_id ? "error" : ""}`}
-                            style={{ cursor: "pointer" }}
+                            style={{ cursor: "pointer", width: "100%" }}
                           />
-                          <button
-                            type="button"
-                            className="crearCita-create-button crearCita-nuevo-mecanico-btn"
-                            title="Crear nuevo mecánico"
-                            onClick={() => navigate("/CrearMecanicos")}
-                          >
-                            <FaPlus /> Nuevo
-                          </button>
+                          {mecanicoSeleccionado && (
+                            <button
+                              type="button"
+                              className="crearCita-clear-button"
+                              onClick={limpiarMecanico}
+                              title="Limpiar selección"
+                            >
+                              <FaTimes />
+                            </button>
+                          )}
                         </div>
-                        {mecanicoSeleccionado && (
-                          <button
-                            type="button"
-                            className="crearCita-clear-button"
-                            onClick={limpiarMecanico}
-                            title="Limpiar selección"
-                            style={{ position: "absolute", right: "80px", top: "50%", transform: "translateY(-50%)" }}
-                          >
-                            <FaTimes />
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          className="crearCita-create-button crearCita-nuevo-mecanico-btn"
+                          title="Crear nuevo mecánico"
+                          onClick={() => navigate("/CrearMecanicos")}
+                        >
+                          <FaPlus /> Nuevo
+                        </button>
                       </div>
                       {!formData.fecha && (
                         <span className="crearCita-info-text">Primero debe seleccionar una fecha</span>
@@ -1332,17 +1329,29 @@ function CrearCita() {
                       Cliente *
                     </label>
                     <div className="crearCita-cliente-input-btn">
-                      <input
-                        type="text"
-                        placeholder="Seleccione un cliente..."
-                        value={
-                          clienteSeleccionado ? `${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}` : ""
-                        }
-                        onClick={() => setMostrarModalClientes(true)}
-                        readOnly
-                        className="crearCita-form-input"
-                        style={{ cursor: "pointer" }}
-                      />
+                      <div style={{ position: "relative", flexGrow: 1 }}>
+                        <input
+                          type="text"
+                          placeholder="Seleccione un cliente..."
+                          value={
+                            clienteSeleccionado ? `${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}` : ""
+                          }
+                          onClick={() => setMostrarModalClientes(true)}
+                          readOnly
+                          className="crearCita-form-input"
+                          style={{ cursor: "pointer", width: "100%" }}
+                        />
+                        {clienteSeleccionado && (
+                          <button
+                            type="button"
+                            className="crearCita-clear-button"
+                            onClick={limpiarCliente}
+                            title="Limpiar selección"
+                          >
+                            <FaTimes />
+                          </button>
+                        )}
+                      </div>
                       <button
                         type="button"
                         className="crearCita-create-button crearCita-nuevo-cliente-btn"
@@ -1352,17 +1361,6 @@ function CrearCita() {
                         <FaPlus /> Nuevo
                       </button>
                     </div>
-                    {clienteSeleccionado && (
-                      <button
-                        type="button"
-                        className="crearCita-clear-button"
-                        onClick={limpiarCliente}
-                        title="Limpiar selección"
-                        style={{ position: "absolute", right: "80px", top: "50%", transform: "translateY(-50%)" }}
-                      >
-                        <FaTimes />
-                      </button>
-                    )}
                   </div>
 
                   <div className="crearCita-form-group">
@@ -1371,20 +1369,32 @@ function CrearCita() {
                       Vehículo *
                     </label>
                     <div className="crearCita-vehiculo-input-btn">
-                      <input
-                        type="text"
-                        placeholder="Seleccione un vehículo..."
-                        value={
-                          vehiculoSeleccionado
-                            ? `${vehiculoSeleccionado.placa} - ${vehiculoSeleccionado.referencia?.marca?.nombre || vehiculoSeleccionado.marca_nombre || ""} ${vehiculoSeleccionado.referencia?.nombre || vehiculoSeleccionado.referencia_nombre || ""}`
-                            : ""
-                        }
-                        onClick={() => selectedCliente && setMostrarModalVehiculos(true)}
-                        readOnly
-                        disabled={!selectedCliente}
-                        className={`crearCita-form-input ${errors.vehiculo_id ? "error" : ""} ${!selectedCliente ? "disabled" : ""}`}
-                        style={{ cursor: selectedCliente ? "pointer" : "not-allowed" }}
-                      />
+                      <div style={{ position: "relative", flexGrow: 1 }}>
+                        <input
+                          type="text"
+                          placeholder="Seleccione un vehículo..."
+                          value={
+                            vehiculoSeleccionado
+                              ? `${vehiculoSeleccionado.placa} - ${vehiculoSeleccionado.referencia?.marca?.nombre || vehiculoSeleccionado.marca_nombre || ""} ${vehiculoSeleccionado.referencia?.nombre || vehiculoSeleccionado.referencia_nombre || ""}`
+                              : ""
+                          }
+                          onClick={() => selectedCliente && setMostrarModalVehiculos(true)}
+                          readOnly
+                          disabled={!selectedCliente}
+                          className={`crearCita-form-input ${errors.vehiculo_id ? "error" : ""} ${!selectedCliente ? "disabled" : ""}`}
+                          style={{ cursor: selectedCliente ? "pointer" : "not-allowed", width: "100%" }}
+                        />
+                        {vehiculoSeleccionado && (
+                          <button
+                            type="button"
+                            className="crearCita-clear-button"
+                            onClick={limpiarVehiculo}
+                            title="Limpiar selección"
+                          >
+                            <FaTimes />
+                          </button>
+                        )}
+                      </div>
                       <button
                         type="button"
                         className="crearCita-create-button crearCita-nuevo-vehiculo-btn"
@@ -1408,17 +1418,6 @@ function CrearCita() {
                         <FaPlus /> Nuevo
                       </button>
                     </div>
-                    {vehiculoSeleccionado && (
-                      <button
-                        type="button"
-                        className="crearCita-clear-button"
-                        onClick={limpiarVehiculo}
-                        title="Limpiar selección"
-                        style={{ position: "absolute", right: "80px", top: "50%", transform: "translateY(-50%)" }}
-                      >
-                        <FaTimes />
-                      </button>
-                    )}
                   </div>
                 </div>
               </div>

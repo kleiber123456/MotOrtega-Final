@@ -1,300 +1,542 @@
-.dashC-body{
-background: linear-gradient(135deg, #0066ff 0%, #004db3 100%);
+/* ===== MOBILE FIRST - ESTILOS BASE ===== */
+.dashC-body {
+  background: linear-gradient(135deg, #0066ff 0%, #004db3 100%);
+  min-height: 100vh;
 }
+
+/* ===== HEADER MÓVIL ===== */
 .dashC-header {
-  padding: 2rem 2rem;
-  height: 70px;
+  padding: 1rem 1rem 0.5rem 1rem;
+  height: auto;
 }
 
 .dashC-header-content {
-  max-width: 1200px;
-  margin: 0 auto;
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
+  margin-top: 10px;
+  margin-bottom: 30px;
 }
 
 .dashC-logo {
-  margin-left: 15px;
-  height: 50px;
-  width: auto;
+  height: 40px;
+  width: 40px;
   border-radius: 50%;
+  object-fit: cover;
 }
 
 .dashC-title-container {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;;
+  align-items: flex-start;
+  flex: 1;
 }
+
 .dashC-title {
-  font-size: 1.8rem;
+  font-size: 1.3rem;
   margin: 0;
   color: white;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.2;
 }
 
 .dashC-subtitle {
-  color: #fff;
+  color: rgba(255, 255, 255, 0.9);
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
 }
+
 .layC-nav-btn-S {
   color: white;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.3rem;
-  padding: 0.5rem 0rem;
+  gap: 0.2rem;
+  padding: 0.5rem;
   border: none;
-  background: none;
+  background: rgba(255, 255, 255, 0.1);
   cursor: pointer;
   transition: all 0.3s ease;
-  min-width: 70px;
-  margin-left: auto; /* <-- Empuja a la derecha */
+  border-radius: 8px;
+  min-width: 50px;
 }
 
+.layC-nav-btn-S:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
 
+.layC-nav-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+}
 
-.dashC-Section1{
+/* ===== SECCIÓN PRINCIPAL MÓVIL ===== */
+.dashC-Section1 {
   width: 100%;
-  background-color: rgb(251, 249, 249);
-  border-radius: 40px 40px 0px 0px;
-  padding-top: 20px;
-}
-
-
-.dashC-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 2rem;
-  margin-top: 25px;
-  margin-bottom: 2rem;
-  padding-left: 10px;
-  padding-right: 10px;
-}
-
-.dashC-stat-card {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-}
-.dashC-stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-.dashC-pending .dashC-stat-icon { 
-  color: #0ea5e9;
-  background: #e0f2fe;
-}
-.dashC-info .dashC-stat-icon { 
-  color: #6366f1;
-  background: #e0e7ff;
-}
-.dashC-success .dashC-stat-icon { 
-  color: #10b981;
-  background: #d1fae5;
-}
-.dashC-warning .dashC-stat-icon { 
-  color: #f59e0b;
-  background: #fef3c7;
-}
-.dashC-stat-icon {
-  font-size: 2rem;
-  padding: 1rem;
-  border-radius: 12px;
-  background: #f0f9ff;
-}
-.dashC-stat-content h3 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 0.25rem;
-}
-.dashC-stat-content p {
-  color: #64748b;
-  font-size: 0.95rem;
-  margin: 0;
+  background-color: #f8fafc;
+  border-radius: 20px 20px 0px 0px;
+  padding: 3rem 1rem 4rem 1rem;
+  min-height: calc(100vh - 80px);
+  margin-top: 80px;
+  margin-bottom: 80px;
 }
 
 .dashC-content {
   width: 100%;
-  max-width: 900px;
   margin: 0 auto;
-  padding-bottom: 6rem;
 }
 
+/* ===== SECCIONES MÓVIL ===== */
 .dashC-section {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
+  padding: 0.5rem;
   margin-bottom: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
+
 .dashC-section-header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 0 0.5rem;
 }
+
 .dashC-section-title {
-  font-size: 1.4rem;
-  color: #0f172a;
+  font-size: 1.1rem;
+  color: #1e293b;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-weight: 600;
 }
+
 .dashC-section-icon {
   color: #0ea5e9;
+  font-size: 1rem;
 }
 
+/* ===== CARDS DE CITAS MÓVIL (CLARAS) ===== */
 .dashC-citas-list {
   display: flex;
-  gap: 1.2rem;
-  flex-wrap: wrap;
-  justify-content: flex-start;
+  flex-direction: column;
+  gap: 1rem;
 }
+
 .dashC-cita-card {
-  background: #334155;
+  background: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(30,41,59,0.10);
-  padding: 1rem 1.5rem;
-  min-width: 220px;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-.dashC-cita-fecha {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-right: 1rem;
-}
-.dashC-fecha-dia {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #38bdf8;
-}
-.dashC-fecha-mes {
-  font-size: 1rem;
-  color: #94a3b8;
-}
-.dashC-cita-info h4 {
-  margin: 0 0 0.2rem 0;
-  color: #fff;
-  font-size: 1.1rem;
-}
-.dashC-cita-info p {
-  margin: 0 0 0.5rem 0;
-  color: #cbd5e1;
-  font-size: 0.95rem;
-}
-.dashC-cita-detalles {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-.dashC-cita-hora {
-  color: #38bdf8;
-  font-size: 0.95rem;
-  display: flex;
-  align-items: center;
-  gap: 0.2rem;
-}
-.dashC-cita-estado {
-  font-size: 0.95rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.2rem;
-}
-.dashC-cita-estado.confirmada { color: #22c55e; }
-.dashC-cita-estado.pendiente { color: #fbbf24; }
-
-.dashC-empty-state {
-  background: #1e293b;
-  border-radius: 12px;
-  padding: 2rem;
-  text-align: center;
-  color: #94a3b8;
-  margin-top: 1rem;
-  box-shadow: 0 2px 8px rgba(30,41,59,0.10);
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    0 1px 4px rgba(0, 0, 0, 0.04);
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+  position: relative;
 }
 
-.dashC-vehiculos-grid {
-  display: flex;
-  gap: 1.2rem;
-  flex-wrap: wrap;
-  justify-content: flex-start;
+.dashC-cita-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #0ea5e9, #38bdf8);
+  border-radius: 12px 12px 0 0;
 }
-.dashC-vehiculo-card {
-  background: #334155;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(30,41,59,0.10);
-  padding: 1rem 1.5rem;
-  min-width: 220px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+
+.dashC-cita-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.12),
+    0 4px 8px rgba(0, 0, 0, 0.06);
 }
-.dashC-vehiculo-header {
+
+.dashC-cita-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #f1f5f9;
 }
+
+.dashC-cita-fecha-top {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.dashC-cita-hora-top {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0ea5e9;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: #f0f9ff;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+}
+
+.dashC-cita-info h4 {
+  margin: 0 0 0.8rem 0;
+  color: #1e293b;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* Placa estilo matrícula colombiana (versión móvil) */
+.dashC-placa {
+  display: inline-block;
+  background: linear-gradient(145deg, #ffcc00, #ffd700);
+  color: #000;
+  font-weight: 800;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  margin: 0.3rem 0;
+  border: 2px solid #333;
+  font-family: "Arial Black", "Arial", sans-serif;
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.dashC-vehiculo-nombre {
+  font-size: 0.85rem;
+  color: #475569;
+  margin: 0.3rem 0 0.6rem 0;
+  font-weight: 500;
+}
+
+.dashC-cita-detalles {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.dashC-cita-estado {
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 16px;
+  text-transform: capitalize;
+}
+
+.dashC-cita-estado.confirmada {
+  color: #059669;
+  background: #d1fae5;
+  border: 1px solid #a7f3d0;
+}
+
+.dashC-cita-estado.pendiente {
+  color: #d97706;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+}
+
+/* ===== CARDS DE VEHÍCULOS MÓVIL (CLARAS) ===== */
+.dashC-vehiculos-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dashC-vehiculo-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    0 1px 4px rgba(0, 0, 0, 0.04);
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.dashC-vehiculo-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  border-radius: 12px 12px 0 0;
+}
+
+.dashC-vehiculo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.12),
+    0 4px 8px rgba(0, 0, 0, 0.06);
+}
+
+.dashC-vehiculo-header {
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
 .dashC-vehiculo-header h4 {
   margin: 0;
-  color: #38bdf8;
+  color: #1e293b;
   font-size: 1.1rem;
-}
-.dashC-vehiculo-año {
-  color: #94a3b8;
-  font-size: 0.95rem;
-}
-.dashC-vehiculo-info p {
-  margin: 0;
-  color: #cbd5e1;
-  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
-@media (min-width: 600px) {
+.dashC-vehiculo-info {
+  margin-bottom: 1rem;
+}
+
+.dashC-vehiculo-info p {
+  margin: 0 0 0.4rem 0;
+  color: #475569;
+  font-size: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dashC-vehiculo-info strong {
+  color: #334155;
+  font-weight: 600;
+}
+
+.dashC-vehiculo-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+/* ===== BOTONES MÓVIL ===== */
+.dashC-view-all-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1rem;
+  background: linear-gradient(145deg, #0ea5e9, #0284c7);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.dashC-view-all-btn:hover {
+  background: linear-gradient(145deg, #0284c7, #0369a1);
+  transform: translateY(-1px);
+}
+
+.dashC-section-header .dashC-view-all-btn {
+  width: auto;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.8rem;
+}
+
+/* ===== ESTADOS VACÍOS MÓVIL ===== */
+.dashC-empty-state {
+  background: #ffffff;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 2rem 1rem;
+  text-align: center;
+  color: #64748b;
+  margin-top: 1rem;
+}
+
+.dashC-empty-state svg {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  opacity: 0.6;
+  color: #94a3b8;
+}
+
+.dashC-empty-state p {
+  margin: 1rem 0;
+  font-size: 1rem;
+}
+
+.dashC-empty-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 1.2rem;
+  background: linear-gradient(145deg, #6366f1, #8b5cf6);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.dashC-empty-action-btn:hover {
+  background: linear-gradient(145deg, #8b5cf6, #a855f7);
+  transform: translateY(-1px);
+}
+
+/* ===== TABLETS (768px+) ===== */
+@media (max-width: 768px) {
   .dashC-header {
-    padding: 2rem 1rem 0.0rem 0;
-    height: 100px;
+    padding: 1.5rem 2rem 1rem 2rem;
   }
+  
+  .dashC-logo {
+    height: 45px;
+    width: 45px;
+  }
+  
   .dashC-title {
+    font-size: 1.5rem;
+  }
+  
+  .dashC-Section1 {
+    border-radius: 30px 30px 0 0;
+    padding: 1.5rem 1rem 5rem 1rem;
+    margin-top: 20px;
+  }
+  
+  .dashC-content {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .dashC-citas-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.2rem;
+  }
+  
+  .dashC-vehiculos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.2rem;
+  }
+  
+  .dashC-vehiculo-actions {
+    flex-direction: row;
+    gap: 0.8rem;
+  }
+  
+  .dashC-view-all-btn {
+    width: auto;
+    flex: 1;
+  }
+}
+
+/* ===== DESKTOP (1024px+) ===== */
+@media (min-width: 1024px) {
+  .dashC-header {
+    padding: 2rem 2rem 1rem 2rem;
+    height: 80px;
+  }
+  
+  .dashC-logo {
+    height: 50px;
+    width: 50px;
+    margin-left: 15px;
+  }
+  
+  .dashC-title {
+    font-size: 1.8rem;
+  }
+  
+  .dashC-subtitle {
+    font-size: 0.95rem;
+  }
+  
+  .layC-nav-btn-S {
+    font-size: 1.5rem;
+    padding: 0.6rem 0.8rem;
+    min-width: 70px;
+  }
+  
+  .layC-nav-label {
+    font-size: 0.8rem;
+  }
+  
+  .dashC-Section1 {
+    border-radius: 40px 40px 0 0;
+    padding: 2rem 2rem 6rem 2rem;
+  }
+  
+  .dashC-content {
+    max-width: 1000px;
+  }
+  
+  .dashC-section {
+    padding: 1.5rem;
+  }
+  
+  .dashC-section-title {
     font-size: 1.3rem;
   }
-  .dashC-stats {
-    gap: 1rem;
-    flex-direction: column;
-    align-items: center;
+  
+  .dashC-citas-list {
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 1.5rem;
   }
-  .dashC-stat-card {
-    min-width: 140px;
-    padding: 1rem 1.2rem;
+  
+  .dashC-vehiculos-grid {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
   }
-  .dashC-content {
-    padding-bottom: 5rem;
-  }
-  .dashC-citas-list, .dashC-vehiculos-grid {
-    gap: 0.7rem;
-  }
-  .dashC-cita-card, .dashC-vehiculo-card {
-    min-width: 160px;
-    padding: 0.7rem 1rem;
+  
+  .dashC-cita-card,
+  .dashC-vehiculo-card {
+    padding: 1.5rem;
   }
 }
 
-@media (min-width: 900px) {
-  .dashC-content {
-    padding-bottom: 7rem;
+/* ===== ANIMACIONES Y EFECTOS ===== */
+.dashC-cita-card,
+.dashC-vehiculo-card {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scroll suave */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Fix para evitar overflow en móvil */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }

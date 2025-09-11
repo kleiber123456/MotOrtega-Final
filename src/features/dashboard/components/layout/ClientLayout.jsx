@@ -46,11 +46,11 @@ const ClientLayout = ({ children }) => {
           <FaHome />
           <span className="layC-nav-label">Inicio</span>
         </Link>
-        <Link to="/client/historial" className="layC-nav-btn" aria-label="Historial">
+        <Link to="/client/citas" className="layC-nav-btn" aria-label="Citas">
           <FaHistory />
-          <span className="layC-nav-label">Historial</span>
+          <span className="layC-nav-label">Citas</span>
         </Link>
-        <span className="layC-nav-label-C">Citas</span>
+        <span className="layC-nav-label-C"></span>
         <Link to="/client/facturas" className="layC-nav-btn" aria-label="Facturas">
           <FaFileInvoiceDollar />
           <span className="layC-nav-label">Facturas</span>

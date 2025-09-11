@@ -7,6 +7,20 @@ import { MdLocalCarWash } from "react-icons/md";
 function MotOrtega(){
     const usuario = JSON.parse(localStorage.getItem('usuario') || sessionStorage.getItem('usuario'));
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
+
+    const getDashboardPath = () => {
+        if (!usuario) return "/login";
+        const role = usuario.rol?.toLowerCase() || usuario.rol_nombre?.toLowerCase();
+        if (role?.includes("cliente")) {
+            return "/client/dashboard";
+        } else if (role?.includes("mecánico") || role?.includes("mecanico")) {
+            return "/mechanic/citas";
+        } else if (role?.includes("admin") || role?.includes("recepcionista")) {
+            return "/dashboard";
+        }
+        return "/dashboard";
+    };
+
     const [scrollPosition, setScrollPosition] = useState(0);
     const [activeSection, setActiveSection] = useState('inicio');
 
@@ -50,7 +64,7 @@ function MotOrtega(){
                                         document.getElementById('galeria').scrollIntoView({behavior: 'smooth'});
                                     }}>Galería</Link>
                                     <Link className="alogo" to="/"><img className="logoMotOrtega" src="/Logo.png" alt="Logo de MotOrtega"/></Link>
-                                    <Link className="opcR" to="/dashboard">Ir al Panel</Link>
+                                    <Link className="opcR" to={getDashboardPath()}>Ir al Panel</Link>
                                 </>
                             ) : (
                                 <>
@@ -81,7 +95,7 @@ function MotOrtega(){
                                 {usuario ? (
                                     <>
                                         <Link className="opcR" to="/agendar-cita">Agendar Citas</Link>
-                                        <Link className="opcR" to="/dashboard">Ir al Panel</Link>
+                                        <Link className="opcR" to={getDashboardPath()}>Ir al Panel</Link>
                                     </>
                                 ) : (
                                     <>
@@ -207,45 +221,45 @@ function MotOrtega(){
                     
                     <div className="ini-galeria-grid">
                         <div className="ini-galeria-item">
-                            <img src="/placeholder.svg?height=300&width=400" alt="Trabajo 1" />
+                            <img src="/pg1.png" alt="Trabajo 1" />
                             <div className="ini-galeria-overlay">
                                 <h4>Restauración Completa</h4>
-                                <p>Chevrolet Camaro</p>
+                                <p>Kia</p>
                             </div>
                         </div>
                         <div className="ini-galeria-item">
-                            <img src="/placeholder.svg?height=300&width=400" alt="Trabajo 2" />
+                            <img src="/pg2.png" alt="Trabajo 2" />
                             <div className="ini-galeria-overlay">
                                 <h4>Pintura Premium</h4>
-                                <p>BMW Serie 3</p>
+                                <p>Xt 660</p>
                             </div>
                         </div>
                         <div className="ini-galeria-item">
-                            <img src="/placeholder.svg?height=300&width=400" alt="Trabajo 3" />
+                            <img src="/pg3.png" alt="Trabajo 3" />
                             <div className="ini-galeria-overlay">
-                                <h4>Reparación Motor</h4>
-                                <p>Toyota Prado</p>
+                                <h4>Recomendacion de clientes</h4>
+                                <p>Pequeño calvin</p>
                             </div>
                         </div>
                         <div className="ini-galeria-item">
-                            <img src="/placeholder.svg?height=300&width=400" alt="Trabajo 4" />
+                            <img src="/pg4.png" alt="Trabajo 4" />
                             <div className="ini-galeria-overlay">
                                 <h4>Latonería</h4>
-                                <p>Mercedes-Benz</p>
+                                <p>Kia</p>
                             </div>
                         </div>
                         <div className="ini-galeria-item">
-                            <img src="/placeholder.svg?height=300&width=400" alt="Trabajo 5" />
+                            <img src="/pg5.png" alt="Trabajo 5" />
                             <div className="ini-galeria-overlay">
                                 <h4>Mantenimiento</h4>
-                                <p>Ford F-150</p>
+                                <p>Kawasaki 125R</p>
                             </div>
                         </div>
                         <div className="ini-galeria-item">
-                            <img src="/placeholder.svg?height=300&width=400" alt="Trabajo 6" />
+                            <img src="/pg6.png" alt="Trabajo 6" />
                             <div className="ini-galeria-overlay">
-                                <h4>Lavado Premium</h4>
-                                <p>Audi A4</p>
+                                <h4>Lavado premium</h4>
+                                <p>RX 100</p>
                             </div>
                         </div>
                     </div>
@@ -485,7 +499,7 @@ function MotOrtega(){
             </footer>
 
             {/* Botón flotante de WhatsApp */}
-            <a href="https://wa.me/573138060710" className="ini-whatsapp-float" target="_blank" rel="noopener noreferrer">
+            <a href="https://wa.link/5yti0m" className="ini-whatsapp-float" target="_blank" rel="noopener noreferrer">
                 <i className="fab fa-whatsapp"></i>
             </a>
         </div>

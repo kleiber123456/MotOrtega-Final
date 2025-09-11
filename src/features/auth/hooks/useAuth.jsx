@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }) => {
     if (roleLower?.includes("cliente")) {
       navigate("/client/dashboard")
     } else if (roleLower?.includes("mecánico") || roleLower?.includes("mecanico")) {
-      navigate("/mechanic/dashboard")
+      navigate("/mechanic/citas")
     } else if (roleLower?.includes("admin") || roleLower?.includes("recepcionista")) {
       navigate("/dashboard")
     } else {

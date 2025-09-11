@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { FaCalendarAlt, FaTools, FaClock, FaCheckCircle, FaExclamationTriangle, FaUser, FaCar } from "react-icons/fa"
+import { FaCalendarAlt, FaTools, FaClock, FaCheckCircle, FaExclamationTriangle, FaUser, FaCar, FaBox } from "react-icons/fa"
 import { useNavigate } from "react-router-dom"
 import "../../../shared/styles/Dashboard.css"
 
@@ -168,6 +168,32 @@ const MechanicDashboard = () => {
           </div>
           <button className="stat-action" onClick={() => navigate("/mechanic/horarios")}>
             Ver horario
+          </button>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon info">
+            <FaCalendarAlt />
+          </div>
+          <div className="stat-content">
+            <h3>Ver</h3>
+            <p>Mis Citas Asignadas</p>
+          </div>
+          <button className="stat-action" onClick={() => navigate("/mechanic/citas")}>
+            Ver Citas
+          </button>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon success">
+            <FaBox />
+          </div>
+          <div className="stat-content">
+            <h3>Ver</h3>
+            <p>Lista de Repuestos</p>
+          </div>
+          <button className="stat-action" onClick={() => navigate("/mechanic/repuestos")}>
+            Ver Repuestos
           </button>
         </div>
       </div>

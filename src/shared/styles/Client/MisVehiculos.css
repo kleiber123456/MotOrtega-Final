@@ -1,7 +1,7 @@
 /* CSS específico para MisVehiculos del cliente */
 .cvc-lista-body {
-  min-height: 100vh;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  margin-bottom: 100px;
 }
 
 .cvc-lista-header {
@@ -14,10 +14,8 @@
 
 .cvc-lista-header-content {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
+  justify-content: space-between; /* título a la izquierda, botón a la derecha */
+  align-items: center; /* alineación vertical */
 }
 
 .cvc-lista-logo {
@@ -29,7 +27,7 @@
 
 .cvc-lista-title-container h1 {
   margin: 0;
-  font-size: 1.75rem;
+  font-size: 1.50rem;
   font-weight: 700;
   color: #1f2937;
 }
@@ -41,7 +39,7 @@
 }
 
 .cvc-lista-add-btn {
-  background: #10b981;
+  background: #0ea5e9;
   color: white;
   border: none;
   border-radius: 8px;
@@ -52,10 +50,6 @@
   gap: 0.5rem;
   font-weight: 500;
   transition: background-color 0.2s;
-}
-
-.cvc-lista-add-btn:hover {
-  background: #059669;
 }
 
 .cvc-lista-section {
@@ -126,10 +120,6 @@
   font-size: 0.9rem;
 }
 
-.cvc-lista-search-container {
-  margin-bottom: 1.5rem;
-}
-
 .cvc-lista-search-box {
   display: flex;
   align-items: center;
@@ -138,6 +128,7 @@
   border-radius: 8px;
   padding: 0.5rem 1rem;
   max-width: 400px;
+  
 }
 
 .cvc-lista-search-box input {
@@ -145,10 +136,7 @@
   outline: none;
   flex: 1;
   font-size: 1rem;
-}
-
-.cvc-lista-section-header {
-  margin-bottom: 1.5rem;
+  width: 100%;
 }
 
 .cvc-lista-section-title {
@@ -174,94 +162,138 @@
 .cvc-lista-vehiculo-card {
   background: white;
   border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   border: 1px solid #e5e7eb;
   transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* To keep border-radius on children */
 }
 
 .cvc-lista-vehiculo-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .cvc-lista-vehiculo-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.cvc-lista-vehiculo-main-info {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1rem;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cvc-lista-vehiculo-icon-container {
+  background-color: #0ea5e9;
+  color: white;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
 }
 
 .cvc-lista-vehiculo-header h4 {
   margin: 0 0 0.25rem 0;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: #1f2937;
 }
 
+.cvc-lista-vehiculo-sub-info {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
 .cvc-lista-vehiculo-placa {
-  background: #0ea5e9;
-  color: white;
-  padding: 0.25rem 0.5rem;
+  background-color: #f5c60b;
+  border: #222 2px solid;
+  color: #222;
+  padding: 0.28rem 0.7rem;
   border-radius: 4px;
-  font-weight: 500;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.cvc-lista-vehiculo-details {
+  padding: 1rem 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
   font-size: 0.9rem;
 }
 
-.cvc-lista-vehiculo-actions {
+.cvc-lista-detail-item {
   display: flex;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cvc-lista-detail-item strong {
+  color: #374151;
+  font-weight: 500;
+}
+
+.cvc-lista-detail-item span {
+  color: #6b7280;
+}
+
+.cvc-lista-status.active {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.cvc-lista-status.inactive {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.cvc-lista-vehiculo-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: auto; /* Push to the bottom */
+  background-color: #f9fafb;
+  border-top: 1px solid #f3f4f6;
 }
 
 .cvc-lista-action-btn {
+  background: transparent;
+  color: #6b7280;
   border: none;
-  border-radius: 6px;
-  padding: 0.5rem;
+  border-right: 1px solid #f3f4f6;
+  padding: 0.75rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.2s;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.cvc-lista-action-btn:last-child {
+  border-right: none;
 }
 
 .cvc-lista-action-btn:hover {
-  opacity: 0.8;
-}
-
-.cvc-lista-action-btn.view {
-  background: #10b981;
-  color: white;
-}
-
-.cvc-lista-action-btn.edit {
-  background: #f59e0b;
-  color: white;
+  background-color: #f3f4f6;
+  color: #0ea5e9;
 }
 
 .cvc-lista-action-btn.delete {
-  background: #ef4444;
-  color: white;
-}
-
-.cvc-lista-action-btn.history {
-  background: #8b5cf6;
-  color: white;
-}
-
-.cvc-lista-vehiculo-info {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-  font-size: 0.9rem;
-}
-
-.cvc-lista-vehiculo-info strong {
-  color: #374151;
-}
-
-.cvc-lista-vehiculo-info span {
-  margin-left: 0.5rem;
-  color: #6b7280;
+  background-color: #fee2e2;
+  color: #ef4444;
 }
 
 .cvc-lista-empty-state {
@@ -298,6 +330,32 @@
   font-weight: 500;
 }
 
+.cvc-lista-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Adjust search box to take available space */
+.cvc-lista-toolbar .cvc-lista-search-box {
+  flex-grow: 1;
+  margin-right: 1rem;
+  max-width: 500px; /* Opcional: limita el ancho */
+}
+
+/* Ensure add button has a fixed size */
+.cvc-lista-toolbar .cvc-lista-add-btn {
+  flex-shrink: 0;
+}
+.cvc-lista-search-container{
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  margin-top: 10px;
+}
 @media (max-width: 768px) {
   .cvc-lista-vehiculos-grid {
     grid-template-columns: 1fr;
@@ -307,12 +365,19 @@
     grid-template-columns: 1fr;
   }
 
-  .cvc-lista-vehiculo-header {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .cvc-lista-vehiculo-info {
+  .cvc-lista-stats {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .cvc-lista-action-btn span {
+    display: none;
+  }
+  .cvc-lista-toolbar .cvc-lista-add-btn span {
+    display: none;
+  }
+  .cvc-lista-toolbar .cvc-lista-add-btn {
+    padding: 0.75rem;
   }
 }

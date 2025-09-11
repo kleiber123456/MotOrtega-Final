@@ -111,6 +111,11 @@ import DetalleRol from "./features/dashboard/pages/Roles/DetalleRol"
 // ----------------------------------------------------------------------
 
 import AgendarCita from "./features/client/pages/AgendarCita"
+import MisCitas from "./features/client/pages/MisCitas"
+import MisFacturas from "./features/client/pages/MisFacturas"
+import DetalleFactura from "./features/client/pages/DetalleFactura"
+import MecanicoCitas from "./features/mechanic/pages/MecanicoCitas.jsx"
+import MecanicoRepuestos from "./features/mechanic/pages/MecanicoRepuestos.jsx"
 
 function App() {
   return (
@@ -151,6 +156,45 @@ function App() {
         }
       />
 
+      <Route
+        path="/client/citas"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["cliente"]}>
+              <ClientLayout>
+                <MisCitas />
+              </ClientLayout>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/client/facturas"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["cliente"]}>
+              <ClientLayout>
+                <MisFacturas />
+              </ClientLayout>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/client/facturas/detalle/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["cliente"]}>
+              <ClientLayout>
+                <DetalleFactura />
+              </ClientLayout>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+
       {/* RUTAS ESPECÍFICAS PARA MECÁNICOS */}
       <Route
         path="/mechanic/dashboard"
@@ -171,6 +215,30 @@ function App() {
             <RoleBasedRoute allowedRoles={["mecánico", "mecanico"]}>
               <MechanicLayout>
                 <Perfil />
+              </MechanicLayout>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/mechanic/citas"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["mecánico", "mecanico"]}>
+              <MechanicLayout>
+                <MecanicoCitas />
+              </MechanicLayout>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/mechanic/repuestos"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["mecánico", "mecanico"]}>
+              <MechanicLayout>
+                <MecanicoRepuestos />
               </MechanicLayout>
             </RoleBasedRoute>
           </PrivateRoute>
