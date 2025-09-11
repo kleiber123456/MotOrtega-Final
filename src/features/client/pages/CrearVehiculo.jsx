@@ -429,7 +429,7 @@ const CrearVehiculo = () => {
           {/* Navigation buttons */}
           <div className="cvc-crear-form-actions">
             {currentStep > 1 && (
-              <button type="button" onClick={prevStep} className="cvc-crear-cancel-button">
+              <button type="button" onClick={prevStep} className="cvc-crear-submit-button">
                 <FaArrowLeft className="cvc-crear-button-icon" />
                 Anterior
               </button>

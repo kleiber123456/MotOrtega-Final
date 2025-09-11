@@ -5,8 +5,6 @@ import { useNavigate } from "react-router-dom"
 import {
   FaCalendarAlt,
   FaCar,
-  FaTools,
-  FaFileInvoice,
   FaClock,
   FaCheckCircle,
   FaExclamationTriangle,
@@ -17,98 +15,6 @@ import "../../../shared/components/layout/clientlayout.css"
 import "../../../shared/components/layout/dashclient.css"
 
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
-
-const MOCK_DATA = {
-  citas: [
-    {
-      id: 1,
-      fecha: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // En 2 días
-      hora: "10:00",
-      observaciones: "Cambio de aceite y filtros",
-      estado_cita: { nombre: "Confirmada" },
-      vehiculo: {
-        placa: "ABC123",
-        referencia: {
-          marca: { nombre: "Toyota" },
-          nombre: "Corolla",
-        },
-      },
-    },
-    {
-      id: 2,
-      fecha: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // En 5 días
-      hora: "14:30",
-      observaciones: "Revisión general",
-      estado_cita: { nombre: "Pendiente" },
-      vehiculo: {
-        placa: "XYZ789",
-        referencia: {
-          marca: { nombre: "Honda" },
-          nombre: "Civic",
-        },
-      },
-    },
-    {
-      id: 3,
-      fecha: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // Hace 10 días
-      hora: "09:00",
-      observaciones: "Mantenimiento preventivo",
-      estado_cita: { nombre: "Completada" },
-      vehiculo: {
-        placa: "ABC123",
-        referencia: {
-          marca: { nombre: "Toyota" },
-          nombre: "Corolla",
-        },
-      },
-    },
-  ],
-  vehiculos: [
-    {
-      id: 1,
-      placa: "ABC123",
-      color: "Blanco",
-      tipo_vehiculo: "Automóvil",
-      referencia_id: 1,
-      cliente_id: 24,
-      estado: "Activo",
-      referencia_nombre: "Corolla",
-      marca_nombre: "Toyota",
-      año: 2020,
-      ultimo_servicio: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: 2,
-      placa: "XYZ789",
-      color: "Azul",
-      tipo_vehiculo: "Automóvil",
-      referencia_id: 2,
-      cliente_id: 24,
-      estado: "Activo",
-      referencia_nombre: "Civic",
-      marca_nombre: "Honda",
-      año: 2019,
-      ultimo_servicio: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: 4,
-      placa: "ABC55H",
-      color: "Amarillo",
-      tipo_vehiculo: "Moto",
-      referencia_id: 9,
-      cliente_id: 24,
-      estado: "Activo",
-      referencia_nombre: "YBR 125",
-      marca_nombre: "Yamaha",
-      año: 2021,
-      ultimo_servicio: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-  ],
-  facturas: [
-    { id: 1, estado: "pendiente", monto: 150000 },
-    { id: 2, estado: "pendiente", monto: 85000 },
-  ],
-}
 
 const ClientDashboard = () => {
   const navigate = useNavigate()
@@ -135,7 +41,7 @@ const ClientDashboard = () => {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: token, // Sin prefijo "Bearer"
+          Authorization: token,
           ...options.headers,
         },
         ...options,
@@ -153,15 +59,12 @@ const ClientDashboard = () => {
   }
 
   const loadMockData = () => {
-    console.log("[v0] Cargando datos simulados debido a falta de conexión con el backend")
     setUsingMockData(true)
 
     const storedUser = localStorage.getItem("usuario") || sessionStorage.getItem("usuario")
     if (storedUser) {
-      const user = JSON.parse(storedUser)
-      setUserData(user)
+      setUserData(JSON.parse(storedUser))
     } else {
-      // Usuario simulado si no hay datos almacenados
       setUserData({
         id: 24,
         nombre: "Juan Pérez",
@@ -173,12 +76,8 @@ const ClientDashboard = () => {
     const vehiculosData = MOCK_DATA.vehiculos
     const facturasData = MOCK_DATA.facturas
 
-    // Filtrar citas futuras y pendientes
     const now = new Date()
-    const citasFuturas = citasData.filter((cita) => {
-      const fechaCita = new Date(cita.fecha)
-      return fechaCita >= now
-    })
+    const citasFuturas = citasData.filter((cita) => new Date(cita.fecha) >= now)
 
     const citasPendientes = citasData.filter(
       (cita) =>
@@ -192,7 +91,6 @@ const ClientDashboard = () => {
         cita.estado_cita?.nombre?.toLowerCase().includes("finalizada"),
     )
 
-    // Actualizar estadísticas con datos simulados
     setStats({
       citasPendientes: citasPendientes.length,
       vehiculosRegistrados: vehiculosData.length,
@@ -200,33 +98,30 @@ const ClientDashboard = () => {
       facturasPendientes: facturasData.length,
     })
 
-    // Formatear próximas citas
-    const proximasCitasFormateadas = citasFuturas.slice(0, 5).map((cita) => ({
-      id: cita.id,
-      fecha: cita.fecha,
-      hora: cita.hora,
-      servicio: cita.observaciones || "Servicio de mantenimiento",
-      vehiculo: cita.vehiculo
-        ? `${cita.vehiculo.referencia?.marca?.nombre || ""} ${cita.vehiculo.referencia?.nombre || ""} ${cita.vehiculo.placa}`.trim()
-        : "Vehículo no especificado",
-      estado: cita.estado_cita?.nombre || "Pendiente",
-    }))
+    setProximasCitas(
+      citasFuturas.slice(0, 5).map((cita) => ({
+        id: cita.id,
+        fecha: cita.fecha,
+        hora: cita.hora,
+        servicio: cita.observaciones || "Servicio de mantenimiento",
+        vehiculo: cita.vehiculo
+          ? `${cita.vehiculo.referencia?.marca?.nombre || ""} ${cita.vehiculo.referencia?.nombre || ""} ${cita.vehiculo.placa}`.trim()
+          : "Vehículo no especificado",
+        estado: cita.estado_cita?.nombre || "Pendiente",
+      })),
+    )
 
-    setProximasCitas(proximasCitasFormateadas)
-
-    const vehiculosFormateados = vehiculosData.map((vehiculo) => ({
-      id: vehiculo.id,
-      marca: vehiculo.marca_nombre || vehiculo.referencia?.marca?.nombre || "N/A",
-      modelo: vehiculo.referencia_nombre || vehiculo.referencia?.nombre || "N/A",
-      año: vehiculo.año || new Date().getFullYear(),
-      placa: vehiculo.placa || "N/A",
-      color: vehiculo.color || "N/A",
-      tipo: vehiculo.tipo_vehiculo || "N/A",
-      estado: vehiculo.estado || "Activo",
-      ultimoServicio: vehiculo.ultimo_servicio || vehiculo.created_at || new Date().toISOString(),
-    }))
-
-    setVehiculos(vehiculosFormateados)
+    setVehiculos(
+      vehiculosData.map((vehiculo) => ({
+        id: vehiculo.id,
+        marca: vehiculo.marca_nombre || vehiculo.referencia?.marca?.nombre || "N/A",
+        modelo: vehiculo.referencia_nombre || vehiculo.referencia?.nombre || "N/A",
+        placa: vehiculo.placa || "N/A",
+        color: vehiculo.color || "N/A",
+        tipo: vehiculo.tipo_vehiculo || "N/A",
+        estado: vehiculo.estado || "Activo",
+      })),
+    )
   }
 
   const fetchClientData = async () => {
@@ -238,16 +133,11 @@ const ClientDashboard = () => {
         const user = JSON.parse(storedUser)
         setUserData(user)
 
-        // Obtener citas del cliente
         const citasResponse = await makeRequest(`/citas?cliente_id=${user.id}`)
         const citasData = Array.isArray(citasResponse) ? citasResponse : citasResponse?.data || []
 
-        // Filtrar citas futuras y pendientes
         const now = new Date()
-        const citasFuturas = citasData.filter((cita) => {
-          const fechaCita = new Date(cita.fecha)
-          return fechaCita >= now
-        })
+        const citasFuturas = citasData.filter((cita) => new Date(cita.fecha) >= now)
 
         const citasPendientes = citasData.filter(
           (cita) =>
@@ -261,11 +151,9 @@ const ClientDashboard = () => {
             cita.estado_cita?.nombre?.toLowerCase().includes("finalizada"),
         )
 
-        // Obtener vehículos del cliente
         const vehiculosResponse = await makeRequest(`/vehiculos/cliente/${user.id}`)
         const vehiculosData = Array.isArray(vehiculosResponse) ? vehiculosResponse : vehiculosResponse?.data || []
 
-        // Obtener facturas pendientes (si existe el endpoint)
         let facturasPendientes = 0
         try {
           const facturasResponse = await makeRequest(`/facturas?cliente_id=${user.id}&estado=pendiente`)
@@ -275,7 +163,6 @@ const ClientDashboard = () => {
           console.log("No se pudieron cargar las facturas:", error)
         }
 
-        // Actualizar estadísticas con datos reales
         setStats({
           citasPendientes: citasPendientes.length,
           vehiculosRegistrados: vehiculosData.length,
@@ -283,33 +170,30 @@ const ClientDashboard = () => {
           facturasPendientes: facturasPendientes,
         })
 
-        // Formatear próximas citas
-        const proximasCitasFormateadas = citasFuturas.slice(0, 5).map((cita) => ({
-          id: cita.id,
-          fecha: cita.fecha,
-          hora: cita.hora,
-          servicio: cita.observaciones || "Servicio de mantenimiento",
-          vehiculo: cita.vehiculo
-            ? `${cita.vehiculo.referencia?.marca?.nombre || ""} ${cita.vehiculo.referencia?.nombre || ""} ${cita.vehiculo.placa}`.trim()
-            : "Vehículo no especificado",
-          estado: cita.estado_cita?.nombre || "Pendiente",
-        }))
+        setProximasCitas(
+          citasFuturas.slice(0, 5).map((cita) => ({
+            id: cita.id,
+            fecha: cita.fecha,
+            hora: cita.hora,
+            servicio: cita.observaciones || "Servicio de mantenimiento",
+            vehiculo: `${cita.marca_nombre || ""} ${cita.referencia_nombre || ""} ${cita.vehiculo_placa || ""}`.trim(),
+            estado: cita.estado_nombre || "Pendiente",
+          })),
+        )
 
-        setProximasCitas(proximasCitasFormateadas)
-
-        const vehiculosFormateados = vehiculosData.map((vehiculo) => ({
-          id: vehiculo.id,
-          marca: vehiculo.marca_nombre || vehiculo.referencia?.marca?.nombre || "N/A",
-          modelo: vehiculo.referencia_nombre || vehiculo.referencia?.nombre || "N/A",
-          año: vehiculo.año || new Date().getFullYear(),
-          placa: vehiculo.placa || "N/A",
-          color: vehiculo.color || "N/A",
-          tipo: vehiculo.tipo_vehiculo || "N/A",
-          estado: vehiculo.estado || "Activo",
-          ultimoServicio: vehiculo.ultimo_servicio || vehiculo.created_at || new Date().toISOString(),
-        }))
-
-        setVehiculos(vehiculosFormateados)
+        setVehiculos(
+          vehiculosData.map((vehiculo) => ({
+            id: vehiculo.id,
+            marca: vehiculo.marca_nombre || vehiculo.referencia?.marca?.nombre || "N/A",
+            modelo: vehiculo.referencia_nombre || vehiculo.referencia?.nombre || "N/A",
+            año: vehiculo.año || new Date().getFullYear(),
+            placa: vehiculo.placa || "N/A",
+            color: vehiculo.color || "N/A",
+            tipo: vehiculo.tipo_vehiculo || "N/A",
+            estado: vehiculo.estado || "Activo",
+            ultimoServicio: vehiculo.ultimo_servicio || vehiculo.created_at || new Date().toISOString(),
+          })),
+        )
       }
     } catch (error) {
       console.error("Error cargando datos del cliente:", error)
@@ -330,6 +214,14 @@ const ClientDashboard = () => {
       year: "numeric",
       month: "long",
       day: "numeric",
+    })
+  }
+
+  const formatearHora = (hora) => {
+    return new Date(`1970-01-01T${hora}`).toLocaleTimeString("es-CO", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
     })
   }
 
@@ -371,14 +263,7 @@ const ClientDashboard = () => {
             <span className="dashC-subtitle">Bienvenido</span>
             <h1 className="dashC-title">{userData.nombre || "Cliente"}</h1>
             {usingMockData && (
-              <span
-                style={{
-                  fontSize: "0.8rem",
-                  color: "#ff9800",
-                  fontStyle: "italic",
-                  display: "block",
-                }}
-              >
+              <span style={{ fontSize: "0.8rem", color: "#ff9800", fontStyle: "italic", display: "block" }}>
                 (Mostrando datos de demostración)
               </span>
             )}
@@ -389,47 +274,10 @@ const ClientDashboard = () => {
           </button>
         </div>
       </div>
-      <div className="dashC-Section1">
-        <div className="dashC-stats">
-          <div className="dashC-stat-card dashC-pending">
-            <div className="dashC-stat-icon">
-              <FaCalendarAlt />
-            </div>
-            <div className="dashC-stat-content">
-              <h3>{stats.citasPendientes}</h3>
-              <p>Citas Pendientes</p>
-            </div>
-          </div>
-          <div className="dashC-stat-card dashC-info">
-            <div className="dashC-stat-icon">
-              <FaCar />
-            </div>
-            <div className="dashC-stat-content">
-              <h3>{stats.vehiculosRegistrados}</h3>
-              <p>Vehículos Registrados</p>
-            </div>
-          </div>
-          <div className="dashC-stat-card dashC-success">
-            <div className="dashC-stat-icon">
-              <FaTools />
-            </div>
-            <div className="dashC-stat-content">
-              <h3>{stats.serviciosCompletados}</h3>
-              <p>Servicios Completados</p>
-            </div>
-          </div>
-          <div className="dashC-stat-card dashC-warning">
-            <div className="dashC-stat-icon">
-              <FaFileInvoice />
-            </div>
-            <div className="dashC-stat-content">
-              <h3>{stats.facturasPendientes}</h3>
-              <p>Facturas Pendientes</p>
-            </div>
-          </div>
-        </div>
 
+      <div className="dashC-Section1">
         <div className="dashC-content">
+          {/* Próximas citas */}
           <div className="dashC-section">
             <div className="dashC-section-header">
               <h2 className="dashC-section-title">
@@ -440,19 +288,25 @@ const ClientDashboard = () => {
               {proximasCitas.length > 0 ? (
                 proximasCitas.map((cita) => (
                   <div key={cita.id} className="dashC-cita-card">
-                    <div className="dashC-cita-fecha">
-                      <div className="dashC-fecha-dia">{new Date(cita.fecha).getDate()}</div>
-                      <div className="dashC-fecha-mes">
-                        {new Date(cita.fecha).toLocaleDateString("es-ES", { month: "short" })}
-                      </div>
+                    <div className="dashC-cita-header">
+                      <span className="dashC-cita-fecha-top">{formatearFecha(cita.fecha)}</span>
+                      <span className="dashC-cita-hora-top">
+                        <FaClock /> {formatearHora(cita.hora)}
+                      </span>
                     </div>
+
                     <div className="dashC-cita-info">
                       <h4>{cita.servicio}</h4>
-                      <p>{cita.vehiculo}</p>
+
+                      <div className="dashC-placa">
+                        {cita.vehiculo.split(" ").pop()}
+                      </div>
+
+                      <p className="dashC-vehiculo-nombre">
+                        {cita.vehiculo.replace(/\s[A-Z0-9-]+$/, "")}
+                      </p>
+
                       <div className="dashC-cita-detalles">
-                        <span className="dashC-cita-hora">
-                          <FaClock /> {cita.hora}
-                        </span>
                         <span className={`dashC-cita-estado ${cita.estado.toLowerCase()}`}>
                           {cita.estado === "Confirmada" ? <FaCheckCircle /> : <FaExclamationTriangle />}
                           {cita.estado}
@@ -470,6 +324,7 @@ const ClientDashboard = () => {
             </div>
           </div>
 
+          {/* Mis vehículos */}
           <div className="dashC-section">
             <div className="dashC-section-header">
               <h2 className="dashC-section-title">
@@ -487,11 +342,11 @@ const ClientDashboard = () => {
                       <h4>
                         {vehiculo.marca} {vehiculo.modelo}
                       </h4>
-                      <span className="dashC-vehiculo-año">{vehiculo.año}</span>
                     </div>
                     <div className="dashC-vehiculo-info">
                       <p>
-                        <strong>Placa:</strong> {vehiculo.placa}
+                        <strong>Placa:</strong>{" "}
+                        <span className="dashC-placa">{vehiculo.placa}</span>
                       </p>
                       <p>
                         <strong>Tipo:</strong> {vehiculo.tipo}
@@ -505,16 +360,10 @@ const ClientDashboard = () => {
                     </div>
                     <div className="dashC-vehiculo-actions">
                       <button
-                        className="dashC-action-btn dashC-btn-primary"
+                        className="dashC-view-all-btn"
                         onClick={() => navigate(`/client/vehiculos/detalle/${vehiculo.id}`)}
                       >
                         Ver detalle
-                      </button>
-                      <button
-                        className="dashC-action-btn dashC-btn-secondary"
-                        onClick={() => navigate("/client/agendar-cita", { state: { vehiculoId: vehiculo.id } })}
-                      >
-                        Agendar cita
                       </button>
                     </div>
                   </div>
@@ -529,13 +378,6 @@ const ClientDashboard = () => {
                 </div>
               )}
             </div>
-            {vehiculos.length > 3 && (
-              <div className="dashC-more-items">
-                <p>
-                  Y {vehiculos.length - 3} vehículo{vehiculos.length - 3 > 1 ? "s" : ""} más...
-                </p>
-              </div>
-            )}
           </div>
         </div>
       </div>
