@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import Select from "react-select"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
 import { toast } from "react-toastify"
@@ -599,21 +600,15 @@ const HoraModal = ({
 
   novedadesFiltradas.forEach((novedad) => {
     if (novedad.tipo_novedad === "Ausencia") {
-      todasLasHoras.forEach((h) => horasBloqueadas.push(h.hora))
-      console.log(
-        `[NOVEDAD] Ausencia - Fecha: ${novedad.fecha} | Mecánico: ${novedad.mecanico_id} | Bloquea todas las horas`,
-      )
+      todasLasHoras.forEach((h) => horasBloqueadas.push(h.hora));
     } else if (novedad.hora_inicio && novedad.hora_fin) {
-      const inicio = Number.parseInt(novedad.hora_inicio.split(":")[0])
-      const fin = Number.parseInt(novedad.hora_fin.split(":")[0])
+      const inicio = Number.parseInt(novedad.hora_inicio.split(":")[0]);
+      const fin = Number.parseInt(novedad.hora_fin.split(":")[0]);
       for (let h = inicio; h < fin; h++) {
-        horasBloqueadas.push(`${h.toString().padStart(2, "0")}:00`)
-        console.log(
-          `[NOVEDAD] ${novedad.tipo_novedad} - Fecha: ${novedad.fecha} | Mecánico: ${novedad.mecanico_id} | Bloquea: ${h.toString().padStart(2, "0")}:00`,
-        )
+        horasBloqueadas.push(`${h.toString().padStart(2, "0")}:00`);
       }
     }
-  })
+  });
   // Normaliza las horas ocupadas por citas SOLO si la fecha y el mecánico coinciden
   const horasOcupadas = citasMecanico
     .filter((cita) => {
@@ -634,17 +629,6 @@ const HoraModal = ({
   const horasNoDisponibles = Array.from(new Set([...horasBloqueadas, ...horasOcupadas]))
   const horasFiltradas = todasLasHoras.filter((hora) => !horasNoDisponibles.includes(hora.hora))
 
-  // Logs para depuración
-  console.log(
-    "Todas las horas:",
-    todasLasHoras.map((h) => h.hora),
-  )
-  console.log("Horas bloqueadas por novedades:", horasBloqueadas)
-  console.log("Horas ocupadas por citas:", horasOcupadas)
-  console.log(
-    "Horas filtradas (disponibles):",
-    horasFiltradas.map((h) => h.hora),
-  )
 
   if (!show) return null
 
@@ -694,11 +678,23 @@ const HoraModal = ({
   )
 }
 
+
 function CrearCita() {
   const navigate = useNavigate()
   // Claves para localStorage
   const FORM_STORAGE_KEY = 'crearCita_formData'
   const SELECTIONS_STORAGE_KEY = 'crearCita_selections'
+
+  // Limpiar localStorage si es la primera vez que se entra (no hay token o no hay datos previos válidos)
+  useEffect(() => {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token")
+    const savedData = localStorage.getItem(FORM_STORAGE_KEY)
+    const savedSelections = localStorage.getItem(SELECTIONS_STORAGE_KEY)
+    if (!token || (!savedData && !savedSelections)) {
+      localStorage.removeItem(FORM_STORAGE_KEY)
+      localStorage.removeItem(SELECTIONS_STORAGE_KEY)
+    }
+  }, [])
 
   // Funciones para persistencia
   const loadFormData = () => {
@@ -708,7 +704,6 @@ function CrearCita() {
         return JSON.parse(savedData)
       }
     } catch (error) {
-      console.error('Error loading form data from localStorage:', error)
     }
     return {
       fecha: "",
@@ -724,7 +719,6 @@ function CrearCita() {
     try {
       localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(data))
     } catch (error) {
-      console.error('Error saving form data to localStorage:', error)
     }
   }
 
@@ -762,6 +756,8 @@ function CrearCita() {
   const [vehiculos, setVehiculos] = useState([])
   const [mecanicos, setMecanicos] = useState([])
   const [estados, setEstados] = useState([])
+  const [servicios, setServicios] = useState([])
+  const [selectedServicio, setSelectedServicio] = useState(null)
   const [selectedCliente, setSelectedCliente] = useState(initialSelections.selectedCliente)
   const [vehiculosFiltrados, setVehiculosFiltrados] = useState([])
   const [loading, setLoading] = useState(false)
@@ -823,6 +819,7 @@ function CrearCita() {
       throw error
     }
   }
+
 
   useEffect(() => {
     fetchData()
@@ -887,7 +884,6 @@ function CrearCita() {
       } else if (clientesRes.data && Array.isArray(clientesRes.data.data)) {
         setClientes(clientesRes.data.data.filter((cliente) => cliente.estado?.toLowerCase() === "activo"))
       } else {
-        console.error("La respuesta de clientes no es un array:", clientesRes.data)
         setClientes([])
       }
 
@@ -898,7 +894,6 @@ function CrearCita() {
       } else if (vehiculosRes.data && Array.isArray(vehiculosRes.data.data)) {
         setVehiculos(vehiculosRes.data.data.filter((vehiculo) => vehiculo.estado?.toLowerCase() === "activo"))
       } else {
-        console.error("La respuesta de vehículos no es un array:", vehiculosRes.data)
         setVehiculos([])
       }
 
@@ -909,8 +904,17 @@ function CrearCita() {
       } else if (mecanicosRes.data && Array.isArray(mecanicosRes.data.data)) {
         setMecanicos(mecanicosRes.data.data.filter((mecanico) => mecanico.estado?.toLowerCase() === "activo"))
       } else {
-        console.error("La respuesta de mecánicos no es un array:", mecanicosRes.data)
         setMecanicos([])
+      }
+
+      // Obtener servicios activos
+      const serviciosRes = await makeRequest("/servicios")
+      if (serviciosRes.data && Array.isArray(serviciosRes.data)) {
+        setServicios(serviciosRes.data.filter((servicio) => servicio.estado?.toLowerCase() === "activo"))
+      } else if (serviciosRes.data && Array.isArray(serviciosRes.data.data)) {
+        setServicios(serviciosRes.data.data.filter((servicio) => servicio.estado?.toLowerCase() === "activo"))
+      } else {
+        setServicios([])
       }
 
       // Obtener estados de cita
@@ -920,18 +924,16 @@ function CrearCita() {
       } else if (estadosRes.data && Array.isArray(estadosRes.data.data)) {
         setEstados(estadosRes.data.data)
       } else {
-        console.error("La respuesta de estados no es un array:", estadosRes.data)
         setEstados([])
       }
 
       setLoading(false)
     } catch (error) {
-      console.error("Error al cargar datos:", error)
-      toast.error("Error al cargar los datos necesarios")
       setClientes([])
       setVehiculos([])
       setMecanicos([])
       setEstados([])
+      setServicios([])
       setLoading(false)
     }
   }
@@ -1049,7 +1051,7 @@ function CrearCita() {
 
     try {
       setLoading(true)
-      // Corrección: construye el payload asegurando que los ids sean números
+      // Construir payload con servicio_id
       const datosCita = {
         fecha: formData.fecha,
         hora: formData.hora,
@@ -1057,21 +1059,21 @@ function CrearCita() {
         estado_cita_id: Number(formData.estado_cita_id),
         vehiculo_id: Number(formData.vehiculo_id),
         mecanico_id: Number(formData.mecanico_id),
+        servicio_id: selectedServicio ? selectedServicio.value : null,
       }
-
-      console.log("Enviando datos de cita:", datosCita)
 
       const response = await makeRequest("/citas", {
         method: "POST",
         data: datosCita,
       })
 
-      console.log("Respuesta de creación de cita:", response.data)
+      // Limpiar localStorage al crear cita
+      localStorage.removeItem(FORM_STORAGE_KEY)
+      localStorage.removeItem(SELECTIONS_STORAGE_KEY)
+
       toast.success("Cita creada correctamente")
       navigate("/citas")
     } catch (error) {
-      console.error("Error al crear la cita:", error)
-
       if (error.response && error.response.data && error.response.data.message) {
         toast.error(`Error: ${error.response.data.message}`)
       } else if (error.response && typeof error.response.data === "string") {
@@ -1081,7 +1083,6 @@ function CrearCita() {
       } else {
         toast.error("Error al crear la cita")
       }
-
       setLoading(false)
     }
   }
@@ -1422,12 +1423,34 @@ function CrearCita() {
                 </div>
               </div>
 
-              {/* Tercera parte: Observaciones */}
+              {/* Tercera parte: Servicios y Observaciones */}
               <div className="crearCita-form-section">
                 <h2 className="crearCita-section-title">
                   <FaClipboardList className="crearCita-section-icon" />
-                  Observaciones
+                  Servicios y Observaciones
                 </h2>
+
+                {/* Campo Servicios */}
+                <div className="crearCita-form-group">
+                  <label className="crearCita-label">
+                    <FaClipboardList className="crearCita-label-icon" />
+                    Servicio *
+                  </label>
+                  <Select
+                    name="servicio"
+                    options={servicios.map(s => ({ value: s.id, label: `${s.nombre} ($${s.precio?.toLocaleString()})`, precio: s.precio }))}
+                    classNamePrefix="select-servicios"
+                    placeholder="Buscar y seleccionar servicio..."
+                    value={selectedServicio}
+                    onChange={setSelectedServicio}
+                    filterOption={(option, input) => option.label.toLowerCase().includes(input.toLowerCase())}
+                  />
+                  {selectedServicio && (
+                    <div style={{ marginTop: 8, fontWeight: 'bold' }}>
+                      Total: ${selectedServicio.precio?.toLocaleString()}
+                    </div>
+                  )}
+                </div>
 
                 <div className="crearCita-form-group">
                   <label className="crearCita-label">

@@ -41,7 +41,7 @@ const DetalleCita = () => {
   const fetchCita = async () => {
     try {
       setLoading(true)
-      console.log("Solicitando detalle de cita con ID:", id)
+  // console.log eliminado
 
       // Obtener el token de autenticación
       const token = localStorage.getItem("token") || sessionStorage.getItem("token")
@@ -59,7 +59,7 @@ const DetalleCita = () => {
         },
       })
 
-      console.log("Respuesta detalle de cita:", response)
+  // console.log eliminado
 
       if (response.data) {
         setCita(response.data)
@@ -105,15 +105,12 @@ const DetalleCita = () => {
 
   // Función para obtener información del vehículo
   const getVehiculoInfo = () => {
-    if (cita.vehiculo) {
-      return cita.vehiculo
-    }
-
     return {
-      placa: cita.vehiculo_placa || "",
-      tipo_vehiculo: cita.vehiculo_tipo || "",
-      color: cita.vehiculo_color || "",
-      referencia: null,
+      placa: cita.vehiculo_placa || "No especificado",
+      tipo_vehiculo: "No especificado", // No viene en la respuesta
+      color: cita.vehiculo_color || "No especificado",
+      referencia: cita.referencia_nombre || "No especificado",
+      marca: cita.marca_nombre || "No especificado",
     }
   }
 
@@ -259,6 +256,20 @@ const DetalleCita = () => {
                   {getEstadoNombre(cita.estado_cita_id, cita.estado_cita)}
                 </span>
               </div>
+              <div className="detalleCita-field">
+                <label className="detalleCita-label">
+                  <FaClipboardList />
+                  Servicio
+                </label>
+                <span className="detalleCita-value">{cita.servicio_nombre || (cita.servicio && cita.servicio.nombre) || "No especificado"}</span>
+              </div>
+              <div className="detalleCita-field">
+                <label className="detalleCita-label">
+                  <FaClipboardList />
+                  Subtotal
+                </label>
+                <span className="detalleCita-value">{cita.subtotal !== undefined ? `$${Number(cita.subtotal).toLocaleString('es-CO')}` : "No especificado"}</span>
+              </div>
             </div>
           </div>
 
@@ -324,37 +335,24 @@ const DetalleCita = () => {
                 <div className="detalleCita-field">
                   <label className="detalleCita-label">
                     <FaCar />
-                    Tipo de Vehículo
-                  </label>
-                  <span className="detalleCita-value">{vehiculoInfo.tipo_vehiculo || "No especificado"}</span>
-                </div>
-                <div className="detalleCita-field">
-                  <label className="detalleCita-label">
-                    <FaCar />
                     Color
                   </label>
                   <span className="detalleCita-value">{vehiculoInfo.color || "No especificado"}</span>
                 </div>
-                {vehiculoInfo.referencia && (
-                  <>
-                    <div className="detalleCita-field">
-                      <label className="detalleCita-label">
-                        <FaCar />
-                        Marca
-                      </label>
-                      <span className="detalleCita-value">
-                        {vehiculoInfo.referencia.marca?.nombre || "No especificada"}
-                      </span>
-                    </div>
-                    <div className="detalleCita-field">
-                      <label className="detalleCita-label">
-                        <FaCar />
-                        Modelo
-                      </label>
-                      <span className="detalleCita-value">{vehiculoInfo.referencia.nombre || "No especificado"}</span>
-                    </div>
-                  </>
-                )}
+                <div className="detalleCita-field">
+                  <label className="detalleCita-label">
+                    <FaCar />
+                    Marca
+                  </label>
+                  <span className="detalleCita-value">{vehiculoInfo.marca}</span>
+                </div>
+                <div className="detalleCita-field">
+                  <label className="detalleCita-label">
+                    <FaCar />
+                    Modelo
+                  </label>
+                  <span className="detalleCita-value">{vehiculoInfo.referencia}</span>
+                </div>
               </div>
             ) : (
               <p className="detalleCita-no-data">No hay información disponible del vehículo</p>
@@ -380,15 +378,6 @@ const DetalleCita = () => {
                       : `${cita.mecanico_nombre || ""} ${cita.mecanico_apellido || ""}`.trim()}
                   </span>
                 </div>
-                <div className="detalleCita-field">
-                  <label className="detalleCita-label">
-                    <FaPhone />
-                    Teléfono
-                  </label>
-                  <span className="detalleCita-value">
-                    {cita.mecanico?.telefono || cita.mecanico_telefono || "No especificado"}
-                  </span>
-                </div>
               </div>
             ) : (
               <p className="detalleCita-no-data">No hay mecánico asignado</p>
@@ -407,21 +396,7 @@ const DetalleCita = () => {
 
         {/* Sidebar */}
         <div className="detalleCita-sidebar">
-          <div className="detalleCita-info-card">
-            <div className="detalleCita-info-header">
-              <FaCalendarAlt className="detalleCita-info-icon" />
-              <h3>Acciones Disponibles</h3>
-            </div>
-            <div className="detalleCita-info-content">
-              <p className="detalleCita-info-text">Desde aquí puedes realizar las siguientes acciones con esta cita:</p>
-              <div className="detalleCita-actions">
-                <Link to={`/citas/editar/${id}`} className="detalleCita-btn-action btn-edit">
-                  <FaEdit />
-                  Editar Cita
-                </Link>
-              </div>
-            </div>
-          </div>
+          
         </div>
       </div>
     </div>

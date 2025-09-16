@@ -92,7 +92,6 @@ const ListarCitas = () => {
         }
       }
 
-      console.log("Respuesta COMPLETA de la API:", response.data) // Debug
 
       const citasData = Array.isArray(response.data)
         ? response.data
@@ -100,7 +99,6 @@ const ListarCitas = () => {
           ? response.data.data
           : []
 
-      console.log("Citas procesadas:", citasData) // Debug
 
       // SIMPLIFICAR - No transformar, usar datos directos
       setCitas(citasData)
@@ -206,7 +204,6 @@ const ListarCitas = () => {
   const calendarEvents = Array.isArray(citas)
     ? citas
         .map((cita) => {
-          console.log("Procesando cita para calendario:", cita) // Debug
           if (!cita.fecha) {
             console.warn("Cita sin fecha:", cita.id)
             return null
@@ -217,7 +214,6 @@ const ListarCitas = () => {
             let fechaStr = cita.fecha
             let horaStr = cita.hora || "08:00"
 
-            console.log("Fecha original:", fechaStr, "Hora original:", horaStr) // Debug
 
             // Si la fecha viene con formato ISO, extraer solo la fecha
             if (fechaStr.includes("T")) {
@@ -235,7 +231,6 @@ const ListarCitas = () => {
 
             const start = new Date(year, month - 1, day, hour, minute)
 
-            console.log("Fecha procesada:", start) // Debug
 
             // Verificar que la fecha sea válida
             if (isNaN(start.getTime())) {
@@ -256,7 +251,6 @@ const ListarCitas = () => {
               allDay: false,
             }
 
-            console.log("Evento creado:", event) // Debug
             return event
           } catch (error) {
             console.error("Error procesando cita:", cita.id, error)
@@ -266,7 +260,6 @@ const ListarCitas = () => {
         .filter((event) => event !== null)
     : []
 
-  console.log("Eventos del calendario:", calendarEvents) // Debug
 
   // Personalizar los eventos del calendario
   const eventStyleGetter = (event) => {
@@ -456,6 +449,8 @@ const ListarCitas = () => {
                       <th className="listarCitas-th listarCitas-th-documento">Documento</th>
                       <th className="listarCitas-th listarCitas-th-cliente">Cliente</th>
                       <th className="listarCitas-th listarCitas-th-mecanico">Mecánico</th>
+                      <th className="listarCitas-th listarCitas-th-servicios">Servicios</th>
+                      <th className="listarCitas-th listarCitas-th-total">Total</th>
                       <th className="listarCitas-th listarCitas-th-estado">Estado</th>
                       <th className="listarCitas-th listarCitas-th-acciones">Acciones</th>
                     </tr>
@@ -463,7 +458,6 @@ const ListarCitas = () => {
                   <tbody className="listarCitas-table-body">
                     {currentCitas.length > 0 ? (
                       currentCitas.map((cita) => {
-                        console.log("CITA INDIVIDUAL EN TABLA:", cita) // Debug para ver cada cita
 
                         // --- Construcción local de la fecha igual que en el calendario ---
                         const fechaStr = cita.fecha
@@ -488,73 +482,85 @@ const ListarCitas = () => {
                         }
                         // ---------------------------------------------------------------
 
-                        return (
-                          <tr key={cita.id} className="listarCitas-table-row">
-                            <td className="listarCitas-td listarCitas-td-fecha">
-                              {fechaLocal
-                                ? fechaLocal.toLocaleDateString("es-CO", {
-                                    day: "2-digit",
-                                    month: "2-digit",
-                                    year: "numeric",
-                                  })
-                                : "N/A"}
-                            </td>
-                            <td className="listarCitas-td listarCitas-td-hora">
-                              {fechaLocal
-                                ? fechaLocal.toLocaleTimeString("es-CO", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                    hour12: false,
-                                  })
-                                : "N/A"}
-                            </td>
-                            <td className="listarCitas-td listarCitas-td-documento">
-                              <span className="listarCitas-documento-numero">
-                                {cita.documento || cita.cliente_documento || "Sin documento"}
-                              </span>
-                            </td>
-                            <td className="listarCitas-td listarCitas-td-cliente">
-                              <span className="listarCitas-cliente-nombre">
-                                {cita.cliente_nombre
-                                  ? `${cita.cliente_nombre} ${cita.cliente_apellido || ""}`
-                                  : "Sin cliente"}
-                              </span>
-                            </td>
-                            <td className="listarCitas-td listarCitas-td-mecanico">
-                              <span className="listarCitas-mecanico-nombre">
-                                {cita.mecanico_nombre
-                                  ? `${cita.mecanico_nombre} ${cita.mecanico_apellido || ""}`
-                                  : "Sin mecánico"}
-                              </span>
-                            </td>
-                            <td className="listarCitas-td listarCitas-td-estado">
-                              <span className={`listarCitas-estado-badge listarCitas-estado-${cita.estado_cita_id}`}>
-                                {getEstadoNombre(cita.estado_cita_id, cita.estado_cita)}
-                              </span>
-                            </td>
-                            <td className="listarCitas-td listarCitas-actions-cell">
-                              <div className="listarCitas-actions-group">
-                                <Link
-                                  to={`/citas/detalle/${cita.id}`}
-                                  className="listarCitas-btn-action listarCitas-btn-view"
-                                  title="Ver detalle"
-                                >
-                                  <FaEye className="listarCitas-action-icon" />
-                                </Link>
-                                {/* Solo mostrar botón eliminar según las reglas de negocio */}
-                                {canDeleteCita(cita.estado_cita_id) && (
-                                  <button
-                                    className="listarCitas-btn-action listarCitas-btn-delete"
-                                    onClick={() => handleDeleteCita(cita.id)}
-                                    title={`Eliminar cita (Estado: ${getEstadoNombre(cita.estado_cita_id, cita.estado_cita)})`}
-                                  >
-                                    <FaTrash className="listarCitas-action-icon" />
-                                  </button>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        )
+                        // Calcular servicios y total
+                                                // Mostrar servicio único y subtotal si existen
+                                                // Proteger serviciosMap para que nunca sea undefined
+                                                const safeServiciosMap = typeof serviciosMap === 'object' && serviciosMap !== null ? serviciosMap : {};
+                                                const servicioNombre = cita.servicio_nombre || (cita.servicio_id && safeServiciosMap[cita.servicio_id]?.nombre) || "Sin servicio";
+                                                const total = cita.subtotal ? Number(cita.subtotal) : (cita.servicio_id && safeServiciosMap[cita.servicio_id]?.precio) || 0;
+                                                return (
+                                                  <tr key={cita.id} className="listarCitas-table-row">
+                                                    <td className="listarCitas-td listarCitas-td-fecha">
+                                                      {fechaLocal
+                                                        ? fechaLocal.toLocaleDateString("es-CO", {
+                                                            day: "2-digit",
+                                                            month: "2-digit",
+                                                            year: "numeric",
+                                                          })
+                                                        : "N/A"}
+                                                    </td>
+                                                    <td className="listarCitas-td listarCitas-td-hora">
+                                                      {fechaLocal
+                                                        ? fechaLocal.toLocaleTimeString("es-CO", {
+                                                            hour: "2-digit",
+                                                            minute: "2-digit",
+                                                            hour12: false,
+                                                          })
+                                                        : "N/A"}
+                                                    </td>
+                                                    <td className="listarCitas-td listarCitas-td-documento">
+                                                      <span className="listarCitas-documento-numero">
+                                                        {cita.documento || cita.cliente_documento || "Sin documento"}
+                                                      </span>
+                                                    </td>
+                                                    <td className="listarCitas-td listarCitas-td-cliente">
+                                                      <span className="listarCitas-cliente-nombre">
+                                                        {cita.cliente_nombre
+                                                          ? `${cita.cliente_nombre} ${cita.cliente_apellido || ""}`
+                                                          : "Sin cliente"}
+                                                      </span>
+                                                    </td>
+                                                    <td className="listarCitas-td listarCitas-td-mecanico">
+                                                      <span className="listarCitas-mecanico-nombre">
+                                                        {cita.mecanico_nombre
+                                                          ? `${cita.mecanico_nombre} ${cita.mecanico_apellido || ""}`
+                                                          : "Sin mecánico"}
+                                                      </span>
+                                                    </td>
+                                                    <td className="listarCitas-td listarCitas-td-servicios">
+                                                      {servicioNombre ? servicioNombre : <span style={{color:'#888'}}>Sin servicio</span>}
+                                                    </td>
+                                                    <td className="listarCitas-td listarCitas-td-total">
+                                                      {total > 0 ? `$${total.toLocaleString()}` : <span style={{color:'#888'}}>0</span>}
+                                                    </td>
+                                                    <td className="listarCitas-td listarCitas-td-estado">
+                                                      <span className={`listarCitas-estado-badge listarCitas-estado-${cita.estado_cita_id}`}>
+                                                        {getEstadoNombre(cita.estado_cita_id, cita.estado_cita)}
+                                                      </span>
+                                                    </td>
+                                                    <td className="listarCitas-td listarCitas-actions-cell">
+                                                      <div className="listarCitas-actions-group">
+                                                        <Link
+                                                          to={`/citas/detalle/${cita.id}`}
+                                                          className="listarCitas-btn-action listarCitas-btn-view"
+                                                          title="Ver detalle"
+                                                        >
+                                                          <FaEye className="listarCitas-action-icon" />
+                                                        </Link>
+                                                        {/* Solo mostrar botón eliminar según las reglas de negocio */}
+                                                        {canDeleteCita(cita.estado_cita_id) && (
+                                                          <button
+                                                            className="listarCitas-btn-action listarCitas-btn-delete"
+                                                            onClick={() => handleDeleteCita(cita.id)}
+                                                            title={`Eliminar cita (Estado: ${getEstadoNombre(cita.estado_cita_id, cita.estado_cita)})`}
+                                                          >
+                                                            <FaTrash className="listarCitas-action-icon" />
+                                                          </button>
+                                                        )}
+                                                      </div>
+                                                    </td>
+                                                  </tr>
+                                                );
                       })
                     ) : (
                       <tr className="listarCitas-no-data-row">
