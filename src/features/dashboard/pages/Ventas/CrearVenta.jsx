@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import {
   Plus,
@@ -67,7 +67,6 @@ const useApi = () => {
         },
       })
 
-      // Para operaciones de creación (POST), ser más permisivo con los códigos de respuesta
       if (options.method === "POST") {
         if (response.status >= 200 && response.status < 300) {
           const contentType = response.headers.get("content-type")
@@ -80,15 +79,12 @@ const useApi = () => {
         if (response.status === 400) {
           let data = null
           try {
-            data = await response.clone().json() // leer copia del body
+            data = await response.clone().json()
           } catch {
             return { success: true }
           }
 
-          if (
-            data &&
-            (data.id || data.success || data.message?.includes("exitosa") || data.message?.includes("creada"))
-          ) {
+          if (data && (data.id || data.success || data.message?.includes("exitosa") || data.message?.includes("creada"))) {
             return data
           }
 
@@ -138,157 +134,145 @@ const CrearVenta = () => {
   const location = useLocation()
   const { makeRequest, loading: apiLoading, error, setError } = useApi()
 
-  // Estados principales
-  const [clientes, setClientes] = useState([])
-  const [estadosVenta, setEstadosVenta] = useState([])
-  const [mecanicos, setMecanicos] = useState([])
-
-  // Claves para localStorage
+  const isNavigatingAway = useRef(false)
   const FORM_STORAGE_KEY = 'crearVenta_formData'
   const SELECTIONS_STORAGE_KEY = 'crearVenta_selections'
 
-  // Funciones para persistencia
   const loadFormData = () => {
     try {
       const savedData = localStorage.getItem(FORM_STORAGE_KEY)
-      if (savedData) {
-        return JSON.parse(savedData)
-      }
+      return savedData ? JSON.parse(savedData) : null
     } catch (error) {
-      console.error('Error loading form data from localStorage:', error)
-    }
-    return {
-      fecha: new Date().toISOString().substr(0, 10),
-      mecanico_id: "",
-      vehiculo_id: "",
-      cita_id: "",
-    }
-  }
-
-  const saveFormData = (data) => {
-    try {
-      localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(data))
-    } catch (error) {
-      console.error('Error saving form data to localStorage:', error)
+      console.error("Error loading form data from localStorage:", error)
+      return null
     }
   }
 
   const loadSelections = () => {
     try {
       const savedSelections = localStorage.getItem(SELECTIONS_STORAGE_KEY)
-      if (savedSelections) {
-        return JSON.parse(savedSelections)
-      }
+      return savedSelections ? JSON.parse(savedSelections) : null
     } catch (error) {
-      console.error('Error loading selections from localStorage:', error)
-    }
-    return {
-      selectedClient: null,
-      selectedVehiculo: null,
-      selectedMecanico: null,
-      cartItems: [],
-      inputValues: {},
-      activeTab: "productos",
-      searchTerm: "",
-      currentPage: 1,
-      cartCurrentPage: 1,
+      console.error("Error loading selections from localStorage:", error)
+      return null
     }
   }
 
-  const saveSelections = (selections) => {
-    try {
-      localStorage.setItem(SELECTIONS_STORAGE_KEY, JSON.stringify(selections))
-    } catch (error) {
-      console.error('Error saving selections to localStorage:', error)
-    }
+  const initialFormData = loadFormData() || {
+    fecha: new Date().toISOString().substr(0, 10),
+    mecanico_id: "",
+    vehiculo_id: "",
+    cita_id: "",
   }
 
-  // Estados principales con persistencia
-  const initialSelections = loadSelections()
-  const [activeTab, setActiveTab] = useState(initialSelections.activeTab || "productos")
-  const [searchTerm, setSearchTerm] = useState(initialSelections.searchTerm || "")
+  const initialSelections = loadSelections() || {
+    selectedClient: null,
+    selectedVehiculo: null,
+    selectedMecanico: null,
+    cartItems: [],
+    inputValues: {},
+    activeTab: "productos",
+    searchTerm: "",
+    currentPage: 1,
+    cartCurrentPage: 1,
+  }
+
+  const [formData, setFormData] = useState(initialFormData)
+  const [selectedClient, setSelectedClient] = useState(initialSelections.selectedClient)
+  const [selectedVehiculo, setSelectedVehiculo] = useState(initialSelections.selectedVehiculo)
+  const [selectedMecanico, setSelectedMecanico] = useState(initialSelections.selectedMecanico)
+  const [cartItems, setCartItems] = useState(initialSelections.cartItems)
+  const [inputValues, setInputValues] = useState(initialSelections.inputValues)
+  const [activeTab, setActiveTab] = useState(initialSelections.activeTab)
+  const [searchTerm, setSearchTerm] = useState(initialSelections.searchTerm)
+  const [currentPage, setCurrentPage] = useState(initialSelections.currentPage)
+  const [cartCurrentPage, setCartCurrentPage] = useState(initialSelections.cartCurrentPage)
+
+  const [clientes, setClientes] = useState([])
+  const [estadosVenta, setEstadosVenta] = useState([])
+  const [mecanicos, setMecanicos] = useState([])
   const [products, setProducts] = useState([])
   const [services, setServices] = useState([])
   const [loadingProducts, setLoadingProducts] = useState(false)
   const [loadingServices, setLoadingServices] = useState(false)
-  const [inputValues, setInputValues] = useState(initialSelections.inputValues || {})
   const [inputErrors, setInputErrors] = useState({})
-  const [cartItems, setCartItems] = useState(initialSelections.cartItems || [])
   const [total, setTotal] = useState(0)
-  const [currentPage, setCurrentPage] = useState(initialSelections.currentPage || 1)
   const [itemsPerPage] = useState(3)
-  const [cartCurrentPage, setCartCurrentPage] = useState(initialSelections.cartCurrentPage || 1)
   const [cartItemsPerPage] = useState(3)
-  const [selectedClient, setSelectedClient] = useState(initialSelections.selectedClient)
-  const [selectedVehiculo, setSelectedVehiculo] = useState(initialSelections.selectedVehiculo)
-  const [selectedMecanico, setSelectedMecanico] = useState(initialSelections.selectedMecanico)
-  const [formData, setFormData] = useState(loadFormData())
   const [formErrors, setFormErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [vehiculosCliente, setVehiculosCliente] = useState([])
-  // Guardar formData automáticamente cuando cambie
-  useEffect(() => {
-    saveFormData(formData)
-  }, [formData])
-
-  // Guardar selecciones automáticamente cuando cambien
-  useEffect(() => {
-    const selections = {
-      selectedClient,
-      selectedVehiculo,
-      selectedMecanico,
-      cartItems,
-      inputValues,
-      activeTab,
-      searchTerm,
-      currentPage,
-      cartCurrentPage,
-    }
-    saveSelections(selections)
-  }, [selectedClient, selectedVehiculo, selectedMecanico, cartItems, inputValues, activeTab, searchTerm, currentPage, cartCurrentPage])
-
-  // Nuevos estados para citas
-  const [citaProgramada, setCitaProgramada] = useState(null)
+  const [citasCliente, setCitasCliente] = useState([])
   const [showCitaModal, setShowCitaModal] = useState(false)
 
-  useEffect(() => {
-    console.log("[v0] CrearVenta - useEffect ejecutado")
-    console.log("[v0] CrearVenta - location.state:", location.state)
+  const saveState = useCallback(() => {
+    try {
+      localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(formData))
+      const selections = {
+        selectedClient,
+        selectedVehiculo,
+        selectedMecanico,
+        cartItems,
+        inputValues,
+        activeTab,
+        searchTerm,
+        currentPage,
+        cartCurrentPage,
+      }
+      localStorage.setItem(SELECTIONS_STORAGE_KEY, JSON.stringify(selections))
+    } catch (error) {
+      console.error("Error saving state to localStorage:", error)
+    }
+  }, [
+    formData,
+    selectedClient,
+    selectedVehiculo,
+    selectedMecanico,
+    cartItems,
+    inputValues,
+    activeTab,
+    searchTerm,
+    currentPage,
+    cartCurrentPage,
+  ])
 
+  useEffect(() => {
+    window.addEventListener("beforeunload", saveState)
+    return () => {
+      window.removeEventListener("beforeunload", saveState)
+    }
+  }, [saveState])
+
+  useEffect(() => {
+    return () => {
+      if (!isNavigatingAway.current) {
+        localStorage.removeItem(FORM_STORAGE_KEY)
+        localStorage.removeItem(SELECTIONS_STORAGE_KEY)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
     if (location.state) {
       const { fromComponent, data } = location.state
-
-      console.log("[v0] CrearVenta - fromComponent:", fromComponent)
-      console.log("[v0] CrearVenta - data:", data)
-
       if (fromComponent === "CrearClientes" && data) {
-        console.log("[v0] CrearVenta - Procesando datos de cliente:", data)
-        // Datos del cliente recién creado
         setSelectedClient(data)
         if (formErrors.client) {
           setFormErrors((prev) => ({ ...prev, client: "" }))
         }
-        // Limpiar el state para evitar que se ejecute múltiples veces
         navigate(location.pathname, { replace: true, state: null })
       } else if (fromComponent === "CrearMecanico" && data) {
-        console.log("[v0] CrearVenta - Procesando datos de mecánico:", data)
-        // Datos del mecánico recién creado
         setSelectedMecanico(data)
         setFormData((prev) => ({ ...prev, mecanico_id: data.id }))
-        // Limpiar el state
         navigate(location.pathname, { replace: true, state: null })
       } else if (fromComponent === "CrearVehiculo" && data) {
-        console.log("[v0] CrearVenta - Procesando datos de vehículo:", data)
-        // Datos del vehículo recién creado
         setSelectedVehiculo(data)
         setFormData((prev) => ({ ...prev, vehiculo_id: data.id }))
-        // Limpiar el state
         navigate(location.pathname, { replace: true, state: null })
       }
     }
-  }, [location.state, navigate, location.pathname, formErrors.client])
+  }, [location.state, navigate, formErrors.client])
 
-  // --- Cargar productos y servicios ---
   useEffect(() => {
     if (activeTab === "productos") {
       setLoadingProducts(true)
@@ -298,12 +282,8 @@ const CrearVenta = () => {
             setProducts(data.filter((p) => p.cantidad > 0 && p.estado === "Activo"))
           }
         })
-        .catch((error) => {
-          console.error("Error cargando productos:", error)
-        })
-        .finally(() => {
-          setLoadingProducts(false)
-        })
+        .catch((error) => console.error("Error cargando productos:", error))
+        .finally(() => setLoadingProducts(false))
     } else {
       setLoadingServices(true)
       makeRequest("/servicios")
@@ -312,113 +292,48 @@ const CrearVenta = () => {
             setServices(data.filter((s) => s.estado === "Activo"))
           }
         })
-        .catch((error) => {
-          console.error("Error cargando servicios:", error)
-        })
-        .finally(() => {
-          setLoadingServices(false)
-        })
+        .catch((error) => console.error("Error cargando servicios:", error))
+        .finally(() => setLoadingServices(false))
     }
   }, [activeTab, makeRequest])
 
-  // --- Cargar clientes y estados venta ---
   useEffect(() => {
-    // Cargar clientes
     makeRequest("/clientes")
       .then((data) => {
-        let clientesArray = []
-
-        // Intentar diferentes estructuras de respuesta
-        if (Array.isArray(data)) {
-          clientesArray = data
-        } else if (data && typeof data === "object") {
-          // Buscar arrays en las propiedades del objeto
-          const possibleArrays = Object.values(data).filter((value) => Array.isArray(value))
-          if (possibleArrays.length > 0) {
-            clientesArray = possibleArrays[0] // Tomar el primer array encontrado
-          }
-        }
-
-        // Filtrar clientes válidos y activos
-        const clientesValidos = clientesArray.filter((cliente) => {
-          return (
-            cliente &&
-            typeof cliente === "object" &&
-            cliente.id &&
-            cliente.nombre &&
-            cliente.apellido &&
-            cliente.estado?.toLowerCase() === "activo"
-          )
-        })
-
-        setClientes(clientesValidos)
+        const clientesArray = (Array.isArray(data) ? data : data?.clientes || []).filter(
+          (c) => c && c.id && c.nombre && c.apellido && c.estado?.toLowerCase() === "activo",
+        )
+        setClientes(clientesArray)
       })
-      .catch((error) => {
-        console.error("Error cargando clientes:", error)
-        setClientes([])
-      })
+      .catch((error) => console.error("Error cargando clientes:", error))
 
-    // Cargar estados de venta
     makeRequest("/estados-venta")
       .then((data) => {
         if (data && Array.isArray(data)) {
           setEstadosVenta(data)
         }
       })
-      .catch((error) => {
-        console.error("Error cargando estados venta:", error)
-        setEstadosVenta([])
-      })
-  }, [makeRequest])
+      .catch((error) => console.error("Error cargando estados venta:", error))
 
-  // --- Cargar mecánicos activos ---
-  useEffect(() => {
     makeRequest("/mecanicos/estado/Activo")
       .then((data) => {
-        let mecanicosList = []
-
-        // Intentar diferentes estructuras de respuesta
-        if (Array.isArray(data)) {
-          mecanicosList = data
-        } else if (data && typeof data === "object") {
-          // Buscar arrays en las propiedades del objeto
-          const possibleArrays = Object.values(data).filter((value) => Array.isArray(value))
-          if (possibleArrays.length > 0) {
-            mecanicosList = possibleArrays[0] // Tomar el primer array encontrado
-          }
-        }
-
-        // Filtrar mecánicos válidos y activos
-        const mecanicosValidos = mecanicosList.filter((mecanico) => {
-          return (
-            mecanico &&
-            typeof mecanico === "object" &&
-            mecanico.id &&
-            mecanico.nombre &&
-            mecanico.apellido &&
-            mecanico.estado === "Activo"
-          )
-        })
-
-        setMecanicos(mecanicosValidos)
+        const mecanicosList = (Array.isArray(data) ? data : data?.mecanicos || []).filter(
+          (m) => m && m.id && m.nombre && m.apellido && m.estado === "Activo",
+        )
+        setMecanicos(mecanicosList)
       })
-      .catch((error) => {
-        console.error("Error cargando mecánicos:", error)
-        setMecanicos([])
-      })
+      .catch((error) => console.error("Error cargando mecánicos:", error))
   }, [makeRequest])
 
-  // --- Calcular total ---
   useEffect(() => {
-    const total = cartItems.reduce((sum, item) => {
+    const newTotal = cartItems.reduce((sum, item) => {
       if (item.type === "producto") return sum + item.price * item.quantity
       if (item.type === "servicio") return sum + (item.precio || 0)
       return sum
     }, 0)
-    setTotal(total)
+    setTotal(newTotal)
   }, [cartItems])
 
-  // --- Filtrado y paginación búsqueda ---
   const filteredProducts = searchTerm.trim()
     ? products.filter(
         (p) =>
@@ -444,7 +359,6 @@ const CrearVenta = () => {
       ? Math.ceil(filteredProducts.length / itemsPerPage)
       : Math.ceil(filteredServices.length / itemsPerPage)
 
-  // --- Paginación carrito ---
   const cartIndexOfLastItem = cartCurrentPage * cartItemsPerPage
   const cartIndexOfFirstItem = cartIndexOfLastItem - cartItemsPerPage
   const currentCartItems = cartItems.slice(cartIndexOfFirstItem, cartIndexOfLastItem)
@@ -455,7 +369,6 @@ const CrearVenta = () => {
     setCartCurrentPage(1)
   }, [searchTerm, activeTab])
 
-  // --- Inputs y validaciones ---
   const handleInputChange2 = (id, field, value) => {
     setInputValues((prev) => ({
       ...prev,
@@ -474,35 +387,17 @@ const CrearVenta = () => {
     return Object.keys(errors).length === 0
   }
 
-  // --- Agregar producto/servicio al carrito ---
   const handleAddItem = (item, cantidad, precio) => {
     if (!validateInputs(item.id, cantidad, precio)) return
-    if (activeTab === "productos") {
-      setCartItems((prev) => [
-        ...prev,
-        {
-          ...item,
-          type: "producto",
-          quantity: cantidad,
-          price: precio,
-          stockOriginal: item.cantidad,
-        },
-      ])
-    } else {
-      setCartItems((prev) => [
-        ...prev,
-        {
-          ...item,
-          type: "servicio",
-          precio: precio,
-        },
-      ])
-    }
+    const newItem =
+      activeTab === "productos"
+        ? { ...item, type: "producto", quantity: cantidad, price: precio, stockOriginal: item.cantidad }
+        : { ...item, type: "servicio", precio: precio }
+    setCartItems((prev) => [...prev, newItem])
     setInputErrors((prev) => ({ ...prev, [item.id]: {} }))
     setInputValues((prev) => ({ ...prev, [item.id]: {} }))
   }
 
-  // --- Eliminar del carrito ---
   const removeCartItem = useCallback(async (id, type) => {
     const result = await Swal.fire({
       title: `¿Eliminar ${type === "producto" ? "producto" : "servicio"}?`,
@@ -526,7 +421,6 @@ const CrearVenta = () => {
     }
   }, [])
 
-  // --- Actualizar cantidad/precio en carrito ---
   const updateCartItemQuantity = (id, value) => {
     setCartItems((prev) =>
       prev.map((item) =>
@@ -535,7 +429,6 @@ const CrearVenta = () => {
     )
   }
 
-  // --- Validación y envío ---
   const validateForm = useCallback(() => {
     const errors = {}
     if (!selectedClient) errors.client = "Debe seleccionar un cliente"
@@ -554,81 +447,51 @@ const CrearVenta = () => {
     return Object.keys(errors).length === 0
   }, [selectedClient, cartItems, formData])
 
-  // --- Cliente, vehículo, mecánico ---
   const [showClientModal, setShowClientModal] = useState(false)
   const [showVehiculoClienteModal, setShowVehiculoClienteModal] = useState(false)
   const [showMecanicoModal, setShowMecanicoModal] = useState(false)
 
   const handleCreateClient = () => {
-    console.log("[v0] CrearVenta - Navegando a CrearClientes")
+    isNavigatingAway.current = true
+    saveState()
     navigate("/CrearClientes", {
-      state: {
-        returnTo: "/CrearVenta",
-        returnData: true,
-      },
+      state: { returnTo: "/CrearVenta", returnData: true },
     })
   }
 
   const handleCreateMecanico = () => {
-    console.log("[v0] CrearVenta - Navegando a CrearMecanico")
+    isNavigatingAway.current = true
+    saveState()
     navigate("/CrearMecanicos", {
-      state: {
-        returnTo: "/CrearVenta",
-        returnData: true,
-      },
+      state: { returnTo: "/CrearVenta", returnData: true },
     })
   }
 
   const handleCreateVehiculo = () => {
-    console.log("[v0] CrearVenta - Navegando a CrearVehiculo")
+    isNavigatingAway.current = true
+    saveState()
     navigate("/vehiculos/crear", {
-      state: {
-        returnTo: "/CrearVenta",
-        returnData: true,
-      },
+      state: { returnTo: "/CrearVenta", returnData: true },
     })
   }
 
-  // Función mejorada para obtener la fecha actual en formato YYYY-MM-DD
   const getFechaHoy = () => {
     const hoy = new Date()
-    // Ajustar a zona horaria local para evitar problemas de UTC
     const year = hoy.getFullYear()
     const month = String(hoy.getMonth() + 1).padStart(2, "0")
     const day = String(hoy.getDate()).padStart(2, "0")
     return `${year}-${month}-${day}`
   }
 
-  // Función mejorada para verificar si una fecha está dentro del rango permitido (hoy + próximos 7 días)
   const esFechaValida = (fechaCita) => {
     if (!fechaCita) return false
-
     try {
-      // Normalizar la fecha de la cita a formato YYYY-MM-DD
-      let fechaCitaNormalizada
-      if (fechaCita.includes("T")) {
-        fechaCitaNormalizada = fechaCita.split("T")[0]
-      } else {
-        fechaCitaNormalizada = fechaCita
-      }
-
+      const fechaCitaNormalizada = fechaCita.includes("T") ? fechaCita.split("T")[0] : fechaCita
       const fechaHoy = getFechaHoy()
-
-      // Convertir fechas a objetos Date para comparación
       const fechaCitaObj = new Date(fechaCitaNormalizada + "T00:00:00")
       const fechaHoyObj = new Date(fechaHoy + "T00:00:00")
-
-      // Calcular la diferencia en días
       const diferenciaDias = Math.floor((fechaCitaObj - fechaHoyObj) / (1000 * 60 * 60 * 24))
-
-      // Permitir citas desde hoy (0) hasta los próximos 7 días
-      const esValida = diferenciaDias >= 0 && diferenciaDias <= 7
-
-      console.log(
-        `Validando fecha cita: ${fechaCitaNormalizada}, Hoy: ${fechaHoy}, Diferencia días: ${diferenciaDias}, Es válida: ${esValida}`,
-      )
-
-      return esValida
+      return diferenciaDias >= 0 && diferenciaDias <= 7
     } catch (error) {
       console.error("Error al validar fecha:", error)
       return false
@@ -639,97 +502,59 @@ const CrearVenta = () => {
     async (client) => {
       setSelectedClient(client)
       setShowClientModal(false)
-
       if (formErrors.client) {
         setFormErrors((prev) => ({ ...prev, client: "" }))
       }
 
       try {
-        // Intentar cargar vehículos del cliente usando el endpoint normal
         const dataVehiculos = await makeRequest(`/vehiculos/cliente/${client.id}`)
-
-        let vehiculosArray = []
-
-        // Intentar diferentes estructuras de respuesta
-        if (Array.isArray(dataVehiculos)) {
-          vehiculosArray = dataVehiculos
-        } else if (dataVehiculos && typeof dataVehiculos === "object") {
-          // Buscar arrays en las propiedades del objeto
-          const possibleArrays = Object.values(dataVehiculos).filter((value) => Array.isArray(value))
-          if (possibleArrays.length > 0) {
-            vehiculosArray = possibleArrays[0] // Tomar el primer array encontrado
-          }
-        }
-
-        // Filtrar vehículos válidos
-        const vehiculosValidos = vehiculosArray.filter((vehiculo) => {
-          return vehiculo && typeof vehiculo === "object" && vehiculo.id
-        })
-
+        const vehiculosValidos = (Array.isArray(dataVehiculos) ? dataVehiculos : dataVehiculos?.vehiculos || []).filter(
+          (v) => v && v.id,
+        )
         setVehiculosCliente(vehiculosValidos)
 
-        // Buscar citas programadas vinculadas a este cliente
-        try {
-          const citas = await makeRequest(`/citas/cliente/${client.id}`)
+        const citas = await makeRequest(`/citas/cliente/${client.id}`)
+        const citasArray = (Array.isArray(citas) ? citas : citas?.citas || []).filter(
+          (c) => c.estado_cita_id === 1 && esFechaValida(c.fecha),
+        )
 
-          let citasArray = []
-
-          // Intentar diferentes estructuras de respuesta
-          if (Array.isArray(citas)) {
-            citasArray = citas
-          } else if (citas && typeof citas === "object") {
-            const possibleArrays = Object.values(citas).filter((value) => Array.isArray(value))
-            if (possibleArrays.length > 0) {
-              citasArray = possibleArrays[0]
-            }
-          }
-
-          console.log("Citas encontradas para el cliente:", citasArray)
-
-          // Buscar cita programada (estado_cita_id === 1) para fechas válidas (hoy + próximos 7 días)
-          const citasValidas = citasArray.filter((c) => {
-            const esEstadoValido = c.estado_cita_id === 1
-            const esFechaValidaResult = esFechaValida(c.fecha)
-
-            console.log(
-              `Cita ID ${c.id}: Estado válido: ${esEstadoValido}, Fecha válida: ${esFechaValidaResult}, Fecha: ${c.fecha}`,
-            )
-
-            return esEstadoValido && esFechaValidaResult
-          })
-
-          console.log("Citas válidas filtradas:", citasValidas)
-
-          // Tomar la primera cita válida (más próxima)
-          const cita = citasValidas.length > 0 ? citasValidas[0] : null
-
-          if (cita) {
-            console.log("Cita programada encontrada:", cita)
-            setCitaProgramada(cita)
-            setShowCitaModal(true) // Mostrar el modal
-          } else {
-            console.log("No se encontraron citas válidas")
-            setCitaProgramada(null)
-            setShowCitaModal(false)
-            // Limpiar selecciones previas si no hay cita
-            setSelectedVehiculo(null)
-            setSelectedMecanico(null)
-            setFormData((prev) => ({ ...prev, vehiculo_id: "", mecanico_id: "", cita_id: "" }))
-          }
-        } catch (error) {
-          console.error("Error al cargar citas:", error)
-          setCitaProgramada(null)
+        if (citasArray.length > 0) {
+          const citasConDetalles = await Promise.all(
+            citasArray.map(async (cita) => {
+              try {
+                const detalleCita = await makeRequest(`/citas/${cita.id}`)
+                let servicios = detalleCita?.servicios || []
+                if (servicios.length === 0 && detalleCita?.servicio_id) {
+                  const servicioDetalle = await makeRequest(`/servicios/${detalleCita.servicio_id}`)
+                  if (servicioDetalle) {
+                    servicios = [servicioDetalle]
+                  }
+                }
+                const subtotal = servicios.reduce((sum, s) => sum + Number(s.precio || 0), 0)
+                return { ...cita, ...detalleCita, servicios, subtotal }
+              } catch (error) {
+                console.error(`Error cargando detalles de cita ${cita.id}:`, error)
+                return { ...cita, servicios: [], subtotal: 0 }
+              }
+            }),
+          )
+          setCitasCliente(citasConDetalles)
+          setShowCitaModal(true)
+        } else {
+          setCitasCliente([])
           setShowCitaModal(false)
           setSelectedVehiculo(null)
           setSelectedMecanico(null)
           setFormData((prev) => ({ ...prev, vehiculo_id: "", mecanico_id: "", cita_id: "" }))
         }
       } catch (error) {
-        console.error("Error cargando vehículos del cliente:", error)
+        console.error("Error al procesar cliente y citas:", error)
         setVehiculosCliente([])
+        setCitasCliente([])
+        setShowCitaModal(false)
       }
     },
-    [formErrors.client, makeRequest],
+    [makeRequest, formErrors.client],
   )
 
   const selectVehiculo = useCallback((vehiculo) => {
@@ -744,7 +569,6 @@ const CrearVenta = () => {
     setShowMecanicoModal(false)
   }, [])
 
-  // --- Submit mejorado ---
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault()
@@ -779,16 +603,11 @@ const CrearVenta = () => {
           ...(formData.vehiculo_id ? { vehiculo_id: formData.vehiculo_id } : {}),
         }
 
-        console.log("Enviando datos de venta:", ventaData)
-
         const result = await makeRequest("/ventas", {
           method: "POST",
           body: JSON.stringify(ventaData),
         })
 
-        console.log("Resultado de la creación de venta:", result)
-
-        // Si llegamos aquí, la venta se creó exitosamente
         let mensajeExito = "La venta ha sido registrada correctamente"
         if (result && result.warning) {
           mensajeExito += " (con algunas advertencias del servidor)"
@@ -798,14 +617,13 @@ const CrearVenta = () => {
           icon: "success",
           title: "¡Éxito!",
           text: mensajeExito,
-          confirmButtonColor: "#10b981",
           timer: 2000,
+          showConfirmButton: false,
         })
+        isNavigatingAway.current = true // Para evitar que el cleanup borre el storage antes de navegar
         navigate("/ListarVentas")
       } catch (error) {
         console.error("Error al crear venta:", error)
-
-        // Solo mostrar error si realmente falló la creación
         if (!error.message.includes("400") && !error.message.includes("warning")) {
           await Swal.fire({
             icon: "error",
@@ -814,15 +632,15 @@ const CrearVenta = () => {
             confirmButtonColor: "#2563eb",
           })
         } else {
-          // Si es un error 400 pero posiblemente exitoso, mostrar advertencia y continuar
           console.warn("Posible éxito con advertencia:", error.message)
           await Swal.fire({
             icon: "success",
             title: "Venta registrada",
             text: "La venta se ha registrado correctamente (con advertencias del servidor)",
-            confirmButtonColor: "#10b981",
             timer: 2000,
+            showConfirmButton: false,
           })
+          isNavigatingAway.current = true
           navigate("/ListarVentas")
         }
       } finally {
@@ -832,7 +650,6 @@ const CrearVenta = () => {
     [isSubmitting, validateForm, formErrors, selectedClient, cartItems, estadosVenta, formData, makeRequest, navigate],
   )
 
-  // --- Cancelar ---
   const handleCancel = useCallback(async () => {
     if (cartItems.length > 0 || selectedClient) {
       const result = await Swal.fire({
@@ -845,23 +662,24 @@ const CrearVenta = () => {
         confirmButtonText: "Sí, cancelar",
         cancelButtonText: "Continuar editando",
       })
-      if (result.isConfirmed) navigate("/ListarVentas")
+      if (result.isConfirmed) {
+        isNavigatingAway.current = false // Asegura que el storage se limpie
+        navigate("/ListarVentas")
+      }
     } else {
       navigate("/ListarVentas")
     }
   }, [cartItems.length, selectedClient, navigate])
 
-  // --- Deseleccionar cliente, vehículo, mecánico ---
   const deselectClient = useCallback(() => {
-  setSelectedClient(null)
-  setVehiculosCliente([])
-  setSelectedVehiculo(null)
-  setSelectedMecanico(null)
-  setCitaProgramada(null)
-  setFormData((prev) => ({ ...prev, vehiculo_id: "", mecanico_id: "", cita_id: "" }))
-  // Limpiar localStorage si se deselecciona todo
-  localStorage.removeItem(FORM_STORAGE_KEY)
-  localStorage.removeItem(SELECTIONS_STORAGE_KEY)
+    setSelectedClient(null)
+    setVehiculosCliente([])
+    setSelectedVehiculo(null)
+    setSelectedMecanico(null)
+    setCitasCliente([])
+    setFormData((prev) => ({ ...prev, vehiculo_id: "", mecanico_id: "", cita_id: "" }))
+    localStorage.removeItem(FORM_STORAGE_KEY)
+    localStorage.removeItem(SELECTIONS_STORAGE_KEY)
   }, [])
 
   const deselectVehiculo = useCallback(() => {
@@ -874,7 +692,6 @@ const CrearVenta = () => {
     setFormData((prev) => ({ ...prev, mecanico_id: "" }))
   }, [])
 
-  // --- Render ---
   return (
     <div className="crearVenta-container">
       {error && (
@@ -1424,80 +1241,111 @@ const CrearVenta = () => {
           mecanicos={mecanicos}
         />
       )}
-      {showCitaModal && citaProgramada && (
-        <div className="crearCompra-supplier-modal-overlay">
-          <div className="crearCompra-supplier-modal">
-            <div className="crearCompra-supplier-modal-header">
-              <h2>
-                <Calendar className="crearCompra-modal-icon" />
-                Cita Programada Encontrada
-              </h2>
-              <button
-                type="button"
-                className="crearCompra-supplier-close-button"
-                onClick={() => setShowCitaModal(false)}
-              >
-                <X />
-              </button>
-            </div>
-            <div className="crearCompra-supplier-modal-content">
-              <div style={{ padding: "20px", textAlign: "left" }}>
-                <p style={{ marginBottom: "10px" }}>
-                  <b>Fecha:</b> {citaProgramada?.fecha?.substring(0, 10) || "No especificada"}{" "}
-                  {citaProgramada?.hora || ""}
-                </p>
-                <p style={{ marginBottom: "10px" }}>
-                  <b>Vehículo:</b> {citaProgramada?.vehiculo_placa || "No especificado"}
-                </p>
-                <p style={{ marginBottom: "10px" }}>
-                  <b>Marca:</b> {citaProgramada?.marca_nombre || "No especificada"}
-                </p>
-                <p style={{ marginBottom: "20px" }}>
-                  <b>Observaciones:</b> {citaProgramada?.observaciones || "Sin observaciones"}
-                </p>
-                <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-                  <button
-                    className="crearCompra-supplier-select-button"
-                    onClick={() => {
-                      // Llenar ambos estados: selectedVehiculo y formData
-                      const vehiculoObj = {
-                        id: citaProgramada?.vehiculo_id,
-                        placa: citaProgramada?.vehiculo_placa,
-                        marca_nombre: citaProgramada?.marca_nombre || "",
-                      }
-                      const mecanicoObj = {
-                        id: citaProgramada?.mecanico_id,
-                        nombre: citaProgramada?.mecanico_nombre,
-                        apellido: citaProgramada?.mecanico_apellido,
-                      }
-                      setSelectedVehiculo(vehiculoObj)
-                      setSelectedMecanico(mecanicoObj)
-                      setFormData((prev) => ({
-                        ...prev,
-                        vehiculo_id: citaProgramada?.vehiculo_id || "",
-                        mecanico_id: citaProgramada?.mecanico_id || "",
-                        cita_id: citaProgramada?.id || "",
-                      }))
-                      setShowCitaModal(false)
-                    }}
-                  >
-                    <CheckCircle /> Usar datos de la cita
-                  </button>
-                  <button
-                    className="crearCompra-supplier-pagination-button"
-                    onClick={() => {
-                      setShowCitaModal(false)
-                      setCitaProgramada(null)
-                    }}
-                  >
-                    Ignorar
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      {showCitaModal && (
+        <CitasClienteModal
+          closeModal={() => setShowCitaModal(false)}
+          citas={citasCliente}
+          onSelectCita={(cita) => {
+            const vehiculoObj = {
+              id: cita.vehiculo_id,
+              placa: cita.vehiculo_placa,
+              marca_nombre: cita.marca_nombre || "",
+            }
+            const mecanicoObj = {
+              id: cita.mecanico_id,
+              nombre: cita.mecanico_nombre,
+              apellido: cita.mecanico_apellido,
+            }
+            setSelectedVehiculo(vehiculoObj)
+            setSelectedMecanico(mecanicoObj)
+            setFormData((prev) => ({
+              ...prev,
+              vehiculo_id: cita.vehiculo_id || "",
+              mecanico_id: cita.mecanico_id || "",
+              cita_id: cita.id || "",
+            }))
+
+            const serviciosParaAgregar = cita.servicios
+              .filter(s => !cartItems.some(cartItem => cartItem.type === 'servicio' && cartItem.id === s.id))
+              .map((s) => ({
+                ...s,
+                type: "servicio",
+              }))
+
+            if(serviciosParaAgregar.length > 0) {
+              setCartItems((prev) => [...prev, ...serviciosParaAgregar])
+            }
+
+            setShowCitaModal(false)
+            Swal.fire(
+              "Cita aplicada",
+              "Los datos y servicios de la cita han sido agregados a la venta.",
+              "success",
+            )
+          }}
+        />
       )}
+    </div>
+  )
+}
+
+const CitasClienteModal = ({ closeModal, citas, onSelectCita }) => {
+  return (
+    <div className="crearCompra-supplier-modal-overlay">
+      <div className="crearCompra-supplier-modal" style={{ maxWidth: "800px" }}>
+        <div className="crearCompra-supplier-modal-header">
+          <h2>
+            <Calendar className="crearCompra-modal-icon" />
+            Citas Programadas del Cliente
+          </h2>
+          <button type="button" className="crearCompra-supplier-close-button" onClick={closeModal}>
+            <X />
+          </button>
+        </div>
+        <div className="crearCompra-supplier-modal-content">
+          {citas.length === 0 ? (
+            <div className="crearCompra-no-results">
+              <p>No se encontraron citas programadas.</p>
+            </div>
+          ) : (
+            <div className="crearCompra-supplier-table-container">
+              <table className="crearCompra-suppliers-table">
+                <thead>
+                  <tr>
+                    <th>Fecha y Hora</th>
+                    <th>Vehículo</th>
+                    <th>Servicios</th>
+                    <th>Subtotal</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {citas.map((cita) => (
+                    <tr key={cita.id}>
+                      <td>
+                        {new Date(cita.fecha).toLocaleDateString()} {cita.hora}
+                      </td>
+                      <td>{cita.vehiculo_placa}</td>
+                      <td>
+                        {cita.servicios?.map((s) => s.nombre).join(", ") || "N/A"}
+                      </td>
+                      <td>{formatCurrency(cita.subtotal)}</td>
+                      <td>
+                        <button
+                          className="crearCompra-supplier-select-button"
+                          onClick={() => onSelectCita(cita)}
+                        >
+                          <CheckCircle size={16} /> Seleccionar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
