@@ -199,7 +199,7 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
           {/* 1. Dashboard */}
           <a
             href="/dashboard"
-            className={`mo-dashboard-btn ${activePath === "/dashboard" ? "mo-dashboard-btn--active" : ""} ${collapsed ? "mo-dashboard-btn--collapsed" : ""}`}
+            className={`mo-dashboard-btn2 ${activePath === "/dashboard" ? "mo-dashboard-btn--active" : ""} ${collapsed ? "mo-dashboard-btn--collapsed" : ""}`}
             onClick={handleLinkClick}
             aria-current={activePath === "/dashboard" ? "page" : undefined}
           >
@@ -242,7 +242,7 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
           {/* 4. Vehículos */}
           <a
             href="/vehiculos"
-            className={`mo-dashboard-btn ${activePath === "/vehiculos" ? "mo-dashboard-btn--active" : ""} ${collapsed ? "mo-dashboard-btn--collapsed" : ""}`}
+            className={`mo-dashboard-btn2 ${activePath === "/vehiculos" ? "mo-dashboard-btn--active" : ""} ${collapsed ? "mo-dashboard-btn--collapsed" : ""}`}
             onClick={handleLinkClick}
             aria-current={activePath === "/vehiculos" ? "page" : undefined}
           >

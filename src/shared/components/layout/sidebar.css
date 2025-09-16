@@ -785,7 +785,24 @@
     transition-duration: 0.01ms !important;
   }
 }
-
+.mo-dashboard-btn2{
+  width: 100%;
+  height: 15px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  padding: 21px 16px;
+  background: var(--mo-white);
+  border: 1px solid var(--mo-border);
+  border-radius: var(--mo-radius);
+  color: var(--mo-text-primary);
+  cursor: pointer;
+  transition: all var(--mo-transition);
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  margin-bottom: 8px;
+}
 /* Agrega esto a tu sidebar.css */
 .mo-dashboard-btn {
   width: 86%;

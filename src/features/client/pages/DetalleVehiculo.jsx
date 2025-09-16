@@ -16,6 +16,7 @@ import {
   FaHistory,
   FaIdCard,
   FaPalette,
+  FaMotorcycle,
 } from "react-icons/fa"
 import "../../../shared/styles/Dashboard.css"
 import "../../../shared/components/layout/clientlayout.css"
@@ -45,32 +46,6 @@ const DetalleVehiculo = () => {
   }
 
   // Datos mock para historial de servicios
-  const MOCK_HISTORIAL = [
-    {
-      id: 1,
-      fecha: "2024-01-10T09:00:00Z",
-      observaciones: "Cambio de aceite y filtros",
-      estado_cita: { nombre: "Completada" },
-      mecanico: { nombre: "Carlos Rodríguez" },
-      servicios_realizados: "Cambio de aceite, filtro de aire, revisión general",
-    },
-    {
-      id: 2,
-      fecha: "2023-10-15T14:30:00Z",
-      observaciones: "Mantenimiento preventivo",
-      estado_cita: { nombre: "Completada" },
-      mecanico: { nombre: "Ana García" },
-      servicios_realizados: "Revisión de frenos, alineación, balanceo",
-    },
-    {
-      id: 3,
-      fecha: "2023-07-20T11:00:00Z",
-      observaciones: "Reparación sistema eléctrico",
-      estado_cita: { nombre: "Completada" },
-      mecanico: { nombre: "Luis Martínez" },
-      servicios_realizados: "Reparación alternador, cambio batería",
-    },
-  ]
 
   const makeRequest = async (endpoint, options = {}) => {
     try {
@@ -194,7 +169,6 @@ const DetalleVehiculo = () => {
       <div className="dashC-body">
         <div className="dashC-header">
           <div className="dashC-header-content">
-            <img className="dashC-logo" src="/perfil.jpg" alt="Logo" />
             <div className="dashC-title-container">
               <span className="dashC-subtitle">Cargando...</span>
               <h1 className="dashC-title">Detalle del Vehículo</h1>
@@ -258,15 +232,17 @@ const DetalleVehiculo = () => {
     <div className="dashC-body">
       <div className="dashC-header">
         <div className="dashC-header-content">
-          <img className="dashC-logo" src="/perfil.jpg" alt="Logo" />
           <div className="dashC-title-container">
-            <span className="dashC-subtitle">Detalle del vehículo</span>
-            <h1 className="dashC-title">
-              {vehiculo?.marca_nombre} {vehiculo?.referencia_nombre}
+            <h1 className="dashC-title" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+              {vehiculo?.tipo_vehiculo?.toLowerCase().includes("moto") ? (
+                <FaMotorcycle className="dvc-icon-if" />
+              ) : (
+                <FaCar className="dvc-icon-if"/>
+              )}
+              <span>
+                {vehiculo?.marca_nombre} {vehiculo?.referencia_nombre}
+              </span>
             </h1>
-            <span style={{ fontSize: "0.9rem", color: "#6b7280" }}>
-              Placa: {vehiculo?.placa} • {vehiculo?.tipo_vehiculo}
-            </span>
             {usingMockData && (
               <span
                 style={{
@@ -281,15 +257,6 @@ const DetalleVehiculo = () => {
             )}
           </div>
           <div style={{ display: "flex", gap: "0.5rem" }}>
-            <button
-              className="layC-nav-btn-S"
-              onClick={() => navigate(`/client/vehiculos/editar/${id}`)}
-              aria-label="Editar"
-              style={{ background: "#f59e0b" }}
-            >
-              <FaEdit />
-              <span className="layC-nav-label">Editar</span>
-            </button>
             <button className="layC-nav-btn-S" onClick={() => navigate("/client/vehiculos")} aria-label="Volver">
               <FaArrowLeft />
               <span className="layC-nav-label">Volver</span>
@@ -396,211 +363,8 @@ const DetalleVehiculo = () => {
                       {vehiculo?.referencia_nombre}
                     </p>
                   </div>
-                  <div>
-                    <strong style={{ color: "#374151" }}>ID Referencia:</strong>
-                    <p style={{ margin: "0.25rem 0 0 0", color: "#6b7280", fontSize: "0.9rem" }}>
-                      #{vehiculo?.referencia_id}
-                    </p>
-                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Historial de servicios */}
-          <div className="dashC-section">
-            <div className="dashC-section-header">
-              <h2 className="dashC-section-title">
-                <FaHistory className="dashC-section-icon" />
-                Historial de Servicios ({historialServicios.length})
-              </h2>
-            </div>
-
-            {historialServicios.length > 0 ? (
-              <div style={{ display: "grid", gap: "1rem" }}>
-                {historialServicios.map((servicio, index) => (
-                  <div
-                    key={servicio.id}
-                    style={{
-                      background: "white",
-                      borderRadius: "8px",
-                      padding: "1.25rem",
-                      boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
-                      border: "1px solid #e5e7eb",
-                      borderLeft: `4px solid ${index === 0 ? "#10b981" : "#0ea5e9"}`,
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "flex-start",
-                        marginBottom: "0.75rem",
-                      }}
-                    >
-                      <div>
-                        <h4 style={{ margin: "0 0 0.25rem 0", color: "#1f2937" }}>
-                          {servicio.observaciones || "Servicio de mantenimiento"}
-                        </h4>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "1rem",
-                            fontSize: "0.9rem",
-                            color: "#6b7280",
-                          }}
-                        >
-                          <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-                            <FaCalendarAlt />
-                            {formatearFechaCorta(servicio.fecha)}
-                          </span>
-                          {servicio.mecanico && (
-                            <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-                              <FaTools />
-                              {servicio.mecanico.nombre}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <span
-                        style={{
-                          background: "#dcfce7",
-                          color: "#166534",
-                          padding: "0.25rem 0.5rem",
-                          borderRadius: "4px",
-                          fontSize: "0.8rem",
-                          fontWeight: "500",
-                        }}
-                      >
-                        {servicio.estado_cita?.nombre || "Completada"}
-                      </span>
-                    </div>
-
-                    {servicio.servicios_realizados && (
-                      <div
-                        style={{
-                          background: "#f8fafc",
-                          padding: "0.75rem",
-                          borderRadius: "6px",
-                          fontSize: "0.9rem",
-                          color: "#475569",
-                        }}
-                      >
-                        <strong>Servicios realizados:</strong>
-                        <p style={{ margin: "0.25rem 0 0 0" }}>{servicio.servicios_realizados}</p>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "3rem 1rem",
-                  color: "#6b7280",
-                  background: "white",
-                  borderRadius: "8px",
-                  border: "1px solid #e5e7eb",
-                }}
-              >
-                <FaHistory style={{ fontSize: "3rem", marginBottom: "1rem", opacity: 0.5 }} />
-                <h3>Sin historial de servicios</h3>
-                <p>Este vehículo aún no tiene servicios registrados.</p>
-                <button
-                  onClick={() => navigate("/client/agendar-cita")}
-                  style={{
-                    marginTop: "1rem",
-                    background: "#0ea5e9",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "6px",
-                    padding: "0.75rem 1.5rem",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    margin: "1rem auto 0",
-                  }}
-                >
-                  <FaCalendarAlt />
-                  Agendar Primera Cita
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Acciones */}
-          <div className="dashC-section">
-            <div
-              style={{
-                background: "white",
-                borderRadius: "8px",
-                padding: "1.5rem",
-                border: "1px solid #e5e7eb",
-                display: "flex",
-                gap: "1rem",
-                flexWrap: "wrap",
-                justifyContent: "center",
-              }}
-            >
-              <button
-                onClick={() => navigate(`/client/vehiculos/editar/${id}`)}
-                style={{
-                  background: "#f59e0b",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "6px",
-                  padding: "0.75rem 1.5rem",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  fontWeight: "500",
-                }}
-              >
-                <FaEdit />
-                Editar Vehículo
-              </button>
-
-              <button
-                onClick={() => navigate("/client/agendar-cita")}
-                style={{
-                  background: "#10b981",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "6px",
-                  padding: "0.75rem 1.5rem",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  fontWeight: "500",
-                }}
-              >
-                <FaCalendarAlt />
-                Agendar Cita
-              </button>
-
-              <button
-                onClick={handleDeleteVehiculo}
-                style={{
-                  background: "#ef4444",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "6px",
-                  padding: "0.75rem 1.5rem",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  fontWeight: "500",
-                }}
-              >
-                <FaTrash />
-                Eliminar Vehículo
-              </button>
             </div>
           </div>
         </div>

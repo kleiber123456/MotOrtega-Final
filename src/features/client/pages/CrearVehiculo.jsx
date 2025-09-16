@@ -13,7 +13,7 @@ const CrearVehiculo = () => {
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [userData, setUserData] = useState({})
-  const [marcas, setMarcas] = useState([])
+  const [allReferencias, setAllReferencias] = useState([])
   const [referencias, setReferencias] = useState([])
   const [errors, setErrors] = useState({})
 
@@ -21,7 +21,6 @@ const CrearVehiculo = () => {
     placa: "",
     color: "",
     tipo_vehiculo: "",
-    marca_id: "",
     referencia_id: "",
     estado: "Activo",
   })
@@ -63,19 +62,11 @@ const CrearVehiculo = () => {
           setUserData(user)
         }
 
-        try {
-          const marcasResponse = await makeRequest("/marcas")
-          const marcasData = Array.isArray(marcasResponse) ? marcasResponse : marcasResponse?.data || []
-          setMarcas(marcasData)
-        } catch (error) {
-          console.error("Error cargando marcas:", error)
-          await Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "No se pudieron cargar las marcas. Intenta nuevamente.",
-            confirmButtonColor: "#ef4444",
-          })
-        }
+        // Cargar todas las referencias una vez, como en el panel de admin
+        const referenciasResponse = await makeRequest("/referencias")
+        const referenciasData =
+          Array.isArray(referenciasResponse) ? referenciasResponse : referenciasResponse?.data || []
+        setAllReferencias(referenciasData)
       } catch (error) {
         console.error("Error cargando datos iniciales:", error)
         await Swal.fire({
@@ -90,104 +81,58 @@ const CrearVehiculo = () => {
     fetchInitialData()
   }, [])
 
-  useEffect(() => {
-    const fetchReferencias = async () => {
-      if (formData.marca_id) {
-        try {
-          const referenciasResponse = await makeRequest(`/referencias?marca_id=${formData.marca_id}`)
-          const referenciasData = Array.isArray(referenciasResponse)
-            ? referenciasResponse
-            : referenciasResponse?.data || []
-          setReferencias(referenciasData)
-        } catch (error) {
-          console.error("Error cargando referencias:", error)
-          await Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "No se pudieron cargar los modelos. Intenta nuevamente.",
-            confirmButtonColor: "#ef4444",
-          })
-          setReferencias([])
-        }
-      } else {
-        setReferencias([])
-      }
-    }
-
-    fetchReferencias()
-  }, [formData.marca_id])
-
-  const validateStep = (step) => {
+  const validateForm = () => {
     const newErrors = {}
 
-    switch (step) {
-      case 1:
-        if (!formData.placa.trim()) {
-          newErrors.placa = "La placa es obligatoria"
-        } else if (!/^[A-Z]{3}[0-9]{3}$|^[A-Z]{3}[0-9]{2}[A-Z]$/.test(formData.placa.toUpperCase())) {
-          newErrors.placa = "Formato de placa inválido (ej: ABC123 o ABC12D)"
-        }
+    if (!formData.placa.trim()) {
+      newErrors.placa = "La placa es obligatoria"
+    } else if (!/^[A-Z]{3}[0-9]{3}$|^[A-Z]{3}[0-9]{2}[A-Z]$/.test(formData.placa.toUpperCase())) {
+      newErrors.placa = "Formato de placa inválido (ej: ABC123 o ABC12D)"
+    }
 
-        if (!formData.color.trim()) {
-          newErrors.color = "El color es obligatorio"
-        } else if (formData.color.trim().length < 3) {
-          newErrors.color = "El color debe tener al menos 3 caracteres"
-        }
+    if (!formData.color.trim()) {
+      newErrors.color = "El color es obligatorio"
+    } else if (formData.color.trim().length < 3) {
+      newErrors.color = "El color debe tener al menos 3 caracteres"
+    }
 
-        if (!formData.tipo_vehiculo.trim()) {
-          newErrors.tipo_vehiculo = "El tipo de vehículo es obligatorio"
-        }
-        break
+    if (!formData.tipo_vehiculo.trim()) {
+      newErrors.tipo_vehiculo = "El tipo de vehículo es obligatorio"
+    }
 
-      case 2:
-        if (!formData.marca_id) {
-          newErrors.marca_id = "Debe seleccionar una marca"
-        }
-
-        if (!formData.referencia_id) {
-          newErrors.referencia_id = "Debe seleccionar un modelo"
-        }
-        break
+    if (!formData.referencia_id) {
+      newErrors.referencia_id = "Debe seleccionar un modelo"
     }
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
-  const nextStep = () => {
-    if (validateStep(currentStep)) {
-      setCurrentStep((prev) => Math.min(prev + 1, 2))
-    }
-  }
-
-  const prevStep = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 1))
-  }
-
   const handleInputChange = (e) => {
     const { name, value } = e.target
 
-    let processedValue = value
+    setFormData((prev) => {
+      let processedValue = value
 
-    // Process specific values
-    if (name === "placa") {
-      processedValue = value.toUpperCase().replace(/[^A-Z0-9]/g, "")
-    } else if (name === "color") {
-      processedValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, "")
-    } else if (name === "marca_id") {
-      // Reset referencia when marca changes
-      setFormData((prev) => ({
+      if (name === "placa") {
+        processedValue = value.toUpperCase().replace(/[^A-Z0-9]/g, "")
+      } else if (name === "color") {
+        processedValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, "")
+      }
+
+      const newState = {
         ...prev,
-        referencia_id: "",
-      }))
-    }
+        [name]: processedValue,
+      }
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: processedValue,
-    }))
+      if (name === "tipo_vehiculo") {
+        newState.referencia_id = "" // Resetear referencia cuando cambia la marca o el tipo
+      }
 
-    // Clear error when user starts typing
+      return newState
+    })
+
+    // Limpiar el error del campo cuando el usuario empieza a escribir
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -196,8 +141,17 @@ const CrearVehiculo = () => {
     }
   }
 
-  const handleSubmit = async () => {
-    if (!validateStep(2)) return
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!validateForm()) {
+      Swal.fire({
+        icon: "warning",
+        title: "Campos Incompletos",
+        text: "Por favor, revisa y completa todos los campos obligatorios.",
+        confirmButtonColor: "#f59e0b",
+      })
+      return
+    }
 
     try {
       setLoading(true)
@@ -242,9 +196,12 @@ const CrearVehiculo = () => {
     return referencias.find((r) => r.id === Number.parseInt(formData.referencia_id))
   }
 
-  const getSelectedMarca = () => {
-    return marcas.find((m) => m.id === Number.parseInt(formData.marca_id))
-  }
+  // Filtrar referencias en el frontend, igual que en el panel de admin
+  const referenciasFiltradas = formData.tipo_vehiculo
+    ? allReferencias.filter(
+        (ref) => ref.tipo_vehiculo === formData.tipo_vehiculo || ref.categoria === formData.tipo_vehiculo,
+      )
+    : []
 
   return (
     <div className="cvc-crear-container">
@@ -255,208 +212,118 @@ const CrearVehiculo = () => {
             <FaCar className="cvc-crear-icon" />
           </div>
           <div className="cvc-crear-title-section">
-            <h1>Registrar Nuevo Vehículo</h1>
-            <p>Paso {currentStep} de 2</p>
+            <h1 className="cvc-crear-page-title">Registrar Nuevo Vehículo</h1>
           </div>
         </div>
-        <button type="button" onClick={() => navigate("/client/vehiculos")} className="cvc-crear-back-button">
+        <button type="button" onClick={() => navigate(-1)} className="cvc-crear-back-button">
           <FaArrowLeft /> Volver
         </button>
       </div>
 
-      {/* Step indicator */}
-      <div className="cvc-crear-step-indicator">
-        {[1, 2].map((step) => (
-          <div key={step} className="cvc-crear-step">
-            <div className={`cvc-crear-step-circle ${currentStep >= step ? "active" : "inactive"}`}>
-              {currentStep > step ? <FaCheck /> : step}
-            </div>
-            {step < 2 && <div className={`cvc-crear-step-line ${currentStep > step ? "active" : "inactive"}`} />}
-          </div>
-        ))}
-      </div>
-
-      {/* Main content */}
       <div className="cvc-crear-content">
-        <div className="cvc-crear-main-card">
-          {/* Step 1: Basic Information */}
-          {currentStep === 1 && (
-            <div className="cvc-crear-form-section">
-              <h2 className="cvc-crear-section-title">
-                <FaInfoCircle className="cvc-crear-section-icon" />
-                Información Básica
-              </h2>
-
+        <form onSubmit={handleSubmit} className="cvc-crear-main-card">
+          <div className="cvc-crear-form-section">
+            <h2 className="cvc-crear-section-title">
+              <FaInfoCircle className="cvc-crear-section-icon" />
+              Información del Vehículo
+            </h2>
+            <div className="cvc-crear-form-grid">
               <div className="cvc-crear-form-group">
-                <label className="cvc-crear-label">
-                  <FaCar className="cvc-crear-label-icon" />
-                  Placa del vehículo *
+                <label htmlFor="placa" className="cvc-crear-label ">
+                  Placa *
                 </label>
                 <input
+                  id="placa"
                   type="text"
                   name="placa"
                   value={formData.placa}
                   onChange={handleInputChange}
-                  placeholder="ABC123"
+                  placeholder="Ej: ABC123"
                   maxLength="6"
-                  className={`cvc-crear-form-input ${errors.placa ? "error" : ""}`}
+                  className={`cvc-crear-form-input-l ${errors.placa ? "error" : ""}`}
                 />
-                {errors.placa && (
-                  <span className="cvc-crear-error-text">
-                    <FaExclamationTriangle />
-                    {errors.placa}
-                  </span>
-                )}
+                {errors.placa && <span className="cvc-crear-error-text">{errors.placa}</span>}
               </div>
-
-              <div className="cvc-crear-form-grid">
-                <div className="cvc-crear-form-group">
-                  <label className="cvc-crear-label">Color *</label>
-                  <input
-                    type="text"
-                    name="color"
-                    value={formData.color}
-                    onChange={handleInputChange}
-                    placeholder="Blanco, Azul, Negro..."
-                    maxLength="30"
-                    className={`cvc-crear-form-input ${errors.color ? "error" : ""}`}
-                  />
-                  {errors.color && (
-                    <span className="cvc-crear-error-text">
-                      <FaExclamationTriangle />
-                      {errors.color}
-                    </span>
-                  )}
-                </div>
-
-                <div className="cvc-crear-form-group">
-                  <label className="cvc-crear-label">Tipo de Vehículo *</label>
-                  <select
-                    name="tipo_vehiculo"
-                    value={formData.tipo_vehiculo}
-                    onChange={handleInputChange}
-                    className={`cvc-crear-form-input ${errors.tipo_vehiculo ? "error" : ""}`}
-                  >
-                    <option value="">Seleccione el tipo</option>
-                    <option value="Carro">Carro</option>
-                    <option value="Moto">Moto</option>
-                    <option value="Camioneta">Camioneta</option>
-                  </select>
-                  {errors.tipo_vehiculo && (
-                    <span className="cvc-crear-error-text">
-                      <FaExclamationTriangle />
-                      {errors.tipo_vehiculo}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Step 2: Brand and Model */}
-          {currentStep === 2 && (
-            <div className="cvc-crear-form-section">
-              <h2 className="cvc-crear-section-title">
-                <FaCogs className="cvc-crear-section-icon" />
-                Marca y Modelo
-              </h2>
 
               <div className="cvc-crear-form-group">
-                <label className="cvc-crear-label">Marca *</label>
-                <select
-                  name="marca_id"
-                  value={formData.marca_id}
+                <label htmlFor="color" className="cvc-crear-label">
+                  Color *
+                </label>
+                <input
+                  id="color"
+                  type="text"
+                  name="color"
+                  value={formData.color}
                   onChange={handleInputChange}
-                  className={`cvc-crear-form-input ${errors.marca_id ? "error" : ""}`}
-                >
-                  <option value="">Seleccione una marca</option>
-                  {marcas.map((marca) => (
-                    <option key={marca.id} value={marca.id}>
-                      {marca.nombre}
-                    </option>
-                  ))}
-                </select>
-                {errors.marca_id && (
-                  <span className="cvc-crear-error-text">
-                    <FaExclamationTriangle />
-                    {errors.marca_id}
-                  </span>
-                )}
+                  placeholder="Ej: Negro"
+                  maxLength="30"
+                  className={`cvc-crear-form-input-l ${errors.color ? "error" : ""}`}
+                />
+                {errors.color && <span className="cvc-crear-error-text">{errors.color}</span>}
               </div>
 
               <div className="cvc-crear-form-group">
-                <label className="cvc-crear-label">Modelo *</label>
+                <label htmlFor="tipo_vehiculo" className="cvc-crear-label">
+                  Tipo de Vehículo *
+                </label>
                 <select
+                  id="tipo_vehiculo"
+                  name="tipo_vehiculo"
+                  value={formData.tipo_vehiculo}
+                  onChange={handleInputChange}
+                  className={`cvc-crear-form-input ${errors.tipo_vehiculo ? "error" : ""}`}
+                >
+                  <option value="">Seleccione un tipo</option>
+                  <option value="Carro">Carro</option>
+                  <option value="Moto">Moto</option>
+                  <option value="Camioneta">Camioneta</option>
+                </select>
+                {errors.tipo_vehiculo && <span className="cvc-crear-error-text">{errors.tipo_vehiculo}</span>}
+              </div>
+
+              <div className="cvc-crear-form-group">
+                <label htmlFor="referencia_id" className="cvc-crear-label">
+                  Modelo / Referencia *
+                </label>
+                <select
+                  id="referencia_id"
                   name="referencia_id"
                   value={formData.referencia_id}
                   onChange={handleInputChange}
-                  disabled={!formData.marca_id}
+                  disabled={!formData.tipo_vehiculo || referenciasFiltradas.length === 0}
                   className={`cvc-crear-form-input ${errors.referencia_id ? "error" : ""}`}
                 >
                   <option value="">
-                    {formData.marca_id ? "Seleccione un modelo" : "Primero seleccione una marca"}
+                    {!formData.tipo_vehiculo
+                      ? "Seleccione un tipo de vehículo"
+                      : "Seleccione un modelo"}
                   </option>
-                  {referencias.map((referencia) => (
+                  {referenciasFiltradas.map((referencia) => (
                     <option key={referencia.id} value={referencia.id}>
                       {referencia.nombre}
                     </option>
                   ))}
                 </select>
-                {errors.referencia_id && (
-                  <span className="cvc-crear-error-text">
-                    <FaExclamationTriangle />
-                    {errors.referencia_id}
-                  </span>
-                )}
+                {errors.referencia_id && <span className="cvc-crear-error-text">{errors.referencia_id}</span>}
               </div>
-
-              {formData.referencia_id && (
-                <div className="cvc-crear-vehicle-preview">
-                  <h4>Vehículo seleccionado:</h4>
-                  <p>
-                    <strong>
-                      {getSelectedMarca()?.nombre} {getSelectedReferencia()?.nombre} - {formData.tipo_vehiculo}
-                    </strong>
-                  </p>
-                  <p>
-                    Placa: {formData.placa} | Color: {formData.color}
-                  </p>
-                </div>
-              )}
             </div>
-          )}
-
-          {/* Navigation buttons */}
-          <div className="cvc-crear-form-actions">
-            {currentStep > 1 && (
-              <button type="button" onClick={prevStep} className="cvc-crear-submit-button">
-                <FaArrowLeft className="cvc-crear-button-icon" />
-                Anterior
-              </button>
-            )}
-
-            {currentStep < 2 ? (
-              <button type="button" onClick={nextStep} className="cvc-crear-submit-button">
-                Siguiente
-                <FaArrowRight className="cvc-crear-button-icon" />
-              </button>
-            ) : (
-              <button type="button" onClick={handleSubmit} className="cvc-crear-submit-button" disabled={loading}>
-                {loading ? (
-                  <>
-                    <div className="cvc-crear-spinner"></div>
-                    Registrando...
-                  </>
-                ) : (
-                  <>
-                    <FaCheck className="cvc-crear-button-icon" />
-                    Registrar Vehículo
-                  </>
-                )}
-              </button>
-            )}
           </div>
-        </div>
+            <div className="cvc-crear-form-actions">
+            <button type="submit" className="cvc-crear-submit-button" disabled={loading}>
+              {loading ? (
+                <>
+                  <div className="cvc-crear-spinner"></div>
+                  Registrando...
+                </>
+              ) : (
+                <>
+                  <FaCheck className="cvc-crear-button-icon" />
+                  Registrar Vehículo
+                </>
+              )}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )
