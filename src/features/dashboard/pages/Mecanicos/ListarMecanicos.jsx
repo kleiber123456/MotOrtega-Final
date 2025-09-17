@@ -12,11 +12,9 @@ import {
   FaToggleOn,
   FaToggleOff,
   FaTools,
-  FaSortAlphaDown,
-  FaSortAlphaUp,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/Mecanicos/ListarMecanicos.css"
+import "../../../../shared/styles/Usuarios/ListarUsuarios.css"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
@@ -58,10 +56,13 @@ const useApi = () => {
       })
 
       if (!response.ok) {
+        const errorData = await response.json().catch(() => null) // Try to get error message from body
         if (response.status === 401) {
           throw new Error("Sesión expirada. Por favor inicie sesión nuevamente.")
         }
-        throw new Error(`Error ${response.status}: ${response.statusText}`)
+        throw new Error(
+          errorData?.message || `Error ${response.status}: ${response.statusText}`,
+        )
       }
 
       const data = await response.json()
@@ -88,11 +89,6 @@ const ListarMecanicos = () => {
   const [paginaActual, setPaginaActual] = useState(1)
   const [mecanicosPorPagina] = useState(4)
   const [cargando, setCargando] = useState(true)
-  const [ordenAscendente, setOrdenAscendente] = useState(true)
-  const toggleOrden = useCallback(() => {
-    setOrdenAscendente((prev) => !prev)
-    setPaginaActual(1)
-  }, [])
 
   useEffect(() => {
     document.body.style.backgroundColor = "#f9fafb"
@@ -165,36 +161,15 @@ const ListarMecanicos = () => {
       const mecanico = mecanicos.find((m) => m.id === id)
       const nombreCompleto = mecanico ? `${mecanico.nombre} ${mecanico.apellido}` : "el mecánico"
 
-      // Si está activo y se quiere desactivar, primero consultar si tiene citas agendadas
-      if (estadoActual?.toLowerCase() === "activo") {
-        try {
-          const citas = await makeRequest(`/citas?mecanico_id=${id}`)
-          if (Array.isArray(citas) && citas.length > 0) {
-            await Swal.fire({
-              icon: "warning",
-              title: "No se puede desactivar",
-              text: `El mecánico ${nombreCompleto} tiene citas agendadas y no puede ser desactivado.`,
-              confirmButtonColor: "#ef4444",
-            })
-            return
-          }
-        } catch (error) {
-          await Swal.fire({
-            icon: "error",
-            title: "Error al verificar citas",
-            text: "No se pudo verificar si el mecánico tiene citas agendadas.",
-            confirmButtonColor: "#ef4444",
-          })
-          return
-        }
-      }
-
       try {
         const nuevoEstado = estadoActual?.toLowerCase() === "activo" ? "Inactivo" : "Activo"
 
         const result = await Swal.fire({
           title: `¿Cambiar estado a ${nuevoEstado}?`,
-          text: `El mecánico ${nombreCompleto} será marcado como ${nuevoEstado.toLowerCase()}`,
+          text: `El mecánico ${nombreCompleto} será marcado como ${nuevoEstado.toLowerCase()}`.concat(
+            nuevoEstado === 'Inactivo' ? 
+            ' Tenga en cuenta que si el mecánico tiene datos asociados, no se podrá desactivar.' : ''
+          ),
           icon: "question",
           showCancelButton: true,
           confirmButtonColor: "#2563eb",
@@ -220,7 +195,7 @@ const ListarMecanicos = () => {
         })
       } catch (error) {
         console.error("Error al cambiar estado:", error)
-        Swal.fire("Error", "No se pudo cambiar el estado del mecánico", "error")
+        Swal.fire("Error", error.message || "No se pudo cambiar el estado del mecánico", "error")
       }
     },
     [makeRequest, mecanicos],
@@ -238,22 +213,11 @@ const ListarMecanicos = () => {
     return matchBusqueda && matchEstado
   })
 
-  // Ordenar mecánicos
-  const mecanicosOrdenados = [...mecanicosFiltrados].sort((a, b) => {
-    const nombreA = `${a.nombre || ""} ${a.apellido || ""}`.toLowerCase()
-    const nombreB = `${b.nombre || ""} ${b.apellido || ""}`.toLowerCase()
-    if (ordenAscendente) {
-      return nombreA.localeCompare(nombreB)
-    } else {
-      return nombreB.localeCompare(nombreA)
-    }
-  })
-
   // Paginación
   const indiceUltimoMecanico = paginaActual * mecanicosPorPagina
   const indicePrimerMecanico = indiceUltimoMecanico - mecanicosPorPagina
-  const mecanicosActuales = mecanicosOrdenados.slice(indicePrimerMecanico, indiceUltimoMecanico)
-  const totalPaginas = Math.ceil(mecanicosOrdenados.length / mecanicosPorPagina)
+  const mecanicosActuales = mecanicosFiltrados.slice(indicePrimerMecanico, indiceUltimoMecanico)
+  const totalPaginas = Math.ceil(mecanicosFiltrados.length / mecanicosPorPagina)
 
   if (cargando) {
     return (
@@ -283,14 +247,14 @@ const ListarMecanicos = () => {
       </div>
 
       {/* Filtros */}
-      <div className="listarMecanicos-filters-container">
-        <div className="listarMecanicos-filter-item">
-          <label className="listarMecanicos-filter-label">Buscar:</label>
-          <div className="listarMecanicos-search-container">
-            <FaSearch className="listarMecanicos-search-icon" />
+      <div className="listarUsuarios-filters-container">
+        <div className="listarUsuarios-filter-item">
+          <label className="listarUsuarios-filter-label">Buscar:</label>
+          <div className="listarUsuarios-search-container">
+            <FaSearch className="listarUsuarios-search-icon" />
             <input
               type="text"
-              className="listarMecanicos-search-input"
+              className="listarUsuarios-search-input"
               placeholder="Buscar por cualquier campo..."
               value={busqueda}
               onChange={handleSearch}
@@ -298,47 +262,26 @@ const ListarMecanicos = () => {
           </div>
         </div>
 
-        <div className="listarMecanicos-filter-item">
-          <label className="listarMecanicos-filter-label">Estado:</label>
+        <div className="listarUsuarios-filter-item">
+          <label className="listarUsuarios-filter-label">Estado:</label>
           <select
             value={estadoFiltro}
             onChange={(e) => {
               setEstadoFiltro(e.target.value)
               setPaginaActual(1)
             }}
-            className="listarMecanicos-filter-select"
+            className="listarUsuarios-filter-select"
           >
             <option value="">Todos los estados</option>
             <option value="Activo">Activo</option>
             <option value="Inactivo">Inactivo</option>
           </select>
         </div>
-
-        <div className="listarMecanicos-filter-item">
-          <label className="listarMecanicos-filter-label">Ordenar:</label>
-          <button
-            onClick={toggleOrden}
-            className="listarMecanicos-sort-button"
-            title={`Ordenar ${ordenAscendente ? "descendente" : "ascendente"}`}
-          >
-            {ordenAscendente ? (
-              <>
-                <FaSortAlphaDown className="listarMecanicos-sort-icon" />
-                Ascendente
-              </>
-            ) : (
-              <>
-                <FaSortAlphaUp className="listarMecanicos-sort-icon" />
-                Descendente
-              </>
-            )}
-          </button>
-        </div>
       </div>
 
       {/* Tabla */}
-      <div className="listarMecanicos-table-container">
-        <table className="listarMecanicos-table">
+      <div className="listarUsuarios-table-container">
+        <table className="listarUsuarios-table">
           <thead>
             <tr>
               <th>Nombre Completo</th>
@@ -410,7 +353,7 @@ const ListarMecanicos = () => {
           </tbody>
         </table>
 
-        {mecanicosOrdenados.length === 0 && (
+        {mecanicosFiltrados.length === 0 && (
           <div className="listarUsuarios-no-results">
             <FaExclamationTriangle className="listarUsuarios-no-results-icon" />
             <p>No se encontraron mecánicos con los criterios de búsqueda.</p>
@@ -418,7 +361,7 @@ const ListarMecanicos = () => {
         )}
 
         {/* Paginación */}
-        {mecanicosOrdenados.length > mecanicosPorPagina && (
+        {mecanicosFiltrados.length > mecanicosPorPagina && (
           <div className="listarUsuarios-pagination">
             <button
               onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}

@@ -12,8 +12,6 @@ import {
   FaPlus,
   FaToggleOn,
   FaToggleOff,
-  FaSortAlphaDown,
-  FaSortAlphaUp,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Usuarios/ListarUsuarios.css"
@@ -58,10 +56,13 @@ const useApi = () => {
       })
 
       if (!response.ok) {
+        const errorData = await response.json().catch(() => null) // Try to get error message from body
         if (response.status === 401) {
           throw new Error("Sesión expirada. Por favor inicie sesión nuevamente.")
         }
-        throw new Error(`Error ${response.status}: ${response.statusText}`)
+        throw new Error(
+          errorData?.message || `Error ${response.status}: ${response.statusText}`,
+        )
       }
 
       const data = await response.json()
@@ -79,8 +80,6 @@ const useApi = () => {
 }
 
 const ListarUsuarios = () => {
-  // Estado para orden ascendente/descendente
-  const [ordenAscendente, setOrdenAscendente] = useState(true)
   const navigate = useNavigate()
   const { makeRequest, loading: apiLoading } = useApi()
 
@@ -160,57 +159,60 @@ const ListarUsuarios = () => {
   const cambiarEstado = useCallback(
     async (id, estadoActual) => {
       // Buscar el usuario por id para obtener su información completa
-      const usuario = usuarios.find((u) => u.id === id)
-      const nombreCompleto = usuario ? `${usuario.nombre} ${usuario.apellido}` : "el usuario"
-
+      const usuario = usuarios.find((u) => u.id === id);
+      const nombreCompleto = usuario ? `${usuario.nombre} ${usuario.apellido}` : "el usuario";
+  
       try {
-        const nuevoEstado = estadoActual?.toLowerCase() === "activo" ? "Inactivo" : "Activo"
-
+        const nuevoEstado = estadoActual?.toLowerCase() === "activo" ? "Inactivo" : "Activo";
+  
         const result = await Swal.fire({
           title: `¿Cambiar estado a ${nuevoEstado}?`,
-          text: `El usuario ${nombreCompleto} será marcado como ${nuevoEstado.toLowerCase()}`,
+          text: `El usuario ${nombreCompleto} será marcado como ${nuevoEstado.toLowerCase()}`.concat(
+            nuevoEstado === 'Inactivo' ? 
+            ' Tenga en cuenta que si el usuario tiene datos asociados, no se podrá desactivar.' : ''
+          ),
           icon: "question",
           showCancelButton: true,
           confirmButtonColor: "#2563eb",
           cancelButtonColor: "#6b7280",
           confirmButtonText: "Sí, cambiar",
           cancelButtonText: "Cancelar",
-        })
-
-        if (!result.isConfirmed) return
-
+        });
+  
+        if (!result.isConfirmed) return;
+  
         // Determinar el endpoint según el rol del usuario
-        let endpoint = `/usuarios/${id}/cambiar-estado`
-
+        let endpoint = `/usuarios/${id}/cambiar-estado`;
+  
         if (usuario && usuario.rol_nombre) {
-          const rolNombre = usuario.rol_nombre.toLowerCase()
+          const rolNombre = usuario.rol_nombre.toLowerCase();
           if (rolNombre.includes("cliente")) {
-            endpoint = `/clientes/${id}/cambiar-estado`
+            endpoint = `/clientes/${id}/cambiar-estado`;
           } else if (rolNombre.includes("mecánico") || rolNombre.includes("mecanico")) {
-            endpoint = `/mecanicos/${id}/cambiar-estado`
+            endpoint = `/mecanicos/${id}/cambiar-estado`;
           }
         }
-
+  
         await makeRequest(endpoint, {
           method: "PUT",
-        })
-
-        setUsuarios((prev) => prev.map((u) => (u.id === id ? { ...u, estado: nuevoEstado } : u)))
-
+        });
+  
+        setUsuarios((prev) => prev.map((u) => (u.id === id ? { ...u, estado: nuevoEstado } : u)));
+  
         Swal.fire({
           icon: "success",
           title: "Estado actualizado",
           text: `El usuario ${nombreCompleto} ahora está ${nuevoEstado.toLowerCase()}`,
           timer: 2000,
           showConfirmButton: false,
-        })
+        });
       } catch (error) {
-        console.error("Error al cambiar estado:", error)
-        Swal.fire("Error", "No se pudo cambiar el estado del usuario", "error")
+        console.error("Error al cambiar estado:", error);
+        Swal.fire("Error", error.message || "No se pudo cambiar el estado del usuario", "error");
       }
     },
-    [makeRequest, usuarios],
-  )
+    [makeRequest, usuarios]
+  );
 
   const handleSearch = useCallback((e) => {
     setBusqueda(e.target.value.toLowerCase())
@@ -218,18 +220,12 @@ const ListarUsuarios = () => {
   }, [])
 
   // Filtrar usuarios
-  let usuariosFiltrados = usuarios.filter((usuario) => {
+  const usuariosFiltrados = usuarios.filter((usuario) => {
     const matchBusqueda = Object.values(usuario).some((val) => String(val).toLowerCase().includes(busqueda))
     const matchEstado = estadoFiltro === "" || usuario.estado === estadoFiltro
     const matchRol = rolFiltro === "" || usuario.rol_nombre === rolFiltro
+
     return matchBusqueda && matchEstado && matchRol
-  })
-  // Ordenar por nombre
-  usuariosFiltrados = usuariosFiltrados.sort((a, b) => {
-    if (!a.nombre || !b.nombre) return 0
-    return ordenAscendente
-      ? a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })
-      : b.nombre.localeCompare(a.nombre, 'es', { sensitivity: 'base' })
   })
 
   // Paginación
@@ -317,26 +313,6 @@ const ListarUsuarios = () => {
               </option>
             ))}
           </select>
-        </div>
-        <div className="listarUsuarios-filter-item">
-          <label className="listarUsuarios-filter-label">Ordenar:</label>
-          <button
-            className="listarUsuarios-sort-button"
-            onClick={() => setOrdenAscendente((prev) => !prev)}
-            title={`Ordenar ${ordenAscendente ? "descendente" : "ascendente"}`}
-          >
-            {ordenAscendente ? (
-              <>
-                <FaSortAlphaDown className="listarUsuarios-sort-icon" />
-                Ascendente
-              </>
-            ) : (
-              <>
-                <FaSortAlphaUp className="listarUsuarios-sort-icon" />
-                Descendente
-              </>
-            )}
-          </button>
         </div>
       </div>
 
