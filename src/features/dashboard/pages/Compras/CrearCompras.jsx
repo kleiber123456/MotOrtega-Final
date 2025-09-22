@@ -18,6 +18,7 @@ import {
   FaArrowLeft,
   FaChevronLeft,
   FaChevronRight,
+  FaHashtag,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Compras/CrearCompras.css"
@@ -115,6 +116,7 @@ const CrearCompra = () => {
   const [total, setTotal] = useState(0)
   const [formData, setFormData] = useState({
     fecha: new Date().toISOString().substr(0, 10),
+    numerofactura: "",
   })
   const [formErrors, setFormErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -157,7 +159,7 @@ const CrearCompra = () => {
         if (Date.now() - state.timestamp < 3600000) {
           setSelectedProducts(state.selectedProducts || [])
           setSelectedSupplier(state.selectedSupplier || null)
-          setFormData(state.formData || { fecha: new Date().toISOString().substr(0, 10) })
+          setFormData(state.formData || { fecha: new Date().toISOString().substr(0, 10), numerofactura: "" })
           setSearchTerm(state.searchTerm || "")
           setInputValues(state.inputValues || {})
         }
@@ -244,6 +246,10 @@ const CrearCompra = () => {
       errors.fecha = "La fecha es obligatoria"
     }
 
+    if (!formData.numerofactura.trim()) {
+      errors.numerofactura = "El número de factura es obligatorio"
+    }
+
     selectedProducts.forEach((product, index) => {
       if (product.quantity <= 0) {
         errors[`product_${index}_quantity`] = `Cantidad inválida para ${product.nombre}`
@@ -255,7 +261,7 @@ const CrearCompra = () => {
 
     setFormErrors(errors)
     return Object.keys(errors).length === 0
-  }, [selectedSupplier, selectedProducts, formData.fecha])
+  }, [selectedSupplier, selectedProducts, formData])
 
   // Manejadores para modales
   const openSupplierModal = useCallback(() => setShowSupplierModal(true), [])
@@ -453,13 +459,13 @@ const CrearCompra = () => {
       try {
         const compraData = {
           proveedor_id: selectedSupplier.id,
+          numerofactura: formData.numerofactura,
           detalles: selectedProducts.map((product) => ({
             repuesto_id: product.id,
             cantidad: product.quantity,
             precio_compra: product.price,
             porcentaje_ganancia: product.porcentaje || 40,
           })),
-          estado: "Pendiente",
         }
 
         await makeRequest("/compras", {
@@ -490,7 +496,7 @@ const CrearCompra = () => {
         setIsSubmitting(false)
       }
     },
-    [validateForm, selectedSupplier, selectedProducts, makeRequest, navigate],
+    [validateForm, selectedSupplier, selectedProducts, formData, makeRequest, navigate],
   )
 
   // Manejador para cancelar
@@ -578,26 +584,51 @@ const CrearCompra = () => {
               )}
             </div>
             <div className="crearCompra-form-group">
-              <label htmlFor="fecha" className="crearCompra-label">
-                <FaCalendarAlt className="crearCompra-label-icon" />
-                Fecha *
-              </label>
-              <input
-                type="date"
-                id="fecha"
-                name="fecha"
-                className={`crearCompra-form-input ${formErrors.fecha ? "error" : ""}`}
-                value={formData.fecha}
-                onChange={handleInputChange}
-                min={calcularFechaMinima()}
-                max={new Date().toISOString().substr(0, 10)}
-                required
-              />
-              {formErrors.fecha && (
-                <span className="crearCompra-error-text">
-                  <FaExclamationTriangle /> {formErrors.fecha}
-                </span>
-              )}
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px'}}>
+                <div className="crearCompra-form-group">
+                  <label htmlFor="numerofactura" className="crearCompra-label">
+                    <FaHashtag className="crearCompra-label-icon" />
+                    N° Factura *
+                  </label>
+                  <input
+                    type="text"
+                    id="numerofactura"
+                    name="numerofactura"
+                    className={`crearCompra-form-input ${formErrors.numerofactura ? "error" : ""}`}
+                    value={formData.numerofactura}
+                    onChange={handleInputChange}
+                    placeholder="Ej: F-00123"
+                    required
+                  />
+                  {formErrors.numerofactura && (
+                    <span className="crearCompra-error-text">
+                      <FaExclamationTriangle /> {formErrors.numerofactura}
+                    </span>
+                  )}
+                </div>
+                <div className="crearCompra-form-group">
+                  <label htmlFor="fecha" className="crearCompra-label">
+                    <FaCalendarAlt className="crearCompra-label-icon" />
+                    Fecha *
+                  </label>
+                  <input
+                    type="date"
+                    id="fecha"
+                    name="fecha"
+                    className={`crearCompra-form-input ${formErrors.fecha ? "error" : ""}`}
+                    value={formData.fecha}
+                    onChange={handleInputChange}
+                    min={calcularFechaMinima()}
+                    max={new Date().toISOString().substr(0, 10)}
+                    required
+                  />
+                  {formErrors.fecha && (
+                    <span className="crearCompra-error-text">
+                      <FaExclamationTriangle /> {formErrors.fecha}
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
