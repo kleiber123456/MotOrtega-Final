@@ -240,15 +240,19 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
           />
 
           {/* 4. Vehículos */}
-          <a
-            href="/vehiculos"
-            className={`mo-dashboard-btn2 ${activePath === "/vehiculos" ? "mo-dashboard-btn--active" : ""} ${collapsed ? "mo-dashboard-btn--collapsed" : ""}`}
-            onClick={handleLinkClick}
-            aria-current={activePath === "/vehiculos" ? "page" : undefined}
-          >
-            <span className="mo-dashboard-btn__icon"><FaCar /></span>
-            {!collapsed && <span className="mo-dashboard-btn__title">Vehículos</span>}
-          </a>
+          <Dropdown
+            id="vehiculos"
+            title="Vehículos"
+            icon={<FaCar />}
+            options={[
+              { label: "Vehículos", link: "/vehiculos" },
+              { label: "Marcas", link: "/marcas" },
+              { label: "Referencias", link: "/referencias" },
+            ]}
+            isOpen={activeDropdown === "vehiculos"}
+            toggleDropdown={toggleDropdown}
+            collapsed={collapsed}
+          />
 
           {/* 5. Configuración */}
           <Dropdown

@@ -63,6 +63,20 @@ import EditarVehiculo from "./features/dashboard/pages/Vehiculos/EditarVehiculo"
 import DetalleVehiculo from "./features/dashboard/pages/Vehiculos/DetalleVehiculo"
 // ----------------------------------------------------------------------
 
+// --------------------------------MARCAS-------------------------------
+import ListarMarcas from "./features/dashboard/pages/Marca/ListarMarcas"
+import CrearMarca from "./features/dashboard/pages/Marca/CrearMarca"
+import EditarMarca from "./features/dashboard/pages/Marca/EditarMarca"
+import DetalleMarca from "./features/dashboard/pages/Marca/DetalleMarca"
+// ----------------------------------------------------------------------
+
+// --------------------------------REFERENCIAS-------------------------------
+import ListarReferencias from "./features/dashboard/pages/Referencia/ListarReferencias"
+import CrearReferencia from "./features/dashboard/pages/Referencia/CrearReferencia"
+import EditarReferencia from "./features/dashboard/pages/Referencia/EditarReferencia"
+import DetalleReferencia from "./features/dashboard/pages/Referencia/DetalleReferencia"
+// ----------------------------------------------------------------------
+
 // ------------------------------VEHÍCULOS CLIENTE-----------------------
 import MisVehiculos from "./features/client/pages/MisVehiculos"
 import CrearVehiculoCliente from "./features/client/pages/CrearVehiculo"
@@ -252,7 +266,7 @@ function App() {
           <PrivateRoute>
             <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
-                <Dashboard />
+                <DetalleVenta />
               </Layout>
             </RoleBasedRoute>
           </PrivateRoute>
@@ -639,6 +653,106 @@ function App() {
             <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
                 <DetalleVehiculo />
+              </Layout>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+
+      {/* MARCAS */}
+      <Route
+        path="/marcas"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
+              <Layout>
+                <ListarMarcas />
+              </Layout>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/crearMarca"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
+              <Layout>
+                <CrearMarca />
+              </Layout>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/marcas/editar/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
+              <Layout>
+                <EditarMarca />
+              </Layout>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/marcas/detalle/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
+              <Layout>
+                <DetalleMarca />
+              </Layout>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+
+      {/* REFERENCIAS */}
+      <Route
+        path="/referencias"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
+              <Layout>
+                <ListarReferencias />
+              </Layout>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/referencias/crear"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
+              <Layout>
+                <CrearReferencia />
+              </Layout>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/referencias/editar/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin"]}>
+              <Layout>
+                <EditarReferencia />
+              </Layout>
+            </RoleBasedRoute>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/referencias/detalle/:id"
+        element={
+          <PrivateRoute>
+            <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
+              <Layout>
+                <DetalleReferencia />
               </Layout>
             </RoleBasedRoute>
           </PrivateRoute>
