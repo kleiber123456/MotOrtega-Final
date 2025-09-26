@@ -15,104 +15,31 @@ import {
   FaSave,
   FaArrowLeft,
 } from "react-icons/fa"
+
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Usuarios/EditarUsuario.css"
+import { validateField, commonValidationRules } from "../../../../shared/utils/validationUtils"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
 
 // Función para obtener token
 const getValidToken = () => {
-  const token = localStorage.getItem("token") || sessionStorage.getItem("token")
-  if (!token) {
-    console.error("No hay token disponible")
-    return null
-  }
-  return token
+  return localStorage.getItem("token") || sessionStorage.getItem("token")
 }
 
-// Hook personalizado para manejo de API
-const useApi = () => {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-
-  const makeRequest = useCallback(async (url, options = {}) => {
-    setLoading(true)
-    setError(null)
-
-    const token = getValidToken()
-    if (!token) {
-      setError("Error de autenticación")
-      setLoading(false)
-      return null
-    }
-
-    try {
-      const response = await fetch(`${API_BASE_URL}${url}`, {
-        ...options,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-          ...options.headers,
-        },
-      })
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error("Sesión expirada. Por favor inicie sesión nuevamente.")
-        }
-        throw new Error(`Error ${response.status}: ${response.statusText}`)
-      }
-
-      const data = await response.json()
-      return data
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Error desconocido"
-      setError(errorMessage)
-      throw err
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  return { makeRequest, loading, error }
-}
-
-const EditarUsuario = () => {
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const { makeRequest, loading: apiLoading } = useApi()
-
-  const [usuario, setUsuario] = useState({
-    nombre: "",
-    apellido: "",
-    tipo_documento: "",
-    documento: "",
-    correo: "",
-    telefono: "",
-    direccion: "",
-    estado: "",
-    rol_id: "",
-  })
-
-  const [roles, setRoles] = useState([])
-  const [errores, setErrores] = useState({})
-  const [cargando, setCargando] = useState(true)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
+function EditarUsuario() {
+  // ...existing hooks and logic...
   useEffect(() => {
     const cargarDatos = async () => {
       try {
         setCargando(true)
-
-        // Cargar usuario y roles en paralelo
-        const [usuarioData, rolesData] = await Promise.all([makeRequest(`/usuarios/${id}`), makeRequest("/roles")])
-
+        const usuarioData = await makeRequest(`/usuarios/${id}`)
+        const rolesData = await makeRequest(`/roles`)
         if (usuarioData) {
           setUsuario({
             nombre: usuarioData.nombre || "",
             apellido: usuarioData.apellido || "",
-            tipo_documento: usuarioData.tipo_documento || "",
             documento: usuarioData.documento || "",
             correo: usuarioData.correo || "",
             telefono: usuarioData.telefono || "",
@@ -121,7 +48,6 @@ const EditarUsuario = () => {
             rol_id: usuarioData.rol_id || "",
           })
         }
-
         if (rolesData) {
           setRoles(rolesData)
         }
@@ -132,87 +58,46 @@ const EditarUsuario = () => {
         setCargando(false)
       }
     }
-
     if (id) {
       cargarDatos()
     }
   }, [id, makeRequest])
 
-  const handleChange = useCallback((e) => {
-    const { name, value } = e.target
-    setUsuario((prev) => ({ ...prev, [name]: value }))
-    validarCampo(name, value)
-  }, [])
+        // ...existing code...
 
-  const validarCampo = useCallback((name, value) => {
-    let nuevoError = ""
-
-    switch (name) {
-      case "nombre":
-        if (!value.trim()) {
-          nuevoError = "El nombre es obligatorio."
-        } else if (value.trim().length < 3) {
-          nuevoError = "El nombre debe tener al menos 3 caracteres."
-        }
-        break
-      case "apellido":
-        if (!value.trim()) {
-          nuevoError = "El apellido es obligatorio."
-        } else if (value.trim().length < 3) {
-          nuevoError = "El apellido debe tener al menos 3 caracteres."
-        }
-        break
-      case "documento":
-        if (!value.trim()) {
-          nuevoError = "El documento es obligatorio."
-        }
-        break
-      case "tipo_documento":
-        if (!value) {
-          nuevoError = "Selecciona un tipo de documento."
-        }
-        break
-      case "direccion":
-        if (!value.trim()) {
-          nuevoError = "La dirección es obligatoria."
-        } else if (value.trim().length < 5) {
-          nuevoError = "La dirección debe tener al menos 5 caracteres."
-        }
-        break
-      case "correo":
-        if (!value.trim()) {
-          nuevoError = "El correo es obligatorio."
-        } else if (!/\S+@\S+\.\S+/.test(value)) {
-          nuevoError = "Ingresa un correo electrónico válido."
-        }
-        break
-      case "telefono":
-        if (!value.trim()) {
-          nuevoError = "El teléfono es obligatorio."
-        } else if (value.trim().length < 10) {
-          nuevoError = "El teléfono debe tener al menos 10 números."
-        }
-        break
-      case "rol_id":
-        if (!value) {
-          nuevoError = "Selecciona un rol."
-        }
-        break
-    }
-
-    setErrores((prev) => ({ ...prev, [name]: nuevoError }))
-  }, [])
-
-  const validarFormulario = useCallback(() => {
-    const nuevosErrores = {}
-
-    // Validar todos los campos
-    Object.keys(usuario).forEach((key) => {
-      validarCampo(key, usuario[key])
-    })
-
-    return Object.keys(errores).every((key) => !errores[key])
-  }, [usuario, errores, validarCampo])
+  const validarCampo = useCallback(
+    (name, value) => {
+      let rules = {}
+      switch (name) {
+        case "nombre":
+          rules = commonValidationRules.nombre
+          break
+        case "apellido":
+          rules = commonValidationRules.apellido
+          break
+        case "documento":
+          rules = commonValidationRules.cedula
+          break
+        case "correo":
+          rules = commonValidationRules.email
+          break
+        case "telefono":
+          rules = commonValidationRules.phone
+          break
+        case "password":
+          rules = commonValidationRules.password
+          break
+        default:
+          rules = { required: true, fieldName: name }
+      }
+      if (name === "telefono_emergencia" && Number.parseInt(usuario.rol_id) === 3) {
+        rules = { required: true, minLength: 10, onlyNumbers: true, fieldName: "Teléfono de emergencia" }
+      }
+      const error = validateField(value, rules)
+      setErrores((prev) => ({ ...prev, [name]: error }))
+    },
+    [usuario.rol_id],
+  )
 
   // Función para permitir solo números
   const soloNumeros = useCallback((e) => {
@@ -538,5 +423,4 @@ const EditarUsuario = () => {
     </div>
   )
 }
-
 export default EditarUsuario

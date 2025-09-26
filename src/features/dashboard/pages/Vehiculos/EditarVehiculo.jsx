@@ -18,6 +18,7 @@ import {
 import Swal from "sweetalert2"
 import axios from "axios"
 import "../../../../shared/styles/Vehiculos/EditarVehiculo.css"
+import { validateField, commonValidationRules } from "../../../../shared/utils/validationUtils"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
@@ -279,33 +280,10 @@ const EditarVehiculo = () => {
         return
       }
 
-      setIsSubmitting(true)
+      // ...existing code...
 
       try {
-        // Verificar si la placa ya existe en otro vehículo
-        const vehiculosExistentes = await makeRequest("/vehiculos")
-        const vehiculoDuplicado = vehiculosExistentes?.find(
-          (v) => v.id !== Number.parseInt(id) && v.placa === vehiculo.placa,
-        )
-
-        if (vehiculoDuplicado) {
-          await Swal.fire({
-            icon: "warning",
-            title: "Placa duplicada",
-            text: "Ya existe otro vehículo con esta placa.",
-            confirmButtonColor: "#ef4444",
-          })
-          return
-        }
-
-        await makeRequest(`/vehiculos/${id}`, {
-          method: "PUT",
-          data: {
-            ...vehiculo,
-            estado: vehiculo.estado.toLowerCase(),
-          },
-        })
-
+        // ...existing code...
         await Swal.fire({
           icon: "success",
           title: "¡Éxito!",
@@ -313,7 +291,6 @@ const EditarVehiculo = () => {
           confirmButtonColor: "#10b981",
           timer: 2000,
         })
-
         navigate("/vehiculos")
       } catch (error) {
         console.error("Error al actualizar vehículo:", error)
@@ -321,7 +298,6 @@ const EditarVehiculo = () => {
           icon: "error",
           title: "Error",
           text: error instanceof Error ? error.message : "No se pudo actualizar el vehículo",
-          confirmButtonColor: "#ef4444",
         })
       } finally {
         setIsSubmitting(false)
@@ -329,6 +305,8 @@ const EditarVehiculo = () => {
     },
     [vehiculo, validarFormulario, makeRequest, id, navigate],
   )
+
+// ...existing code...
 
   const handleCancel = useCallback(async () => {
     const result = await Swal.fire({

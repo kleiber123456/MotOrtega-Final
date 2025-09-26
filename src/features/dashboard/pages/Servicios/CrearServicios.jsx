@@ -14,7 +14,9 @@ import {
   FaArrowLeft, // <-- Agrega este icono
 } from "react-icons/fa"
 import Swal from "sweetalert2"
+
 import "../../../../shared/styles/Servicios/CrearServicios.css"
+import { validateField } from "../../../../shared/utils/validationUtils"
 
 const CrearServicio = () => {
   const navigate = useNavigate()
@@ -35,34 +37,32 @@ const CrearServicio = () => {
   }, [])
 
   const validarCampo = useCallback((name, value) => {
-    let nuevoError = ""
-
+    let rules = {}
     switch (name) {
       case "nombre":
-        if (!value.trim()) {
-          nuevoError = "El nombre es obligatorio."
-        }
+        rules = { required: true, minLength: 3, maxLength: 50, onlyLetters: true, noLeadingSpaces: true, fieldName: "Nombre" }
         break
       case "descripcion":
-        if (!value.trim()) {
-          nuevoError = "La descripción es obligatoria."
-        }
+        rules = { required: true, minLength: 10, maxLength: 100, noLeadingSpaces: true, fieldName: "Descripción" }
         break
       case "precio":
-        if (!value.trim()) {
-          nuevoError = "El precio es obligatorio."
-        } else if (isNaN(value) || Number.parseFloat(value) <= 0) {
-          nuevoError = "El precio debe ser un número mayor a 0."
-        }
+        rules = { required: true, fieldName: "Precio" }
         break
       case "estado":
-        if (!["Activo", "Inactivo"].includes(value)) {
-          nuevoError = "Estado inválido."
-        }
+        rules = { required: true, fieldName: "Estado" }
         break
+      default:
+        rules = { required: true, fieldName: name }
     }
-
-    setErrores((prev) => ({ ...prev, [name]: nuevoError }))
+    let error = validateField(value, rules)
+    // Validación especial para precio
+    if (name === "precio" && (isNaN(value) || Number.parseFloat(value) <= 0)) {
+      error = "El precio debe ser un número mayor a 0."
+    }
+    if (name === "estado" && !["Activo", "Inactivo"].includes(value)) {
+      error = "Estado inválido."
+    }
+    setErrores((prev) => ({ ...prev, [name]: error }))
   }, [])
 
   const validarFormulario = useCallback(() => {

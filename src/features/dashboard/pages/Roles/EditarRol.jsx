@@ -12,8 +12,10 @@ import {
   FaSave,
   FaArrowLeft,
 } from "react-icons/fa"
+
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Roles/EditarRol.css"
+import { validateField } from "../../../../shared/utils/validationUtils"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
@@ -141,32 +143,23 @@ const EditarRol = () => {
   }, [])
 
   const validarCampo = useCallback((name, value) => {
-    let nuevoError = ""
+    let rules = {}
     switch (name) {
       case "nombre":
-        if (!value.trim()) {
-          nuevoError = "El nombre del rol es obligatorio."
-        } else if (value.trim().length < 3) {
-          nuevoError = "El nombre debe tener al menos 3 caracteres."
-        } else if (value.trim().length > 50) {
-          nuevoError = "El nombre no puede exceder 50 caracteres."
-        } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value.trim())) {
-          nuevoError = "El nombre solo puede contener letras y espacios."
-        } else if (rolesNombresRef.current.includes(value.trim().toLowerCase())) {
-          nuevoError = "Ya existe un rol con este nombre. Por favor elige otro nombre."
-        }
+        rules = { required: true, onlyLetters: true, minLength: 3, maxLength: 50, noLeadingSpaces: true, fieldName: "Nombre del rol" }
         break
       case "descripcion":
-        if (!value.trim()) {
-          nuevoError = "La descripción es obligatoria."
-        } else if (value.trim().length < 10) {
-          nuevoError = "La descripción debe tener al menos 10 caracteres."
-        } else if (value.trim().length > 80) {
-          nuevoError = "La descripción no puede exceder 80 caracteres."
-        }
+        rules = { required: true, minLength: 10, maxLength: 80, noLeadingSpaces: true, fieldName: "Descripción" }
         break
+      default:
+        rules = { required: true, fieldName: name }
     }
-    setErrores((prev) => ({ ...prev, [name]: nuevoError }))
+    let error = validateField(value, rules)
+    // Validación de duplicado de nombre
+    if (name === "nombre" && rolesNombresRef.current.includes(value.trim().toLowerCase())) {
+      error = "Ya existe un rol con este nombre. Por favor elige otro nombre."
+    }
+    setErrores((prev) => ({ ...prev, [name]: error }))
   }, [])
 
   // Validación en tiempo real solo para nombre

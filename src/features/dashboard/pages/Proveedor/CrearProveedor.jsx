@@ -16,8 +16,10 @@ import {
   FaSave,
   FaArrowLeft, // <-- Agrega este icono
 } from "react-icons/fa"
+
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Proveedores/CrearProveedor.css"
+import { validateField, commonValidationRules } from "../../../../shared/utils/validationUtils"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
@@ -58,60 +60,37 @@ const CrearProveedor = () => {
   }, [])
 
   const validarCampo = useCallback((name, value) => {
-    let nuevoError = ""
-
+    let rules = {}
     switch (name) {
       case "nombre":
-        if (!value.trim()) {
-          nuevoError = "El nombre es obligatorio."
-        } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
-          nuevoError = "El nombre solo debe contener letras."
-        }
+        rules = { required: true, onlyLetters: true, minLength: 2, maxLength: 50, fieldName: "Nombre" }
         break
       case "telefono":
-        if (!value.trim()) {
-          nuevoError = "El teléfono es obligatorio."
-        } else if (!/^\d+$/.test(value)) {
-          nuevoError = "El teléfono solo debe contener números."
-        }
+        rules = { required: true, onlyNumbers: true, minLength: 7, maxLength: 15, fieldName: "Teléfono" }
         break
       case "nombre_empresa":
-        if (!value.trim()) {
-          nuevoError = "El nombre de la empresa es obligatorio."
-        }
+        rules = { required: true, minLength: 2, maxLength: 50, fieldName: "Nombre de la empresa" }
         break
       case "telefono_empresa":
-        if (!value.trim()) {
-          nuevoError = "El teléfono de la empresa es obligatorio."
-        } else if (!/^\d+$/.test(value)) {
-          nuevoError = "El teléfono de la empresa solo debe contener números."
-        }
+        rules = { required: true, onlyNumbers: true, minLength: 7, maxLength: 15, fieldName: "Teléfono de la empresa" }
         break
       case "nit":
-        if (!value.trim()) {
-          nuevoError = "El NIT es obligatorio."
-        } else if (!/^\d+$/.test(value)) {
-          nuevoError = "El NIT solo debe contener números."
-        }
+        rules = { required: true, onlyNumbers: true, minLength: 5, maxLength: 15, fieldName: "NIT" }
         break
       case "direccion":
-        if (!value.trim()) {
-          nuevoError = "La dirección es obligatoria."
-        }
+        rules = { required: true, minLength: 5, maxLength: 100, fieldName: "Dirección" }
         break
       case "correo":
-        if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          nuevoError = "El correo electrónico no es válido."
-        }
+        rules = commonValidationRules.email
         break
       case "estado":
-        if (!["Activo", "Inactivo"].includes(value)) {
-          nuevoError = "Estado inválido."
-        }
+        rules = { required: true, fieldName: "Estado" }
         break
+      default:
+        rules = { required: true, fieldName: name }
     }
-
-    setErrores((prev) => ({ ...prev, [name]: nuevoError }))
+    const error = validateField(value, rules)
+    setErrores((prev) => ({ ...prev, [name]: error }))
   }, [])
 
   const validarFormulario = useCallback(() => {

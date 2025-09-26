@@ -18,8 +18,10 @@ import {
   FaUsers,
   FaArrowLeft, // <-- Agrega este icono
 } from "react-icons/fa"
+
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Clientes/CrearClientes.css"
+import { validateField, commonValidationRules } from "../../../../shared/utils/validationUtils"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
@@ -113,79 +115,31 @@ const CrearCliente = () => {
 
   // Validar campo individual
   const validarCampo = useCallback((name, value) => {
-    let nuevoError = ""
-
+    let rules = {}
     switch (name) {
       case "nombre":
-        if (!value.trim()) {
-          nuevoError = "El nombre es obligatorio."
-        } else if (value.trim().length < 3) {
-          nuevoError = "El nombre debe tener al menos 3 caracteres."
-        } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value.trim())) {
-          nuevoError = "El nombre solo puede contener letras y espacios."
-        }
+        rules = commonValidationRules.nombre
         break
       case "apellido":
-        if (!value.trim()) {
-          nuevoError = "El apellido es obligatorio."
-        } else if (value.trim().length < 3) {
-          nuevoError = "El apellido debe tener al menos 3 caracteres."
-        } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value.trim())) {
-          nuevoError = "El apellido solo puede contener letras y espacios."
-        }
+        rules = commonValidationRules.apellido
         break
       case "documento":
-        if (!value.trim()) {
-          nuevoError = "El documento es obligatorio."
-        } else if (!/^\d+$/.test(value.trim())) {
-          nuevoError = "El documento solo puede contener números."
-        }
+        rules = commonValidationRules.cedula // O ajusta si tienes reglas específicas
         break
       case "correo":
-        if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          nuevoError = "Ingresa un correo electrónico válido."
-        }
+        rules = commonValidationRules.email
         break
       case "telefono":
-        if (value) {
-          const telefonoLimpio = value.replace(/\s/g, "")
-          if (!/^\d+$/.test(telefonoLimpio)) {
-            nuevoError = "El teléfono solo puede contener números."
-          } else if (telefonoLimpio.length < 7 || telefonoLimpio.length > 15) {
-            nuevoError = "El teléfono debe tener entre 7 y 15 dígitos."
-          }
-        }
-        break
-      case "direccion":
-        if (!value.trim()) {
-          nuevoError = "La dirección es obligatoria."
-        } else if (value.trim().length < 5) {
-          nuevoError = "La dirección debe tener al menos 5 caracteres."
-        }
+        rules = { required: true, onlyNumbers: true, minLength: 7, maxLength: 15, fieldName: "Teléfono" }
         break
       case "password":
-        if (!value) {
-          nuevoError = "La contraseña es obligatoria."
-        } else {
-          const errores = []
-          if (value.length < 8) {
-            errores.push("al menos 8 caracteres")
-          }
-          if (!/[A-Z]/.test(value)) {
-            errores.push("una letra mayúscula")
-          }
-          if (!/[0-9]/.test(value)) {
-            errores.push("un número")
-          }
-
-          if (errores.length > 0) {
-            nuevoError = "La contraseña debe contener: " + errores.join(", ") + "."
-          }
-        }
+        rules = commonValidationRules.password
         break
+      default:
+        rules = { required: true, fieldName: name }
     }
-
-    setErrores((prev) => ({ ...prev, [name]: nuevoError }))
+    const error = validateField(value, rules)
+    setErrores((prev) => ({ ...prev, [name]: error }))
   }, [])
 
   // Manejadores específicos para validación en tiempo real

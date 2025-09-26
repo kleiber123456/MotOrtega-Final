@@ -15,8 +15,10 @@ import {
   FaSave,
   FaArrowLeft,
 } from "react-icons/fa"
+
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Clientes/EditarCliente.css"
+import { validateField, commonValidationRules } from "../../../../shared/utils/validationUtils"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
@@ -137,53 +139,28 @@ const EditarCliente = () => {
   }, [])
 
   const validarCampo = useCallback((name, value) => {
-    let nuevoError = ""
-
+    let rules = {}
     switch (name) {
       case "nombre":
-        if (!value.trim()) {
-          nuevoError = "El nombre es obligatorio."
-        } else if (value.trim().length < 3) {
-          nuevoError = "El nombre debe tener al menos 3 caracteres."
-        }
+        rules = commonValidationRules.nombre
         break
       case "apellido":
-        if (!value.trim()) {
-          nuevoError = "El apellido es obligatorio."
-        } else if (value.trim().length < 3) {
-          nuevoError = "El apellido debe tener al menos 3 caracteres."
-        }
+        rules = commonValidationRules.apellido
         break
       case "documento":
-        if (!value.trim()) {
-          nuevoError = "El documento es obligatorio."
-        }
-        break
-      case "tipo_documento":
-        if (!value) {
-          nuevoError = "Selecciona un tipo de documento."
-        }
-        break
-      case "direccion":
-        if (!value.trim()) {
-          nuevoError = "La dirección es obligatoria."
-        } else if (value.trim().length < 5) {
-          nuevoError = "La dirección debe tener al menos 5 caracteres."
-        }
+        rules = commonValidationRules.cedula // O ajusta si tienes reglas específicas
         break
       case "correo":
-        if (value && !/\S+@\S+\.\S+/.test(value)) {
-          nuevoError = "Ingresa un correo electrónico válido."
-        }
+        rules = commonValidationRules.email
         break
       case "telefono":
-        if (value && !/^\d+$/.test(value.replace(/\s/g, ""))) {
-          nuevoError = "El teléfono solo puede contener números."
-        }
+        rules = commonValidationRules.phone
         break
+      default:
+        rules = { required: true, fieldName: name }
     }
-
-    setErrores((prev) => ({ ...prev, [name]: nuevoError }))
+    const error = validateField(value, rules)
+    setErrores((prev) => ({ ...prev, [name]: error }))
   }, [])
 
   const validarFormulario = useCallback(() => {

@@ -266,7 +266,7 @@ function App() {
           <PrivateRoute>
             <RoleBasedRoute allowedRoles={["admin", "recepcionista"]}>
               <Layout>
-                <DetalleVenta />
+                <Dashboard />
               </Layout>
             </RoleBasedRoute>
           </PrivateRoute>

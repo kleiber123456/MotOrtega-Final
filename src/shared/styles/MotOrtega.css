@@ -37,11 +37,36 @@
   align-items: center;
   flex-wrap: wrap;
   padding: 10px;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 999;
   gap: 50px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+/* Added navigation visibility and background states */
+.menu.nav-visible {
+  transform: translateY(0);
+}
+
+.menu.nav-hidden {
+  transform: translateY(-100%);
+}
+
+.menu.nav-background {
+  background-color: rgba(16, 16, 16, 0.95);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+}
+
+.menu.nav-scrolled {
+  padding: 8px 10px;
+}
+
+.menu.nav-scrolled .logoMotOrtega {
+  width: 40px;
 }
 
 .opc,
@@ -53,10 +78,18 @@
   padding: 6px 10px;
   width: auto;
   text-align: center;
-  transition: 0.6s;
+  transition: all 0.3s ease;
   border-bottom: 3px solid transparent;
   font-size: 1.1rem;
   position: relative;
+}
+
+/* Added active state for navigation links */
+.opc.active,
+.opcR.active,
+.opcIs.active {
+  border-bottom: 3px solid var(--color-principal);
+  color: var(--color-principal);
 }
 
 .opc:hover,
@@ -65,13 +98,14 @@
   border-bottom: 3px solid var(--color-principal);
   padding-bottom: 16px;
   transition: 0.6s;
+  color: var(--color-principal);
 }
 
 .logoMotOrtega {
   width: 50px;
   height: auto;
   order: 0;
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .alogo {
@@ -88,6 +122,11 @@
 
 .alogo:hover {
   transform: scale(1.1);
+}
+
+/* Added smooth scroll behavior for the entire page */
+html {
+  scroll-behavior: smooth;
 }
 
 /* ---------------------------------------------------------------------------------------- */
@@ -283,6 +322,7 @@
   padding-bottom: 80px;
   position: relative;
   overflow: hidden;
+  scroll-margin-top: 80px;
 }
 
 .ini-section-servicios {
@@ -437,7 +477,7 @@
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   transform: perspective(1000px) rotateY(5deg);
-  transition: transform 0.5s ease;  
+  transition: transform 0.5s ease;
 }
 
 .ini-nosotros-image:hover {
@@ -907,12 +947,19 @@
     gap: 20px;
     padding: 10px 0px;
   }
+
+  /* Updated mobile navigation styles */
+  .menu.nav-scrolled {
+    padding: 8px 0px;
+  }
+
   .ch h1 {
     font-size: 3.5rem;
     padding: 6px 10px;
   }
   .ch h2 {
-    font-size: 1.2rem;  }
+    font-size: 1.2rem;
+  }
   .alogo {
     background-color: #fff;
     border-radius: 50%;
@@ -924,7 +971,7 @@
     border: 1px solid black;
     transition: transform 0.3s ease;
   }
-  .encabezado{
+  .encabezado {
     height: 90vh;
   }
 }

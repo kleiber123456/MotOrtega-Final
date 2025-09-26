@@ -17,8 +17,10 @@ import {
   FaSave,
   FaArrowLeft, // <-- Agrega este icono
 } from "react-icons/fa"
+
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Usuarios/CrearUsuarios.css"
+import { validateField, commonValidationRules } from "../../../../shared/utils/validationUtils"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
@@ -124,91 +126,35 @@ const CrearUsuario = () => {
 
   const validarCampo = useCallback(
     (name, value) => {
-      let nuevoError = ""
-
+      let rules = {}
       switch (name) {
         case "nombre":
-          if (!value.trim()) {
-            nuevoError = "El nombre es obligatorio."
-          } else if (value.trim().length < 3) {
-            nuevoError = "El nombre debe tener al menos 3 caracteres."
-          }
+          rules = commonValidationRules.nombre
           break
         case "apellido":
-          if (!value.trim()) {
-            nuevoError = "El apellido es obligatorio."
-          } else if (value.trim().length < 3) {
-            nuevoError = "El apellido debe tener al menos 3 caracteres."
-          }
+          rules = commonValidationRules.apellido
           break
         case "documento":
-          if (!value.trim()) {
-            nuevoError = "El documento es obligatorio."
-          }
-          break
-        case "tipo_documento":
-          if (!value) {
-            nuevoError = "Selecciona un tipo de documento."
-          }
-          break
-        case "direccion":
-          if (!value.trim()) {
-            nuevoError = "La dirección es obligatoria."
-          } else if (value.trim().length < 5) {
-            nuevoError = "La dirección debe tener al menos 5 caracteres."
-          }
+          rules = commonValidationRules.cedula // O ajusta si tienes reglas específicas
           break
         case "correo":
-          if (!value.trim()) {
-            nuevoError = "El correo es obligatorio."
-          } else if (!/\S+@\S+\.\S+/.test(value)) {
-            nuevoError = "Ingresa un correo electrónico válido."
-          }
+          rules = commonValidationRules.email
           break
         case "telefono":
-          if (!value.trim()) {
-            nuevoError = "El teléfono es obligatorio."
-          } else if (value.trim().length < 10) {
-            nuevoError = "El teléfono debe tener al menos 10 números."
-          }
-          break
-        case "rol_id":
-          if (!value) {
-            nuevoError = "Selecciona un rol."
-          }
+          rules = commonValidationRules.phone
           break
         case "password":
-          if (!value) {
-            nuevoError = "La contraseña es obligatoria."
-          } else {
-            const errores = []
-            if (value.length < 8) {
-              errores.push("al menos 8 caracteres")
-            }
-            if (!/[A-Z]/.test(value)) {
-              errores.push("una letra mayúscula")
-            }
-            if (!/[0-9]/.test(value)) {
-              errores.push("un número")
-            }
-
-            if (errores.length > 0) {
-              nuevoError = "La contraseña debe contener: " + errores.join(", ") + "."
-            }
-          }
+          rules = commonValidationRules.password
           break
-        case "telefono_emergencia":
-          if (Number.parseInt(formulario.rol_id) === 3) {
-            if (!value.trim()) {
-              nuevoError = "El teléfono de emergencia es obligatorio para mecánicos."
-            } else if (value.trim().length < 10) {
-              nuevoError = "El teléfono de emergencia debe tener al menos 10 números."
-            }
-          }
-          break
+        default:
+          rules = { required: true, fieldName: name }
       }
-
-      setErrores((prev) => ({ ...prev, [name]: nuevoError }))
+      // Validación especial para teléfono de emergencia si rol_id === 3
+      if (name === "telefono_emergencia" && Number.parseInt(formulario.rol_id) === 3) {
+        rules = { required: true, minLength: 10, onlyNumbers: true, fieldName: "Teléfono de emergencia" }
+      }
+      const error = validateField(value, rules)
+      setErrores((prev) => ({ ...prev, [name]: error }))
     },
     [formulario.rol_id],
   )

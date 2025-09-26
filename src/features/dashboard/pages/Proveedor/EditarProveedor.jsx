@@ -16,8 +16,10 @@ import {
   FaSave,
   FaArrowLeft,
 } from "react-icons/fa"
+
 import Swal from "sweetalert2"
 import "../../../../shared/styles/Proveedores/EditarProveedor.css"
+import { validateField, commonValidationRules } from "../../../../shared/utils/validationUtils"
 
 // URL base de la API
 const API_BASE_URL = "https://api-final-8rw7.onrender.com/api"
@@ -142,52 +144,31 @@ const EditarProveedor = () => {
   }, [])
 
   const validarCampo = useCallback((name, value) => {
-    let nuevoError = ""
-
+    let rules = {}
     switch (name) {
       case "nombre":
-        if (!value.trim()) {
-          nuevoError = "El nombre es obligatorio."
-        } else if (value.trim().length < 3) {
-          nuevoError = "El nombre debe tener al menos 3 caracteres."
-        }
+        rules = { required: true, onlyLetters: true, minLength: 2, maxLength: 50, fieldName: "Nombre" }
         break
       case "telefono":
-        if (!value.trim()) {
-          nuevoError = "El teléfono es obligatorio."
-        } else if (value.trim().length < 10) {
-          nuevoError = "El teléfono debe tener al menos 10 números."
-        }
+        rules = { required: true, onlyNumbers: true, minLength: 7, maxLength: 15, fieldName: "Teléfono" }
         break
       case "nombre_empresa":
-        if (!value.trim()) {
-          nuevoError = "El nombre de la empresa es obligatorio."
-        }
+        rules = { required: true, minLength: 2, maxLength: 50, fieldName: "Nombre de la empresa" }
         break
       case "telefono_empresa":
-        if (!value.trim()) {
-          nuevoError = "El teléfono de la empresa es obligatorio."
-        } else if (value.trim().length < 10) {
-          nuevoError = "El teléfono de la empresa debe tener al menos 10 números."
-        }
+        rules = { required: true, onlyNumbers: true, minLength: 7, maxLength: 15, fieldName: "Teléfono de la empresa" }
         break
       case "direccion":
-        if (!value.trim()) {
-          nuevoError = "La dirección es obligatoria."
-        } else if (value.trim().length < 5) {
-          nuevoError = "La dirección debe tener al menos 5 caracteres."
-        }
+        rules = { required: true, minLength: 5, maxLength: 100, fieldName: "Dirección" }
         break
       case "correo":
-        if (!value.trim()) {
-          nuevoError = "El correo es obligatorio."
-        } else if (!/\S+@\S+\.\S+/.test(value)) {
-          nuevoError = "Ingresa un correo electrónico válido."
-        }
+        rules = commonValidationRules.email
         break
+      default:
+        rules = { required: true, fieldName: name }
     }
-
-    setErrores((prev) => ({ ...prev, [name]: nuevoError }))
+    const error = validateField(value, rules)
+    setErrores((prev) => ({ ...prev, [name]: error }))
   }, [])
 
   const validarFormulario = useCallback(() => {

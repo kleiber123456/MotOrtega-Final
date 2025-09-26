@@ -17,6 +17,7 @@ import {
 } from "react-icons/fa"
 import Swal from "sweetalert2"
 import axios from "axios"
+import { validateField, commonValidationRules } from "../../../../shared/utils/validationUtils"
 import "../../../../shared/styles/Vehiculos/CrearVehiculo.css"
 
 // URL base de la API
@@ -146,33 +147,19 @@ const CrearVehiculo = () => {
 
     switch (name) {
       case "placa":
-        if (!value.trim()) {
-          nuevoError = "La placa es obligatoria."
-        } else if (!/^[A-Z0-9]{6}$/.test(value)) {
-          nuevoError = "La placa debe tener exactamente 6 caracteres alfanuméricos."
-        }
+        nuevoError = validateField(value, commonValidationRules.placa)
         break
       case "color":
-        if (!value.trim()) {
-          nuevoError = "El color es obligatorio."
-        } else if (value.trim().length < 3) {
-          nuevoError = "El color debe tener al menos 3 caracteres."
-        }
+        nuevoError = validateField(value, commonValidationRules.color)
         break
       case "tipo_vehiculo":
-        if (!value) {
-          nuevoError = "Selecciona un tipo de vehículo."
-        }
+        nuevoError = validateField(value, commonValidationRules.tipo_vehiculo)
         break
       case "referencia_id":
-        if (!value) {
-          nuevoError = "Debe seleccionar una referencia."
-        }
+        nuevoError = validateField(value, commonValidationRules.referencia_id)
         break
       case "cliente_id":
-        if (!value) {
-          nuevoError = "Debe seleccionar un cliente."
-        }
+        nuevoError = validateField(value, commonValidationRules.cliente_id)
         break
     }
 
