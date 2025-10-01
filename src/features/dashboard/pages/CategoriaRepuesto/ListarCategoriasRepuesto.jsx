@@ -16,7 +16,7 @@ import {
   FaSortAlphaUp,
 } from "react-icons/fa"
 import Swal from "sweetalert2"
-import "../../../../shared/styles/Categorias/ListarCategoriaRepuesto.css"
+import "../../../../shared/styles/Categorias/listarCategoriaRepuesto.css"
 
 const ListarCategoriasRepuesto = () => {
   const navigate = useNavigate()
